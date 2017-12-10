@@ -1,0 +1,95 @@
+import React from 'react';
+import Store from '../../store';
+import Overview from './overview';
+//import {} from '../../actions/actionCreators';
+
+class Main extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
+  }
+
+  componentDidMount() {
+  }
+
+  componentWillMount() {
+  }
+
+  render() {
+    return (
+      <div>
+        <div role="navigation" className="nav navbar navbar-default navbar-fixed-top">
+            <div className="container-fluid">
+               <div className="navbar-header"><button type="button" data-toggle="collapse" data-target="#navbar-collapse" className="navbar-toggle"><span className="sr-only">Toggle navigation</span><span className="icon-bar"></span><span className="icon-bar"></span><span className="icon-bar"></span></button><a href="/" className="navbar-brand">KMD Omni Explorer</a></div>
+               { /*<div id="navbar-collapse" className="collapse navbar-collapse">
+                  <ul className="nav navbar-nav">
+                     <li id="home" className="active"><a href="/" className="navbar-link"><span className="glyphicon glyphicon-search"></span><span className="menu-text">Explorer</span></a></li>
+                     <li id="movement"><a href="/movement" className="navbar-link loading"><span className="fa fa-money"></span><span className="menu-text">Movement</span></a></li>
+                     <li id="network"><a href="/network" className="navbar-link"><span className="fa fa-share-alt"></span><span className="menu-text">Network</span></a></li>
+                     <li id="richlist"><a href="/richlist" className="navbar-link"><span className="fa fa-btc"></span><span className="menu-text">Top 100</span></a></li>
+                     <li id="markets"><a href="/markets/bittrex" className="navbar-link loading"><span className="fa fa-line-chart"></span><span className="menu-text">Markets</span></a></li>
+                     <li id="info"><a href="/info" className="navbar-link"><span className="glyphicon glyphicon-info-sign"></span><span className="menu-text">API</span></a></li>
+                  </ul>
+               </div>*/}
+            </div>
+        </div>
+        <div className="col-md-12">
+            <div className="row text-center">
+               <div className="col-md-2 col-md-offset-1">
+                  <div className="panel panel-default hidden-sm hidden-xs">
+                     <div className="panel-heading"><strong>Coins</strong></div>
+                     <div className="panel-body"><label id="hashrate">17</label></div>
+                  </div>
+               </div>
+               <div className="col-md-2">
+                  <div className="panel panel-default hidden-sm hidden-xs">
+                     <div className="panel-heading"><strong>Difficulty</strong></div>
+                     <div className="panel-body"><label id="difficulty"></label></div>
+                  </div>
+               </div>
+               <div className="col-md-2 col-sm-12">Logo</div>
+               <div className="col-md-2">
+                  <div className="panel panel-default hidden-sm hidden-xs">
+                     <div className="panel-heading"><strong>Coin Supply (KMD)</strong></div>
+                     <div className="panel-body"><label id="supply"></label></div>
+                  </div>
+               </div>
+               <div className="col-md-2">
+                  <div className="panel panel-default hidden-sm hidden-xs">
+                     <div className="panel-heading"><strong>BTC Price</strong></div>
+                     <div className="panel-body"><label id="lastPrice"></label></div>
+                  </div>
+               </div>
+            </div>
+            <div style={{ marginTop: '10px', marginBottom: '20px' }} className="row text-center">
+               <div className="form-inline">
+                  <div id="index-search" className="form-group">
+                    <input type="text" name="search" placeholder="You may enter a block height, block hash, tx hash or address." style={{ minWidth: '80%', marginRight: '5px' }} className="form-control" /><button type="submit" className="btn btn-success">Search</button></div>
+               </div>
+            </div>
+        </div>
+        <div className="row">
+          <div className="col-md-12"></div>
+        </div>
+        <Overview />
+        <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
+           <div className="col-md-4">
+              <ul className="nav navbar-nav">
+                 <li className="pull-left"><a id="twitter-icon" href="https://twitter.com/KomodoPlatform" target="_blank"><span className="glyphicon fa fa-twitter"></span></a></li>
+              </ul>
+           </div>
+           <div className="col-md-4">
+              <ul className="nav">
+                 <li style={{ marginLeft: '80px', marginRight: '80px' }} className="text-center">
+                    <p style={{ marginTop: '15px' }}><a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Powered by Iquidus Explorer </a></p>
+                 </li>
+              </ul>
+           </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Main;

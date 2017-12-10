@@ -1,0 +1,27 @@
+{
+  "name": "iquidus-omni-explorer",
+  "productName": "Insight Omni Explorer",
+  "version": "0.0.3",
+  "description": "Electrum Proxy Server",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "repository": "https://github.com/pbca26/electrum-proxy/",
+  "homepage": "http://supernet.org",
+  "keywords": [
+    "agama",
+    "SuperNET",
+    "komodo",
+    "pax"
+  ],
+  "author": "SuperNET",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "fs-extra": "^4.0.3",
+    "request": "^2.80.0"
+  }
+}
