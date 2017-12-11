@@ -1,20 +1,41 @@
 import React from 'react';
 import Store from '../../store';
 import Overview from './overview';
+import Search from './search';
 import config from '../../config';
-//import {} from '../../actions/actionCreators';
+import {
+  searchTerm,
+} from '../../actions/actionCreators';
 
 class Main extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      activeSection: 'overview',
+      searchTerm: '',
     };
+    this.changeActiveSection = this.changeActiveSection.bind(this);
+    this.triggerSearch = this.triggerSearch.bind(this);
+    this.updateInput = this.updateInput.bind(this);
   }
 
-  componentDidMount() {
+  updateInput(e) {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+
+    console.warn(this.state);
   }
 
-  componentWillMount() {
+  changeActiveSection(activeSection) {
+    this.setState({
+      activeSection,
+    });
+  }
+
+  triggerSearch() {
+    Store.dispatch(searchTerm(this.state.searchTerm));
+    this.changeActiveSection('search');
   }
 
   renderCoinIcons() {
@@ -40,7 +61,17 @@ class Main extends React.Component {
       <div>
         <div role="navigation" className="nav navbar navbar-default navbar-fixed-top">
             <div className="container-fluid">
-               <div className="navbar-header"><button type="button" data-toggle="collapse" data-target="#navbar-collapse" className="navbar-toggle"><span className="sr-only">Toggle navigation</span><span className="icon-bar"></span><span className="icon-bar"></span><span className="icon-bar"></span></button><a href="/" className="navbar-brand">KMD Omni Explorer</a></div>
+              <div className="navbar-header">
+                <button type="button" data-toggle="collapse" data-target="#navbar-collapse" className="navbar-toggle">
+                  <span className="sr-only">Toggle navigation</span>
+                  <span className="icon-bar"></span>
+                  <span className="icon-bar"></span>
+                  <span className="icon-bar"></span>
+                </button>
+                <a
+                  onClick={ ()=> this.changeActiveSection('overview') }
+                  className="navbar-brand">KMD Omni Explorer</a>
+              </div>
                { /*<div id="navbar-collapse" className="collapse navbar-collapse">
                   <ul className="nav navbar-nav">
                      <li id="home" className="active"><a href="/" className="navbar-link"><span className="glyphicon glyphicon-search"></span><span className="menu-text">Explorer</span></a></li>
@@ -85,20 +116,41 @@ class Main extends React.Component {
                   </div>
                </div>
             </div>
-            <div  className="row text-center" style={{ marginTop: '10px', marginBottom: '40px' }}>
+            <div
+              className="row text-center"
+              style={{ marginTop: '10px', marginBottom: '40px' }}>
               { this.renderCoinIcons() }
             </div>
-            <div style={{ marginTop: '10px', marginBottom: '40px' }} className="row text-center">
+            <div
+              style={{ marginTop: '10px', marginBottom: '40px' }}
+              className="row text-center">
                <div className="form-inline">
                   <div id="index-search" className="form-group">
-                    <input type="text" name="search" disabled="true" placeholder="You may enter a block height, block hash, tx hash or address." style={{ minWidth: '80%', marginRight: '5px' }} className="form-control" /><button type="submit" className="btn btn-success">Search</button></div>
+                    <input
+                      onChange={ (event) => this.updateInput(event) }
+                      type="text"
+                      name="searchTerm"
+                      placeholder="You may enter a tx hash or an address."
+                      style={{ minWidth: '80%', marginRight: '5px' }}
+                      className="form-control" />
+                    <button
+                      onClick={ this.triggerSearch }
+                      disabled={ this.state.searchTerm.length < 34 }
+                      type="submit"
+                      className="btn btn-success">Search</button>
+                  </div>
                </div>
             </div>
         </div>
         <div className="row">
           <div className="col-md-12"></div>
         </div>
-        <Overview />
+        { this.state.activeSection === 'overview' &&
+          <Overview />
+        }
+        { this.state.activeSection === 'search' &&
+          <Search />
+        }
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
            <div className="col-md-4">
               <ul className="nav navbar-nav">
@@ -107,7 +159,9 @@ class Main extends React.Component {
            </div>
            <div className="col-md-4">
               <ul className="nav">
-                 <li style={{ marginLeft: '80px', marginRight: '80px' }} className="text-center">
+                 <li
+                  style={{ marginLeft: '80px', marginRight: '80px' }}
+                  className="text-center">
                     <p style={{ marginTop: '15px' }}><a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Powered by Iquidus Explorer </a></p>
                  </li>
               </ul>

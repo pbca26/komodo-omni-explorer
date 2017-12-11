@@ -5,6 +5,7 @@ import config from '../config';
 import {
   UPDATE,
   SEARCH,
+  UPDATE_SEARCH_TERM,
 } from './storeType';
 
 export function overviewState(overview) {
@@ -17,7 +18,35 @@ export function overviewState(overview) {
 export function searchState(search) {
   return {
     type: SEARCH,
-    overview,
+    search,
+  }
+}
+
+export function searchTermState(searchTerm) {
+  return {
+    type: UPDATE_SEARCH_TERM,
+    searchTerm,
+  }
+}
+
+export function searchTerm(searchTerm, currentState) {
+  return dispatch => {
+    dispatch(searchTermState(searchTerm));
+
+    return fetch(`http://${config.ip}:${config.port}/api/explorer/search?term=${searchTerm}`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(searchState(json.result));
+
+      if (!currentState) {
+        dispatch(searchState(json.result));
+      }
+    });
   }
 }
 

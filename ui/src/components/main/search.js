@@ -8,16 +8,16 @@ import {
   formatValue,
   secondsToString,
 } from '../../util/util';
-import { getOverview } from '../../actions/actionCreators';
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 const OVERVIEW_UPDATE_INTERVAL = 20000;
 
-class Overview extends React.Component {
+class Search extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      balance: null,
       itemsList: [],
       filteredItemsList: [],
       itemsListColumns: this.generateItemsListColumns(),
@@ -27,7 +27,6 @@ class Overview extends React.Component {
       searchTerm: null,
       loading: true,
     };
-    this.overviewInterval = null;
   }
 
   // https://react-table.js.org/#/custom-sorting
@@ -135,16 +134,18 @@ class Overview extends React.Component {
   }
 
   componentWillMount() {
-    Store.dispatch(getOverview());
-    this.overviewInterval = setInterval(() => {
-      Store.dispatch(getOverview());
-    }, OVERVIEW_UPDATE_INTERVAL);
   }
 
   componentWillReceiveProps(props) {
-    const _overview = this.props.Main.overview;
+    const _search = this.props.Main.search;
 
-    if (_overview) {
+    console.warn(_search);
+
+    this.setState({
+      balance: _search,
+    });
+
+    /*if (_overview) {
       this.setState({
         itemsList: _overview,
         filteredItemsList: this.filterData(_overview, this.state.searchTerm),
@@ -152,7 +153,7 @@ class Overview extends React.Component {
         itemsListColumns: this.generateItemsListColumns(_overview.length),
         loading: false,
       });
-    }
+    }*/
   }
 
   onPageSizeChange(pageSize, pageIndex) {
@@ -186,8 +187,58 @@ class Overview extends React.Component {
     return (value + '').indexOf(property) !== -1;
   }
 
+  renderBalance() {
+    const _balance = this.state.balance;
+
+    if (_balance) {
+      let _items = [];
+
+      for (let i = 0; i < _balance.length; i++) {
+        if (_balance[i].balance.confirmed > 0 ||
+            _balance[i].balance.unconfirmed > 0) {
+          _items.push(
+            <tr>
+              <td>
+                <img
+                  src={ `http://${config.ip}:${config.port}/public/images/${_balance[i].coin.toLowerCase()}.png` }
+                  height="50px" />
+                <span style={{ marginLeft: '10px' }}>{ _balance[i].coin }</span>
+              </td>
+              <td>
+                { _balance[i].balance.confirmed }
+              </td>
+              <td>
+                { _balance[i].balance.unconfirmed > 0 ? _balance[i].balance.unconfirmed : '' }
+              </td>
+            </tr>
+          );
+        }
+      }
+
+      return (
+        <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+          <thead>
+            <tr>
+              <th>Coin</th>
+              <th>Balance confirmed</th>
+              <th>Balance unconfirmed</th>
+            </tr>
+          </thead>
+          <tbody>
+            { _items }
+          </tbody>
+        </table>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     return (
+      <div>{ this.renderBalance() }</div>
+    );
+    /*return (
       <div className="col-md-12">
          <div className="panel panel-default">
             <div className="panel-heading"><strong>Latest Transactions</strong></div>
@@ -217,7 +268,7 @@ class Overview extends React.Component {
          </div>
          <div className="footer-padding"></div>
       </div>
-    );
+    );*/
   }
 }
 
@@ -227,4 +278,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(Overview);
+export default connect(mapStateToProps)(Search);

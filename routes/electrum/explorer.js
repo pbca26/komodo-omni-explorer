@@ -1,4 +1,5 @@
 const remoteExplorers = require('../../config').explorers;
+const _electrumServers = require('../../config').electrumServers;
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
@@ -6,9 +7,17 @@ const Promise = require('bluebird');
 
 const OVERVIEW_UPDATE_INTERVAL = 30000;
 let remoteExplorersArray = [];
+let electrumServers = [];
 
 for (let key in remoteExplorers) {
   remoteExplorersArray.push(key);
+}
+
+for (let key in _electrumServers) {
+  electrumServers.push({
+    coin: key,
+    serverList: _electrumServers[key].serverList,
+  });
 }
 
 const sortByDate = (data, sortKey) => {
@@ -45,8 +54,6 @@ module.exports = (shepherd) => {
   shepherd.getOverview = () => {
     const _getOverview = () => {
       Promise.all(remoteExplorersArray.map((coin, index) => {
-        console.log(`explorer ${coin} overview`);
-
         return new Promise((resolve, reject) => {
           const options = {
             url: `${remoteExplorers[coin]}/ext/getlasttxs/0.00000001`,
@@ -117,6 +124,54 @@ module.exports = (shepherd) => {
       _getOverview();
     }, OVERVIEW_UPDATE_INTERVAL);
   }
+
+  shepherd.get('/explorer/search', (req, res, next) => {
+    const _searchTerm = req.query.term;
+
+    if (_searchTerm.length === 64) {
+      // txid redirect
+    } else {
+      // pub address
+      Promise.all(electrumServers.map((electrumServerData, index) => {
+        return new Promise((resolve, reject) => {
+          const _server = electrumServerData.serverList[0].split(':');
+          const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+
+          ecl.connect();
+          ecl.blockchainAddressGetBalance(_searchTerm)
+          .then((json) => {
+            ecl.close();
+
+            if (json &&
+                json.hasOwnProperty('confirmed') &&
+                json.hasOwnProperty('unconfirmed')) {
+              resolve({
+                coin: electrumServerData.coin.toUpperCase(),
+                balanceSats: {
+                  confirmed: json.confirmed,
+                  unconfirmed: json.unconfirmed,
+                },
+                balance: {
+                  confirmed: Number((json.confirmed * 0.00000001).toFixed(8)),
+                  unconfirmed: Number((json.unconfirmed * 0.00000001).toFixed(8)),
+                },
+              });
+            } else {
+              resolve('error');
+            }
+          });
+        });
+      }))
+      .then(result => {
+        const successObj = {
+          msg: 'success',
+          result: result,
+        };
+
+        res.end(JSON.stringify(successObj));
+      });
+    }
+  });
 
   return shepherd;
 };
