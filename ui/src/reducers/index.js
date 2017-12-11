@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-// import { Dashboard } from './dashboard';
+import { Main } from './main';
 
 const appReducer = combineReducers({
+  Main,
   routing: routerReducer,
 });
 

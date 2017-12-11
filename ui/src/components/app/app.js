@@ -5,6 +5,7 @@ import Main from '../main/main';
 
 function mapStateToProps(state) {
   return {
+    Main: state.Main,
   };
 }
 

@@ -4,18 +4,19 @@ import {
 } from '../actions/storeType';
 
 export function Main(state = {
-
+  overview: null,
+  search: null,
 }, action) {
   switch (action.type) {
     case UPDATE:
       return {
-        overview: action.overview,
         ...state,
+        overview: action.overview,
       };
     case SEARCH:
       return {
-        search: action.search,
         ...state,
+        search: action.search,
       };
     default:
       return state;

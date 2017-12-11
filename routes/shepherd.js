@@ -46,10 +46,4 @@ shepherd = require('./electrum/interest.js')(shepherd);
 shepherd = require('./electrum/dex.js')(shepherd);*/
 shepherd = require('./electrum/explorer.js')(shepherd);
 
-// default route
-shepherd.get('/', (req, res, next) => {
-  res.sendFile(path.join(__dirname + '/ui/build/index.html'));
-  // res.send('Iquidus Omni Explorer Server');
-});
-
 module.exports = shepherd;

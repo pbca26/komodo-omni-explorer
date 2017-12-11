@@ -1,10 +1,11 @@
 const express = require('express');
 const	bodyParser = require('body-parser');
 const config = require('./config');
+const path = require('path');
 let shepherd = require('./routes/shepherd');
 let app = express();
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Headers', 'X-Requested-With');
 	res.header('Access-Control-Allow-Credentials', 'true');
@@ -19,11 +20,14 @@ app.use(bodyParser.urlencoded({
 	extended: true,
 })); // support encoded bodies
 
-app.get('/', function(req, res) {
-	res.send('Iquidus Omni Explorer Server');
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname + '/public/index.html'));
+  // res.send('Iquidus Omni Explorer Server');
 });
 
 app.use('/api', shepherd);
+app.use('/public', express.static(path.join(__dirname, 'public')));
+console.log(path.join(__dirname, 'public'));
 
 const server = require('http')
                 .createServer(app)

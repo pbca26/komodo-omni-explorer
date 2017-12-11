@@ -1,6 +1,7 @@
 import React from 'react';
 import Store from '../../store';
 import Overview from './overview';
+import config from '../../config';
 //import {} from '../../actions/actionCreators';
 
 class Main extends React.Component {
@@ -14,6 +15,24 @@ class Main extends React.Component {
   }
 
   componentWillMount() {
+  }
+
+  renderCoinIcons() {
+    let _items = [];
+
+    for (let key in config.explorers) {
+      if (key !== 'KMD') {
+        _items.push(
+          <img
+            key={ `index-coin-icons-${key}` }
+            src={ `http://${config.ip}:${config.port}/public/images/${key.toLowerCase()}.png` }
+            alt={ `${key} logo `}
+            height="30px" />
+        );
+      }
+    }
+
+    return _items;
   }
 
   render() {
@@ -48,7 +67,11 @@ class Main extends React.Component {
                      <div className="panel-body"><label id="difficulty"></label></div>
                   </div>
                </div>
-               <div className="col-md-2 col-sm-12">Logo</div>
+               <div className="col-md-2 col-sm-12">
+                <div>
+                  <img src={ `http://${config.ip}:${config.port}/public/images/kmd-logo.png` } alt="Komodo logo" height="100px" />
+                </div>
+               </div>
                <div className="col-md-2">
                   <div className="panel panel-default hidden-sm hidden-xs">
                      <div className="panel-heading"><strong>Coin Supply (KMD)</strong></div>
@@ -62,10 +85,13 @@ class Main extends React.Component {
                   </div>
                </div>
             </div>
-            <div style={{ marginTop: '10px', marginBottom: '20px' }} className="row text-center">
+            <div  className="row text-center" style={{ marginTop: '10px', marginBottom: '40px' }}>
+              { this.renderCoinIcons() }
+            </div>
+            <div style={{ marginTop: '10px', marginBottom: '40px' }} className="row text-center">
                <div className="form-inline">
                   <div id="index-search" className="form-group">
-                    <input type="text" name="search" placeholder="You may enter a block height, block hash, tx hash or address." style={{ minWidth: '80%', marginRight: '5px' }} className="form-control" /><button type="submit" className="btn btn-success">Search</button></div>
+                    <input type="text" name="search" disabled="true" placeholder="You may enter a block height, block hash, tx hash or address." style={{ minWidth: '80%', marginRight: '5px' }} className="form-control" /><button type="submit" className="btn btn-success">Search</button></div>
                </div>
             </div>
         </div>

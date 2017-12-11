@@ -10,7 +10,7 @@ body {
 
 .nav-search input {
 	width: 400px !important;
-	margin-right: 5px;	
+	margin-right: 5px;
 }
 
 .view_tx {
@@ -164,3 +164,16 @@ tr {
 	bottom: 0px;
 }
 
+.ReactTable .rt-th,
+.ReactTable .rt-td {
+	padding: 10px;
+}
+
+.ReactTable {
+	.rt-head .rt-tr,
+	.rt-body .rt-tr {
+		.rt-td:first-child {
+			text-align: left !important;
+		}
+	}
+}
