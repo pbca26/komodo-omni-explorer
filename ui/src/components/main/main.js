@@ -35,8 +35,6 @@ class Main extends React.Component {
     this.setState({
       [e.target.name]: e.target.value,
     });
-
-    console.warn(this.state);
   }
 
   changeActiveSection(activeSection) {
@@ -75,12 +73,12 @@ class Main extends React.Component {
         <div role="navigation" className="nav navbar navbar-default navbar-fixed-top">
             <div className="container-fluid">
               <div className="navbar-header">
-                <button type="button" data-toggle="collapse" data-target="#navbar-collapse" className="navbar-toggle">
+                { /*<button type="button" data-toggle="collapse" data-target="#navbar-collapse" className="navbar-toggle">
                   <span className="sr-only">Toggle navigation</span>
                   <span className="icon-bar"></span>
                   <span className="icon-bar"></span>
                   <span className="icon-bar"></span>
-                </button>
+                </button>*/ }
                 <a
                   onClick={ ()=> this.changeActiveSection('overview') }
                   className="navbar-brand">KMD Omni Explorer</a>
@@ -98,64 +96,71 @@ class Main extends React.Component {
             </div>
         </div>
         <div className="col-md-12">
-            <div className="row text-center">
-               <div className="col-md-2 col-md-offset-4">
-                  <div className="panel panel-default hidden-sm hidden-xs">
-                     <div className="panel-heading"><strong>Coins</strong></div>
-                     <div className="panel-body"><label id="hashrate">17</label></div>
+          <div className="row text-center">
+             <div className="col-md-2 col-md-offset-4">
+                <div className="panel panel-default hidden-sm hidden-xs">
+                  <div className="panel-heading">
+                    <strong>Coins</strong>
                   </div>
-               </div>
-               { /*<div className="col-md-2">
-                  <div className="panel panel-default hidden-sm hidden-xs">
-                     <div className="panel-heading"><strong>Difficulty</strong></div>
-                     <div className="panel-body"><label id="difficulty"></label></div>
+                  <div className="panel-body">
+                    <label id="hashrate">17</label>
                   </div>
-               </div>*/}
-               <div className="col-md-2 col-sm-12">
-                <div>
-                  <img src={ `http://${config.ip}:${config.port}/public/images/kmd-logo.png` } alt="Komodo logo" height="100px" />
                 </div>
-               </div>
-               { /*
-               <div className="col-md-2">
-                  <div className="panel panel-default hidden-sm hidden-xs">
-                     <div className="panel-heading"><strong>Coin Supply (KMD)</strong></div>
-                     <div className="panel-body"><label id="supply"></label></div>
-                  </div>
-               </div>
-               <div className="col-md-2">
-                  <div className="panel panel-default hidden-sm hidden-xs">
-                     <div className="panel-heading"><strong>BTC Price</strong></div>
-                     <div className="panel-body"><label id="lastPrice"></label></div>
-                  </div>
-               </div>*/}
+             </div>
+             { /*<div className="col-md-2">
+                <div className="panel panel-default hidden-sm hidden-xs">
+                   <div className="panel-heading"><strong>Difficulty</strong></div>
+                   <div className="panel-body"><label id="difficulty"></label></div>
+                </div>
+             </div>*/}
+             <div className="col-md-2 col-sm-12">
+              <div>
+                <img
+                  src={ `http://${config.ip}:${config.port}/public/images/kmd-logo.png` }
+                  alt="Komodo logo"
+                  height="100px" />
+              </div>
+             </div>
+             { /*
+             <div className="col-md-2">
+                <div className="panel panel-default hidden-sm hidden-xs">
+                   <div className="panel-heading"><strong>Coin Supply (KMD)</strong></div>
+                   <div className="panel-body"><label id="supply"></label></div>
+                </div>
+             </div>
+             <div className="col-md-2">
+                <div className="panel panel-default hidden-sm hidden-xs">
+                   <div className="panel-heading"><strong>BTC Price</strong></div>
+                   <div className="panel-body"><label id="lastPrice"></label></div>
+                </div>
+             </div>*/}
+          </div>
+          <div
+            className="row text-center"
+            style={{ marginTop: '10px', marginBottom: '40px' }}>
+            { this.renderCoinIcons() }
+          </div>
+          <div
+            style={{ marginTop: '10px', marginBottom: '40px' }}
+            className="row text-center">
+            <div className="form-inline">
+              <div id="index-search" className="form-group">
+                <input
+                  onChange={ (event) => this.updateInput(event) }
+                  type="text"
+                  name="searchTerm"
+                  value={ this.state.searchTerm }
+                  placeholder="You may enter a tx hash or an address."
+                  style={{ minWidth: '80%', marginRight: '5px' }}
+                  className="form-control" />
+                <button
+                  onClick={ this.triggerSearch }
+                  disabled={ this.state.searchTerm.length < 34 }
+                  type="submit"
+                  className="btn btn-success">Search</button>
+              </div>
             </div>
-            <div
-              className="row text-center"
-              style={{ marginTop: '10px', marginBottom: '40px' }}>
-              { this.renderCoinIcons() }
-            </div>
-            <div
-              style={{ marginTop: '10px', marginBottom: '40px' }}
-              className="row text-center">
-               <div className="form-inline">
-                  <div id="index-search" className="form-group">
-                    <input
-                      onChange={ (event) => this.updateInput(event) }
-                      type="text"
-                      name="searchTerm"
-                      value={ this.state.searchTerm }
-                      placeholder="You may enter a tx hash or an address."
-                      style={{ minWidth: '80%', marginRight: '5px' }}
-                      className="form-control" />
-                    <button
-                      onClick={ this.triggerSearch }
-                      disabled={ this.state.searchTerm.length < 34 }
-                      type="submit"
-                      className="btn btn-success">Search</button>
-                  </div>
-               </div>
-            </div>
+          </div>
         </div>
         <div className="row">
           <div className="col-md-12"></div>
@@ -169,7 +174,11 @@ class Main extends React.Component {
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
            <div className="col-md-4">
               <ul className="nav navbar-nav">
-                 <li className="pull-left"><a id="twitter-icon" href="https://twitter.com/KomodoPlatform" target="_blank"><span className="glyphicon fa fa-twitter"></span></a></li>
+                <li className="pull-left">
+                  <a id="twitter-icon" href="https://twitter.com/KomodoPlatform" target="_blank">
+                    <span className="glyphicon fa fa-twitter"></span>
+                  </a>
+                </li>
               </ul>
            </div>
            <div className="col-md-4">
@@ -177,7 +186,11 @@ class Main extends React.Component {
                  <li
                   style={{ marginLeft: '80px', marginRight: '80px' }}
                   className="text-center">
-                    <p style={{ marginTop: '15px' }}><a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Powered by Iquidus Explorer </a></p>
+                    <p style={{ marginTop: '15px' }}>
+                      <a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Powered by Iquidus Explorer</a>
+                      <span style={{ color: '#fff', marginLeft: '5px', marginRight: '5px' }}>&amp;</span>
+                      <a href="https://github.com/kyuupichan/electrumx" target="_blank" className="navbar-link">Electrum</a>
+                    </p>
                  </li>
               </ul>
            </div>

@@ -87,11 +87,13 @@ class Search extends React.Component {
       id: 'coin',
       Header: 'Coin',
       Footer: 'Coin',
+      maxWidth: '150',
       accessor: (item) => this.renderCoinIcon(item.coin),
     },
     { id: 'block',
       Header: 'Block',
       Footer: 'Block',
+      maxWidth: '250',
       accessor: (item) => item.blockindex,
     },
     {
@@ -185,7 +187,11 @@ class Search extends React.Component {
                 <img
                   src={ `http://${config.ip}:${config.port}/public/images/${_balance[i].coin.toLowerCase()}.png` }
                   height="50px" />
-                <span style={{ marginLeft: '10px' }}>{ _balance[i].coin }</span>
+                <span style={{ marginLeft: '10px' }}>
+                  <a
+                    target="_blank"
+                    href={ `${config.explorers[_balance[i].coin]}` }>{ _balance[i].coin }</a>
+                </span>
               </td>
               <td>
                 { _balance[i].balance.confirmed }

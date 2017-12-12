@@ -166,6 +166,19 @@ tr {
 
 .ReactTable .rt-th,
 .ReactTable .rt-td {
+	padding: 10px 5px 10px 15px;
+}
+
+.ReactTable .rt-tr {
+	align-items: center;
+  justify-content: center;
+}
+
+.ReactTable .rt-tfoot {
+	text-align: center;
+}
+
+.ReactTable .pagination-bottom .-pagination {
 	padding: 10px;
 }
 
@@ -178,10 +191,48 @@ tr {
 	}
 }
 
+.ReactTable .rt-thead .rt-th,
+.ReactTable .rt-thead .rt-td {
+  padding: 9px 5px;
+}
+
+.ReactTable .rt-thead.-header {
+	height: 35px;
+	font-weight: bold;
+}
+
+.ReactTable .rt-tfoot {
+	font-weight: bold;
+}
+
+.ReactTable .rt-tbody .rt-td:nth-child(2),
+.ReactTable .rt-tbody .rt-td:nth-child(3) {
+	text-align: center;
+}
+
+/*.ReactTable .rt-tbody .rt-td:nth-child(1),
+.ReactTable .rt-thead .rt-td:nth-child(1) {
+	flex: 30 0 0 !important;
+}*/
+
 .navbar-brand {
 	cursor: pointer;
 }
 
 .search-field {
 	border-radius: 0 !important;
+}
+
+.table > caption + thead > tr:first-child > th,
+.table > colgroup + thead > tr:first-child > th,
+.table > thead:first-child > tr:first-child > th,
+.table > caption + thead > tr:first-child > td,
+.table > colgroup + thead > tr:first-child > td,
+.table > thead:first-child > tr:first-child > td {
+	text-align: center;
+}
+
+table,
+table td {
+	vertical-align: middle !important;
 }
