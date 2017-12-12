@@ -6,6 +6,9 @@ import config from '../../config';
 import {
   searchTerm,
 } from '../../actions/actionCreators';
+import {
+  getQueryVariable,
+} from '../../util/util';
 
 class Main extends React.Component {
   constructor(props) {
@@ -19,6 +22,15 @@ class Main extends React.Component {
     this.updateInput = this.updateInput.bind(this);
   }
 
+  componentWillMount() {
+    const _searchTerm = getQueryVariable('search');
+
+    if (_searchTerm) {
+      Store.dispatch(searchTerm(_searchTerm));
+      this.changeActiveSection('search');
+    }
+  }
+
   updateInput(e) {
     this.setState({
       [e.target.name]: e.target.value,
@@ -30,6 +42,7 @@ class Main extends React.Component {
   changeActiveSection(activeSection) {
     this.setState({
       activeSection,
+      searchTerm: '',
     });
   }
 
@@ -86,23 +99,24 @@ class Main extends React.Component {
         </div>
         <div className="col-md-12">
             <div className="row text-center">
-               <div className="col-md-2 col-md-offset-1">
+               <div className="col-md-2 col-md-offset-4">
                   <div className="panel panel-default hidden-sm hidden-xs">
                      <div className="panel-heading"><strong>Coins</strong></div>
                      <div className="panel-body"><label id="hashrate">17</label></div>
                   </div>
                </div>
-               <div className="col-md-2">
+               { /*<div className="col-md-2">
                   <div className="panel panel-default hidden-sm hidden-xs">
                      <div className="panel-heading"><strong>Difficulty</strong></div>
                      <div className="panel-body"><label id="difficulty"></label></div>
                   </div>
-               </div>
+               </div>*/}
                <div className="col-md-2 col-sm-12">
                 <div>
                   <img src={ `http://${config.ip}:${config.port}/public/images/kmd-logo.png` } alt="Komodo logo" height="100px" />
                 </div>
                </div>
+               { /*
                <div className="col-md-2">
                   <div className="panel panel-default hidden-sm hidden-xs">
                      <div className="panel-heading"><strong>Coin Supply (KMD)</strong></div>
@@ -114,7 +128,7 @@ class Main extends React.Component {
                      <div className="panel-heading"><strong>BTC Price</strong></div>
                      <div className="panel-body"><label id="lastPrice"></label></div>
                   </div>
-               </div>
+               </div>*/}
             </div>
             <div
               className="row text-center"
@@ -130,6 +144,7 @@ class Main extends React.Component {
                       onChange={ (event) => this.updateInput(event) }
                       type="text"
                       name="searchTerm"
+                      value={ this.state.searchTerm }
                       placeholder="You may enter a tx hash or an address."
                       style={{ minWidth: '80%', marginRight: '5px' }}
                       className="form-control" />

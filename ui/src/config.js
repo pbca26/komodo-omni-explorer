@@ -1,7 +1,7 @@
 const config = {
   port: 8111,
   dev: true,
-  ip: '46.20.235.46',
+  ip: '127.0.0.1',
   explorers: {
     KMD: 'http://kmd.komodochainz.info',
     MSHARK: 'http://MSHARK.explorer.supernet.org',

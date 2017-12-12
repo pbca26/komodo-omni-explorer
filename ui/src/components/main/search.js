@@ -79,14 +79,6 @@ class Search extends React.Component {
     );
   }
 
-  renderBlock(coin, blockindex, block) {
-    return (
-      <a
-        target="_blank"
-        href={ `${config.explorers[coin]}/block/${block}` }>{ blockindex }</a>
-    );
-  }
-
   generateItemsListColumns(itemsCount) {
     let columns = [];
     let _col;
@@ -100,19 +92,13 @@ class Search extends React.Component {
     { id: 'block',
       Header: 'Block',
       Footer: 'Block',
-      accessor: (item) => this.renderBlock(item.coin, item.blockindex, item.blockhash),
+      accessor: (item) => item.blockindex,
     },
     {
       id: 'timestamp',
       Header: 'Time',
       Footer: 'Time',
       accessor: (item) => secondsToString(item.timestamp),
-    },
-    {
-      id: 'total',
-      Header: 'Total',
-      Footer: 'Total',
-      accessor: (item) => this.renderTotal(item.coin, item.total),
     },
     {
       id: 'txid',
@@ -139,21 +125,16 @@ class Search extends React.Component {
   componentWillReceiveProps(props) {
     const _search = this.props.Main.search;
 
-    console.warn(_search);
-
-    this.setState({
-      balance: _search,
-    });
-
-    /*if (_overview) {
+    if (_search &&
+        _search.balance) {
       this.setState({
-        itemsList: _overview,
-        filteredItemsList: this.filterData(_overview, this.state.searchTerm),
-        showPagination: _overview && _overview.length >= this.state.defaultPageSize,
-        itemsListColumns: this.generateItemsListColumns(_overview.length),
-        loading: false,
+        balance: _search.balance,
+        itemsList: _search.transactions,
+        filteredItemsList: this.filterData(_search.transactions, this.state.searchTerm),
+        showPagination: _search.transactions && _search.transactions.length >= this.state.defaultPageSize,
+        itemsListColumns: this.generateItemsListColumns(_search.transactions.length),
       });
-    }*/
+    }
   }
 
   onPageSizeChange(pageSize, pageIndex) {
@@ -180,6 +161,8 @@ class Search extends React.Component {
     }
 
     return this.contains(item.coin.toLowerCase(), term) ||
+            this.contains(item.coin.blockindex, term) ||
+            this.contains(item.coin.txid, term) ||
             this.contains(secondsToString(item.timestamp).toLowerCase(), term);
   }
 
@@ -194,10 +177,10 @@ class Search extends React.Component {
       let _items = [];
 
       for (let i = 0; i < _balance.length; i++) {
-        if (_balance[i].balance.confirmed > 0 ||
-            _balance[i].balance.unconfirmed > 0) {
+        if (_balance[i] !== 'error' && (_balance[i].balance.confirmed > 0 ||
+            _balance[i].balance.unconfirmed > 0)) {
           _items.push(
-            <tr>
+            <tr key={ `balance-${_balance[i].coin}` }>
               <td>
                 <img
                   src={ `http://${config.ip}:${config.port}/public/images/${_balance[i].coin.toLowerCase()}.png` }
@@ -234,41 +217,83 @@ class Search extends React.Component {
     return null;
   }
 
-  render() {
+  renderTransactions() {
     return (
-      <div>{ this.renderBalance() }</div>
+     <div
+      style={{ marginTop: '60px' }}
+      className="panel panel-default">
+        <div className="panel-heading"><strong>Latest Transactions</strong></div>
+        <div className="dex-table">
+          <input
+            className="form-control search-field"
+            onChange={ e => this.onSearchTermChange(e.target.value) }
+            placeholder="Filter" />
+          <ReactTable
+            data={ this.state.filteredItemsList }
+            columns={ this.state.itemsListColumns }
+            minRows="0"
+            sortable={ true }
+            className="-striped -highlight"
+            PaginationComponent={ TablePaginationRenderer }
+            nextText="Next page"
+            previousText="Previous page"
+            showPaginationBottom={ this.state.showPagination }
+            pageSize={ this.state.pageSize }
+            defaultSortMethod={ this.tableSorting }
+            defaultSorted={[{ // default sort
+              id: 'timestamp',
+              desc: true,
+            }]}
+            onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
+        </div>
+     </div>
     );
-    /*return (
-      <div className="col-md-12">
-         <div className="panel panel-default">
-            <div className="panel-heading"><strong>Latest Transactions</strong></div>
-            <div className="dex-table">
-              <input
-                className="form-control"
-                onChange={ e => this.onSearchTermChange(e.target.value) }
-                placeholder="Filter" />
-              <ReactTable
-                data={ this.state.filteredItemsList }
-                columns={ this.state.itemsListColumns }
-                minRows="0"
-                sortable={ true }
-                className="-striped -highlight"
-                PaginationComponent={ TablePaginationRenderer }
-                nextText="Next page"
-                previousText="Previous page"
-                showPaginationBottom={ this.state.showPagination }
-                pageSize={ this.state.pageSize }
-                defaultSortMethod={ this.tableSorting }
-                defaultSorted={[{ // default sort
-                  id: 'timestamp',
-                  desc: true,
-                }]}
-                onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
+  }
+
+  render() {
+    if (this.props.Main &&
+        this.props.Main.search) {
+      if (this.props.Main.search !== 'txid not found' &&
+          this.props.Main.search !== 'wrong address') {
+        if (!this.props.Main.search.balance) {
+          return (
+            <div className="col-md-12 text-center">
+              <div style={{ marginBottom: '10px' }}>Found { this.props.Main.search } transaction</div>
+              <a
+                target="_blank"
+                href={ `${config.explorers[this.props.Main.search]}/tx/${this.props.Main.searchTerm}` }>{ this.props.Main.searchTerm }</a>
             </div>
-         </div>
-         <div className="footer-padding"></div>
-      </div>
-    );*/
+          );
+        } else {
+          if (!this.props.Main.search.transactions.length) {
+            return(
+              <div className="col-md-12">
+                <div className="alert alert-warning">
+                  <strong>There are no transactions found for { this.props.Main.searchTerm }</strong>
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <div>
+                { this.renderBalance() }
+                { this.renderTransactions() }
+              </div>
+            );
+          }
+        }
+      } else {
+        return(
+          <div className="col-md-12">
+            <div className="alert alert-danger alert-dismissable">
+              <strong>Error: search found no results for { this.props.Main.searchTerm }</strong>
+            </div>
+          </div>
+        );
+      }
+    } else {
+      return(<div>Loading...</div>);
+    }
   }
 }
 

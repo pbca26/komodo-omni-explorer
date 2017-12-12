@@ -193,7 +193,7 @@ class Overview extends React.Component {
             <div className="panel-heading"><strong>Latest Transactions</strong></div>
             <div className="dex-table">
               <input
-                className="form-control"
+                className="form-control search-field"
                 onChange={ e => this.onSearchTermChange(e.target.value) }
                 placeholder="Filter" />
               <ReactTable

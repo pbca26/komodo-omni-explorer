@@ -177,3 +177,11 @@ tr {
 		}
 	}
 }
+
+.navbar-brand {
+	cursor: pointer;
+}
+
+.search-field {
+	border-radius: 0 !important;
+}
