@@ -585,6 +585,7 @@ module.exports = (shepherd) => {
                 });
               }
             } else {
+              ecl.close();
               resolve({ code: -777, result: 'cant get current height' });
             }
           });
@@ -606,7 +607,6 @@ module.exports = (shepherd) => {
       req.query.address,
       network
     ).then((json) => {
-
       const successObj = {
         msg: json.code ? 'error' : 'success',
         result: json,

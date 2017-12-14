@@ -110,7 +110,7 @@ class Main extends React.Component {
                 </button>*/ }
                 <a
                   onClick={ ()=> this.changeActiveSection('overview') }
-                  className="navbar-brand">KMD Omni Explorer</a>
+                  className="navbar-brand">Atomic Explorer</a>
               </div>
                <div id="navbar-collapse" className="collapse navbar-collapse">
                   <ul className="nav navbar-nav">
@@ -130,14 +130,14 @@ class Main extends React.Component {
                         <span className="menu-text">KMD Interest</span>
                       </a>
                     </li>
-                    {/*<li
+                    <li
                       onClick={ () => this.changeActiveSection('explorers') }
                       className={ this.state.activeSection === 'explorers' ? 'active' : '' }>
                       <a className="navbar-link pointer">
                         <span className="fa fa-share-alt"></span>
                         <span className="menu-text">Explorers list</span>
                       </a>
-                    </li>*/}
+                    </li>
                     { /*<li>
                       <a href="/markets/bittrex" className="navbar-link loading"><span className="fa fa-line-chart"></span><span className="menu-text">Markets</span></a></li>
                      */ }

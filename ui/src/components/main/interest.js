@@ -183,7 +183,8 @@ class Interest extends React.Component {
   renderBalance() {
     const _balance = this.props.Main.interest;
 
-    if (_balance) {
+    if (_balance &&
+        !_balance.code) {
       return (
         <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest">
           <thead>
@@ -201,6 +202,14 @@ class Interest extends React.Component {
             </tr>
           </tbody>
         </table>
+      );
+    } else {
+      return (
+        <div className="col-md-12">
+          <div className="alert alert-warning">
+            <strong>{ _balance.message }</strong>
+          </div>
+        </div>
       );
     }
 
@@ -251,7 +260,7 @@ class Interest extends React.Component {
     if (this.props.Main &&
         this.props.Main.interest) {
       return (
-        <div>
+        <div className="col-md-12">
           { this.renderBalance() }
           { this.props.Main.interest &&
             this.props.Main.interest.balance > 0 &&
