@@ -15,7 +15,7 @@ import './styles/index.scss';
 
 const router = (
   <Provider store={store}>
-    <Router history={hashHistory}>
+    <Router history={browserHistory}>
       <Route path="/" component={App} />
     </Router>
   </Provider>

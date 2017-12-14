@@ -6,6 +6,7 @@ shepherd.electrumJSCore = require('./electrum/electrumjs.core.js');
 
 shepherd.explorer = {
   overview: [],
+  summary: [],
 };
 
 shepherd = require('./electrum/explorer.js')(shepherd);

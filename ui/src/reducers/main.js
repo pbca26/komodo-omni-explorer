@@ -1,6 +1,9 @@
 import {
   UPDATE,
   SEARCH,
+  SUMMARY,
+  INTEREST,
+  UNSPENTS,
   UPDATE_SEARCH_TERM,
 } from '../actions/storeType';
 
@@ -8,6 +11,11 @@ export function Main(state = {
   overview: null,
   search: null,
   searchTerm: null,
+  summary: null,
+  unspentsAddress: null,
+  interestAddress: null,
+  interest: null,
+  unspents: null,
 }, action) {
   switch (action.type) {
     case UPDATE:
@@ -20,11 +28,28 @@ export function Main(state = {
         ...state,
         search: action.search,
       };
+    case SUMMARY:
+      return {
+        ...state,
+        summary: action.summary,
+      };
     case UPDATE_SEARCH_TERM:
       return {
         ...state,
         search: null,
         searchTerm: action.searchTerm,
+      };
+    case INTEREST:
+      return {
+        ...state,
+        interest: action.interest,
+        interestAddress: action.interestAddress,
+      };
+    case UNSPENTS:
+      return {
+        ...state,
+        unspents: action.unspents,
+        unspentsAddress: action.unspentsAddress,
       };
     default:
       return state;

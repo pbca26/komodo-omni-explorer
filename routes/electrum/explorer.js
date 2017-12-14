@@ -1,13 +1,14 @@
 const remoteExplorers = require('../../config').explorers;
 const _electrumServers = require('../../config').electrumServers;
 const komodoParams = require('../../config').komodoParams;
-// const txDecoder = require('./txDecoder');
+const txDecoder = require('./txDecoder');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 
 const OVERVIEW_UPDATE_INTERVAL = 30000;
+const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
 let remoteExplorersArray = [];
 let electrumServers = [];
 
@@ -20,6 +21,13 @@ for (let key in _electrumServers) {
     coin: key,
     serverList: _electrumServers[key].serverList,
   });
+}
+
+const getRandomIntInclusive = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  return Math.floor(Math.random() * (max - min + 1)) + min; // the maximum is inclusive and the minimum is inclusive
 }
 
 const sortByDate = (data, sortKey) => {
@@ -54,11 +62,59 @@ module.exports = (shepherd) => {
   shepherd.get('/explorer/summary', (req, res, next) => {
     res.end(JSON.stringify({
       msg: 'success',
-      result: {
-        coins: remoteExplorers,
-      },
+      result: shepherd.explorer.summary,
     }));
   });
+
+  shepherd.getSummary = () => {
+    const _getSummary = () => {
+      Promise.all(remoteExplorersArray.map((coin, index) => {
+        return new Promise((resolve, reject) => {
+          const options = {
+            url: `${remoteExplorers[coin]}/ext/summary`,
+            method: 'GET',
+          };
+
+          request(options, (error, response, body) => {
+            if (response &&
+                response.statusCode &&
+                response.statusCode === 200) {
+              resolve({
+                coin,
+                data: JSON.parse(body).data,
+              });
+            } else {
+              resolve({
+                coin,
+                data: 'unable to get summary'
+              });
+            }
+          });
+        });
+      }))
+      .then(result => {
+        const summaryFileLocation = path.join(__dirname, '../../summary.json');
+
+        fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
+          if (err) {
+            console.log(`error updating summary cache file ${err}`);
+          } else {
+            const summaryFile = fs.readJsonSync(summaryFileLocation, { throws: false });
+            let items = [];
+
+            shepherd.explorer.summary = summaryFile;
+
+            console.log('explorer summary updated');
+          }
+        });
+      });
+    }
+
+    _getSummary();
+    setInterval(() => {
+      _getSummary();
+    }, SUMMARY_UPDATE_INTERVAL);
+  }
 
   shepherd.get('/explorer/overview', (req, res, next) => {
     res.end(JSON.stringify({
@@ -262,7 +318,7 @@ module.exports = (shepherd) => {
 
           Promise.all(electrumServers.map((electrumServerData, index) => {
             return new Promise((resolve, reject) => {
-              const _server = electrumServerData.serverList[0].split(':');
+              const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
               const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
               const MAX_TX = 20;
 
@@ -324,6 +380,240 @@ module.exports = (shepherd) => {
         }
       });
     }
+  });
+
+  shepherd.kmdCalcInterest = (locktime, value) => { // value in sats
+    const timestampDiff = Math.floor(Date.now() / 1000) - locktime - 777;
+    const hoursPassed = Math.floor(timestampDiff / 3600);
+    const minutesPassed = Math.floor((timestampDiff - (hoursPassed * 3600)) / 60);
+    const secondsPassed = timestampDiff - (hoursPassed * 3600) - (minutesPassed * 60);
+    let timestampDiffMinutes = timestampDiff / 60;
+    let interest = 0;
+
+    // calc interest
+    if (timestampDiffMinutes >= 60) {
+      if (timestampDiffMinutes > 365 * 24 * 60) {
+        timestampDiffMinutes = 365 * 24 * 60;
+      }
+      timestampDiffMinutes -= 59;
+
+      interest = ((Number(value) * 0.00000001) / 10512000) * timestampDiffMinutes;
+    }
+
+    return interest;
+  }
+
+  shepherd.get('/kmd/interest', (req, res, next) => {
+    const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
+    const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+
+    ecl.connect();
+    ecl.blockchainAddressGetBalance(req.query.address)
+    .then((json) => {
+      if (json &&
+          json.hasOwnProperty('confirmed') &&
+          json.hasOwnProperty('unconfirmed')) {
+        ecl.connect();
+        ecl.blockchainAddressListunspent(req.query.address)
+        .then((utxoList) => {
+          if (utxoList &&
+              utxoList.length) {
+            // filter out < 10 KMD amounts
+            let _utxo = [];
+
+            for (let i = 0; i < utxoList.length; i++) {
+              if (Number(utxoList[i].value) * 0.00000001 >= 10) {
+                _utxo.push(utxoList[i]);
+              }
+            }
+
+            if (_utxo &&
+                _utxo.length) {
+              let interestTotal = 0;
+
+              Promise.all(_utxo.map((_utxoItem, index) => {
+                return new Promise((resolve, reject) => {
+                  ecl.blockchainTransactionGet(_utxoItem['tx_hash'])
+                  .then((_rawtxJSON) => {
+                    // decode tx
+                    const decodedTx = txDecoder(_rawtxJSON, komodoParams);
+
+                    if (decodedTx &&
+                        decodedTx.format &&
+                        decodedTx.format.locktime > 0) {
+                      interestTotal += shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value);
+                    }
+
+                    resolve(true);
+                  });
+                });
+              }))
+              .then(promiseResult => {
+                ecl.close();
+
+                const successObj = {
+                  msg: 'success',
+                  result: {
+                    balance: Number((0.00000001 * json.confirmed).toFixed(8)),
+                    unconfirmed: Number((0.00000001 * json.unconfirmed).toFixed(8)),
+                    unconfirmedSats: json.unconfirmed,
+                    balanceSats: json.confirmed,
+                    interest: Number(interestTotal.toFixed(8)),
+                    interestSats: Math.floor(interestTotal * 100000000),
+                    total: interestTotal > 0 ? Number((0.00000001 * json.confirmed + interestTotal).toFixed(8)) : 0,
+                    totalSats: interestTotal > 0 ?json.confirmed + Math.floor(interestTotal * 100000000) : 0,
+                  },
+                };
+
+                res.end(JSON.stringify(successObj));
+              });
+            } else {
+              const successObj = {
+                msg: 'success',
+                result: {
+                  balance: Number((0.00000001 * json.confirmed).toFixed(8)),
+                  unconfirmed: Number((0.00000001 * json.unconfirmed).toFixed(8)),
+                  unconfirmedSats: json.unconfirmed,
+                  balanceSats: json.confirmed,
+                  interest: 0,
+                  interestSats: 0,
+                  total: 0,
+                  totalSats: 0,
+                },
+              };
+
+              res.end(JSON.stringify(successObj));
+            }
+          } else {
+            const successObj = {
+              msg: 'success',
+              result: {
+                balance: Number((0.00000001 * json.confirmed).toFixed(8)),
+                unconfirmed: Number((0.00000001 * json.unconfirmed).toFixed(8)),
+                unconfirmedSats: json.unconfirmed,
+                balanceSats: json.confirmed,
+                interest: 0,
+                interestSats: 0,
+                total: 0,
+                totalSats: 0,
+              },
+            };
+
+            res.end(JSON.stringify(successObj));
+          }
+        });
+      } else {
+        const successObj = {
+          msg: 'error',
+          result: json,
+        };
+
+        res.end(JSON.stringify(successObj));
+      }
+    });
+  });
+
+  shepherd.listunspent = (ecl, address, network) => {
+    let _atLeastOneDecodeTxFailed = false;
+
+    return new Promise((resolve, reject) => {
+      ecl.connect();
+      ecl.blockchainAddressListunspent(address)
+      .then((_utxoJSON) => {
+        if (_utxoJSON &&
+            _utxoJSON.length) {
+          let formattedUtxoList = [];
+          let _utxo = [];
+
+          ecl.blockchainNumblocksSubscribe()
+          .then((currentHeight) => {
+            if (currentHeight &&
+                Number(currentHeight) > 0) {
+              // filter out unconfirmed utxos
+              for (let i = 0; i < _utxoJSON.length; i++) {
+                if (Number(currentHeight) - Number(_utxoJSON[i].height) !== 0) {
+                  _utxo.push(_utxoJSON[i]);
+                }
+              }
+
+              if (!_utxo.length) { // no confirmed utxo
+                resolve({ code: -777, result: 'no valid utxo' });
+              } else {
+                Promise.all(_utxo.map((_utxoItem, index) => {
+                  return new Promise((resolve, reject) => {
+                    ecl.blockchainTransactionGet(_utxoItem['tx_hash'])
+                    .then((_rawtxJSON) => {
+                      // decode tx
+                      const decodedTx = txDecoder(_rawtxJSON, komodoParams);
+
+                      if (!decodedTx) {
+                        _atLeastOneDecodeTxFailed = true;
+                        resolve('cant decode tx');
+                      } else {
+                        let interest = 0;
+
+                        if (Number(_utxoItem.value) * 0.00000001 >= 10 &&
+                            decodedTx.format.locktime > 0) {
+                          interest = shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value);
+                        }
+
+                        let _resolveObj = {
+                          txid: _utxoItem['tx_hash'],
+                          vout: _utxoItem['tx_pos'],
+                          address,
+                          amount: Number(_utxoItem.value) * 0.00000001,
+                          amountSats: _utxoItem.value,
+                          locktime: decodedTx.format.locktime,
+                          interest: Number(interest.toFixed(8)),
+                          interestSats: Math.floor(interest * 100000000),
+                          confirmations: Number(_utxoItem.height) === 0 ? 0 : currentHeight - _utxoItem.height,
+                        };
+
+                        resolve(_resolveObj);
+                      }
+                    });
+                  });
+                }))
+                .then(promiseResult => {
+                  ecl.close();
+
+                  if (!_atLeastOneDecodeTxFailed) {
+                    resolve(promiseResult);
+                  } else {
+                    resolve({ code: -777, result: 'decode error' });
+                  }
+                });
+              }
+            } else {
+              resolve({ code: -777, result: 'cant get current height' });
+            }
+          });
+        } else {
+          ecl.close();
+          resolve(_utxoJSON);
+        }
+      });
+    });
+  }
+
+  shepherd.get('/kmd/listunspent', (req, res, next) => {
+    const network = 'komodo';
+    const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
+    const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+
+    shepherd.listunspent(
+      ecl,
+      req.query.address,
+      network
+    ).then((json) => {
+
+      const successObj = {
+        msg: json.code ? 'error' : 'success',
+        result: json,
+      };
+
+      res.end(JSON.stringify(successObj));
+    });
   });
 
   return shepherd;

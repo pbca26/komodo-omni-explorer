@@ -34,4 +34,5 @@ const server = require('http')
 
 console.log(`Iquidus Omni Explorer Server is running at ${config.ip}:${config.port}`);
 
-shepherd.getOverview();
+shepherd.getOverview(true);
+shepherd.getSummary(true);

@@ -1,0 +1,108 @@
+.ReactTable {
+  .rt-th,
+  .rt-td {
+    padding: 10px 5px 10px 15px;
+  }
+  .rt-tfoot {
+    text-align: center;
+    font-weight: bold;
+
+    .rt-td:first-child {
+      text-align: left;
+      padding-left: 15px;
+    }
+  }
+  .pagination-bottom {
+    .-pagination {
+      padding: 10px;
+    }
+  }
+  .rt-head .rt-tr,
+  .rt-body .rt-tr {
+    .rt-td:first-child {
+      text-align: left !important;
+    }
+  }
+  .rt-thead {
+    .rt-th:first-child {
+      text-align: left;
+      padding-left: 15px;
+    }
+    &.-header {
+      height: 35px;
+      font-weight: bold;
+    }
+    .rt-th,
+    .rt-td {
+      padding: 9px 5px;
+    }
+  }
+  .rt-tbody {
+    .rt-td:nth-child(2),
+    .rt-td:nth-child(3) {
+      text-align: center;
+    }
+  }
+  .rt-tr {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.navbar-brand {
+  cursor: pointer;
+}
+
+.search-field {
+  border-radius: 0 !important;
+}
+
+.table > caption + thead > tr:first-child > th,
+.table > colgroup + thead > tr:first-child > th,
+.table > thead:first-child > tr:first-child > th,
+.table > caption + thead > tr:first-child > td,
+.table > colgroup + thead > tr:first-child > td,
+.table > thead:first-child > tr:first-child > td {
+  text-align: center;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: 8px 12px;
+}
+
+.table-bordered {
+  border-radius: 4px;
+}
+
+table,
+table td {
+  vertical-align: middle !important;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.interest {
+  td {
+    text-align: center;
+  }
+}
+
+.green {
+  color: #38b44a;
+}
+
+.red {
+  color: #dc1a16;
+}
+
+.utxo-table,
+.utxo-table .ReactTable .rt-thead .rt-th:first-child {
+  text-align: center !important;
+}

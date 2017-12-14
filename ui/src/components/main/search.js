@@ -11,7 +11,6 @@ import {
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
-const OVERVIEW_UPDATE_INTERVAL = 20000;
 
 class Search extends React.Component {
   constructor(props) {
@@ -121,9 +120,6 @@ class Search extends React.Component {
     return columns;
   }
 
-  componentWillMount() {
-  }
-
   componentWillReceiveProps(props) {
     const _search = this.props.Main.search;
 
@@ -190,7 +186,7 @@ class Search extends React.Component {
                 <span style={{ marginLeft: '10px' }}>
                   <a
                     target="_blank"
-                    href={ `${config.explorers[_balance[i].coin]}` }>{ _balance[i].coin }</a>
+                    href={ `${config.explorers[_balance[i].coin]}/address/${ this.props.Main.searchTerm }` }>{ _balance[i].coin }</a>
                 </span>
               </td>
               <td>

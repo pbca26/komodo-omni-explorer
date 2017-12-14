@@ -2,9 +2,13 @@ import React from 'react';
 import Store from '../../store';
 import Overview from './overview';
 import Search from './search';
+import Interest from './interest';
 import config from '../../config';
 import {
   searchTerm,
+  getSummary,
+  getInterest,
+  resetInterestState,
 } from '../../actions/actionCreators';
 import {
   getQueryVariable,
@@ -24,10 +28,15 @@ class Main extends React.Component {
 
   componentWillMount() {
     const _searchTerm = getQueryVariable('search');
+    const _interest = getQueryVariable('interest');
+    const _explorers = getQueryVariable('explorers');
 
     if (_searchTerm) {
       Store.dispatch(searchTerm(_searchTerm));
-      this.changeActiveSection('search');
+      this.changeActiveSection('search', true);
+    } else if (_interest) {
+      Store.dispatch(getInterest(_interest));
+      this.changeActiveSection('interest', true);
     }
   }
 
@@ -37,16 +46,36 @@ class Main extends React.Component {
     });
   }
 
-  changeActiveSection(activeSection) {
+  changeActiveSection(activeSection, changeState) {
+    // override url in address bar
+    if (!changeState) {
+      window.history.replaceState('', '');
+      window.history.pushState('', '', '/');
+    }
+
     this.setState({
       activeSection,
       searchTerm: '',
     });
   }
 
+  openSummary() {
+    Store.dispatch(getSummary());
+    this.changeActiveSection('summary');
+  }
+
+  openInterest() {
+    Store.dispatch(resetInterestState());
+    this.changeActiveSection('interest');
+  }
+
   triggerSearch() {
-    Store.dispatch(searchTerm(this.state.searchTerm));
-    this.changeActiveSection('search');
+    if (this.state.activeSection === 'interest') {
+      Store.dispatch(getInterest(this.state.searchTerm));
+    } else {
+      Store.dispatch(searchTerm(this.state.searchTerm));
+      this.changeActiveSection('search');
+    }
   }
 
   renderCoinIcons() {
@@ -83,16 +112,46 @@ class Main extends React.Component {
                   onClick={ ()=> this.changeActiveSection('overview') }
                   className="navbar-brand">KMD Omni Explorer</a>
               </div>
-               { /*<div id="navbar-collapse" className="collapse navbar-collapse">
+               <div id="navbar-collapse" className="collapse navbar-collapse">
                   <ul className="nav navbar-nav">
-                     <li id="home" className="active"><a href="/" className="navbar-link"><span className="glyphicon glyphicon-search"></span><span className="menu-text">Explorer</span></a></li>
-                     <li id="movement"><a href="/movement" className="navbar-link loading"><span className="fa fa-money"></span><span className="menu-text">Movement</span></a></li>
-                     <li id="network"><a href="/network" className="navbar-link"><span className="fa fa-share-alt"></span><span className="menu-text">Network</span></a></li>
-                     <li id="richlist"><a href="/richlist" className="navbar-link"><span className="fa fa-btc"></span><span className="menu-text">Top 100</span></a></li>
-                     <li id="markets"><a href="/markets/bittrex" className="navbar-link loading"><span className="fa fa-line-chart"></span><span className="menu-text">Markets</span></a></li>
-                     <li id="info"><a href="/info" className="navbar-link"><span className="glyphicon glyphicon-info-sign"></span><span className="menu-text">API</span></a></li>
+                    <li
+                      onClick={ () => this.changeActiveSection('overview') }
+                      className={ this.state.activeSection === 'overview' || this.state.activeSection === 'search' ? 'active' : '' }>
+                      <a className="navbar-link pointer">
+                        <span className="fa fa-search"></span>
+                        <span className="menu-text">Explorer</span>
+                      </a>
+                    </li>
+                    <li
+                      onClick={ () => this.changeActiveSection('interest') }
+                      className={ this.state.activeSection === 'interest' ? 'active' : '' }>
+                      <a className="navbar-link pointer">
+                        <span className="fa fa-money"></span>
+                        <span className="menu-text">KMD Interest</span>
+                      </a>
+                    </li>
+                    {/*<li
+                      onClick={ () => this.changeActiveSection('explorers') }
+                      className={ this.state.activeSection === 'explorers' ? 'active' : '' }>
+                      <a className="navbar-link pointer">
+                        <span className="fa fa-share-alt"></span>
+                        <span className="menu-text">Explorers list</span>
+                      </a>
+                    </li>*/}
+                    { /*<li>
+                      <a href="/markets/bittrex" className="navbar-link loading"><span className="fa fa-line-chart"></span><span className="menu-text">Markets</span></a></li>
+                     */ }
+                    <li>
+                      <a
+                        href="https://github.com/pbca26/komodo-omni-explorer"
+                        className="navbar-link"
+                        target="_blank">
+                        <span className="fa fa-info-circle"></span>
+                        <span className="menu-text">API</span>
+                      </a>
+                    </li>
                   </ul>
-               </div>*/}
+               </div>
             </div>
         </div>
         <div className="col-md-12">
@@ -140,27 +199,29 @@ class Main extends React.Component {
             style={{ marginTop: '10px', marginBottom: '40px' }}>
             { this.renderCoinIcons() }
           </div>
-          <div
-            style={{ marginTop: '10px', marginBottom: '40px' }}
-            className="row text-center">
-            <div className="form-inline">
-              <div id="index-search" className="form-group">
-                <input
-                  onChange={ (event) => this.updateInput(event) }
-                  type="text"
-                  name="searchTerm"
-                  value={ this.state.searchTerm }
-                  placeholder="You may enter a tx hash or an address."
-                  style={{ minWidth: '80%', marginRight: '5px' }}
-                  className="form-control" />
-                <button
-                  onClick={ this.triggerSearch }
-                  disabled={ this.state.searchTerm.length < 34 }
-                  type="submit"
-                  className="btn btn-success">Search</button>
+          { this.state.activeSection !== 'explorers' &&
+            <div
+              style={{ marginTop: '10px', marginBottom: '40px' }}
+              className="row text-center">
+              <div className="form-inline">
+                <div id="index-search" className="form-group">
+                  <input
+                    onChange={ (event) => this.updateInput(event) }
+                    type="text"
+                    name="searchTerm"
+                    value={ this.state.searchTerm }
+                    placeholder={ this.state.activeSection === 'interest' ? 'Enter a valid KMD address' : 'You may enter a tx hash or an address.' }
+                    style={{ minWidth: '80%', marginRight: '5px' }}
+                    className="form-control" />
+                  <button
+                    onClick={ this.triggerSearch }
+                    disabled={ this.state.searchTerm.length < 34 }
+                    type="submit"
+                    className="btn btn-success">Search</button>
+                </div>
               </div>
             </div>
-          </div>
+          }
         </div>
         <div className="row">
           <div className="col-md-12"></div>
@@ -170,6 +231,9 @@ class Main extends React.Component {
         }
         { this.state.activeSection === 'search' &&
           <Search />
+        }
+        { this.state.activeSection === 'interest' &&
+          <Interest />
         }
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
            <div className="col-md-4">

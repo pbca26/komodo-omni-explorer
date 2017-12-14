@@ -163,7 +163,7 @@ class Overview extends React.Component {
     this.setState(Object.assign({}, this.state, {
       pageSize: pageSize,
       showPagination: this.state.itemsList && this.state.itemsList.length >= this.state.defaultPageSize,
-    }))
+    }));
   }
 
   onSearchTermChange(newSearchTerm) {
@@ -183,6 +183,9 @@ class Overview extends React.Component {
     }
 
     return this.contains(item.coin.toLowerCase(), term) ||
+            this.contains(item.txid, term) ||
+            this.contains(item.coin.toLowerCase(), term) ||
+            this.contains(item.block, term) ||
             this.contains(secondsToString(item.timestamp).toLowerCase(), term);
   }
 
