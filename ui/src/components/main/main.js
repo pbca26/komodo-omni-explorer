@@ -43,6 +43,8 @@ class Main extends React.Component {
     const _searchTerm = getQueryVariable('search');
     const _interest = getQueryVariable('interest');
     const _summary = getQueryVariable('summary');
+    const _books = getQueryVariable('books');
+    const _prices = getQueryVariable('prices');
 
     if (_searchTerm) {
       Store.dispatch(searchTerm(_searchTerm));
@@ -53,6 +55,12 @@ class Main extends React.Component {
     } else if (_summary) {
       Store.dispatch(getSummary());
       this.changeActiveSection('summary', true);
+    } else if (_books) {
+      Store.dispatch(getOrderbooks());
+      this.changeActiveSection('books');
+    } else if (_prices) {
+      Store.dispatch(getPrices());
+      this.changeActiveSection('prices');
     }
   }
 
