@@ -105,7 +105,15 @@ class Books extends React.Component {
         pair: key,
         data: __books[key],
       });
-      _pairs.push({ value: key });
+      if (key.indexOf('KMD/') > -1) {
+        _pairs.push({ value: key });
+      }
+    }
+
+    for (let key in __books) {
+      if (key.indexOf('KMD/') === -1) {
+        _pairs.push({ value: key });
+      }
     }
 
     if (__books &&

@@ -237,7 +237,7 @@ module.exports = (shepherd) => {
       shepherd.mm.pricesLaunched = true;
       res.end(JSON.stringify({
         msg: 'succes',
-        result: 'orders update is started',
+        result: 'prices update is started',
       }));
 
       const runPricesUpdate = () => {

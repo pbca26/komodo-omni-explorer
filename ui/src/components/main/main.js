@@ -88,7 +88,6 @@ class Main extends React.Component {
       }
 
       this.pricesInterval = setInterval(() => {
-        console.warn('update prices');
         Store.dispatch(getPrices());
       }, PRICES_UPDATE_INTERVAL);
     } else if (activeSection === 'books') {
@@ -97,7 +96,6 @@ class Main extends React.Component {
       }
 
       this.booksInterval = setInterval(() => {
-        console.warn('update prices');
         Store.dispatch(getOrderbooks());
       }, ORDERS_UPDATE_INTERVAL);
     } else {
