@@ -43,6 +43,14 @@ params: none required
 
 params: none required
 
+#### GET /api/mm/prices
+
+params: none required
+
+#### GET /api/mm/orderbook
+
+params: none required
+
 ## UI shortcuts
 
 #### http://ip:port/?search=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
@@ -56,3 +64,7 @@ will trigger GET /api/explorer/search?term=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P on
 params: pub address
 
 will trigger GET /api/kmd/interest?address=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P on page load and render results
+
+#### http://ip:port/?prices
+
+#### http://ip:port/?books
