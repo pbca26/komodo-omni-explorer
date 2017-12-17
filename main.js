@@ -26,7 +26,6 @@ app.get('/', (req, res) => {
 
 app.use('/api', shepherd);
 app.use('/public', express.static(path.join(__dirname, 'public')));
-console.log(path.join(__dirname, 'public'));
 
 const server = require('http')
                 .createServer(app)

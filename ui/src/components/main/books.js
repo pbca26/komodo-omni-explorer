@@ -100,8 +100,6 @@ class Books extends React.Component {
     const _pairs = [];
     let _books = [];
 
-    console.warn(__books);
-
     for (let key in __books) {
       _books.push({
         pair: key,
