@@ -3,6 +3,7 @@ logs
 *.log
 npm-debug.log*
 overview.json
+summary.json
 
 # Ignore node.js modules folder
 node_modules

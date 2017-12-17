@@ -34,5 +34,5 @@ const server = require('http')
 
 console.log(`Komodo Omni Explorer Server is running at ${config.ip}:${config.port}`);
 
-// shepherd.getOverview(true);
-// shepherd.getSummary(true);
+shepherd.getOverview(true);
+shepherd.getSummary(true);

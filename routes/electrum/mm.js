@@ -9,20 +9,14 @@ const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 let electrumServers = [];
 
-const electrumCoins = {
-  KMD: true,
-  BTC: true,
-  MNZ: true,
-  REVS: true,
-  COQUI: true,
-  JUMBLR: true,
-  CHIPS: true,
-  SUPERNET: true,
-  CRYPTO: true,
-  // ZEC: true,
-};
-let _electrumCoins = JSON.parse(JSON.stringify(electrumCoins));
-delete _electrumCoins.KMD;
+const electrumCoins = Object.keys(config.electrumServers).concat(Object.keys(config.electrumServersExtend));
+let __electrumCoins = JSON.parse(JSON.stringify(electrumCoins));
+let _electrumCoins = {};
+delete __electrumCoins.KMD;
+
+for (let i = 0; i< __electrumCoins.length; i++) {
+  _electrumCoins[__electrumCoins[i].toUpperCase()] = true;
+}
 
 let kmdPairs = [];
 
@@ -30,6 +24,8 @@ for (let key in _electrumCoins) {
   kmdPairs.push(`KMD/${key}`);
   kmdPairs.push(`${key}/KMD`);
 }
+
+console.log(`total orderbook pairs ${kmdPairs.length}`);
 
 const getRandomIntInclusive = (min, max) => {
   min = Math.ceil(min);
@@ -72,8 +68,12 @@ module.exports = (shepherd) => {
   shepherd.get('/mm/coins/start', (req, res, next) => {
     if (!shepherd.mm.coinsStartLaunched) {
       shepherd.mm.coinsStartLaunched = true;
-      Promise.all(electrumServers.map((electrumServerData, index) => {
-        return new Promise((resolve, reject) => {
+      const runElectrumStart = () => {
+        shepherd.mm.ordersUpdateInProgress = true;
+        let _callsCompleted = 0;
+        let _coins = [];
+
+        async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
           const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
           const _payload = {
             method: 'electrum',
@@ -86,33 +86,56 @@ module.exports = (shepherd) => {
             url: `http://localhost:7783`,
             method: 'POST',
             body: JSON.stringify(_payload),
+            timeout: 10000,
           };
 
-          // send back body on both success and error
-          // this bit replicates iguana core's behaviour
           request(options, (error, response, body) => {
             if (response &&
                 response.statusCode &&
                 response.statusCode === 200) {
               const _parsedBody = JSON.parse(body);
-              resolve({
+              _coins.push({
                 coin: _payload.coin,
                 data: _parsedBody,
                 payload: _payload,
               });
+              console.log(_payload.coin + ' connected');
+
+              callback();
+              _callsCompleted++;
+
+              if (_callsCompleted === electrumServers.length) {
+                console.log('all coins connected');
+                res.end(JSON.stringify({
+                  msg: 'success',
+                  result: _coins,
+                }));
+              }
             } else {
-              resolve({
+              _coins.push({
                 coin: _payload.coin,
-                data: `unable to call method ${_payload.method} at port 7783`,
+                data: _parsedBody,
                 payload: _payload,
               });
+              console.log(_payload.coin + ' failed to connect');
+              callback();
+              _callsCompleted++;
+
+              if (_callsCompleted === electrumServers.length) {
+                console.log('all coins connected');
+                res.end(JSON.stringify({
+                  msg: 'success',
+                  result: _coins,
+                }));
+              }
             }
           });
+        }, err => {
+          if (err) console.error(err.message);
+          // do some
         });
-      }))
-      .then(result => {
-        res.end(JSON.stringify(result));
-      });
+      }
+      runElectrumStart();
     } else {
       res.end(JSON.stringify({
         msg: 'error',
@@ -120,9 +143,6 @@ module.exports = (shepherd) => {
       }));
     }
   });
-
-  // unable to call method orderbook at port 7783
-
   // start orderbooks
   shepherd.get('/mm/orderbook/start', (req, res, next) => {
     if (!shepherd.mm.orderbookLaunched) {

@@ -90,8 +90,8 @@ class Main extends React.Component {
 
       this.booksInterval = setInterval(() => {
         console.warn('update prices');
-        Store.dispatch(getPrices());
-      }, PRICES_UPDATE_INTERVAL);
+        Store.dispatch(getOrderbooks());
+      }, ORDERS_UPDATE_INTERVAL);
     } else {
       if (this.pricesInterval) {
         clearInterval(this.pricesInterval);

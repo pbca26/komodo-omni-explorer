@@ -122,8 +122,8 @@ const config = {
     },
     chips: { // !estimatefee
       serverList: [
-        'electrum1.cipig.net:50053',
-        'electrum2.cipig.net:50053'
+        'electrum1.cipig.net:10053',
+        'electrum2.cipig.net:10053'
       ],
     },
   },

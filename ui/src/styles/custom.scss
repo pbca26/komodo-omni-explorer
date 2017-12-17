@@ -129,6 +129,8 @@ table td {
   }
 }
 .pair {
+  position: relative;
+  z-index: 2000;
   width: 300px;
   margin-bottom: 20px;
 
