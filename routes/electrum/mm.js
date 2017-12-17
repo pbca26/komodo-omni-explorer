@@ -9,18 +9,18 @@ const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 let electrumServers = [];
 
-const electrumCoins = Object.keys(config.electrumServers).concat(Object.keys(config.electrumServersExtend));
-let __electrumCoins = JSON.parse(JSON.stringify(electrumCoins));
-let _electrumCoins = {};
-delete __electrumCoins.KMD;
+const tempElectrumCoins = Object.keys(config.electrumServers).concat(Object.keys(config.electrumServersExtend));
+let _electrumCoins = JSON.parse(JSON.stringify(tempElectrumCoins));
+let electrumCoins = {};
+delete _electrumCoins.KMD;
 
-for (let i = 0; i< __electrumCoins.length; i++) {
-  _electrumCoins[__electrumCoins[i].toUpperCase()] = true;
+for (let i = 0; i< _electrumCoins.length; i++) {
+  electrumCoins[_electrumCoins[i].toUpperCase()] = true;
 }
 
 let kmdPairs = [];
 
-for (let key in _electrumCoins) {
+for (let key in electrumCoins) {
   kmdPairs.push(`KMD/${key}`);
   kmdPairs.push(`${key}/KMD`);
 }
