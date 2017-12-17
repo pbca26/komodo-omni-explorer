@@ -7,7 +7,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 
-const OVERVIEW_UPDATE_INTERVAL = 30000;
+const OVERVIEW_UPDATE_INTERVAL = 30000; // every 30s
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
 let remoteExplorersArray = [];
 let electrumServers = [];
@@ -31,7 +31,7 @@ const getRandomIntInclusive = (min, max) => {
 }
 
 const sortByDate = (data, sortKey) => {
-  return data.sort(function(b, a) {
+  return data.sort((b, a) => {
     if (a[sortKey] < b[sortKey]) {
       return -1;
     }
@@ -123,7 +123,7 @@ module.exports = (shepherd) => {
     }));
   });
 
-  shepherd.getOverview = () => {
+  shepherd.getOverview = (test) => {
     const _getOverview = () => {
       Promise.all(remoteExplorersArray.map((coin, index) => {
         return new Promise((resolve, reject) => {
@@ -195,38 +195,6 @@ module.exports = (shepherd) => {
     setInterval(() => {
       _getOverview();
     }, OVERVIEW_UPDATE_INTERVAL);
-
-    /*const overviewFileLocation = path.join(__dirname, '../../overview.json');
-    const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
-    const resSizeLimit = 1000;
-    let items = [];
-    console.log(overviewFile.result.length);
-
-    for (let i = 0; i < overviewFile.result.length; i++) {
-      try {
-        const _parseData = JSON.parse(overviewFile.result[i].result).data;
-
-        for (let j = 0; j < _parseData.length; j++) {
-          items.push({
-            coin: overviewFile.result[i].coin,
-            txid: _parseData[j].txid,
-            blockhash: _parseData[j].blockhash,
-            blockindex: _parseData[j].blockindex,
-            timestamp: _parseData[j].timestamp,
-            total: _parseData[j].total,
-            vout: _parseData[j].vout,
-            vin: _parseData[j].vin,
-          });
-        }
-      } catch (e) {}
-    }
-
-    items = sortByDate(items, 'timestamp');
-    items = items.slice(0, resSizeLimit + 1);
-
-    shepherd.explorer.overview = items;
-
-    console.log('explorer overview updated');*/
   }
 
   shepherd.get('/explorer/search', (req, res, next) => {
@@ -275,7 +243,7 @@ module.exports = (shepherd) => {
       let errorCount = 0;
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
-          const _server = electrumServerData.serverList[0].split(':');
+          const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
           const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
 
           ecl.connect();

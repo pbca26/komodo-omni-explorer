@@ -106,3 +106,56 @@ table td {
 .utxo-table .ReactTable .rt-thead .rt-th:first-child {
   text-align: center !important;
 }
+
+.prices-table,
+.books-table {
+  img {
+    border-radius: 50%;
+  }
+  .rt-th,
+  .rt-td {
+    text-align: center !important;
+  }
+}
+
+.books-table {
+  .ReactTable {
+    .rt-tbody {
+      max-height: 400px;
+    }
+    .pagination-bottom {
+      display: none;
+    }
+  }
+}
+.pair {
+  width: 300px;
+  margin-bottom: 20px;
+
+  .Select-control {
+    height: 42px;
+  }
+  .Select-placeholder,
+  .Select-value {
+    line-height: 38px !important;
+  }
+  .Select-clear-zone {
+    display: none;
+  }
+  .Select-menu-outer {
+    max-height: 403px;
+  }
+  .Select-menu {
+    max-height: 400px;
+  }
+}
+.books-table-block {
+  > div {
+    display: inline-block;
+    width: 49%;
+
+    &:first-child {
+      margin-right: 2%;
+    }
+  }
+}

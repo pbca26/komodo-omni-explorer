@@ -4,6 +4,8 @@ import {
   SUMMARY,
   INTEREST,
   UNSPENTS,
+  PRICES,
+  ORDERBOOKS,
   UPDATE_SEARCH_TERM,
 } from '../actions/storeType';
 
@@ -16,6 +18,8 @@ export function Main(state = {
   interestAddress: null,
   interest: null,
   unspents: null,
+  prices: null,
+  orderbooks: null,
 }, action) {
   switch (action.type) {
     case UPDATE:
@@ -50,6 +54,16 @@ export function Main(state = {
         ...state,
         unspents: action.unspents,
         unspentsAddress: action.unspentsAddress,
+      };
+    case PRICES:
+      return {
+        ...state,
+        prices: action.prices,
+      };
+    case ORDERBOOKS:
+      return {
+        ...state,
+        orderbooks: action.orderbooks,
       };
     default:
       return state;

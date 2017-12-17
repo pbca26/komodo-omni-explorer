@@ -10,5 +10,6 @@ shepherd.explorer = {
 };
 
 shepherd = require('./electrum/explorer.js')(shepherd);
+shepherd = require('./electrum/mm.js')(shepherd);
 
 module.exports = shepherd;

@@ -8,6 +8,8 @@ import {
   SUMMARY,
   INTEREST,
   UNSPENTS,
+  PRICES,
+  ORDERBOOKS,
   UPDATE_SEARCH_TERM,
 } from './storeType';
 
@@ -36,6 +38,20 @@ export function searchTermState(searchTerm) {
   return {
     type: UPDATE_SEARCH_TERM,
     searchTerm,
+  }
+}
+
+export function pricesState(prices) {
+  return {
+    type: PRICES,
+    prices,
+  }
+}
+
+export function orderbooksState(orderbooks) {
+  return {
+    type: ORDERBOOKS,
+    orderbooks,
   }
 }
 
@@ -157,6 +173,44 @@ export function getUnspents(address, currentState) {
 
       if (!currentState) {
         dispatch(unspentsState(address, json.result));
+      }
+    });
+  }
+}
+
+export function getPrices(currentState) {
+  return dispatch => {
+    return fetch(`http://${config.ip}:${config.port}/api/mm/prices`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(pricesState(json.result));
+
+      if (!currentState) {
+        dispatch(pricesState(json.result));
+      }
+    });
+  }
+}
+
+export function getOrderbooks(currentState) {
+  return dispatch => {
+    return fetch(`http://${config.ip}:${config.port}/api/mm/orderbook`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(orderbooksState(json.result));
+
+      if (!currentState) {
+        dispatch(orderbooksState(json.result));
       }
     });
   }

@@ -2,17 +2,25 @@ import React from 'react';
 import Store from '../../store';
 import Overview from './overview';
 import Search from './search';
+import Summary from './summary';
 import Interest from './interest';
+import Prices from './prices';
+import Books from './books';
 import config from '../../config';
 import {
   searchTerm,
   getSummary,
   getInterest,
+  getPrices,
+  getOrderbooks,
   resetInterestState,
 } from '../../actions/actionCreators';
 import {
   getQueryVariable,
 } from '../../util/util';
+
+const PRICES_UPDATE_INTERVAL = 20000;
+const ORDERS_UPDATE_INTERVAL = 30000;
 
 class Main extends React.Component {
   constructor(props) {
@@ -23,13 +31,18 @@ class Main extends React.Component {
     };
     this.changeActiveSection = this.changeActiveSection.bind(this);
     this.triggerSearch = this.triggerSearch.bind(this);
+    this.openSummary = this.openSummary.bind(this);
+    this.openDexPrices = this.openDexPrices.bind(this);
+    this.openDexBooks = this.openDexBooks.bind(this);
     this.updateInput = this.updateInput.bind(this);
+    this.booksInterval = null;
+    this.pricesInterval = null;
   }
 
   componentWillMount() {
     const _searchTerm = getQueryVariable('search');
     const _interest = getQueryVariable('interest');
-    const _explorers = getQueryVariable('explorers');
+    const _summary = getQueryVariable('summary');
 
     if (_searchTerm) {
       Store.dispatch(searchTerm(_searchTerm));
@@ -37,6 +50,9 @@ class Main extends React.Component {
     } else if (_interest) {
       Store.dispatch(getInterest(_interest));
       this.changeActiveSection('interest', true);
+    } else if (_summary) {
+      Store.dispatch(getSummary());
+      this.changeActiveSection('summary', true);
     }
   }
 
@@ -57,6 +73,44 @@ class Main extends React.Component {
       activeSection,
       searchTerm: '',
     });
+
+    if (activeSection === 'prices') {
+      if (this.booksInterval) {
+        clearInterval(this.booksInterval);
+      }
+
+      this.pricesInterval = setInterval(() => {
+        console.warn('update prices');
+        Store.dispatch(getPrices());
+      }, PRICES_UPDATE_INTERVAL);
+    } else if (activeSection === 'books') {
+      if (this.pricesInterval) {
+        clearInterval(this.pricesInterval);
+      }
+
+      this.booksInterval = setInterval(() => {
+        console.warn('update prices');
+        Store.dispatch(getPrices());
+      }, PRICES_UPDATE_INTERVAL);
+    } else {
+      if (this.pricesInterval) {
+        clearInterval(this.pricesInterval);
+      }
+
+      if (this.booksInterval) {
+        clearInterval(this.booksInterval);
+      }
+    }
+  }
+
+  openDexPrices() {
+    Store.dispatch(getPrices());
+    this.changeActiveSection('prices');
+  }
+
+  openDexBooks() {
+    Store.dispatch(getOrderbooks());
+    this.changeActiveSection('books');
   }
 
   openSummary() {
@@ -131,11 +185,27 @@ class Main extends React.Component {
                       </a>
                     </li>
                     <li
-                      onClick={ () => this.changeActiveSection('explorers') }
-                      className={ this.state.activeSection === 'explorers' ? 'active' : '' }>
+                      onClick={ this.openSummary }
+                      className={ this.state.activeSection === 'summary' ? 'active' : '' }>
                       <a className="navbar-link pointer">
                         <span className="fa fa-share-alt"></span>
                         <span className="menu-text">Explorers list</span>
+                      </a>
+                    </li>
+                    <li
+                      onClick={ this.openDexPrices }
+                      className={ this.state.activeSection === 'prices' ? 'active' : '' }>
+                      <a className="navbar-link pointer">
+                        <span className="fa fa-usd"></span>
+                        <span className="menu-text">DEX prices</span>
+                      </a>
+                    </li>
+                    <li
+                      onClick={ this.openDexBooks }
+                      className={ this.state.activeSection === 'books' ? 'active' : '' }>
+                      <a className="navbar-link pointer">
+                        <span className="fa fa-line-chart"></span>
+                        <span className="menu-text">DEX books</span>
                       </a>
                     </li>
                     { /*<li>
@@ -199,7 +269,9 @@ class Main extends React.Component {
             style={{ marginTop: '10px', marginBottom: '40px' }}>
             { this.renderCoinIcons() }
           </div>
-          { this.state.activeSection !== 'explorers' &&
+          { this.state.activeSection !== 'summary' &&
+            this.state.activeSection !== 'prices' &&
+            this.state.activeSection !== 'books' &&
             <div
               style={{ marginTop: '10px', marginBottom: '40px' }}
               className="row text-center">
@@ -234,6 +306,15 @@ class Main extends React.Component {
         }
         { this.state.activeSection === 'interest' &&
           <Interest />
+        }
+        { this.state.activeSection === 'summary' &&
+          <Summary />
+        }
+        { this.state.activeSection === 'prices' &&
+          <Prices />
+        }
+        { this.state.activeSection === 'books' &&
+          <Books />
         }
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
            <div className="col-md-4">

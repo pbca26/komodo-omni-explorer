@@ -200,20 +200,24 @@ class Search extends React.Component {
         }
       }
 
-      return (
-        <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
-          <thead>
-            <tr>
-              <th>Coin</th>
-              <th>Balance confirmed</th>
-              <th>Balance unconfirmed</th>
-            </tr>
-          </thead>
-          <tbody>
-            { _items }
-          </tbody>
-        </table>
-      );
+      if (_items.length) {
+        return (
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+            <thead>
+              <tr>
+                <th>Coin</th>
+                <th>Balance confirmed</th>
+                <th>Balance unconfirmed</th>
+              </tr>
+            </thead>
+            <tbody>
+              { _items }
+            </tbody>
+          </table>
+        );
+      } else {
+        return null;
+      }
     }
 
     return null;
