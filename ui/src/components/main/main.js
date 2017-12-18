@@ -214,9 +214,6 @@ class Main extends React.Component {
                         <span className="menu-text">DEX books</span>
                       </a>
                     </li>
-                    { /*<li>
-                      <a href="/markets/bittrex" className="navbar-link loading"><span className="fa fa-line-chart"></span><span className="menu-text">Markets</span></a></li>
-                     */ }
                     <li>
                       <a
                         href="https://github.com/pbca26/komodo-omni-explorer"
@@ -338,7 +335,8 @@ class Main extends React.Component {
                   style={{ marginLeft: '80px', marginRight: '80px' }}
                   className="text-center">
                     <p style={{ marginTop: '15px' }}>
-                      <a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Powered by Iquidus Explorer</a>
+                      <a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Powered by Iquidus Explorer</a>,&nbsp;
+                      <a href="hhttps://github.com/jl777/SuperNET" target="_blank" className="navbar-link">BarterDEX</a>,
                       <span style={{ color: '#fff', marginLeft: '5px', marginRight: '5px' }}>&amp;</span>
                       <a href="https://github.com/kyuupichan/electrumx" target="_blank" className="navbar-link">Electrum</a>
                     </p>

@@ -197,7 +197,9 @@ class Overview extends React.Component {
     return (
       <div className="col-md-12">
          <div className="panel panel-default">
-            <div className="panel-heading"><strong>Latest Transactions</strong></div>
+            <div className="panel-heading">
+              <strong>Latest Transactions</strong>
+            </div>
             <div className="dex-table">
               <input
                 className="form-control search-field"

@@ -228,7 +228,9 @@ class Search extends React.Component {
      <div
       style={{ marginTop: '60px' }}
       className="panel panel-default">
-        <div className="panel-heading"><strong>Latest Transactions for { this.props.Main.searchTerm }</strong></div>
+        <div className="panel-heading">
+          <strong>Latest Transactions for { this.props.Main.searchTerm }</strong>
+        </div>
         <div className="dex-table">
           <input
             className="form-control search-field"
