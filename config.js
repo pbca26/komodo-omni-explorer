@@ -218,6 +218,30 @@ const config = {
         '136.243.45.140:50032'
       ],
     },
+    bch: {
+      serverList: [
+        'electrum1.cipig.net:10051',
+        'electrum2.cipig.net:10051'
+      ],
+    },
+    btg: {
+      serverList: [
+        '173.212.225.176:10052',
+        '94.130.224.11:10052'
+      ],
+    },
+    blk: {
+      serverList: [
+        'electrum1.cipig.net:10054',
+        'electrum2.cipig.net:10054',
+      ],
+    },
+    sib: {
+      serverList: [
+        'electrum1.cipig.net:10050',
+        'electrum2.cipig.net:10050'
+      ],
+    },
   },
 };
 

@@ -31,7 +31,7 @@ const server = require('http')
                 .createServer(app)
                 .listen(config.port, config.ip);
 
-console.log(`Komodo Omni Explorer Server is running at ${config.ip}:${config.port}`);
+console.log(`Komodo Atomic Explorer Server is running at ${config.ip}:${config.port}`);
 
 shepherd.getOverview(true);
 shepherd.getSummary(true);
