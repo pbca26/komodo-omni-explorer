@@ -61,7 +61,7 @@ module.exports = (shepherd) => {
     orders: {},
     ordersUpdateInProgress: false,
     pricesUpdateInProgress: false,
-    userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
+    userpass: '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f',
   };
 
   // start coin pairs in electrum
