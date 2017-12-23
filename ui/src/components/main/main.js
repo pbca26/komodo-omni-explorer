@@ -246,7 +246,7 @@ class Main extends React.Component {
         </div>
         <div className="col-md-12">
           <div className="row text-center">
-             <div className="col-md-2 col-md-offset-4">
+             <div className="col-md-2 col-md-offset-3">
                 <div className="panel panel-default hidden-sm hidden-xs">
                   <div className="panel-heading">
                     <strong>Coins</strong>
