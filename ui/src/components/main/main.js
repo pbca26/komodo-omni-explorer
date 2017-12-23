@@ -4,6 +4,7 @@ import Overview from './overview';
 import Search from './search';
 import Summary from './summary';
 import Interest from './interest';
+import InterestCalc from './interestCalc';
 import Prices from './prices';
 import Books from './books';
 import config from '../../config';
@@ -35,6 +36,7 @@ class Main extends React.Component {
     this.openDexPrices = this.openDexPrices.bind(this);
     this.openDexBooks = this.openDexBooks.bind(this);
     this.updateInput = this.updateInput.bind(this);
+    this.openInterestCalc = this.openInterestCalc.bind(this);
     this.booksInterval = null;
     this.pricesInterval = null;
   }
@@ -42,6 +44,7 @@ class Main extends React.Component {
   componentWillMount() {
     const _searchTerm = getQueryVariable('search');
     const _interest = getQueryVariable('interest');
+    const _interestCalc = getQueryVariable('calc');
     const _summary = getQueryVariable('summary');
     const _books = getQueryVariable('books');
     const _prices = getQueryVariable('prices');
@@ -61,6 +64,8 @@ class Main extends React.Component {
     } else if (_prices) {
       Store.dispatch(getPrices());
       this.changeActiveSection('prices');
+    } else if (_interestCalc) {
+      this.changeActiveSection('calc');
     }
   }
 
@@ -129,6 +134,10 @@ class Main extends React.Component {
     this.changeActiveSection('interest');
   }
 
+  openInterestCalc() {
+    this.changeActiveSection('calc');
+  }
+
   triggerSearch() {
     if (this.state.activeSection === 'interest') {
       Store.dispatch(getInterest(this.state.searchTerm));
@@ -188,6 +197,14 @@ class Main extends React.Component {
                       <a className="navbar-link pointer">
                         <span className="fa fa-money"></span>
                         <span className="menu-text">KMD Interest</span>
+                      </a>
+                    </li>
+                    <li
+                      onClick={ this.openInterestCalc }
+                      className={ this.state.activeSection === 'calc' ? 'active' : '' }>
+                      <a className="navbar-link pointer">
+                        <span className="fa fa-calculator"></span>
+                        <span className="menu-text">Interest Calc</span>
                       </a>
                     </li>
                     <li
@@ -275,6 +292,7 @@ class Main extends React.Component {
           { this.state.activeSection !== 'summary' &&
             this.state.activeSection !== 'prices' &&
             this.state.activeSection !== 'books' &&
+            this.state.activeSection !== 'calc' &&
             <div
               style={{ marginTop: '10px', marginBottom: '40px' }}
               className="row text-center">
@@ -318,6 +336,9 @@ class Main extends React.Component {
         }
         { this.state.activeSection === 'books' &&
           <Books />
+        }
+        { this.state.activeSection === 'calc' &&
+          <InterestCalc />
         }
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
            <div className="col-md-4">

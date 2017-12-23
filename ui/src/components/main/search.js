@@ -193,7 +193,7 @@ class Search extends React.Component {
                 { _balance[i].balance.confirmed }
               </td>
               <td>
-                { _balance[i].balance.unconfirmed > 0 ? _balance[i].balance.unconfirmed : '' }
+                { _balance[i].balance.unconfirmed !== 0 ? _balance[i].balance.unconfirmed : '' }
               </td>
             </tr>
           );
