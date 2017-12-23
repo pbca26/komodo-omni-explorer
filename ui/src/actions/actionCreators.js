@@ -11,6 +11,7 @@ import {
   PRICES,
   ORDERBOOKS,
   UPDATE_SEARCH_TERM,
+  FIAT
 } from './storeType';
 
 export function summaryState(summary) {
@@ -78,6 +79,13 @@ export function unspentsState(unspentsAddress, unspents) {
     type: UNSPENTS,
     unspentsAddress,
     unspents,
+  }
+}
+
+export function fiatRatesState(fiatRates) {
+  return {
+    type: FIAT,
+    fiatRates,
   }
 }
 
@@ -212,6 +220,21 @@ export function getOrderbooks(currentState) {
       if (!currentState) {
         dispatch(orderbooksState(json.result));
       }
+    });
+  }
+}
+
+export function fiatRates() {
+  return dispatch => {
+    return fetch(`http://${config.ip}:${config.port}/api/rates/kmd`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(fiatRatesState(json.result));
     });
   }
 }

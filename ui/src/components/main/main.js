@@ -276,13 +276,24 @@ class Main extends React.Component {
                    <div className="panel-heading"><strong>Coin Supply (KMD)</strong></div>
                    <div className="panel-body"><label id="supply"></label></div>
                 </div>
-             </div>
-             <div className="col-md-2">
-                <div className="panel panel-default hidden-sm hidden-xs">
-                   <div className="panel-heading"><strong>BTC Price</strong></div>
-                   <div className="panel-body"><label id="lastPrice"></label></div>
-                </div>
              </div>*/}
+            { this.props.Main.fiatRates &&
+              <div className="col-md-2">
+                <div className="panel panel-default hidden-sm hidden-xs">
+                  <div className="panel-heading">
+                    <strong>KMD Price</strong>
+                  </div>
+                  <div className="panel-body">
+                    <div>
+                      <label id="lastPrice">{ this.props.Main.fiatRates.BTC } BTC</label>
+                    </div>
+                    <div>
+                      <label id="lastPrice">${ this.props.Main.fiatRates.USD }</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
           <div
             className="row text-center"
@@ -350,18 +361,19 @@ class Main extends React.Component {
                 </li>
               </ul>
            </div>
-           <div className="col-md-4">
+           <div className="col-md-5">
               <ul className="nav">
-                 <li
+                <li
                   style={{ marginLeft: '80px', marginRight: '80px' }}
                   className="text-center">
                     <p style={{ marginTop: '15px' }}>
-                      <a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Powered by Iquidus Explorer</a>,&nbsp;
+                      Powered by&nbsp;
+                      <a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Iquidus Explorer</a>,&nbsp;
                       <a href="hhttps://github.com/jl777/SuperNET" target="_blank" className="navbar-link">BarterDEX</a>,
                       <span style={{ color: '#fff', marginLeft: '5px', marginRight: '5px' }}>&amp;</span>
                       <a href="https://github.com/kyuupichan/electrumx" target="_blank" className="navbar-link">Electrum</a>
                     </p>
-                 </li>
+                </li>
               </ul>
            </div>
         </div>

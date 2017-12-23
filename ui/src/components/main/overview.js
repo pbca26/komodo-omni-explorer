@@ -8,7 +8,10 @@ import {
   formatValue,
   secondsToString,
 } from '../../util/util';
-import { getOverview } from '../../actions/actionCreators';
+import {
+  getOverview,
+  fiatRates,
+} from '../../actions/actionCreators';
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
@@ -140,8 +143,11 @@ class Overview extends React.Component {
 
   componentWillMount() {
     Store.dispatch(getOverview());
+    Store.dispatch(fiatRates());
+
     this.overviewInterval = setInterval(() => {
       Store.dispatch(getOverview());
+      Store.dispatch(fiatRates());
     }, OVERVIEW_UPDATE_INTERVAL);
   }
 

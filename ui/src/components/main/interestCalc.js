@@ -3,6 +3,9 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
 import Select from 'react-select';
+import {
+  fiatRates,
+} from '../../actions/actionCreators';
 
 let months = [
   'Jan',
@@ -27,9 +30,30 @@ class InterestCalc extends React.Component {
       interestBreakdownFrequency: 'yearly',
       interestAmount: 100,
       interestTxFee: 0.0001,
+      interestKMDFiatPrice: this.props.Main.fiatRates && this.props.Main.fiatRates.USD || 0,
+      toggleInterestFiatAutoRate: true,
     };
     this.resetInterestCalc = this.resetInterestCalc.bind(this);
+    this.toggleInterestFiatAutoRate = this.toggleInterestFiatAutoRate.bind(this);
     this.updateInput = this.updateInput.bind(this);
+  }
+
+  componentWillReceiveProps(props) {
+    if (props &&
+        props.Main.fiatRates &&
+        props.Main.fiatRates.USD &&
+        this.state.toggleInterestFiatAutoRate) {
+      this.setState({
+        interestKMDFiatPrice: props.Main.fiatRates.USD,
+      });
+    }
+  }
+
+  toggleInterestFiatAutoRate() {
+    this.setState({
+      toggleInterestFiatAutoRate: !this.state.toggleInterestFiatAutoRate,
+    });
+    Store.dispatch(fiatRates());
   }
 
   updateInput(e, name) {
@@ -125,8 +149,9 @@ class InterestCalc extends React.Component {
                 <tr>
                   <th>Period</th>
                   <th>Amount</th>
-                  <th>Interest</th>
-                  <th>Total</th>
+                  <th>Interest (accumulative)</th>
+                  <th>Total (accumulative)</th>
+                  <th>Total, USD (accumulative)</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,6 +160,7 @@ class InterestCalc extends React.Component {
                   <td>{ this.state.interestAmount }</td>
                   <td>{ _ytdInterest.toFixed(3) }</td>
                   <td>{ _total.toFixed(3) }</td>
+                  <td>${ Number(_total * this.state.interestKMDFiatPrice).toFixed(3) }</td>
                 </tr>
               </tbody>
             </table>
@@ -163,6 +189,7 @@ class InterestCalc extends React.Component {
                   <td>{ _amounts[i] }</td>
                   <td>{ _interestAmounts[i].toFixed(3) }</td>
                   <td>{ _totalAmounts[i].toFixed(3) }</td>
+                  <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
                 </tr>
               );
             }
@@ -192,6 +219,7 @@ class InterestCalc extends React.Component {
                   <td>{ _amounts[i] }</td>
                   <td>{ _interestAmounts[i].toFixed(3) }</td>
                   <td>{ _totalAmounts[i].toFixed(3) }</td>
+                  <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
                 </tr>
               );
             }
@@ -207,6 +235,7 @@ class InterestCalc extends React.Component {
                   <th>Amount</th>
                   <th>Interest (accumulative)</th>
                   <th>Total (accumulative)</th>
+                  <th>Total, USD (accumulative)</th>
                 </tr>
               </thead>
               <tbody>
@@ -235,6 +264,7 @@ class InterestCalc extends React.Component {
               <td>{ _amounts[i] }</td>
               <td>{ _interestAmounts[i].toFixed(3) }</td>
               <td>{ _totalAmounts[i].toFixed(3) }</td>
+              <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
             </tr>
           );
         }
@@ -248,6 +278,7 @@ class InterestCalc extends React.Component {
                   <th>Amount</th>
                   <th>Interest (accumulative)</th>
                   <th>Total (accumulative)</th>
+                  <th>Total, USD (accumulative)</th>
                 </tr>
               </thead>
               <tbody>
@@ -272,6 +303,7 @@ class InterestCalc extends React.Component {
               <td>{ _amounts[i] }</td>
               <td>{ _interestAmounts[i].toFixed(3) }</td>
               <td>{ _totalAmounts[i].toFixed(3) }</td>
+              <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
             </tr>
           );
         }
@@ -285,6 +317,7 @@ class InterestCalc extends React.Component {
                   <th>Amount</th>
                   <th>Interest (accumulative)</th>
                   <th>Total (accumulative)</th>
+                  <th>Total, USD (accumulative)</th>
                 </tr>
               </thead>
               <tbody>
@@ -304,7 +337,7 @@ class InterestCalc extends React.Component {
     return (
       <div>
         <div className="col-md-12 col-sm-12">
-          <div className="col-md-4 col-sm-4">
+          <div className="col-md-4 col-sm-4 interest-label">
             Show me interest breakdown by
           </div>
           <div className="col-md-3 col-sm-3">
@@ -324,7 +357,7 @@ class InterestCalc extends React.Component {
         <div
           style={{ marginTop: '20px' }}
           className="col-md-12 col-sm-12">
-          <div className="col-md-4 col-sm-4">
+          <div className="col-md-4 col-sm-4 interest-label">
             I want to claim interest
           </div>
           <div className="col-md-3 col-sm-3">
@@ -350,9 +383,9 @@ class InterestCalc extends React.Component {
           </div>
         </div>
         <div
-          style={{ marginTop: '20px', paddingBottom: '50px' }}
+          style={{ marginTop: '20px' }}
           className="col-md-12 col-sm-12">
-          <div className="col-md-4 col-sm-4">
+          <div className="col-md-4 col-sm-4 interest-label">
             KMD amount
           </div>
           <div className="col-md-3 col-sm-3">
@@ -365,7 +398,42 @@ class InterestCalc extends React.Component {
               className="form-control" />
           </div>
         </div>
-        <div className="col-md-12 col-sm-12" style={{ paddingBottom: '100px' }}>
+        <div
+          style={{ marginTop: '20px', paddingBottom: '50px' }}
+          className="col-md-12 col-sm-12">
+          <div className="col-md-4 col-sm-4 interest-label">
+            KMD / USD rate
+          </div>
+          <div className="col-md-3 col-sm-3">
+            <input
+              onChange={ (event) => this.updateInput(event) }
+              type="text"
+              name="interestKMDFiatPrice"
+              value={ this.state.interestKMDFiatPrice }
+              placeholder="KMD / USD rate"
+              className="form-control" />
+          </div>
+          <div className="col-md-3 col-sm-3">
+            <span className="pointer toggle">
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  name="toggleInterestFiatAutoRate"
+                  value={ this.state.toggleInterestFiatAutoRate }
+                  checked={ this.state.toggleInterestFiatAutoRate } />
+                <div
+                  className="slider"
+                  onClick={ this.toggleInterestFiatAutoRate }></div>
+              </label>
+              <span
+                className="title"
+                onClick={ this.toggleInterestFiatAutoRate }>Auto update</span>
+            </span>
+          </div>
+        </div>
+        <div
+          className="col-md-12 col-sm-12"
+          style={{ paddingBottom: '100px' }}>
           <div className="col-md-12 col-sm-12">
             { this.renderCalculatedInterest() }
           </div>
@@ -377,7 +445,7 @@ class InterestCalc extends React.Component {
   render() {
     return (
       <div
-        style={{ paddingTop: '50px', maxWidth: '1000px', margin: '0 auto', float: 'none' }}
+        style={{ paddingTop: '50px', maxWidth: '1100px', margin: '0 auto', float: 'none' }}
         className="col-md-12">
         <div className="col-md-12 col-sm-12">
           <div className="col-md-12 col-sm-12">

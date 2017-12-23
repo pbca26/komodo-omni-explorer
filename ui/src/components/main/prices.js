@@ -62,11 +62,18 @@ class Prices extends React.Component {
       Footer: 'Price',
       maxWidth: '250',
       accessor: (item) => Number(item.value),
+    },
+    { id: 'price-usd',
+      Header: 'Price, USD',
+      Footer: 'Price, USD',
+      maxWidth: '250',
+      accessor: (item) => item.pair.indexOf('/KMD') > -1 ? '$' + Number(item.value * this.props.Main.fiatRates.USD).toFixed(3) : '',
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
       delete _col[0].Footer;
       delete _col[1].Footer;
+      delete _col[2].Footer;
     }
 
     columns.push(..._col);

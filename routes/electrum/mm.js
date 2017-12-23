@@ -7,6 +7,7 @@ const async = require('async');
 
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
+const RATES_UPDATE_INTERVAL = 60000; // every 60s
 let electrumServers = [];
 
 const tempElectrumCoins = Object.keys(config.electrumServers).concat(Object.keys(config.electrumServersExtend));
@@ -61,8 +62,45 @@ module.exports = (shepherd) => {
     orders: {},
     ordersUpdateInProgress: false,
     pricesUpdateInProgress: false,
+    fiatRates: null,
     userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
   };
+
+  shepherd.getRates = () => {
+    function _getRates() {
+      const options = {
+        url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,USD`,
+        method: 'GET',
+      };
+
+      // send back body on both success and error
+      // this bit replicates iguana core's behaviour
+      request(options, (error, response, body) => {
+        if (response &&
+            response.statusCode &&
+            response.statusCode === 200) {
+          const _parsedBody = JSON.parse(body);
+          console.log(`rates ${body}`);
+          shepherd.mm.fiatRates = _parsedBody;
+        } else {
+          console.log(`unable to retrieve KMD/BTC,USD rate`);
+        }
+      });
+    }
+
+    _getRates();
+    shepherd.mmRatesInterval = setInterval(() => {
+      _getRates();
+    }, RATES_UPDATE_INTERVAL);
+  }
+
+  // get kmd rates
+  shepherd.get('/rates/kmd', (req, res, next) => {
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: shepherd.mm.fiatRates,
+    }));
+  });
 
   // start coin pairs in electrum
   shepherd.get('/mm/coins/start', (req, res, next) => {

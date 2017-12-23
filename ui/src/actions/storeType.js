@@ -6,3 +6,4 @@ export const INTEREST = 'INTEREST';
 export const UNSPENTS = 'UNSPENTS';
 export const ORDERBOOKS = 'ORDERBOOKS';
 export const PRICES = 'PRICES';
+export const FIAT = 'FIAT';
