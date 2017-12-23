@@ -377,7 +377,7 @@ class InterestCalc extends React.Component {
   render() {
     return (
       <div
-        style={{ paddingTop: '30px' }}
+        style={{ paddingTop: '50px', maxWidth: '1000px', margin: '0 auto', float: 'none' }}
         className="col-md-12">
         <div className="col-md-12 col-sm-12">
           <div className="col-md-12 col-sm-12">
