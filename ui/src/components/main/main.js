@@ -15,6 +15,7 @@ import {
   getPrices,
   getOrderbooks,
   resetInterestState,
+  fiatRates,
 } from '../../actions/actionCreators';
 import {
   getQueryVariable,
@@ -22,6 +23,7 @@ import {
 
 const PRICES_UPDATE_INTERVAL = 20000;
 const ORDERS_UPDATE_INTERVAL = 30000;
+const FIAT_UPDATE_INTERVAL = 60000;
 
 class Main extends React.Component {
   constructor(props) {
@@ -67,6 +69,12 @@ class Main extends React.Component {
     } else if (_interestCalc) {
       this.changeActiveSection('calc');
     }
+
+    Store.dispatch(fiatRates());
+
+    this.overviewInterval = setInterval(() => {
+      Store.dispatch(fiatRates());
+    }, FIAT_UPDATE_INTERVAL);
   }
 
   updateInput(e) {

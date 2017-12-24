@@ -409,6 +409,7 @@ class InterestCalc extends React.Component {
               onChange={ (event) => this.updateInput(event) }
               type="text"
               name="interestKMDFiatPrice"
+              disabled={ this.state.toggleInterestFiatAutoRate }
               value={ this.state.interestKMDFiatPrice }
               placeholder="KMD / USD rate"
               className="form-control" />

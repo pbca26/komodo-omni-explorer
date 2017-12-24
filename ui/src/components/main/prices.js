@@ -54,20 +54,40 @@ class Prices extends React.Component {
       id: 'pair',
       Header: 'Pair',
       Footer: 'Pair',
-      maxWidth: '250',
+      maxWidth: '280',
       accessor: (item) => this.renderPairIcon(item.pair),
     },
-    { id: 'price',
-      Header: 'Price',
-      Footer: 'Price',
-      maxWidth: '250',
-      accessor: (item) => Number(item.value),
+    { id: 'price-avg',
+      Header: 'Price (avg)',
+      Footer: 'Price (avg)',
+      maxWidth: '200',
+      accessor: (item) => Number(formatValue(item.value.avg)),
+    },
+    { id: 'price-low',
+      Header: 'Price (low)',
+      Footer: 'Price (low)',
+      maxWidth: '200',
+      accessor: (item) => Number(formatValue(item.value.low)),
+    },
+    { id: 'price-high',
+      Header: 'Price (high)',
+      Footer: 'Price (high)',
+      maxWidth: '200',
+      accessor: (item) => Number(formatValue(item.value.high)),
     },
     { id: 'price-usd',
-      Header: 'Price, USD',
-      Footer: 'Price, USD',
-      maxWidth: '250',
-      accessor: (item) => item.pair.indexOf('/KMD') > -1 ? '$' + Number(item.value * this.props.Main.fiatRates.USD).toFixed(3) : '',
+      Header: 'Price (low), USD',
+      Footer: 'Price (low), USD',
+      maxWidth: '200',
+      Cell: row => (
+        <div>
+          { row.value !== '' &&
+            <i className="fa fa-dollar prices-usd-icon"></i>
+          }
+          <span>{ row.value }</span>
+        </div>
+      ),
+      accessor: (item) => item.pair.indexOf('/KMD') > -1 ? Number(formatValue(item.value.low * this.props.Main.fiatRates.USD)) : '',
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
@@ -139,7 +159,7 @@ class Prices extends React.Component {
         this.state.prices.length) {
       return (
         <div
-          style={{ maxWidth: '750px', margin: '0 auto' }}
+          style={{ maxWidth: '1080px', margin: '0 auto' }}
           className="panel panel-default">
           <div className="panel-heading">
             <strong>Prices</strong>

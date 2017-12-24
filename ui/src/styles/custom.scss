@@ -118,6 +118,11 @@ table td {
   }
 }
 
+.prices-table .rt-tr-group .rt-td:first-child {
+  text-align: left !important;
+  margin-left: 5px;
+}
+
 .books-table {
   .ReactTable {
     .rt-tbody {
@@ -271,4 +276,9 @@ input:checked + .slider:before {
     top: -4px;
     left: 14px;
   }
+}
+
+.prices-usd-icon {
+  color: #737373;
+  margin-right: 1px;
 }

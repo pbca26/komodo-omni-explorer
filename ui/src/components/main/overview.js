@@ -10,7 +10,6 @@ import {
 } from '../../util/util';
 import {
   getOverview,
-  fiatRates,
 } from '../../actions/actionCreators';
 import config from '../../config';
 
@@ -143,11 +142,9 @@ class Overview extends React.Component {
 
   componentWillMount() {
     Store.dispatch(getOverview());
-    Store.dispatch(fiatRates());
 
     this.overviewInterval = setInterval(() => {
       Store.dispatch(getOverview());
-      Store.dispatch(fiatRates());
     }, OVERVIEW_UPDATE_INTERVAL);
   }
 

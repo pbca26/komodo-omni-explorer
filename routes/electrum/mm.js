@@ -317,27 +317,36 @@ module.exports = (shepherd) => {
   shepherd.pricesPairs = (prices) => {
     let _prices = {};
     let _pairDiv = {};
+    let _allCoinPrices = {};
+    let _res = {};
 
     if (prices &&
         prices.length) {
       for (let i = 0; i < prices.length; i++) {
         for (let j = 0; j < prices[i].asks.length; j++) {
           if (!_prices[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]]) {
+            _allCoinPrices[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]] = [];
+            _allCoinPrices[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]].push(prices[i].asks[j][2]);
             _pairDiv[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]] = 1;
             _prices[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]] = prices[i].asks[j][2];
           } else { // average
             _pairDiv[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]] += 1;
             _prices[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]] += prices[i].asks[j][2];
+            _allCoinPrices[prices[i].asks[j][0] + '/' + prices[i].asks[j][1]].push(prices[i].asks[j][2]);
           }
         }
       }
 
       for (let key in _prices) {
-        _prices[key] = (_prices[key] / _pairDiv[key]).toFixed(8);
+        _res[key] = {
+          avg: (_prices[key] / _pairDiv[key]).toFixed(8),
+          low: Math.min(..._allCoinPrices[key]),
+          high: Math.max(..._allCoinPrices[key]),
+        };
       }
     }
 
-    return _prices;
+    return _res;
   }
 
   shepherd.filterOrderbook = (orderbook) => {
