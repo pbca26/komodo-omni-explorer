@@ -248,7 +248,7 @@ export function fiatRates() {
   }
 }
 
-export function coins() {
+export function coins(currentState) {
   return dispatch => {
     return fetch(`http://${config.ip}:${config.port}/api/mm/coins`, {
       method: 'GET',
@@ -259,6 +259,10 @@ export function coins() {
     .then(response => response.json())
     .then(json => {
       dispatch(coinsState(json.result));
+
+      if (!currentState) {
+        dispatch(coinsState(json.result));
+      }
     });
   }
 }
