@@ -167,6 +167,8 @@ class InterestCalc extends React.Component {
             <div style={{ paddingTop: '20px' }}>APR rate: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </div>
             <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> in transaction fees, <strong>{ _hoursGap } hour(s)</strong> gap period when no interest is accrued.</div>
             <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
+            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
+            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
           </div>
         );
         break;
@@ -245,6 +247,8 @@ class InterestCalc extends React.Component {
             <div style={{ paddingTop: '20px' }}>APR rate: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </div>
             <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> in transaction fees, <strong>{ _hoursGap } hour(s)</strong> gap period when no interest is accrued.</div>
             <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
+            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
+            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
           </div>
         );
         break;
@@ -288,6 +292,8 @@ class InterestCalc extends React.Component {
             <div style={{ paddingTop: '20px' }}>APR rate: <strong>5%</strong> </div>
             <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>0.0001 KMD</strong> in transaction fees, <strong>1 hour</strong> gap period when no interest is accrued.</div>
             <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
+            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
+            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
           </div>
         );
         break;
@@ -327,6 +333,8 @@ class InterestCalc extends React.Component {
             <div style={{ paddingTop: '20px' }}>APR rate: <strong>5%</strong> </div>
             <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>0.0001 KMD</strong> in transaction fees, <strong>1 hour</strong> gap period when no interest is accrued.</div>
             <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
+            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
+            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
           </div>
         );
         break;

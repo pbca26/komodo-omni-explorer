@@ -73,7 +73,6 @@ class Main extends React.Component {
     } else if (_interestCalc) {
       this.changeActiveSection('calc', true);
     } else if (_coins) {
-      console.warn('coins');
       Store.dispatch(coins());
       this.changeActiveSection('coins', true);
     }
