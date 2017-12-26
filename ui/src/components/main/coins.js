@@ -3,33 +3,11 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
 
-const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
-
 class Coins extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
     };
-  }
-
-  renderPairIcon(pair) {
-    const _pair = pair.split('/');
-
-    return (
-      <span>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${_pair[0].toLowerCase()}.png` }
-          height="25px" />
-        <span style={{ marginLeft: '10px' }}>{ _pair[0] }</span>
-        <i
-          style={{ marginLeft: '10px', marginRight: '10px' }}
-          className="fa fa-exchange"></i>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${_pair[1].toLowerCase()}.png` }
-          height="25px" />
-        <span style={{ marginLeft: '10px' }}>{ _pair[1] }</span>
-      </span>
-    );
   }
 
   renderDexCoins() {
@@ -56,7 +34,8 @@ class Coins extends React.Component {
 
   render() {
     if (this.props.Main &&
-        this.props.Main.coins) {
+        this.props.Main.coins &&
+        this.props.Main.coins.length) {
       return (
         <div className="dex-coins">
           <h4>Total supported BarterDex coins: { this.props.Main.coins.length }</h4>
