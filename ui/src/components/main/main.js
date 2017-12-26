@@ -7,6 +7,7 @@ import Interest from './interest';
 import InterestCalc from './interestCalc';
 import Prices from './prices';
 import Books from './books';
+import Coins from './coins';
 import config from '../../config';
 import {
   searchTerm,
@@ -16,6 +17,7 @@ import {
   getOrderbooks,
   resetInterestState,
   fiatRates,
+  coins,
 } from '../../actions/actionCreators';
 import {
   getQueryVariable,
@@ -39,6 +41,7 @@ class Main extends React.Component {
     this.openDexBooks = this.openDexBooks.bind(this);
     this.updateInput = this.updateInput.bind(this);
     this.openInterestCalc = this.openInterestCalc.bind(this);
+    this.openCoins = this.openCoins.bind(this);
     this.booksInterval = null;
     this.pricesInterval = null;
   }
@@ -50,6 +53,7 @@ class Main extends React.Component {
     const _summary = getQueryVariable('summary');
     const _books = getQueryVariable('books');
     const _prices = getQueryVariable('prices');
+    const _coins = getQueryVariable('coins');
 
     if (_searchTerm) {
       Store.dispatch(searchTerm(_searchTerm));
@@ -62,12 +66,15 @@ class Main extends React.Component {
       this.changeActiveSection('summary', true);
     } else if (_books) {
       Store.dispatch(getOrderbooks());
-      this.changeActiveSection('books');
+      this.changeActiveSection('books', true);
     } else if (_prices) {
       Store.dispatch(getPrices());
-      this.changeActiveSection('prices');
+      this.changeActiveSection('prices', true);
     } else if (_interestCalc) {
-      this.changeActiveSection('calc');
+      this.changeActiveSection('calc', true);
+    } else if (_coins) {
+      Store.dispatch(coins());
+      this.changeActiveSection('coin', true);
     }
 
     Store.dispatch(fiatRates());
@@ -140,6 +147,11 @@ class Main extends React.Component {
   openInterest() {
     Store.dispatch(resetInterestState());
     this.changeActiveSection('interest');
+  }
+
+  openCoins() {
+    Store.dispatch(coins());
+    this.changeActiveSection('coins');
   }
 
   openInterestCalc() {
@@ -239,6 +251,14 @@ class Main extends React.Component {
                         <span className="menu-text">DEX books</span>
                       </a>
                     </li>
+                    <li
+                      onClick={ this.openCoins }
+                      className={ this.state.activeSection === 'coins' ? 'active' : '' }>
+                      <a className="navbar-link pointer">
+                        <span className="fa fa-th"></span>
+                        <span className="menu-text">DEX coins</span>
+                      </a>
+                    </li>
                     <li>
                       <a
                         href="https://github.com/pbca26/komodo-omni-explorer"
@@ -312,6 +332,7 @@ class Main extends React.Component {
             this.state.activeSection !== 'prices' &&
             this.state.activeSection !== 'books' &&
             this.state.activeSection !== 'calc' &&
+            this.state.activeSection !== 'coins' &&
             <div
               style={{ marginTop: '10px', marginBottom: '40px' }}
               className="row text-center">
@@ -358,6 +379,9 @@ class Main extends React.Component {
         }
         { this.state.activeSection === 'calc' &&
           <InterestCalc />
+        }
+        { this.state.activeSection === 'coins' &&
+          <Coins />
         }
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
            <div className="col-md-4">

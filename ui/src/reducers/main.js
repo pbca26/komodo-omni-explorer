@@ -8,6 +8,7 @@ import {
   ORDERBOOKS,
   UPDATE_SEARCH_TERM,
   FIAT,
+  COINS,
 } from '../actions/storeType';
 
 export function Main(state = {
@@ -22,6 +23,7 @@ export function Main(state = {
   prices: null,
   orderbooks: null,
   fiatRates: null,
+  coins: null,
 }, action) {
   switch (action.type) {
     case UPDATE:
@@ -71,6 +73,11 @@ export function Main(state = {
       return {
         ...state,
         fiatRates: action.fiatRates,
+      };
+    case COINS:
+      return {
+        ...state,
+        coins: action.coins,
       };
     default:
       return state;

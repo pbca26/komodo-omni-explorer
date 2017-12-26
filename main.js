@@ -36,3 +36,4 @@ console.log(`Komodo Atomic Explorer Server is running at ${config.ip}:${config.p
 shepherd.getOverview(true);
 shepherd.getSummary(true);
 shepherd.getRates();
+shepherd.getMMCoins();

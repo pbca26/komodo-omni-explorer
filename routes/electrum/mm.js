@@ -63,6 +63,7 @@ module.exports = (shepherd) => {
     ordersUpdateInProgress: false,
     pricesUpdateInProgress: false,
     fiatRates: null,
+    coins: {},
     userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
   };
 
@@ -375,6 +376,21 @@ module.exports = (shepherd) => {
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.prices,
+    }));
+  });
+
+  shepherd.getMMCoins = () => {
+    const coinsFileLocation = path.join(__dirname, '../../coins.json');
+    const coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
+
+    shepherd.mm.coins = coinsFile;
+  }
+
+  shepherd.get('/mm/coins', (req, res, next) => {
+
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: shepherd.mm.coins,
     }));
   });
 

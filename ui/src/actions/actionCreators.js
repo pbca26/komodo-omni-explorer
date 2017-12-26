@@ -11,7 +11,8 @@ import {
   PRICES,
   ORDERBOOKS,
   UPDATE_SEARCH_TERM,
-  FIAT
+  FIAT,
+  COINS,
 } from './storeType';
 
 export function summaryState(summary) {
@@ -88,6 +89,14 @@ export function fiatRatesState(fiatRates) {
     fiatRates,
   }
 }
+
+export function coinsState(coins) {
+  return {
+    type: COINS,
+    coins,
+  }
+}
+
 
 export function searchTerm(searchTerm, currentState) {
   return dispatch => {
@@ -235,6 +244,21 @@ export function fiatRates() {
     .then(response => response.json())
     .then(json => {
       dispatch(fiatRatesState(json.result));
+    });
+  }
+}
+
+export function coins() {
+  return dispatch => {
+    return fetch(`http://${config.ip}:${config.port}/api/mm/coins`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(coinsState(json.result));
     });
   }
 }
