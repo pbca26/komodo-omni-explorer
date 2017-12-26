@@ -39,6 +39,9 @@ class Coins extends React.Component {
       return (
         <div className="dex-coins">
           <h4>Total supported BarterDex coins: { this.props.Main.coins.length }</h4>
+          <div className="list-a-coin">
+            <a href="https://support.supernet.org/support/solutions/articles/29000014804-how-get-your-coin-listed-on-barterdex">How to get your coin listed on BarterDex</a>
+          </div>
           <div>{ this.renderDexCoins() }</div>
         </div>
       );

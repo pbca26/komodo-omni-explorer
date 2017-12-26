@@ -286,19 +286,45 @@ input:checked + .slider:before {
 .dex-coins {
   max-width: 1200px;
   margin: 0 auto;
+  padding-top: 20px;
 
   h4 {
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: 20px;
   }
 
   img {
     border-radius: 50%;
   }
 
+  .list-a-coin {
+    border-radius: 4px;
+    background: #2f6363;
+    width: 300px;
+    text-align: center;
+    margin: 0 auto;
+    margin-bottom: 60px;
+
+    a {
+      color: #fff;
+      padding: 10px;
+      display: block;
+    }
+
+    &:hover {
+      background-color: #f8a627;
+
+      a,
+      a:visited,
+      a:hover {
+        color: #fff;
+      }
+    }
+  }
+
   .coins-list {
     .coins-list-item {
-      float: left;
+      display: inline-block;
       width: 150px;
       height: 150px;
       text-align: center;

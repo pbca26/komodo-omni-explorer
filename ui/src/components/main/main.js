@@ -323,11 +323,13 @@ class Main extends React.Component {
               </div>
             }
           </div>
-          <div
-            className="row text-center"
-            style={{ marginTop: '10px', marginBottom: '40px' }}>
-            { this.renderCoinIcons() }
-          </div>
+          { this.state.activeSection !== 'coins' &&
+            <div
+              className="row text-center"
+              style={{ marginTop: '10px', marginBottom: '40px' }}>
+              { this.renderCoinIcons() }
+            </div>
+          }
           { this.state.activeSection !== 'summary' &&
             this.state.activeSection !== 'prices' &&
             this.state.activeSection !== 'books' &&
