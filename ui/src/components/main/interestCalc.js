@@ -142,34 +142,14 @@ class InterestCalc extends React.Component {
             break;
         }
 
-        return (
-          <div>
-            <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table">
-              <thead>
-                <tr>
-                  <th>Period</th>
-                  <th>Amount</th>
-                  <th>Interest (accumulative)</th>
-                  <th>Total (accumulative)</th>
-                  <th>Total, USD (accumulative)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1 year</td>
-                  <td>{ this.state.interestAmount }</td>
-                  <td>{ _ytdInterest.toFixed(3) }</td>
-                  <td>{ _total.toFixed(3) }</td>
-                  <td>${ Number(_total * this.state.interestKMDFiatPrice).toFixed(3) }</td>
-                </tr>
-              </tbody>
-            </table>
-            <div style={{ paddingTop: '20px' }}>APR rate: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </div>
-            <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> in transaction fees, <strong>{ _hoursGap } hour(s)</strong> gap period when no interest is accrued.</div>
-            <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
-            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
-            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
-          </div>
+        _items.push(
+          <tr>
+            <td>1 year</td>
+            <td>{ this.state.interestAmount }</td>
+            <td>{ _ytdInterest.toFixed(3) }</td>
+            <td>{ _total.toFixed(3) }</td>
+            <td>${ Number(_total * this.state.interestKMDFiatPrice).toFixed(3) }</td>
+          </tr>
         );
         break;
       case 'months':
@@ -227,30 +207,6 @@ class InterestCalc extends React.Component {
             }
             break;
         }
-
-        return (
-          <div>
-            <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table">
-              <thead>
-                <tr>
-                  <th>Period</th>
-                  <th>Amount</th>
-                  <th>Interest (accumulative)</th>
-                  <th>Total (accumulative)</th>
-                  <th>Total, USD (accumulative)</th>
-                </tr>
-              </thead>
-              <tbody>
-              { _items }
-              </tbody>
-            </table>
-            <div style={{ paddingTop: '20px' }}>APR rate: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </div>
-            <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> in transaction fees, <strong>{ _hoursGap } hour(s)</strong> gap period when no interest is accrued.</div>
-            <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
-            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
-            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
-          </div>
-        );
         break;
       case 'weeks':
         for (let i = 0; i < 365 / 7 ; i++) {
@@ -272,30 +228,6 @@ class InterestCalc extends React.Component {
             </tr>
           );
         }
-
-        return (
-          <div>
-            <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table">
-              <thead>
-                <tr>
-                  <th>Period</th>
-                  <th>Amount</th>
-                  <th>Interest (accumulative)</th>
-                  <th>Total (accumulative)</th>
-                  <th>Total, USD (accumulative)</th>
-                </tr>
-              </thead>
-              <tbody>
-              { _items }
-              </tbody>
-            </table>
-            <div style={{ paddingTop: '20px' }}>APR rate: <strong>5%</strong> </div>
-            <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>0.0001 KMD</strong> in transaction fees, <strong>1 hour</strong> gap period when no interest is accrued.</div>
-            <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
-            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
-            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
-          </div>
-        );
         break;
       case 'days':
         for (let i = 0; i < 365 ; i++) {
@@ -313,37 +245,43 @@ class InterestCalc extends React.Component {
             </tr>
           );
         }
-
-        return (
-          <div>
-            <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table">
-              <thead>
-                <tr>
-                  <th>Period</th>
-                  <th>Amount</th>
-                  <th>Interest (accumulative)</th>
-                  <th>Total (accumulative)</th>
-                  <th>Total, USD (accumulative)</th>
-                </tr>
-              </thead>
-              <tbody>
-              { _items }
-              </tbody>
-            </table>
-            <div style={{ paddingTop: '20px' }}>APR rate: <strong>5%</strong> </div>
-            <div style={{ marginTop: '10px' }}>Expenses not included in calculation: <strong>0.0001 KMD</strong> in transaction fees, <strong>1 hour</strong> gap period when no interest is accrued.</div>
-            <div style={{ marginTop: '10px' }}>Your actual amounts will be less than what is presented in the table.</div>
-            <div style={{ marginTop: '30px' }}><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</div>
-            <div style={{ marginTop: '10px' }}><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</div>
-          </div>
-        );
         break;
     }
+
+    return (
+      <div>
+        <div className="table-responsive">
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table">
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th>Amount</th>
+                <th>Interest (accumulative)</th>
+                <th>Total (accumulative)</th>
+                <th>Total, USD (accumulative)</th>
+              </tr>
+            </thead>
+            <tbody>
+            { _items }
+            </tbody>
+          </table>
+        </div>
+        <div className="row">
+          <div className="col-md-12">
+            <p className="margin-top-md">APR rate: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </p>
+            <p>Expenses not included in calculation: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> in transaction fees, <strong>{ _hoursGap } hour(s)</strong> gap period when no interest is accrued.</p>
+            <p>Your actual amounts will be less than what is presented in the table.</p>
+            <p className="margin-top-lg"><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</p>
+            <p><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   renderInterestCalcUI() {
     return (
-      <div>
+      <div className="row">
         <div className="col-md-12 col-sm-12">
           <div className="col-md-4 col-sm-4 interest-label">
             Show me interest breakdown by
@@ -453,10 +391,8 @@ class InterestCalc extends React.Component {
 
   render() {
     return (
-      <div
-        style={{ paddingTop: '50px', maxWidth: '1100px', margin: '0 auto', float: 'none' }}
-        className="col-md-12">
-        <div className="col-md-12 col-sm-12">
+      <div>
+        <div className="row">
           <div className="col-md-12 col-sm-12">
             <button
               style={{ float: 'right' }}
