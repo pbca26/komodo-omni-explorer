@@ -84,10 +84,10 @@ class InterestCalc extends React.Component {
     let _amounts = [];
     let _interestAmounts = [];
     let _totalAmounts = [];
-    let _ytdInterest = 0;
-    let _total = 0;
-    let _fees = 0;
-    let _hoursGap = 0;
+    let _ytdInterest = Number(this.state.interestAmount) * 0.05;
+    let _total = Number(this.state.interestAmount) + _ytdInterest;
+    let _fees = 0.0001;
+    let _hoursGap = 1;
 
     switch (this.state.interestBreakdownThreshold) {
       case 'year':
