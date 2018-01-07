@@ -36,6 +36,7 @@ class InterestCalc extends React.Component {
     this.resetInterestCalc = this.resetInterestCalc.bind(this);
     this.toggleInterestFiatAutoRate = this.toggleInterestFiatAutoRate.bind(this);
     this.updateInput = this.updateInput.bind(this);
+    this.getInterestData = this.getInterestData.bind(this);
   }
 
   componentWillReceiveProps(props) {
@@ -79,15 +80,61 @@ class InterestCalc extends React.Component {
     });
   }
 
+  getInterestData(frequency, _total) {
+    let _interestIncrement = [];
+    let _interestAmounts = [];
+    let _totalAmounts = [];
+    let _amounts = [];   
+    let _items = [];
+    let _ytdInterest = 0;    
+
+    for (let i = 0; i < Math.floor(frequency); i++) {
+     _interestIncrement.push(_total * 0.05 / frequency);
+     if (frequency === 52 && i === 52) {
+        _interestIncrement[i] = (_total * 0.05 / frequency / 7);
+     }
+      _total += _interestIncrement[i];
+      _ytdInterest += _interestIncrement[i];
+      _amounts.push(this.state.interestAmount);
+
+      if(this.state.interestBreakdownFrequency === 'yearly') {
+        _interestAmounts.push(Number(i !== 0 ? _interestAmounts[i - 1] : 0) + _amounts[i] * 0.05 / 12);
+        _totalAmounts.push(Number(_amounts[i]) + Number(_interestAmounts[i]));
+      } else {
+        _interestAmounts.push(_ytdInterest);
+        _totalAmounts.push(_total);
+      }
+          
+      _items.push(<tr key={ `interest-calc-months-yearly-${i}` }>
+        <td>{ months[i] }</td>
+        <td>{ _amounts[i] }</td>
+        <td>{ _interestAmounts[i].toFixed(3) }</td>
+        <td>{ _totalAmounts[i].toFixed(3) }</td>
+        <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
+      </tr>
+      );
+    }
+
+    return {
+      items: _items, 
+      ytdInterest: _ytdInterest,
+      total: _total, 
+    };
+  }
+
   renderCalculatedInterest() {
     let _items = [];
     let _amounts = [];
     let _interestAmounts = [];
+    let _interestIncrement = [];
     let _totalAmounts = [];
     let _ytdInterest = Number(this.state.interestAmount) * 0.05;
     let _total = Number(this.state.interestAmount) + _ytdInterest;
     let _fees = 0.0001;
     let _hoursGap = 1;
+    let _intrest = {};
+    let _interestTable = {};
+
 
     switch (this.state.interestBreakdownThreshold) {
       case 'year':
@@ -99,46 +146,28 @@ class InterestCalc extends React.Component {
             _hoursGap = 1;
             break;
           case 'monthly':
-            let _monthlyInterest = [];
             _total = Number(this.state.interestAmount);
-            _ytdInterest = 0;
             _fees = 12 * 0.0001;
             _hoursGap = 12;
-
-            for (let i = 0; i < 12; i++) {
-              _monthlyInterest.push(_total * 0.05 / 12);
-              _total += _monthlyInterest[i];
-              _ytdInterest += _monthlyInterest[i];
-            }
+            _intrest = this.getInterestData(12, _total);
+            _total = _intrest.total;
+            _ytdInterest = _intrest.ytdInterest;
             break;
           case 'weekly':
-            let _weeklyInterest = [];
             _total = Number(this.state.interestAmount);
-            _ytdInterest = 0;
             _fees = 52 * 0.0001;
             _hoursGap = 52;
-
-            for (let i = 0; i < 365 / 7; i++) {
-              _weeklyInterest.push(_total * 0.05 / (365 / 7));
-              if (i === 52) {
-                _weeklyInterest[i] = (_total * 0.05 / (365 / 7) / 7);
-              }
-              _total += _weeklyInterest[i];
-              _ytdInterest += _weeklyInterest[i];
-            }
+            _intrest = this.getInterestData(52, _total);
+            _total = _intrest.total;
+            _ytdInterest =  _intrest.ytdInterest;
             break;
           case 'daily':
-            let _dailyInterest = [];
             _total = Number(this.state.interestAmount);
-            _ytdInterest = 0;
             _fees = 365 * 0.0001;
             _hoursGap = 365;
-
-            for (let i = 0; i < 365; i++) {
-              _dailyInterest.push(_total * 0.05 / 365);
-              _total += _dailyInterest[i];
-              _ytdInterest += _dailyInterest[i];
-            }
+            _intrest = this.getInterestData(365, _total);
+            _total = _intrest.total;
+            _ytdInterest = _intrest.ytdInterest;
             break;
         }
 
@@ -159,52 +188,18 @@ class InterestCalc extends React.Component {
             _total = Number(this.state.interestAmount) + _ytdInterest;
             _fees = 0.0001;
             _hoursGap = 1;
-
-            for (let i = 0; i < 12; i++) {
-              _amounts.push(this.state.interestAmount);
-              _interestAmounts.push(Number(i !== 0 ? _interestAmounts[i - 1] : 0) + _amounts[i] * 0.05 / 12);
-              _totalAmounts.push(Number(_amounts[i]) + Number(_interestAmounts[i]));
-
-              _items.push(
-                <tr key={ `interest-calc-months-yearly-${i}` }>
-                  <td>{ months[i] }</td>
-                  <td>{ _amounts[i] }</td>
-                  <td>{ _interestAmounts[i].toFixed(3) }</td>
-                  <td>{ _totalAmounts[i].toFixed(3) }</td>
-                  <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
-                </tr>
-              );
-            }
+            _interestTable = this.getInterestData(12, _total) 
+            _items = _interestTable.items;
+          
             break;
           case 'monthly':
-            let _monthlyInterest = [];
-            _interestAmounts = [];
-            _totalAmounts = [];
-            _amounts = [];
             _total = Number(this.state.interestAmount);
-            _ytdInterest = 0;
             _fees = 12 * 0.0001;
             _hoursGap = 12;
-
-            for (let i = 0; i < 12; i++) {
-              _monthlyInterest.push(_total * 0.05 / 12);
-              _total += _monthlyInterest[i];
-              _ytdInterest += _monthlyInterest[i];
-
-              _amounts.push(this.state.interestAmount);
-              _interestAmounts.push(_ytdInterest);
-              _totalAmounts.push(_total);
-
-              _items.push(
-                <tr key={ `interest-calc-months-monthly-${i}` }>
-                  <td>{ months[i] }</td>
-                  <td>{ _amounts[i] }</td>
-                  <td>{ _interestAmounts[i].toFixed(3) }</td>
-                  <td>{ _totalAmounts[i].toFixed(3) }</td>
-                  <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
-                </tr>
-              );
-            }
+            _interestTable = this.getInterestData(12, _total) 
+            _items = _interestTable.items;
+            _ytdInterest = _interestTable.ytdInterest;
+            _total = _interestTable.total;
             break;
         }
         break;
