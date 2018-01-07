@@ -5,8 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "webpack-dashboard -t 'IquidusOmniExplorerUI' -- webpack-dev-server --colors --no-info",
-    "watch": "webpack --watch",
-    "build": "rm -rf ./build && mkdir build && NODE_ENV=\"production\" webpack && cp -R ./build/* ../public && cp index.html ../public"
+    "build": "rm -rf ./build && mkdir build && NODE_ENV=\"production\" webpack && cp -R ./build/* ../public && cp index.html ../public",
   },
   "keywords": [
     "supernet",
