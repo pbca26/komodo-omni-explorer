@@ -19,9 +19,7 @@ class Coins extends React.Component {
         <div
           key={ `dex-coins-${i}` }
           className="coins-list-item">
-          <img
-            src={ `http://${config.ip}:${config.port}/public/images/${_coins[i].coin.toLowerCase()}.png` }
-            height="50px" />
+          <div className={ `coin-icon coin_${_coins[i].coin.toLowerCase()}`}></div>
           <div className="text-capitalize title">{ _coins[i].name || _coins[i].asset }</div>
         </div>
       );

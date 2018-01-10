@@ -1,0 +1,8 @@
+@import './sprite.scss';
+
+.coins-list-item {
+    .coin-icon {
+        
+    }
+    @include sprites($spritesheet-sprites);
+}

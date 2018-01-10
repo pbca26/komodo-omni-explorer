@@ -92,6 +92,34 @@ const rules = [
 if (isProduction) {
   // Production plugins
   plugins.push(
+    new SpritesmithPlugin({
+        src: {
+            cwd: path.resolve(__dirname, 'src/images/coins'),
+            glob: '*.png'
+        },
+        target: {
+            image: path.resolve(__dirname, 'src/styles/sprite.png'),
+            css: [
+              [path.resolve(__dirname, 'src/styles/sprite.scss'), {
+                format: 'retinaOnly'
+              }]
+            ]
+        },
+        apiOptions: {
+            cssImageRef: "./sprite.png",
+            generateSpriteName: fullPathToSourceFile => {
+              const {name} = path.parse(fullPathToSourceFile);
+              return `coin_${name}`;
+            }
+        },
+        customTemplates: {
+          retinaOnly: path.resolve(__dirname, 'src/styles/icon-template.handlebars')
+          // or whatever else here https://github.com/twolfson/spritesheet-templates/tree/master/lib/templates
+      },
+    })
+  );
+
+  plugins.push(
     new webpack.LoaderOptionsPlugin({
       minimize: true,
       debug: false,
@@ -151,7 +179,7 @@ if (isProduction) {
             css: path.resolve(__dirname, 'src/styles/sprite.scss')
         },
         apiOptions: {
-            cssImageRef: "~sprite.png"
+            cssImageRef: "./sprite.png"
         }
     })
   );
