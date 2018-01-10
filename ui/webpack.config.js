@@ -91,6 +91,7 @@ const rules = [
 
 if (isProduction) {
   // Production plugins
+ 
   plugins.push(
     new SpritesmithPlugin({
         src: {
@@ -99,11 +100,7 @@ if (isProduction) {
         },
         target: {
             image: path.resolve(__dirname, 'src/styles/sprite.png'),
-            css: [
-              [path.resolve(__dirname, 'src/styles/sprite.scss'), {
-                format: 'retinaOnly'
-              }]
-            ]
+            css: path.resolve(__dirname, 'src/styles/sprite.scss')
         },
         apiOptions: {
             cssImageRef: "./sprite.png",
@@ -111,11 +108,7 @@ if (isProduction) {
               const {name} = path.parse(fullPathToSourceFile);
               return `coin_${name}`;
             }
-        },
-        customTemplates: {
-          retinaOnly: path.resolve(__dirname, 'src/styles/icon-template.handlebars')
-          // or whatever else here https://github.com/twolfson/spritesheet-templates/tree/master/lib/templates
-      },
+        }
     })
   );
 
@@ -179,7 +172,11 @@ if (isProduction) {
             css: path.resolve(__dirname, 'src/styles/sprite.scss')
         },
         apiOptions: {
-            cssImageRef: "./sprite.png"
+            cssImageRef: "./sprite.png",
+            generateSpriteName: fullPathToSourceFile => {
+              const {name} = path.parse(fullPathToSourceFile);
+              return `coin_${name}`;
+            }
         }
     })
   );
