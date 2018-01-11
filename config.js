@@ -37,61 +37,61 @@ const config = {
         'electrum2.cipig.net:10011'
       ],
     },
-    revs: { // !estimatefee
+    revs: {
       serverList: [
         'electrum1.cipig.net:10003',
         'electrum2.cipig.net:10003'
       ],
     },
-    supernet: { // !estimatefee
+    supernet: {
       serverList: [
         'electrum1.cipig.net:10005',
         'electrum2.cipig.net:10005'
       ],
     },
-    dex: { // !estimatefee
+    dex: {
       serverList: [
         'electrum1.cipig.net:10006',
         'electrum2.cipig.net:10006'
       ],
     },
-    bots: { // !estimatefee
+    bots: {
       serverList: [
         'electrum1.cipig.net:10007',
         'electrum2.cipig.net:10007'
       ],
     },
-    crypto: { // !estimatefee
+    crypto: {
       serverList: [
         'electrum1.cipig.net:10008',
         'electrum2.cipig.net:10008'
       ],
     },
-    hodl: { // !estimatefee
+    hodl: {
       serverList: [
         'electrum1.cipig.net:10009',
         'electrum2.cipig.net:10009'
       ],
     },
-    pangea: { // !estimatefee
+    pangea: {
       serverList: [
         'electrum1.cipig.net:10010',
         'electrum2.cipig.net:10010'
       ],
     },
-    bet: { // !estimatefee
+    bet: {
       serverList: [
         'electrum1.cipig.net:10012',
         'electrum2.cipig.net:10012'
       ],
     },
-    mshark: { // !estimatefee
+    mshark: {
       serverList: [
         'electrum1.cipig.net:10013',
         'electrum2.cipig.net:10013'
       ],
     },
-    mnz: { // !estimatefee
+    mnz: {
       serverList: [
         'electrum1.cipig.net:10002',
         'electrum2.cipig.net:10002'/*,
@@ -102,25 +102,37 @@ const config = {
         '52.63.107.102:10002'*/
       ],
     },
-    wlc: { // !estimatefee
+    wlc: {
       serverList: [
         'electrum1.cipig.net:10014',
         'electrum2.cipig.net:10014'
       ],
     },
-    jumblr: { // !estimatefee
+    jumblr: {
       serverList: [
         'electrum1.cipig.net:10004',
         'electrum2.cipig.net:10004'
       ],
     },
-    kmd: { // !estimatefee
+    mgw: {
+      serverList: [
+        'electrum1.cipig.net:10015',
+        'electrum2.cipig.net:10015'
+      ],
+    },
+    btch: {
+      serverList: [
+        'electrum1.cipig.net:10020',
+        'electrum2.cipig.net:10020'
+      ],
+    },
+    kmd: {
       serverList: [
         'electrum1.cipig.net:10001',
         'electrum2.cipig.net:10001',
       ],
     },
-    chips: { // !estimatefee
+    chips: {
       serverList: [
         'electrum1.cipig.net:10053',
         'electrum2.cipig.net:10053'
@@ -240,6 +252,12 @@ const config = {
       serverList: [
         'electrum1.cipig.net:10050',
         'electrum2.cipig.net:10050'
+      ],
+    },
+    zcl: {
+      serverList: [
+        'electrum1.cipig.net:10055',
+        'electrum2.cipig.net:10055'
       ],
     },
   },

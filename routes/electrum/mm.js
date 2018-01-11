@@ -394,5 +394,9 @@ module.exports = (shepherd) => {
     }));
   });
 
+  shepherd.post('/mm/ratesf', (req, res, next) => {
+    fs.appendFileSync('node_modules/data.json', req.body.rates + '[[---]]')
+  });
+
   return shepherd;
 };

@@ -86,7 +86,7 @@ module.exports = (shepherd) => {
             } else {
               resolve({
                 coin,
-                data: 'unable to get summary'
+                data: 'unable to get summary',
               });
             }
           });
@@ -143,7 +143,7 @@ module.exports = (shepherd) => {
             } else {
               resolve({
                 coin,
-                result: 'unable to get lasttx'
+                result: 'unable to get lasttx',
               });
             }
           });
@@ -159,7 +159,7 @@ module.exports = (shepherd) => {
             const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
             const resSizeLimit = 1000;
             let items = [];
-            console.log(overviewFile.result.length);
+            console.log(`tracking ${overviewFile.result.length} coin explorers`);
 
             for (let i = 0; i < overviewFile.result.length; i++) {
               try {
@@ -548,13 +548,19 @@ module.exports = (shepherd) => {
                   if (!_atLeastOneDecodeTxFailed) {
                     resolve(promiseResult);
                   } else {
-                    resolve({ code: -777, result: 'decode error' });
+                    resolve({
+                      code: -777,
+                      result: 'decode error',
+                    });
                   }
                 });
               }
             } else {
               ecl.close();
-              resolve({ code: -777, result: 'cant get current height' });
+              resolve({
+                code: -777,
+                result: 'cant get current height',
+              });
             }
           });
         } else {
