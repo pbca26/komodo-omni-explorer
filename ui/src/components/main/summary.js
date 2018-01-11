@@ -25,10 +25,10 @@ class Summary extends React.Component {
           _items.push(
             <tr key={ `summary-${_summary[i].coin}` }>
               <td>
-                <img
-                  src={ `http://${config.ip}:${config.port}/public/images/${_summary[i].coin.toLowerCase()}.png` }
-                  height="50px" />
-                <span style={{ marginLeft: '10px' }}>
+                <span className="table-coin-icon-wrapper">
+                  <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}`}></span>
+                </span>
+                <span className="table-coin-name">
                   <a
                     target="_blank"
                     href={ `${config.explorers[_summary[i].coin]}` }>{ _summary[i].coin }</a>
@@ -52,20 +52,22 @@ class Summary extends React.Component {
       }
 
       return (
-        <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
-          <thead>
-            <tr>
-              <th>Coin</th>
-              <th>Block count</th>
-              <th>Difficulty</th>
-              <th>Supply</th>
-              <th>Connections</th>
-            </tr>
-          </thead>
-          <tbody>
-            { _items }
-          </tbody>
-        </table>
+        <div className="table-responsive">
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+            <thead>
+              <tr>
+                <th>Coin</th>
+                <th>Block count</th>
+                <th>Difficulty</th>
+                <th>Supply</th>
+                <th>Connections</th>
+              </tr>
+            </thead>
+            <tbody>
+              { _items }
+            </tbody>
+          </table>
+        </div>
       );
     }
 
