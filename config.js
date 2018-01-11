@@ -142,8 +142,8 @@ const config = {
   electrumServersExtend: {
     btc: {
       serverList: [
-        'electrum1.cipig.net:10000',
-        'electrum2.cipig.net:10000',
+        '173.212.225.176:10000',
+        'node1.komodo.rocks:50001',
       ],
     },
     arg: {
