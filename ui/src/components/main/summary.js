@@ -52,20 +52,22 @@ class Summary extends React.Component {
       }
 
       return (
-        <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
-          <thead>
-            <tr>
-              <th>Coin</th>
-              <th>Block count</th>
-              <th>Difficulty</th>
-              <th>Supply</th>
-              <th>Connections</th>
-            </tr>
-          </thead>
-          <tbody>
-            { _items }
-          </tbody>
-        </table>
+        <div className="table-responsive">
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+            <thead>
+              <tr>
+                <th>Coin</th>
+                <th>Block count</th>
+                <th>Difficulty</th>
+                <th>Supply</th>
+                <th>Connections</th>
+              </tr>
+            </thead>
+            <tbody>
+              { _items }
+            </tbody>
+          </table>
+        </div>
       );
     }
 

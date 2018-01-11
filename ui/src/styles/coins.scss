@@ -1,0 +1,11 @@
+@import './sprite.scss';
+
+.coins-list-item {
+    .coin-icon {
+        -webkit-transform: scale(0.6);
+        -ms-transform: scale(0.6); 
+        transform: scale(0.6);
+        margin: 0 auto;
+    }
+    @include sprites($spritesheet-sprites);
+}

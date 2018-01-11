@@ -198,36 +198,38 @@ class Overview extends React.Component {
 
   render() {
     return (
-      <div className="col-md-12">
-         <div className="panel panel-default">
-            <div className="panel-heading">
-              <strong>Latest Transactions</strong>
-            </div>
-            <div className="dex-table">
-              <input
-                className="form-control search-field"
-                onChange={ e => this.onSearchTermChange(e.target.value) }
-                placeholder="Filter" />
-              <ReactTable
-                data={ this.state.filteredItemsList }
-                columns={ this.state.itemsListColumns }
-                minRows="0"
-                sortable={ true }
-                className="-striped -highlight"
-                PaginationComponent={ TablePaginationRenderer }
-                nextText="Next page"
-                previousText="Previous page"
-                showPaginationBottom={ this.state.showPagination }
-                pageSize={ this.state.pageSize }
-                defaultSortMethod={ this.tableSorting }
-                defaultSorted={[{ // default sort
-                  id: 'timestamp',
-                  desc: true,
-                }]}
-                onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
-            </div>
-         </div>
-         <div className="footer-padding"></div>
+      <div className="row">
+        <div className="col-md-12">
+          <div className="panel panel-default">
+              <div className="panel-heading">
+                <strong>Latest Transactions</strong>
+              </div>
+              <div className="dex-table">
+                <input
+                  className="form-control search-field"
+                  onChange={ e => this.onSearchTermChange(e.target.value) }
+                  placeholder="Filter" />
+                <ReactTable
+                  data={ this.state.filteredItemsList }
+                  columns={ this.state.itemsListColumns }
+                  minRows="0"
+                  sortable={ true }
+                  className="-striped -highlight"
+                  PaginationComponent={ TablePaginationRenderer }
+                  nextText="Next page"
+                  previousText="Previous page"
+                  showPaginationBottom={ this.state.showPagination }
+                  pageSize={ this.state.pageSize }
+                  defaultSortMethod={ this.tableSorting }
+                  defaultSorted={[{ // default sort
+                    id: 'timestamp',
+                    desc: true,
+                  }]}
+                  onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
+              </div>
+          </div>
+          <div className="footer-padding"></div>
+        </div>
       </div>
     );
   }

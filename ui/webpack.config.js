@@ -5,6 +5,7 @@ const DashboardPlugin = require('webpack-dashboard/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const SpritesmithPlugin = require('webpack-spritesmith');
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProduction = nodeEnv === 'production';
@@ -90,6 +91,27 @@ const rules = [
 
 if (isProduction) {
   // Production plugins
+ 
+  plugins.push(
+    new SpritesmithPlugin({
+        src: {
+            cwd: path.resolve(__dirname, 'src/images/coins'),
+            glob: '*.png'
+        },
+        target: {
+            image: path.resolve(__dirname, 'src/styles/sprite.png'),
+            css: path.resolve(__dirname, 'src/styles/sprite.scss')
+        },
+        apiOptions: {
+            cssImageRef: "./sprite.png",
+            generateSpriteName: fullPathToSourceFile => {
+              const {name} = path.parse(fullPathToSourceFile);
+              return `coin_${name}`;
+            }
+        }
+    })
+  );
+
   plugins.push(
     new webpack.LoaderOptionsPlugin({
       minimize: true,
@@ -139,6 +161,26 @@ if (isProduction) {
     new DashboardPlugin()
   );
 
+  plugins.push(
+    new SpritesmithPlugin({
+        src: {
+            cwd: path.resolve(__dirname, 'src/images/coins'),
+            glob: '*.png'
+        },
+        target: {
+            image: path.resolve(__dirname, 'src/styles/sprite.png'),
+            css: path.resolve(__dirname, 'src/styles/sprite.scss')
+        },
+        apiOptions: {
+            cssImageRef: "./sprite.png",
+            generateSpriteName: fullPathToSourceFile => {
+              const {name} = path.parse(fullPathToSourceFile);
+              return `coin_${name}`;
+            }
+        }
+    })
+  );
+
   // Development rules
   rules.push(
     {
@@ -177,6 +219,7 @@ module.exports = {
     extensions: ['.webpack-loader.js', '.web-loader.js', '.loader.js', '.js', '.jsx'],
     modules: [
       path.resolve(__dirname, 'node_modules'),
+      path.resolve(__dirname, 'spritesmith-generated'),
       jsSourcePath,
     ],
   },
