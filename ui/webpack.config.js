@@ -158,7 +158,7 @@ if (isProduction) {
   plugins.push(
     new SpritesmithPlugin({
         src: {
-            cwd: path.resolve(__dirname, 'src/images/coins'),
+            cwd: path.resolve(__dirname, 'src/images'),
             glob: '*.png'
         },
         target: {
