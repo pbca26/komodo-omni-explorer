@@ -31,17 +31,15 @@ class Prices extends React.Component {
 
     return (
       <span>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${_pair[0].toLowerCase()}.png` }
-          height="25px" />
-        <span style={{ marginLeft: '10px' }}>{ _pair[0] }</span>
-        <i
-          style={{ marginLeft: '10px', marginRight: '10px' }}
-          className="fa fa-exchange"></i>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${_pair[1].toLowerCase()}.png` }
-          height="25px" />
-        <span style={{ marginLeft: '10px' }}>{ _pair[1] }</span>
+        <span className="table-coin-icon-wrapper">
+          <span className={ `table-coin-icon coin_${_pair[0].toLowerCase()}`}></span>
+        </span>
+        <span className="table-coin-name">{ _pair[0] }</span>
+        <i className="fa fa-exchange exchange-icon"></i>
+        <span className="table-coin-icon-wrapper">
+          <span className={ `table-coin-icon coin_${_pair[1].toLowerCase()}`}></span>
+        </span>
+        <span className="table-coin-name">{ _pair[1] }</span>
       </span>
     );
   }

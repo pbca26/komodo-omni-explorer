@@ -1,0 +1,60 @@
+@import './sprite.scss';
+
+.coins-list-item {
+    .coin-icon {
+        -webkit-transform: scale(0.6);
+        -ms-transform: scale(0.6); 
+        transform: scale(0.6);
+        margin: 0 auto;
+    }
+}
+.table-coin-icon-wrapper {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    overflow: hidden;
+    margin: 0px;
+}
+.table-coin-icon {
+    display: inline-block;
+    transform: scale(0.25);
+    transform-origin: 0 0;
+}
+.table-coin-name {
+    display: inline-block;
+    vertical-align: top;
+    line-height: 25px;
+    margin-left: 10px;
+}
+.exchange-icon {
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+    line-height: 25px;
+    vertical-align: top;
+}
+.coin-dropdown {
+    .table-coin-icon-wrapper,
+    .table-coin-name,
+    .exchange-icon {
+        vertical-align: middle;
+    }
+}
+.header-coin-wrapper {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    margin: 0 5px 0 0;
+
+    &:last-child {
+        margin-right: 0;
+    }
+    
+    .header-coin-icon {
+        display: inline-block;
+        transform: scale(0.3);
+        transform-origin: 0 0;
+    }
+}
+@include sprites($spritesheet-sprites);

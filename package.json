@@ -18,11 +18,12 @@
   "author": "SuperNET",
   "license": "MIT",
   "dependencies": {
+    "async": "^2.6.0",
+    "bitcoinjs-lib": "^3.2.0",
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "fs-extra": "^4.0.3",
-    "request": "^2.80.0",
-    "bitcoinjs-lib": "^3.2.0"
+    "request": "^2.80.0"
   }
 }

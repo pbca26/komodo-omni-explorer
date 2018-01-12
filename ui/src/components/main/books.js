@@ -35,10 +35,10 @@ class Books extends React.Component {
   renderCoinIcon(coin) {
     return (
       <span>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${coin.toLowerCase()}.png` }
-          height="25px" />
-        <span style={{ marginLeft: '10px' }}>{ coin }</span>
+        <span className="table-coin-icon-wrapper">
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+        </span>
+        <span className="table-coin-name">{ coin}</span>
       </span>
     );
   }
@@ -175,22 +175,16 @@ class Books extends React.Component {
     const _pair = option.value.split('/');
 
     return (
-      <div>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${_pair[0].toLowerCase()}.png` }
-          alt={ _pair[0] }
-          width="30px"
-          height="30px" />
-        <span style={{ marginLeft: '10px' }}>{ _pair[0] }</span>
-        <i
-          style={{ marginLeft: '10px', marginRight: '10px' }}
-          className="fa fa-exchange"></i>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${_pair[1].toLowerCase()}.png` }
-          alt={ _pair[1] }
-          width="30px"
-          height="30px" />
-        <span style={{ marginLeft: '10px' }}>{ _pair[1] }</span>
+      <div className="coin-dropdown">
+        <span className="table-coin-icon-wrapper">
+          <span className={ `table-coin-icon coin_${_pair[0].toLowerCase()}`}></span>
+        </span>
+        <span className="table-coin-name">{ _pair[0] }</span>
+        <i className="fa fa-exchange exchange-icon"></i>
+        <span className="table-coin-icon-wrapper">
+          <span className={ `table-coin-icon coin_${_pair[1].toLowerCase()}`}></span>
+        </span>
+        <span className="table-coin-name">{ _pair[1] }</span>
       </div>
     );
   }

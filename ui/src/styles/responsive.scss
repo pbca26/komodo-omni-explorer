@@ -1,0 +1,19 @@
+@media only screen and (max-width : 1000px) {
+  body {
+    padding: 0;
+  }
+  .books-table-block {
+    .panel {
+      display: block;
+      margin: 0;
+      width: 100%;
+
+      &:first-child {
+        margin-bottom: 40px;
+      }
+      &:last-child {
+        margin-bottom: 60px;
+      }
+    }
+  }
+}

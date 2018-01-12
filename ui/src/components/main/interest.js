@@ -205,9 +205,11 @@ class Interest extends React.Component {
       );
     } else {
       return (
-        <div className="col-md-12">
-          <div className="alert alert-warning">
-            <strong>{ _balance.message }</strong>
+        <div className="row">
+          <div className="col-md-12">
+            <div className="alert alert-warning">
+              <strong>{ _balance.message }</strong>
+            </div>
           </div>
         </div>
       );
