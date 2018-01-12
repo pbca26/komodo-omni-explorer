@@ -398,17 +398,17 @@ class Main extends React.Component {
         </div>
 
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
-           <div className="col-md-4">
-              <ul className="nav navbar-nav">
-                <li className="pull-left">
-                  <a
-                    id="twitter-icon"
-                    href="https://twitter.com/KomodoPlatform"
-                    target="_blank">
-                    <span className="glyphicon fa fa-twitter"></span>
-                  </a>
-                </li>
-              </ul>
+          <div className="col-md-4">
+            <ul className="nav navbar-nav">
+              <li className="pull-left">
+                <a
+                  id="twitter-icon"
+                  href="https://twitter.com/KomodoPlatform"
+                  target="_blank">
+                  <span className="glyphicon fa fa-twitter"></span>
+                </a>
+              </li>
+            </ul>
            </div>
            <div className="col-md-5">
             <ul className="nav">

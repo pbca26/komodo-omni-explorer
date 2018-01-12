@@ -145,6 +145,8 @@ class Prices extends React.Component {
       return true;
     }
 
+    term = term.toLowerCase();
+
     return this.contains(item.pair.toLowerCase(), term);
   }
 

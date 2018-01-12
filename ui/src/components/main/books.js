@@ -151,6 +151,8 @@ class Books extends React.Component {
       return true;
     }
 
+    term = term.toLowerCase();
+
     return this.contains(item.pair.toLowerCase(), term);
   }
 
@@ -159,16 +161,19 @@ class Books extends React.Component {
   }
 
   updatePair(e) {
-    const __books = this.props.Main.orderbooks;
-    const _pair = e.value;
+    if (e &&
+        e.value) {
+      const __books = this.props.Main.orderbooks;
+      const _pair = e.value;
 
-    this.setState({
-      pair: _pair,
-      asksItemsList: __books[_pair].asks,
-      bidsItemsList: __books[_pair].bids,
-      filteredAsksItemsList: this.filterData(__books[_pair].asks, this.state.searchTerm),
-      filteredBidsItemsList: this.filterData(__books[_pair].bids, this.state.searchTerm),
-    });
+      this.setState({
+        pair: _pair,
+        asksItemsList: __books[_pair].asks,
+        bidsItemsList: __books[_pair].bids,
+        filteredAsksItemsList: this.filterData(__books[_pair].asks, this.state.searchTerm),
+        filteredBidsItemsList: this.filterData(__books[_pair].bids, this.state.searchTerm),
+      });
+    }
   }
 
   renderPairOption(option) {
@@ -208,10 +213,6 @@ class Books extends React.Component {
                 <strong>Asks</strong>
               </div>
               <div className="books-table">
-                {/*<input
-                  className="form-control search-field"
-                  onChange={ e => this.onSearchTermChange(e.target.value) }
-                  placeholder="Filter" />*/}
                 <ReactTable
                   data={ this.state.filteredAsksItemsList }
                   columns={ this.state.itemsListColumns }
@@ -236,10 +237,6 @@ class Books extends React.Component {
                 <strong>Bids</strong>
               </div>
               <div className="books-table">
-                {/*<input
-                  className="form-control search-field"
-                  onChange={ e => this.onSearchTermChange(e.target.value) }
-                  placeholder="Filter" />*/}
                 <ReactTable
                   data={ this.state.filteredBidsItemsList }
                   columns={ this.state.itemsListColumns }
