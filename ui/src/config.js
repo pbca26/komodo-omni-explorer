@@ -1,6 +1,6 @@
 const config = {
   port: 8111,
-  dev: true,
+  dev: false,
   ip: '46.20.235.46',
   explorers: {
     KMD: 'http://kmd.komodochainz.info',

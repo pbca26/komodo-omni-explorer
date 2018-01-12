@@ -186,7 +186,9 @@ class Main extends React.Component {
     for (let key in config.explorers) {
       if (key !== 'KMD') {
         _items.push(
-          <span className="header-coin-wrapper">
+          <span
+            key={ `explorer-icons-${key}` }
+            className="header-coin-wrapper">
             <span className={ `header-coin-icon coin_${key.toLowerCase()}`}></span>
           </span>
         );
@@ -199,113 +201,111 @@ class Main extends React.Component {
   render() {
     return (
       <div>
-        <div role="navigation" className="nav navbar navbar-default navbar-fixed-top">
-            <div className="container-fluid">
-              <div className="navbar-header">
-                <button 
-                  type="button" 
-                  className="navbar-toggle"
-                  onClick={ ()=> this.toggleNavigation() }>
-                  <span className="sr-only">Toggle navigation</span>
-                  <span className="icon-bar"></span>
-                  <span className="icon-bar"></span>
-                  <span className="icon-bar"></span>
-                </button>
-                <a
-                  onClick={ ()=> this.changeActiveSection('overview') }
-                  className="navbar-brand">Atomic Explorer</a>
-              </div>
-              <div id="navbar-collapse" className={ !this.state.showNavigation ? 'collapse navbar-collapse' : 'navbar-collapse' }>
-                <ul className="nav navbar-nav">
-                  <li
-                    onClick={ () => this.changeActiveSection('overview') }
-                    className={ this.state.activeSection === 'overview' || this.state.activeSection === 'search' ? 'active' : '' }>
-                    <a className="navbar-link pointer">
-                      <span className="fa fa-search"></span>
-                      <span className="menu-text">Explorer</span>
-                    </a>
-                  </li>
-                  <li
-                    onClick={ () => this.changeActiveSection('interest') }
-                    className={ this.state.activeSection === 'interest' ? 'active' : '' }>
-                    <a className="navbar-link pointer">
-                      <span className="fa fa-money"></span>
-                      <span className="menu-text">KMD Interest</span>
-                    </a>
-                  </li>
-                  <li
-                    onClick={ this.openInterestCalc }
-                    className={ this.state.activeSection === 'calc' ? 'active' : '' }>
-                    <a className="navbar-link pointer">
-                      <span className="fa fa-calculator"></span>
-                      <span className="menu-text">Interest Calc</span>
-                    </a>
-                  </li>
-                  <li
-                    onClick={ this.openSummary }
-                    className={ this.state.activeSection === 'summary' ? 'active' : '' }>
-                    <a className="navbar-link pointer">
-                      <span className="fa fa-share-alt"></span>
-                      <span className="menu-text">Explorers list</span>
-                    </a>
-                  </li>
-                  <li
-                    onClick={ this.openDexPrices }
-                    className={ this.state.activeSection === 'prices' ? 'active' : '' }>
-                    <a className="navbar-link pointer">
-                      <span className="fa fa-usd"></span>
-                      <span className="menu-text">DEX prices</span>
-                    </a>
-                  </li>
-                  <li
-                    onClick={ this.openDexBooks }
-                    className={ this.state.activeSection === 'books' ? 'active' : '' }>
-                    <a className="navbar-link pointer">
-                      <span className="fa fa-line-chart"></span>
-                      <span className="menu-text">DEX books</span>
-                    </a>
-                  </li>
-                  <li
-                    onClick={ this.openCoins }
-                    className={ this.state.activeSection === 'coins' ? 'active' : '' }>
-                    <a className="navbar-link pointer">
-                      <span className="fa fa-th"></span>
-                      <span className="menu-text">DEX coins</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://github.com/pbca26/komodo-omni-explorer"
-                      className="navbar-link"
-                      target="_blank">
-                      <span className="fa fa-info-circle"></span>
-                      <span className="menu-text">API</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div> 
+        <div
+          role="navigation"
+          className="nav navbar navbar-default navbar-fixed-top">
+          <div className="container-fluid">
+            <div className="navbar-header">
+              <button
+                type="button"
+                className="navbar-toggle"
+                onClick={ ()=> this.toggleNavigation() }>
+                <span className="sr-only">Toggle navigation</span>
+                <span className="icon-bar"></span>
+                <span className="icon-bar"></span>
+                <span className="icon-bar"></span>
+              </button>
+              <a
+                onClick={ ()=> this.changeActiveSection('overview') }
+                className="navbar-brand">Atomic Explorer</a>
+            </div>
+            <div
+              id="navbar-collapse"
+              className={ !this.state.showNavigation ? 'collapse navbar-collapse' : 'navbar-collapse' }>
+              <ul className="nav navbar-nav">
+                <li
+                  onClick={ () => this.changeActiveSection('overview') }
+                  className={ this.state.activeSection === 'overview' || this.state.activeSection === 'search' ? 'active' : '' }>
+                  <a className="navbar-link pointer">
+                    <span className="fa fa-search"></span>
+                    <span className="menu-text">Explorer</span>
+                  </a>
+                </li>
+                <li
+                  onClick={ () => this.changeActiveSection('interest') }
+                  className={ this.state.activeSection === 'interest' ? 'active' : '' }>
+                  <a className="navbar-link pointer">
+                    <span className="fa fa-money"></span>
+                    <span className="menu-text">KMD Interest</span>
+                  </a>
+                </li>
+                <li
+                  onClick={ this.openInterestCalc }
+                  className={ this.state.activeSection === 'calc' ? 'active' : '' }>
+                  <a className="navbar-link pointer">
+                    <span className="fa fa-calculator"></span>
+                    <span className="menu-text">Interest Calc</span>
+                  </a>
+                </li>
+                <li
+                  onClick={ this.openSummary }
+                  className={ this.state.activeSection === 'summary' ? 'active' : '' }>
+                  <a className="navbar-link pointer">
+                    <span className="fa fa-share-alt"></span>
+                    <span className="menu-text">Explorers list</span>
+                  </a>
+                </li>
+                <li
+                  onClick={ this.openDexPrices }
+                  className={ this.state.activeSection === 'prices' ? 'active' : '' }>
+                  <a className="navbar-link pointer">
+                    <span className="fa fa-usd"></span>
+                    <span className="menu-text">DEX prices</span>
+                  </a>
+                </li>
+                <li
+                  onClick={ this.openDexBooks }
+                  className={ this.state.activeSection === 'books' ? 'active' : '' }>
+                  <a className="navbar-link pointer">
+                    <span className="fa fa-line-chart"></span>
+                    <span className="menu-text">DEX books</span>
+                  </a>
+                </li>
+                <li
+                  onClick={ this.openCoins }
+                  className={ this.state.activeSection === 'coins' ? 'active' : '' }>
+                  <a className="navbar-link pointer">
+                    <span className="fa fa-th"></span>
+                    <span className="menu-text">DEX coins</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/pbca26/komodo-omni-explorer"
+                    className="navbar-link"
+                    target="_blank">
+                    <span className="fa fa-info-circle"></span>
+                    <span className="menu-text">API</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
         <div className="container-fluid">
           <div className="row">
             <div className="col-md-12">
               <div className="row text-center">
                 <div className="col-md-2 col-md-offset-3">
-                    <div className="panel panel-default hidden-sm hidden-xs">
-                      <div className="panel-heading">
-                        <strong>Coins</strong>
-                      </div>
-                      <div className="panel-body">
-                        <label id="hashrate">17</label>
-                      </div>
+                  <div className="panel panel-default hidden-sm hidden-xs">
+                    <div className="panel-heading">
+                      <strong>Coins</strong>
                     </div>
+                    <div className="panel-body">
+                      <label id="hashrate">17</label>
+                    </div>
+                  </div>
                 </div>
-                { /*<div className="col-md-2">
-                    <div className="panel panel-default hidden-sm hidden-xs">
-                      <div className="panel-heading"><strong>Difficulty</strong></div>
-                      <div className="panel-body"><label id="difficulty"></label></div>
-                    </div>
-                </div>*/}
                 <div className="col-md-2 col-sm-12">
                   <div>
                     <img
@@ -314,13 +314,6 @@ class Main extends React.Component {
                       height="100px" />
                   </div>
                 </div>
-                { /*
-                <div className="col-md-2">
-                    <div className="panel panel-default hidden-sm hidden-xs">
-                      <div className="panel-heading"><strong>Coin Supply (KMD)</strong></div>
-                      <div className="panel-body"><label id="supply"></label></div>
-                    </div>
-                </div>*/}
                 { this.props.Main.fiatRates &&
                   <div className="col-md-2">
                     <div className="panel panel-default hidden-sm hidden-xs">
@@ -355,7 +348,9 @@ class Main extends React.Component {
                   style={{ marginTop: '10px', marginBottom: '40px' }}
                   className="row text-center">
                   <div className="form-inline">
-                    <div id="index-search" className="form-group">
+                    <div
+                      id="index-search"
+                      className="form-group">
                       <input
                         onChange={ (event) => this.updateInput(event) }
                         type="text"
@@ -406,26 +401,38 @@ class Main extends React.Component {
            <div className="col-md-4">
               <ul className="nav navbar-nav">
                 <li className="pull-left">
-                  <a id="twitter-icon" href="https://twitter.com/KomodoPlatform" target="_blank">
+                  <a
+                    id="twitter-icon"
+                    href="https://twitter.com/KomodoPlatform"
+                    target="_blank">
                     <span className="glyphicon fa fa-twitter"></span>
                   </a>
                 </li>
               </ul>
            </div>
            <div className="col-md-5">
-              <ul className="nav">
-                <li
-                  style={{ marginLeft: '80px', marginRight: '80px' }}
-                  className="text-center">
-                    <p style={{ marginTop: '15px' }}>
-                      Powered by&nbsp;
-                      <a href="https://github.com/iquidus/explorer" target="_blank" className="navbar-link">Iquidus Explorer</a>,&nbsp;
-                      <a href="hhttps://github.com/jl777/SuperNET" target="_blank" className="navbar-link">BarterDEX</a>,
-                      <span style={{ color: '#fff', marginLeft: '5px', marginRight: '5px' }}>&amp;</span>
-                      <a href="https://github.com/kyuupichan/electrumx" target="_blank" className="navbar-link">Electrum</a>
-                    </p>
-                </li>
-              </ul>
+            <ul className="nav">
+              <li
+                style={{ marginLeft: '80px', marginRight: '80px' }}
+                className="text-center">
+                <p style={{ marginTop: '15px' }}>
+                  Powered by&nbsp;
+                  <a
+                    href="https://github.com/iquidus/explorer"
+                    target="_blank"
+                    className="navbar-link">Iquidus Explorer</a>,&nbsp;
+                  <a
+                    href="hhttps://github.com/jl777/SuperNET"
+                    target="_blank"
+                    className="navbar-link">BarterDEX</a>,
+                  <span style={{ color: '#fff', marginLeft: '5px', marginRight: '5px' }}>&amp;</span>
+                  <a
+                    href="https://github.com/kyuupichan/electrumx"
+                    target="_blank"
+                    className="navbar-link">Electrum</a>
+                </p>
+              </li>
+            </ul>
            </div>
         </div>
       </div>

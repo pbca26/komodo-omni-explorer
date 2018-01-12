@@ -1,5 +1,5 @@
 // display rounding
-export function formatValue(formatValue) {
+export const formatValue = (formatValue) => {
   const _valueToStr = formatValue.toString();
 
   if (_valueToStr.indexOf('.') === -1) {
@@ -23,8 +23,8 @@ export function formatValue(formatValue) {
   }
 }
 
-export function sortByDate(data, sortKey) { // deprecated
-  return data.sort(function(a, b) {
+export const sortByDate = (data, sortKey) => { // deprecated
+  return data.sort((a, b) => {
     if (a[sortKey] < b[sortKey]) {
       return -1;
     }
@@ -37,7 +37,7 @@ export function sortByDate(data, sortKey) { // deprecated
   });
 }
 
-export function secondsToString(seconds, skipMultiply, showSeconds) {
+export const secondsToString = (seconds, skipMultiply, showSeconds) => {
   const a = new Date(seconds * (skipMultiply ? 1 : 1000));
   const months = [
     'Jan',
@@ -64,14 +64,14 @@ export function secondsToString(seconds, skipMultiply, showSeconds) {
   return time;
 }
 
-export function checkTimestamp(dateToCheck) {
+export const checkTimestamp = (dateToCheck) => {
   const currentEpochTime = new Date(Date.now()) / 1000;
   const secondsElapsed = Number(currentEpochTime) - Number(dateToCheck / 1000);
 
   return Math.floor(secondsElapsed);
 }
 
-export function secondsElapsedToString(timestamp) { // in seconds
+export const secondsElapsedToString = (timestamp) => { // in seconds
   const secondsElapsed = checkTimestamp(timestamp);
   const hours = Math.floor(timestamp / 3600);
   const minutes = Math.floor((timestamp - (hours * 3600)) / 60);
@@ -83,7 +83,7 @@ export function secondsElapsedToString(timestamp) { // in seconds
   return returnTimeVal;
 }
 
-export function getQueryVariable(variable) {
+export const getQueryVariable = (variable) => {
   const query = window.location.search.substring(1);
   const vars = query.split('&');
 
