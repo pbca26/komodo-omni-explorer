@@ -185,6 +185,8 @@ class Overview extends React.Component {
       return true;
     }
 
+    term = term.toLowerCase();
+
     return this.contains(item.coin.toLowerCase(), term) ||
             this.contains(item.txid, term) ||
             this.contains(item.coin.toLowerCase(), term) ||
