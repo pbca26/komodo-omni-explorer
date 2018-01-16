@@ -53,7 +53,7 @@ class Summary extends React.Component {
 
       return (
         <div className="table-responsive">
-          <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table">
             <thead>
               <tr>
                 <th>Coin</th>

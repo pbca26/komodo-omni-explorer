@@ -84,15 +84,15 @@ class InterestCalc extends React.Component {
     let _interestIncrement = [];
     let _interestAmounts = [];
     let _totalAmounts = [];
-    let _amounts = [];   
+    let _amounts = [];
     let _items = [];
-    let _ytdInterest = 0;    
+    let _ytdInterest = 0;
 
     for (let i = 0; i < Math.floor(frequency); i++) {
-     _interestIncrement.push(_total * 0.05 / frequency);
-     if (frequency === 52 && i === 52) {
+      _interestIncrement.push(_total * 0.05 / frequency);
+      if (frequency === 52 && i === 52) {
         _interestIncrement[i] = (_total * 0.05 / frequency / 7);
-     }
+      }
       _total += _interestIncrement[i];
       _ytdInterest += _interestIncrement[i];
       _amounts.push(this.state.interestAmount);
@@ -104,7 +104,7 @@ class InterestCalc extends React.Component {
         _interestAmounts.push(_ytdInterest);
         _totalAmounts.push(_total);
       }
-          
+
       _items.push(<tr key={ `interest-calc-months-yearly-${i}` }>
         <td>{ months[i] }</td>
         <td>{ _amounts[i] }</td>
@@ -116,9 +116,9 @@ class InterestCalc extends React.Component {
     }
 
     return {
-      items: _items, 
+      items: _items,
       ytdInterest: _ytdInterest,
-      total: _total, 
+      total: _total,
     };
   }
 
@@ -134,7 +134,6 @@ class InterestCalc extends React.Component {
     let _hoursGap = 1;
     let _intrest = {};
     let _interestTable = {};
-
 
     switch (this.state.interestBreakdownThreshold) {
       case 'year':
@@ -172,7 +171,7 @@ class InterestCalc extends React.Component {
         }
 
         _items.push(
-          <tr>
+          <tr key={ `interest-calc-days-year` }>
             <td>1 year</td>
             <td>{ this.state.interestAmount }</td>
             <td>{ _ytdInterest.toFixed(3) }</td>
@@ -188,15 +187,15 @@ class InterestCalc extends React.Component {
             _total = Number(this.state.interestAmount) + _ytdInterest;
             _fees = 0.0001;
             _hoursGap = 1;
-            _interestTable = this.getInterestData(12, _total) 
+            _interestTable = this.getInterestData(12, _total)
             _items = _interestTable.items;
-          
+
             break;
           case 'monthly':
             _total = Number(this.state.interestAmount);
             _fees = 12 * 0.0001;
             _hoursGap = 12;
-            _interestTable = this.getInterestData(12, _total) 
+            _interestTable = this.getInterestData(12, _total)
             _items = _interestTable.items;
             _ytdInterest = _interestTable.ytdInterest;
             _total = _interestTable.total;

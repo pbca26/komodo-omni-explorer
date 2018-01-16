@@ -341,3 +341,41 @@ input:checked + .slider:before {
     }
   }
 }
+
+.dex-table,
+.search-table,
+.prices-table,
+.summary-table {
+  .table-coin-icon-wrapper {
+    height: 35px;
+    width: 35px;
+    position: relative;
+    top: 3px;
+
+    .table-coin-icon {
+      transform: scale(0.35);
+    }
+  }
+}
+
+.search-table,
+.dex-table,
+.summary-table,
+.prices-table {
+  .rt-td:first-child a,
+  .coin-title, {
+    position: relative;
+    top: -9px;
+  }
+  .table-coin-name {
+    position: relative;
+    top: 8px;
+  }
+}
+
+.prices-table {
+  .exchange-icon {
+    position: relative;
+    top: 8px;
+  }
+}
