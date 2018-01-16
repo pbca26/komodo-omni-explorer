@@ -56,10 +56,10 @@ class Search extends React.Component {
   renderCoinIcon(coin) {
     return (
       <span>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${coin.toLowerCase()}.png` }
-          height="25px" />
-        <span style={{ marginLeft: '10px' }}>{ coin }</span>
+        <span className="table-coin-icon-wrapper">
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+        </span>
+        <span className="coin-title" style={{ marginLeft: '10px' }}>{ coin }</span>
       </span>
     );
   }
@@ -182,9 +182,9 @@ class Search extends React.Component {
           _items.push(
             <tr key={ `balance-${_balance[i].coin}` }>
               <td>
-                <img
-                  src={ `http://${config.ip}:${config.port}/public/images/${_balance[i].coin.toLowerCase()}.png` }
-                  height="50px" />
+                <span className="table-coin-icon-wrapper">
+                  <span className={ `table-coin-icon coin_${_balance[i].coin.toLowerCase()}`}></span>
+                </span>
                 <span style={{ marginLeft: '10px' }}>
                   <a
                     target="_blank"
@@ -204,7 +204,7 @@ class Search extends React.Component {
 
       if (_items.length) {
         return (
-          <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline search-table" >
             <thead>
               <tr>
                 <th>Coin</th>
