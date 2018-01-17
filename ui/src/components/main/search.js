@@ -56,10 +56,10 @@ class Search extends React.Component {
   renderCoinIcon(coin) {
     return (
       <span>
-        <img
-          src={ `http://${config.ip}:${config.port}/public/images/${coin.toLowerCase()}.png` }
-          height="25px" />
-        <span style={{ marginLeft: '10px' }}>{ coin }</span>
+        <span className="table-coin-icon-wrapper">
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+        </span>
+        <span className="table-coin-name">{ coin }</span>
       </span>
     );
   }
@@ -182,10 +182,10 @@ class Search extends React.Component {
           _items.push(
             <tr key={ `balance-${_balance[i].coin}` }>
               <td>
-                <img
-                  src={ `http://${config.ip}:${config.port}/public/images/${_balance[i].coin.toLowerCase()}.png` }
-                  height="50px" />
-                <span style={{ marginLeft: '10px' }}>
+                <span className="table-coin-icon-wrapper icon-big">
+                  <span className={ `table-coin-icon coin_${_balance[i].coin.toLowerCase()}`}></span>
+                </span>
+                <span className="icon-text">
                   <a
                     target="_blank"
                     href={ `${config.explorers[_balance[i].coin]}/address/${ this.props.Main.searchTerm }` }>{ _balance[i].coin }</a>

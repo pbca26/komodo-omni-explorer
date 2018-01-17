@@ -14,10 +14,34 @@
     height: 25px;
     overflow: hidden;
     margin: 0px;
+    
+    &.icon-big {
+        width: 50px;
+        height: 50px;
+
+        .table-coin-icon {
+            -webkit-transform: scale(0.5);
+            -ms-transform: scale(0.5); 
+            transform: scale(0.5);
+            -webkit-transform-origin: 0 0;
+            -ms-transform-origin: 0 0;
+            transform-origin: 0 0;
+        }
+    }
+}
+.icon-text {
+    margin-left: 10px;
+    display: inline-block;
+    line-height: 50px;
+    vertical-align: top;
 }
 .table-coin-icon {
     display: inline-block;
+    -webkit-transform: scale(0.25);
+    -ms-transform: scale(0.25); 
     transform: scale(0.25);
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
     transform-origin: 0 0;
 }
 .table-coin-name {
