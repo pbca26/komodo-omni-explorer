@@ -74,6 +74,19 @@ class Books extends React.Component {
       </span>
     );
   }
+  setTableState(__books, _pairs) {
+    if (__books &&
+      __books[this.state.pair]) {
+      this.setState({
+        books: __books,
+        pairs: _pairs,
+        asksItemsList: __books[this.state.pair].asks,
+        bidsItemsList: __books[this.state.pair].bids,
+        filteredAsksItemsList: this.filterData(__books[this.state.pair].asks, this.state.searchTerm),
+        filteredBidsItemsList: this.filterData(__books[this.state.pair].bids, this.state.searchTerm),
+      });
+    }
+  }
 
   generateItemsListColumns(itemsCount) {
     let columns = [];
@@ -148,26 +161,24 @@ class Books extends React.Component {
       }
     }
 
-    if(this.props.coinpair !== props.coinpair) {
+    if(props.coinpair) {
       let formattedPair = props.coinpair;
       formattedPair = formattedPair.replace("-", "/").toUpperCase();
       this.setState({
         pair: formattedPair,
+      }, ()=>{
+        this.setTableState(__books, _pairs);
       });
 
-    }
-
-    if (__books &&
-        __books[this.state.pair]) {
+    } else {
       this.setState({
-        books: __books,
-        pairs: _pairs,
-        asksItemsList: __books[this.state.pair].asks,
-        bidsItemsList: __books[this.state.pair].bids,
-        filteredAsksItemsList: this.filterData(__books[this.state.pair].asks, this.state.searchTerm),
-        filteredBidsItemsList: this.filterData(__books[this.state.pair].bids, this.state.searchTerm),
+        pair: 'BTC/KMD',
+      }, ()=>{
+        this.setTableState(__books, _pairs);
       });
     }
+
+
   }
 
   onPageSizeChange(pageSize, pageIndex) {
@@ -199,7 +210,9 @@ class Books extends React.Component {
         e.value) {
       const __books = this.props.Main.orderbooks;
       const _pair = e.value;
-      hashHistory.push('/books/'+ e.value.replace("/", "-"))
+      if(this.props.params) {
+        hashHistory.push('/books/'+ e.value.replace("/", "-"))
+      }
       this.setState({
         pair: _pair,
         asksItemsList: __books[_pair].asks,
