@@ -1,8 +1,8 @@
-import { createStore, compose, applyMiddleware } from 'redux';
+import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
-import { syncHistoryWithStore } from 'react-router-redux';
-import { browserHistory } from 'react-router';
+import { Router, Route, hashHistory } from 'react-router'
+import { syncHistoryWithStore, routerReducer, routerMiddleware, push } from 'react-router-redux'
 import Config from './config';
 
 import rootReducer from './reducers/index';
@@ -16,15 +16,19 @@ const defaultState = {
 
 /* eslint-disable no-underscore-dangle */
 
+const routeMiddleware = routerMiddleware(hashHistory)
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const enhancers = Config.debug || Config.dev ? composeEnhancers(applyMiddleware(thunkMiddleware, loggerMiddleware)) : composeEnhancers(applyMiddleware(thunkMiddleware));
+const enhancers = Config.debug || Config.dev ? composeEnhancers(applyMiddleware(thunkMiddleware, loggerMiddleware, routeMiddleware)) : composeEnhancers(applyMiddleware(thunkMiddleware,routeMiddleware));
 const store = createStore(
-  rootReducer,
+  combineReducers({
+    root: rootReducer,
+    routing: routerReducer
+  }),
   defaultState,
   enhancers);
 /* eslint-enable */
 
-export const history = syncHistoryWithStore(browserHistory, store);
+export const history = syncHistoryWithStore(hashHistory, store);
 
 const requireIndexReducer = require('./reducers/index').default;
 

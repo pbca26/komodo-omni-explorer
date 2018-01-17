@@ -28,6 +28,7 @@ class Interest extends React.Component {
       defaultPageSize: 20,
       pageSize: 20,
       showPagination: true,
+      showResults: false,
     };
     this.fetchInterest = this.fetchInterest.bind(this);
     this.fetchUnspents = this.fetchUnspents.bind(this);
@@ -287,7 +288,7 @@ class Interest extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

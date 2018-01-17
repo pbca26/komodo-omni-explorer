@@ -4,6 +4,9 @@ import Store from '../../store';
 import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
 import {
+  getPrices
+} from '../../actions/actionCreators';
+import {
   sortByDate,
   formatValue,
   secondsToString,
@@ -11,6 +14,7 @@ import {
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
+const PRICES_UPDATE_INTERVAL = 20000;
 
 class Prices extends React.Component {
   constructor(props) {
@@ -24,7 +28,21 @@ class Prices extends React.Component {
       pageSize: 100,
       showPagination: true,
     };
+    this.booksInterval = null;
+    this.pricesInterval = null;
+  };
+  componentWillMount() {
+    Store.dispatch(getPrices());
+
+    if (this.booksInterval) {
+      clearInterval(this.booksInterval);
+    }
+
+    this.pricesInterval = setInterval(() => {
+      Store.dispatch(getPrices());
+    }, PRICES_UPDATE_INTERVAL);
   }
+
 
   renderPairIcon(pair) {
     const _pair = pair.split('/');
@@ -196,7 +214,7 @@ class Prices extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

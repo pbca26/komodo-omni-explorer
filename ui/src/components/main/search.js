@@ -261,6 +261,7 @@ class Search extends React.Component {
   }
 
   render() {
+    
     if (this.props.Main &&
         this.props.Main.search) {
       if (this.props.Main.search !== 'txid not found' &&
@@ -309,7 +310,7 @@ class Search extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

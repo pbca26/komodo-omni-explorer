@@ -2,12 +2,24 @@ import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
+import {
+  getSummary,
+} from '../../actions/actionCreators';
 
 class Summary extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
     };
+    this.openSummary = this.openSummary.bind(this);
+  }
+
+  componentWillMount() {
+    Store.dispatch(getSummary());
+  }
+
+  openSummary() {
+    Store.dispatch(getSummary());
   }
 
   renderSummary() {
@@ -83,7 +95,7 @@ class Summary extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

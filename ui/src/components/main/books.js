@@ -1,4 +1,5 @@
 import React from 'react';
+import { hashHistory } from 'react-router'
 import ReactTable from 'react-table';
 import Store from '../../store';
 import TablePaginationRenderer from './pagination';
@@ -9,9 +10,13 @@ import {
   secondsToString,
 } from '../../util/util';
 import config from '../../config';
+import {
+  getOrderbooks,
+} from '../../actions/actionCreators';
 import Select from 'react-select';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
+const ORDERS_UPDATE_INTERVAL = 30000;
 
 class Books extends React.Component {
   constructor(props) {
@@ -30,6 +35,33 @@ class Books extends React.Component {
       showPagination: true,
     };
     this.updatePair = this.updatePair.bind(this);
+    this.booksInterval = null;
+    this.pricesInterval = null;
+  }
+  componentWillMount() {
+     Store.dispatch(getOrderbooks());
+
+    if (this.pricesInterval) {
+      clearInterval(this.pricesInterval);
+    }
+
+    this.booksInterval = setInterval(() => {
+      Store.dispatch(getOrderbooks());
+    }, ORDERS_UPDATE_INTERVAL);
+
+    if (this.booksInterval) {
+      clearInterval(this.booksInterval);
+    }
+
+    if(this.props.coinpair) {
+      let formattedPair = this.props.coinpair;
+      formattedPair = formattedPair.replace("-", "/").toUpperCase();
+      this.setState({
+        pair: formattedPair,
+      });
+
+    }
+
   }
 
   renderCoinIcon(coin) {
@@ -116,6 +148,15 @@ class Books extends React.Component {
       }
     }
 
+    if(this.props.coinpair !== props.coinpair) {
+      let formattedPair = props.coinpair;
+      formattedPair = formattedPair.replace("-", "/").toUpperCase();
+      this.setState({
+        pair: formattedPair,
+      });
+
+    }
+
     if (__books &&
         __books[this.state.pair]) {
       this.setState({
@@ -133,13 +174,6 @@ class Books extends React.Component {
     this.setState(Object.assign({}, this.state, {
       pageSize: pageSize,
     }))
-  }
-
-  onSearchTermChange(newSearchTerm) {
-    this.setState(Object.assign({}, this.state, {
-      searchTerm: newSearchTerm,
-      filteredAsksItemsList: this.filterData(this.state.itemsList, newSearchTerm),
-    }));
   }
 
   filterData(list, searchTerm) {
@@ -165,7 +199,7 @@ class Books extends React.Component {
         e.value) {
       const __books = this.props.Main.orderbooks;
       const _pair = e.value;
-
+      hashHistory.push('/books/'+ e.value.replace("/", "-"))
       this.setState({
         pair: _pair,
         asksItemsList: __books[_pair].asks,
@@ -264,9 +298,10 @@ class Books extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
+    coinpair: ownProps.params.coinpair,
   };
 };
 

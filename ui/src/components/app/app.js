@@ -1,11 +1,13 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router'
 import * as actionCreators from '../../actions/actionCreators';
 import Main from '../main/main';
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
+    path: ownProps.location.pathname,
   };
 }
 
@@ -13,6 +15,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(actionCreators, dispatch);
 }
 
-const App = connect(mapStateToProps, mapDispatchToProps)(Main);
+const App = withRouter(connect(mapStateToProps, mapDispatchToProps)(Main));
 
 export default App;

@@ -3706,9 +3706,9 @@ select[multiple].input-group-sm > .input-group-btn > .btn
 {
     color: #fff;
     background-color: #fbb73f;
-}.navbar-default .navbar-nav > .active > a,
-.navbar-default .navbar-nav > .active > a:hover,
-.navbar-default .navbar-nav > .active > a:focus
+}.navbar-default .navbar-nav > li > a.active,
+.navbar-default .navbar-nav > li > a.active:hover,
+.navbar-default .navbar-nav > li > a.active:focus
 {
     color: #fff;
     background-color: #f8a627;

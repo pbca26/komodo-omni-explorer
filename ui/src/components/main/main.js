@@ -1,81 +1,42 @@
 import React from 'react';
+import { Link, IndexLink, browserHistory } from 'react-router'
 import Store from '../../store';
-import Overview from './overview';
-import Search from './search';
-import Summary from './summary';
-import Interest from './interest';
-import InterestCalc from './interestCalc';
-import Prices from './prices';
-import Books from './books';
-import Coins from './coins';
 import config from '../../config';
 import {
   searchTerm,
-  getSummary,
   getInterest,
-  getPrices,
-  getOrderbooks,
   resetInterestState,
   fiatRates,
-  coins,
 } from '../../actions/actionCreators';
 import {
   getQueryVariable,
 } from '../../util/util';
+import Search from '../main/search'
 
-const PRICES_UPDATE_INTERVAL = 20000;
-const ORDERS_UPDATE_INTERVAL = 30000;
 const FIAT_UPDATE_INTERVAL = 60000;
 
 class Main extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeSection: 'overview',
       searchTerm: '',
       showNavigation: false,
+      showSearch: false,
     };
-    this.changeActiveSection = this.changeActiveSection.bind(this);
     this.triggerSearch = this.triggerSearch.bind(this);
-    this.openSummary = this.openSummary.bind(this);
-    this.openDexPrices = this.openDexPrices.bind(this);
-    this.openDexBooks = this.openDexBooks.bind(this);
     this.updateInput = this.updateInput.bind(this);
-    this.openInterestCalc = this.openInterestCalc.bind(this);
-    this.openCoins = this.openCoins.bind(this);
-    this.booksInterval = null;
-    this.pricesInterval = null;
   }
 
   componentWillMount() {
     const _searchTerm = getQueryVariable('search');
-    const _interest = getQueryVariable('interest');
-    const _interestCalc = getQueryVariable('calc');
-    const _summary = getQueryVariable('summary');
-    const _books = getQueryVariable('books');
-    const _prices = getQueryVariable('prices');
-    const _coins = getQueryVariable('coins');
 
     if (_searchTerm) {
       Store.dispatch(searchTerm(_searchTerm));
-      this.changeActiveSection('search', true);
-    } else if (_interest) {
-      Store.dispatch(getInterest(_interest));
-      this.changeActiveSection('interest', true);
-    } else if (_summary) {
-      Store.dispatch(getSummary());
-      this.changeActiveSection('summary', true);
-    } else if (_books) {
-      Store.dispatch(getOrderbooks());
-      this.changeActiveSection('books', true);
-    } else if (_prices) {
-      Store.dispatch(getPrices());
-      this.changeActiveSection('prices', true);
-    } else if (_interestCalc) {
-      this.changeActiveSection('calc', true);
-    } else if (_coins) {
-      Store.dispatch(coins());
-      this.changeActiveSection('coins', true);
+      this.setState({
+        showSearch: true,
+      });
+    } else {
+      Store.dispatch(resetInterestState());
     }
 
     Store.dispatch(fiatRates());
@@ -83,6 +44,16 @@ class Main extends React.Component {
     this.overviewInterval = setInterval(() => {
       Store.dispatch(fiatRates());
     }, FIAT_UPDATE_INTERVAL);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(this.props.path !== nextProps.path) {
+      Store.dispatch(resetInterestState());
+      this.setState({
+        searchTerm: '',
+        showSearch: false,
+      });
+    }
   }
 
   updateInput(e) {
@@ -97,86 +68,17 @@ class Main extends React.Component {
     })
   }
 
-  changeActiveSection(activeSection, changeState) {
-
-    //Close navbar
-    this.setState({
-      showNavigation: false
-    })
-
-    // override url in address bar
-    if (!changeState) {
-      window.history.replaceState('', '');
-      window.history.pushState('', '', '/');
-    }
-
-    this.setState({
-      activeSection,
-      searchTerm: '',
-    });
-
-    if (activeSection === 'prices') {
-      if (this.booksInterval) {
-        clearInterval(this.booksInterval);
-      }
-
-      this.pricesInterval = setInterval(() => {
-        Store.dispatch(getPrices());
-      }, PRICES_UPDATE_INTERVAL);
-    } else if (activeSection === 'books') {
-      if (this.pricesInterval) {
-        clearInterval(this.pricesInterval);
-      }
-
-      this.booksInterval = setInterval(() => {
-        Store.dispatch(getOrderbooks());
-      }, ORDERS_UPDATE_INTERVAL);
-    } else {
-      if (this.pricesInterval) {
-        clearInterval(this.pricesInterval);
-      }
-
-      if (this.booksInterval) {
-        clearInterval(this.booksInterval);
-      }
-    }
-  }
-
-  openDexPrices() {
-    Store.dispatch(getPrices());
-    this.changeActiveSection('prices');
-  }
-
-  openDexBooks() {
-    Store.dispatch(getOrderbooks());
-    this.changeActiveSection('books');
-  }
-
-  openSummary() {
-    Store.dispatch(getSummary());
-    this.changeActiveSection('summary');
-  }
-
-  openInterest() {
-    Store.dispatch(resetInterestState());
-    this.changeActiveSection('interest');
-  }
-
-  openCoins() {
-    Store.dispatch(coins());
-    this.changeActiveSection('coins');
-  }
-
-  openInterestCalc() {
-    this.changeActiveSection('calc');
-  }
-
   triggerSearch() {
-    if (this.state.activeSection === 'interest') {
+    if (this.props.path=== '/interest') {
+      this.setState({
+        showSearch: false,
+      });
       Store.dispatch(getInterest(this.state.searchTerm));
     } else {
+      this.setState({
+        showSearch: true,
+      });
       Store.dispatch(searchTerm(this.state.searchTerm));
-      this.changeActiveSection('search');
     }
   }
 
@@ -215,69 +117,55 @@ class Main extends React.Component {
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
               </button>
-              <a
-                onClick={ ()=> this.changeActiveSection('overview') }
-                className="navbar-brand">Atomic Explorer</a>
+              <IndexLink to='/' className="navbar-brand">
+                Atomic Explorer
+              </IndexLink>
             </div>
             <div
               id="navbar-collapse"
               className={ !this.state.showNavigation ? 'collapse navbar-collapse' : 'navbar-collapse' }>
               <ul className="nav navbar-nav">
-                <li
-                  onClick={ () => this.changeActiveSection('overview') }
-                  className={ this.state.activeSection === 'overview' || this.state.activeSection === 'search' ? 'active' : '' }>
-                  <a className="navbar-link pointer">
-                    <span className="fa fa-search"></span>
-                    <span className="menu-text">Explorer</span>
-                  </a>
+                <li>
+                  <IndexLink to='/' className="navbar-link pointer" activeClassName="active">
+                      <span className="fa fa-search"></span>
+                      <span className="menu-text">Explorer</span>
+                  </IndexLink>
                 </li>
-                <li
-                  onClick={ () => this.changeActiveSection('interest') }
-                  className={ this.state.activeSection === 'interest' ? 'active' : '' }>
-                  <a className="navbar-link pointer">
+                <li>
+                  <Link to='/interest' className="navbar-link pointer" activeClassName="active">
                     <span className="fa fa-money"></span>
                     <span className="menu-text">KMD Interest</span>
-                  </a>
+                  </Link>
                 </li>
-                <li
-                  onClick={ this.openInterestCalc }
-                  className={ this.state.activeSection === 'calc' ? 'active' : '' }>
-                  <a className="navbar-link pointer">
+                <li>
+                  <Link to='/interest-calc' className="navbar-link pointer" activeClassName="active">
                     <span className="fa fa-calculator"></span>
                     <span className="menu-text">Interest Calc</span>
-                  </a>
+                  </Link>
                 </li>
-                <li
-                  onClick={ this.openSummary }
-                  className={ this.state.activeSection === 'summary' ? 'active' : '' }>
-                  <a className="navbar-link pointer">
+                <li>
+                  <Link to='/summary' className="navbar-link pointer" activeClassName="active">
                     <span className="fa fa-share-alt"></span>
                     <span className="menu-text">Explorers list</span>
-                  </a>
+                  </Link>
                 </li>
-                <li
-                  onClick={ this.openDexPrices }
-                  className={ this.state.activeSection === 'prices' ? 'active' : '' }>
-                  <a className="navbar-link pointer">
+                <li>
+                  <Link to='/prices' className="navbar-link pointer" activeClassName="active">
                     <span className="fa fa-usd"></span>
                     <span className="menu-text">DEX prices</span>
-                  </a>
+                  </Link>
                 </li>
-                <li
-                  onClick={ this.openDexBooks }
-                  className={ this.state.activeSection === 'books' ? 'active' : '' }>
-                  <a className="navbar-link pointer">
+                <li>
+                  <Link to='/books' className="navbar-link pointer" activeClassName="active">
                     <span className="fa fa-line-chart"></span>
                     <span className="menu-text">DEX books</span>
-                  </a>
+                  </Link>
                 </li>
-                <li
-                  onClick={ this.openCoins }
-                  className={ this.state.activeSection === 'coins' ? 'active' : '' }>
-                  <a className="navbar-link pointer">
+                <li>
+                  <Link to='/coins' className="navbar-link pointer" activeClassName="active">
                     <span className="fa fa-th"></span>
                     <span className="menu-text">DEX coins</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a
@@ -332,18 +220,19 @@ class Main extends React.Component {
                   </div>
                 }
               </div>
-              { this.state.activeSection !== 'coins' &&
+              { this.props.path !== '/coins' &&
                 <div
                   className="row text-center"
                   style={{ marginTop: '10px', marginBottom: '40px' }}>
                   { this.renderCoinIcons() }
                 </div>
               }
-              { this.state.activeSection !== 'summary' &&
-                this.state.activeSection !== 'prices' &&
-                this.state.activeSection !== 'books' &&
-                this.state.activeSection !== 'calc' &&
-                this.state.activeSection !== 'coins' &&
+              { this.props.path !== '/summary' &&
+                this.props.path !== '/interest-calc' &&
+                this.props.path !== '/prices' &&
+                this.props.path !== '/books' &&
+                this.props.path !== '/calc' &&
+                this.props.path !== '/coins' &&
                 <div
                   style={{ marginTop: '10px', marginBottom: '40px' }}
                   className="row text-center">
@@ -356,7 +245,7 @@ class Main extends React.Component {
                         type="text"
                         name="searchTerm"
                         value={ this.state.searchTerm }
-                        placeholder={ this.state.activeSection === 'interest' ? 'Enter a valid KMD address' : 'You may enter a tx hash or an address.' }
+                        placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a tx hash or an address.' }
                         style={{ minWidth: '80%', marginRight: '5px' }}
                         className="form-control" />
                       <button
@@ -371,30 +260,12 @@ class Main extends React.Component {
             </div>
           </div>
 
-          { this.state.activeSection === 'overview' &&
-            <Overview />
-          }
-          { this.state.activeSection === 'search' &&
+          { !this.state.showSearch && 
+            this.props.children }
+          { this.state.showSearch && 
             <Search />
           }
-          { this.state.activeSection === 'interest' &&
-            <Interest />
-          }
-          { this.state.activeSection === 'summary' &&
-            <Summary />
-          }
-          { this.state.activeSection === 'prices' &&
-            <Prices />
-          }
-          { this.state.activeSection === 'books' &&
-            <Books />
-          }
-          { this.state.activeSection === 'calc' &&
-            <InterestCalc />
-          }
-          { this.state.activeSection === 'coins' &&
-            <Coins />
-          }
+
         </div>
 
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">
