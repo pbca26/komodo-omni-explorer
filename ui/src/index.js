@@ -34,6 +34,8 @@ const router = (
         <Route path="/books" component={Books} />
         <Route path="/books/:coinpair" component={Books} />
         <Route path="/coins" component={Coins} />
+        <Route path="/search" component={Search} />
+        <Route path="/search/:input" component={Search} />
 
       </Route>
     </Router>

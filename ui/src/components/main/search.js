@@ -8,6 +8,9 @@ import {
   formatValue,
   secondsToString,
 } from '../../util/util';
+import {
+  searchTerm,
+} from '../../actions/actionCreators';
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
@@ -51,6 +54,28 @@ class Search extends React.Component {
     }
     // returning 0 or undefined will use any subsequent column sorting methods or the row index as a tiebreaker
     return 0;
+  }
+
+  componentWillMount() {
+    const _searchTerm = this.props.input;
+
+    if(_searchTerm) {
+      Store.dispatch(searchTerm(_searchTerm));
+    }
+
+    const _search = this.props.Main.search;
+    
+    if (_search &&
+        _search.balance) {
+    
+      this.setState({
+        balance: _search.balance,
+        itemsList: _search.transactions,
+        filteredItemsList: this.filterData(_search.transactions, this.state.searchTerm),
+        showPagination: _search.transactions && _search.transactions.length >= this.state.defaultPageSize,
+        itemsListColumns: this.generateItemsListColumns(_search.transactions.length),
+      });
+    }
   }
 
   renderCoinIcon(coin) {
@@ -121,10 +146,15 @@ class Search extends React.Component {
   }
 
   componentWillReceiveProps(props) {
+
+    if(props.input && props.input !== this.props.input) {
+      Store.dispatch(searchTerm(props.input));
+    }
     const _search = this.props.Main.search;
 
     if (_search &&
         _search.balance) {
+    
       this.setState({
         balance: _search.balance,
         itemsList: _search.transactions,
@@ -150,7 +180,8 @@ class Search extends React.Component {
   }
 
   filterData(list, searchTerm) {
-    return list.filter(item => this.filterDataByProp(item, searchTerm));
+    let data = list.filter(item => this.filterDataByProp(item, searchTerm));
+    return data;
   }
 
   filterDataByProp(item, term) {
@@ -263,7 +294,7 @@ class Search extends React.Component {
   render() {
     
     if (this.props.Main &&
-        this.props.Main.search) {
+        this.props.Main.search && this.props.input) {
       if (this.props.Main.search !== 'txid not found' &&
           this.props.Main.search !== 'wrong address') {
         if (!this.props.Main.search.balance) {
@@ -303,14 +334,15 @@ class Search extends React.Component {
         );
       }
     } else {
-      return(<div>Loading...</div>);
+      return(<div></div>);
     }
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
     Main: state.root.Main,
+    input: ownProps.params.input,
   };
 };
 

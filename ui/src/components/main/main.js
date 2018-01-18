@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, IndexLink, browserHistory } from 'react-router'
+import { Link, IndexLink, browserHistory, hashHistory } from 'react-router'
 import Store from '../../store';
 import config from '../../config';
 import {
@@ -28,14 +28,9 @@ class Main extends React.Component {
   }
 
   componentWillMount() {
-    const _searchTerm = getQueryVariable('search');
+    const _searchTerm = this.props.input;
 
-    if (_searchTerm) {
-      Store.dispatch(searchTerm(_searchTerm));
-      this.setState({
-        showSearch: true,
-      });
-    } else {
+    if(!_searchTerm) {
       Store.dispatch(resetInterestState());
     }
 
@@ -70,15 +65,9 @@ class Main extends React.Component {
 
   triggerSearch() {
     if (this.props.path=== '/interest') {
-      this.setState({
-        showSearch: false,
-      });
       Store.dispatch(getInterest(this.state.searchTerm));
     } else {
-      this.setState({
-        showSearch: true,
-      });
-      Store.dispatch(searchTerm(this.state.searchTerm));
+      hashHistory.push('/search/'+ this.state.searchTerm);
     }
   }
 
@@ -230,7 +219,7 @@ class Main extends React.Component {
               { this.props.path !== '/summary' &&
                 this.props.path !== '/interest-calc' &&
                 this.props.path !== '/prices' &&
-                this.props.path !== '/books' &&
+                !this.props.path.startsWith('/books') &&
                 this.props.path !== '/calc' &&
                 this.props.path !== '/coins' &&
                 <div
@@ -260,12 +249,8 @@ class Main extends React.Component {
             </div>
           </div>
 
-          { !this.state.showSearch && 
-            this.props.children }
-          { this.state.showSearch && 
-            <Search />
-          }
-
+          { this.props.children }
+    
         </div>
 
         <div className="navbar navbar-default navbar-fixed-bottom hidden-xs">

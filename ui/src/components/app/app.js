@@ -8,6 +8,7 @@ function mapStateToProps(state, ownProps) {
   return {
     Main: state.root.Main,
     path: ownProps.location.pathname,
+    input: ownProps.params.input
   };
 }
 
