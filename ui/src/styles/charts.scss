@@ -1,0 +1,17 @@
+.pair-selectors {
+  .pair {
+    display: inline-block;
+    width: 220px;
+    margin-bottom: 0;
+  }
+  .Select.last {
+    margin-left: 20px
+  }
+  .btn {
+    position: relative;
+    left: 20px;
+    margin-bottom: 20px;
+    vertical-align: top;
+    margin-top: 2px;
+  }
+}

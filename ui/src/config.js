@@ -21,6 +21,12 @@ const config = {
     COQUI: 'https://explorer.coqui.cash',
     MNZ: 'https://www.mnzexplorer.com',
   },
+  charts: {
+    urlPrefix: 'http://127.0.01:8111/public',
+    datafeedURL: 'http://94.130.108.82:8888',
+    defaultPair: 'KMD-BTC',
+    interval: 15,
+  },
 };
 
 export default config;

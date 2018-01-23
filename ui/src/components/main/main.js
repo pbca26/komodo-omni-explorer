@@ -157,6 +157,12 @@ class Main extends React.Component {
                   </Link>
                 </li>
                 <li>
+                  <Link to='/charts' className="navbar-link pointer" activeClassName="active">
+                    <span className="fa fa-th"></span>
+                    <span className="menu-text">DEX charts</span>
+                  </Link>
+                </li>
+                <li>
                   <a
                     href="https://github.com/pbca26/komodo-omni-explorer"
                     className="navbar-link"
@@ -222,6 +228,7 @@ class Main extends React.Component {
                 !this.props.path.startsWith('/books') &&
                 this.props.path !== '/calc' &&
                 this.props.path !== '/coins' &&
+                this.props.path !== '/charts' &&
                 <div
                   style={{ marginTop: '10px', marginBottom: '40px' }}
                   className="row text-center">

@@ -18,6 +18,7 @@ import InterestCalc from './components/main/interestCalc';
 import Prices from './components/main/prices';
 import Books from './components/main/books';
 import Coins from './components/main/coins';
+import Charts from './components/main/charts';
 import './styles/index.scss';
 
 const router = (
@@ -34,6 +35,8 @@ const router = (
         <Route path="/books" component={Books} />
         <Route path="/books/:coinpair" component={Books} />
         <Route path="/coins" component={Coins} />
+        <Route path="/charts" component={Charts} />
+        <Route path="/charts/:coinpair" component={Charts} />
         <Route path="/search" component={Search} />
         <Route path="/search/:input" component={Search} />
 

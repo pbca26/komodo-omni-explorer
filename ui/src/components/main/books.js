@@ -1,5 +1,5 @@
 import React from 'react';
-import { hashHistory } from 'react-router'
+import { hashHistory } from 'react-router';
 import ReactTable from 'react-table';
 import Store from '../../store';
 import TablePaginationRenderer from './pagination';
