@@ -162,35 +162,39 @@ module.exports = (shepherd) => {
               console.log(`error updating overview cache file ${err}`);
             } else {
               const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
-              const resSizeLimit = 1000;
-              let items = [];
-              console.log(`tracking ${overviewFile.result.length} coin explorers`);
 
-              for (let i = 0; i < overviewFile.result.length; i++) {
-                try {
-                  const _parseData = JSON.parse(overviewFile.result[i].result).data;
+              if (overviewFile &&
+                  overviewFile.result) {
+                const resSizeLimit = 1000;
+                let items = [];
+                console.log(`tracking ${overviewFile.result.length} coin explorers`);
 
-                  for (let j = 0; j < _parseData.length; j++) {
-                    items.push({
-                      coin: overviewFile.result[i].coin,
-                      txid: _parseData[j].txid,
-                      blockhash: _parseData[j].blockhash,
-                      blockindex: _parseData[j].blockindex,
-                      timestamp: _parseData[j].timestamp,
-                      total: _parseData[j].total,
-                      vout: _parseData[j].vout,
-                      vin: _parseData[j].vin,
-                    });
-                  }
-                } catch (e) {}
+                for (let i = 0; i < overviewFile.result.length; i++) {
+                  try {
+                    const _parseData = JSON.parse(overviewFile.result[i].result).data;
+
+                    for (let j = 0; j < _parseData.length; j++) {
+                      items.push({
+                        coin: overviewFile.result[i].coin,
+                        txid: _parseData[j].txid,
+                        blockhash: _parseData[j].blockhash,
+                        blockindex: _parseData[j].blockindex,
+                        timestamp: _parseData[j].timestamp,
+                        total: _parseData[j].total,
+                        vout: _parseData[j].vout,
+                        vin: _parseData[j].vin,
+                      });
+                    }
+                  } catch (e) {}
+                }
+
+                items = sortByDate(items, 'timestamp');
+                items = items.slice(0, resSizeLimit + 1);
+
+                shepherd.explorer.overview = items;
+
+                console.log(`explorer overview updated at ${Date.now()}`);
               }
-
-              items = sortByDate(items, 'timestamp');
-              items = items.slice(0, resSizeLimit + 1);
-
-              shepherd.explorer.overview = items;
-
-              console.log('explorer overview updated');
             }
           });
         }
