@@ -228,7 +228,7 @@ class Main extends React.Component {
                 !this.props.path.startsWith('/books') &&
                 this.props.path !== '/calc' &&
                 this.props.path !== '/coins' &&
-                this.props.path !== '/charts' &&
+                !this.props.path.startsWith('/charts') &&
                 <div
                   style={{ marginTop: '10px', marginBottom: '40px' }}
                   className="row text-center">

@@ -47,12 +47,20 @@ class Charts extends React.Component {
         this.getCoinValues(nextProps.Main.coins);
       }
       if(this.props.coinpair !== nextProps.coinpair) {
+        if(nextProps.coinpair) {
         this.setState({
           base: nextProps.coinpair.split("-")[0],
           rel: nextProps.coinpair.split("-")[1],
         });
         this.createTView(nextProps.coinpair);
+      } else {
+        this.setState({
+          base: config.charts.defaultPair.split("-")[0],
+          rel: config.charts.defaultPair.split("-")[1],
+        });
+        this.createTView(config.charts.defaultPair);
       }
+    }
   }
   
   getCoinValues(coins) {

@@ -32,11 +32,13 @@ const router = (
         <Route path="/interest-calc" component={InterestCalc} />
         <Route path="/summary" component={Summary} />
         <Route path="/prices" component={Prices} />
-        <Route path="/books" component={Books} />
-        <Route path="/books/:coinpair" component={Books} />
+        <Route path="/books" component={Books}>
+          <Route path="/books/:coinpair" component={Books} />
+        </Route>
         <Route path="/coins" component={Coins} />
-        <Route path="/charts" component={Charts} />
-        <Route path="/charts/:coinpair" component={Charts} />
+        <Route path="/charts" component={Charts}>
+          <Route path="/charts/:coinpair" component={Charts} />
+        </Route>
         <Route path="/search" component={Search} />
         <Route path="/search/:input" component={Search} />
 
