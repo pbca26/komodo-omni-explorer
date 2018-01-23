@@ -158,7 +158,7 @@ class Main extends React.Component {
                 </li>
                 <li>
                   <Link to='/charts' className="navbar-link pointer" activeClassName="active">
-                    <span className="fa fa-th"></span>
+                    <span className="fa fa-area-chart"></span>
                     <span className="menu-text">DEX charts</span>
                   </Link>
                 </li>
