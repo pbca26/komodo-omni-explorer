@@ -151,15 +151,15 @@ class Main extends React.Component {
                   </Link>
                 </li>
                 <li>
-                  <Link to='/coins' className="navbar-link pointer" activeClassName="active">
-                    <span className="fa fa-th"></span>
-                    <span className="menu-text">DEX coins</span>
-                  </Link>
-                </li>
-                <li>
                   <Link to='/charts' className="navbar-link pointer" activeClassName="active">
                     <span className="fa fa-area-chart"></span>
                     <span className="menu-text">DEX charts</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to='/coins' className="navbar-link pointer" activeClassName="active">
+                    <span className="fa fa-th"></span>
+                    <span className="menu-text">DEX coins</span>
                   </Link>
                 </li>
                 <li>
