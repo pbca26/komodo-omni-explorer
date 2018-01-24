@@ -8,9 +8,16 @@ body {
 	width: 80%;
 	margin: auto;
 }
+
+#index-search input[type="text"] {
+	min-width: 80%;
+	margin-right: 5px;
+}
+
 @media(max-width:767px) {
 	#index-search input[type="text"] {
 		margin-bottom: 1em;	
+		margin-right: 0;
 	}
 }
 
@@ -102,9 +109,6 @@ tr {
 	margin-left:5px;
 }
 
-#twitter-icon {
-	font-size: 20px;
-}
 .connections {
 	position: absolute;
 	bottom: 15px;

@@ -341,3 +341,37 @@ input:checked + .slider:before {
     }
   }
 }
+
+.site-footer {
+  border-color: #2f6363;
+  background-color: #2f6363;
+  color: #fff;
+  position: fixed;
+  z-index: 1030;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  padding-bottom: 7px;
+  a {
+    color: #fff;
+    &:hover,
+    &:active,
+    &:focus {
+      color: #fff;
+    }
+  }
+  #twitter-icon {
+    font-size: 20px;
+    line-height: 20px;
+    margin-left: 15px;
+    padding: 10px;
+    background: #f8a627;
+    position: absolute;
+    top: 0;
+
+    &:hover {
+      background: rgba(0,0,0,0.1);
+    }
+
+  }
+}
