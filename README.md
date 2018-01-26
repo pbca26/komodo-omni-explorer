@@ -55,14 +55,12 @@ http://atomicexplorer.com/#/prices
 http://atomicexplorer.com/#/prices/KMD-BTC
 
 #### BarterDEX Orderbooks
-http://atomicexplorer.com/#/boks
+http://atomicexplorer.com/#/books
 
-http://atomicexplorer.com/#/prices/KMD-BTC
+http://atomicexplorer.com/#/books/KMD-BTC
 
 #### BarterDEX coins list
-http://atomicexplorer.com/#/boks
-
-http://atomicexplorer.com/#/prices/KMD-BTC
+http://atomicexplorer.com/#/coins
 
 ## API
 #### GET /api/explorer/search?term=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
