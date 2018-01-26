@@ -30,6 +30,7 @@ built ui version will be copied to /public folder
 
 #### KMD interest
 http://atomicexplorer.com/#/interest
+
 http://atomicexplorer.com/#/interest/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### KMD interest calc
@@ -40,22 +41,27 @@ http://atomicexplorer.com/#/summary
 
 #### Balance
 http://atomicexplorer.com/#/search
+
 http://atomicexplorer.com/#/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### BarterDEX Charts
 http://atomicexplorer.com/#/charts
+
 http://atomicexplorer.com/#/charts/KMD-BTC
 
 #### BarterDEX Prices
 http://atomicexplorer.com/#/prices
+
 http://atomicexplorer.com/#/prices/KMD-BTC
 
 #### BarterDEX Orderbooks
 http://atomicexplorer.com/#/boks
+
 http://atomicexplorer.com/#/prices/KMD-BTC
 
 #### BarterDEX coins list
 http://atomicexplorer.com/#/boks
+
 http://atomicexplorer.com/#/prices/KMD-BTC
 
 ## API
