@@ -1,86 +1,87 @@
 @import './sprite.scss';
 
 .coins-list-item {
-    .coin-icon {
-        -webkit-transform: scale(0.6);
-        -ms-transform: scale(0.6); 
-        transform: scale(0.6);
-        margin: 0 auto;
-    }
+  .coin-icon {
+    -webkit-transform: scale(0.6);
+    -ms-transform: scale(0.6);
+    transform: scale(0.6);
+    margin: 0 auto;
+  }
 }
 .table-coin-icon-wrapper {
-    display: inline-block;
-    width: 25px;
-    height: 25px;
-    overflow: hidden;
-    margin: 0px;
-    
-    &.icon-big {
-        width: 50px;
-        height: 50px;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  overflow: hidden;
+  margin: 0;
 
-        .table-coin-icon {
-            -webkit-transform: scale(0.5);
-            -ms-transform: scale(0.5); 
-            transform: scale(0.5);
-            -webkit-transform-origin: 0 0;
-            -ms-transform-origin: 0 0;
-            transform-origin: 0 0;
-        }
+  &.icon-big {
+    width: 50px;
+    height: 50px;
+
+    .table-coin-icon {
+      -webkit-transform: scale(0.5);
+      -ms-transform: scale(0.5);
+      transform: scale(0.5);
+      -webkit-transform-origin: 0 0;
+      -ms-transform-origin: 0 0;
+      transform-origin: 0 0;
     }
+  }
 }
 .icon-text {
-    margin-left: 10px;
-    display: inline-block;
-    line-height: 50px;
-    vertical-align: top;
+  margin-left: 10px;
+  display: inline-block;
+  line-height: 50px;
+  vertical-align: top;
 }
 .table-coin-icon {
-    display: inline-block;
-    -webkit-transform: scale(0.25);
-    -ms-transform: scale(0.25); 
-    transform: scale(0.25);
-    -webkit-transform-origin: 0 0;
-    -ms-transform-origin: 0 0;
-    transform-origin: 0 0;
+  display: inline-block;
+  -webkit-transform: scale(0.25);
+  -ms-transform: scale(0.25);
+  transform: scale(0.25);
+  -webkit-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  transform-origin: 0 0;
 }
 .table-coin-name {
-    display: inline-block;
-    vertical-align: top;
-    line-height: 25px;
-    margin-left: 10px;
+  display: inline-block;
+  vertical-align: top;
+  line-height: 25px;
+  margin-left: 10px;
 }
 .exchange-icon {
-    margin-left: 10px;
-    margin-right: 10px;
-    display: inline-block;
-    line-height: 25px;
-    vertical-align: top;
+  margin-left: 10px;
+  margin-right: 10px;
+  display: inline-block;
+  line-height: 25px;
+  vertical-align: top;
 }
 .coin-dropdow,
 .pair-selectors,
 .pair {
-    .table-coin-icon-wrapper,
-    .table-coin-name,
-    .exchange-icon {
-        vertical-align: middle;
-    }
+  .table-coin-icon-wrapper,
+  .table-coin-name,
+  .exchange-icon {
+    vertical-align: middle;
+  }
 }
 .header-coin-wrapper {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    overflow: hidden;
-    margin: 0 5px 0 0;
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  margin: 0 5px 0 0;
 
-    &:last-child {
-        margin-right: 0;
-    }
-    
-    .header-coin-icon {
-        display: inline-block;
-        transform: scale(0.3);
-        transform-origin: 0 0;
-    }
+  &:last-child {
+    margin-right: 0;
+  }
+
+  .header-coin-icon {
+    display: inline-block;
+    transform: scale(0.3);
+    transform-origin: 0 0;
+  }
 }
+
 @include sprites($spritesheet-sprites);

@@ -352,26 +352,29 @@ input:checked + .slider:before {
   left: 0;
   bottom: 0;
   padding-bottom: 7px;
+
   a {
     color: #fff;
+
     &:hover,
     &:active,
     &:focus {
       color: #fff;
     }
   }
-  #twitter-icon {
-    font-size: 20px;
+
+  .twitter-icon {
+    font-size: 24px;
     line-height: 20px;
     margin-left: 15px;
     padding: 10px;
-    background: #f8a627;
     position: absolute;
-    top: 0;
-
-    &:hover {
-      background: rgba(0,0,0,0.1);
-    }
-
+    top: 10px;
+    cursor: pointer;
   }
+}
+
+.prices-block {
+  max-width: 1080px;
+  margin: 0 auto;
 }

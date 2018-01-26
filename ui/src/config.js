@@ -1,7 +1,7 @@
 const config = {
   port: 8111,
   dev: false,
-  ip: '46.20.235.46',
+  ip: 'atomicexplorer.com',
   explorers: {
     KMD: 'http://kmd.komodochainz.info',
     MSHARK: 'http://MSHARK.explorer.supernet.org',
@@ -22,10 +22,10 @@ const config = {
     MNZ: 'https://www.mnzexplorer.com',
   },
   charts: {
-    urlPrefix: 'http://127.0.01:8111/public',
+    urlPrefix: 'http://atomicexplorer.com/public/charts',
     datafeedURL: 'http://94.130.108.82:8888',
-    defaultPair: 'KMD-BTC',
-    interval: 15,
+    defaultPair: 'KMD-SUPERNET',
+    interval: 60,
   },
 };
 

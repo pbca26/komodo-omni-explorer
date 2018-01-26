@@ -24,24 +24,53 @@ import './styles/index.scss';
 const router = (
   <Provider store={store}>
     <Router history={history}>
-      <Route path="/" component={App}>
+      <Route
+        path="/"
+        component={App}>
         <IndexRoute component={Overview} />
-        <Route path="/summary" component={Summary} />
-        <Route path="/prices" component={Prices} />
-        <Route path="/interest" component={Interest} />
-        <Route path="/interest-calc" component={InterestCalc} />
-        <Route path="/summary" component={Summary} />
-        <Route path="/prices" component={Prices} />
+        <Route
+          path="/summary"
+          component={Summary} />
+        <Route
+          path="/prices"
+          component={Prices}>
+          <Route
+            path="/prices/:input"
+            component={Prices} />
+        </Route>
+        <Route
+          path="/interest"
+          component={Interest} />
+        <Route
+          path="/interest/:input"
+          component={Interest} />
+        <Route
+          path="/interest-calc"
+          component={InterestCalc} />
+        <Route
+          path="/summary"
+          component={Summary} />
         <Route path="/books" component={Books}>
-          <Route path="/books/:coinpair" component={Books} />
+          <Route
+            path="/books/:input"
+            component={Books} />
         </Route>
-        <Route path="/coins" component={Coins} />
-        <Route path="/charts" component={Charts}>
-          <Route path="/charts/:coinpair" component={Charts} />
+        <Route
+          path="/coins"
+          component={Coins} />
+        <Route
+          path="/charts"
+          component={Charts}>
+          <Route
+            path="/charts/:input"
+            component={Charts} />
         </Route>
-        <Route path="/search" component={Search} />
-        <Route path="/search/:input" component={Search} />
-
+        <Route
+          path="/search"
+          component={Search} />
+        <Route
+          path="/search/:input"
+          component={Search} />
       </Route>
     </Router>
   </Provider>

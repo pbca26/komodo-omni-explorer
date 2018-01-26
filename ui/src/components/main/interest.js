@@ -7,6 +7,7 @@ import {
   sortByDate,
   formatValue,
   secondsToString,
+  tableSorting,
 } from '../../util/util';
 import {
   getInterest,
@@ -94,9 +95,8 @@ class Interest extends React.Component {
   renderLocktimeIcon(locktime) {
     return (
       <i
-        style={{ fontSize: '18px' }}
         title={ locktime > 0 ? `Locktime: ${locktime}` : 'Locktime field is not set!' }
-        className={ locktime > 0 ? 'fa fa-check-circle green' : 'fa fa-exclamation-circle red' }></i>
+        className={ locktime > 0 ? 'fa fa-check-circle green fs-18' : 'fa fa-exclamation-circle red fs-18' }></i>
     );
   }
 
@@ -108,33 +108,22 @@ class Interest extends React.Component {
     );
   }
 
-  // https://react-table.js.org/#/custom-sorting
-  tableSorting(a, b) { // ugly workaround, override default sort
-    if (Date.parse(a)) { // convert date to timestamp
-      a = Date.parse(a);
+  componentWillMount() {
+    const _searchTerm = this.props.input;
+    const _unspents = this.props.Main.unspents;
+
+    if (_searchTerm) {
+      Store.dispatch(getInterest(_searchTerm));
     }
-    if (Date.parse(b)) {
-      b = Date.parse(b);
-    }
-    // force null and undefined to the bottom
-    a = (a === null || a === undefined) ? -Infinity : a;
-    b = (b === null || b === undefined) ? -Infinity : b;
-    // force any string values to lowercase
-    a = typeof a === 'string' ? a.toLowerCase() : a;
-    b = typeof b === 'string' ? b.toLowerCase() : b;
-    // Return either 1 or -1 to indicate a sort priority
-    if (a > b) {
-      return 1;
-    }
-    if (a < b) {
-      return -1;
-    }
-    // returning 0 or undefined will use any subsequent column sorting methods or the row index as a tiebreaker
-    return 0;
   }
 
   componentWillReceiveProps(props) {
     const _unspents = this.props.Main.unspents;
+
+    if (props.input &&
+        props.input !== this.props.input) {
+      Store.dispatch(getInterest(props.input));
+    }
 
     if (_unspents &&
         _unspents.length) {
@@ -224,7 +213,7 @@ class Interest extends React.Component {
   renderUnspents() {
     return (
       <div>
-        <div style={{ marginTop: '40px', marginBottom: '30px' }}>
+        <div className="margin-top-40 margin-bottom-30">
           <strong>Requirements to accrue interest:</strong> spend transaction was made at least 1 hour ago, locktime field is set and UTXO amount is greater than 10 KMD.
         </div>
         <div className="panel panel-default">
@@ -249,7 +238,7 @@ class Interest extends React.Component {
               previousText="Previous page"
               showPaginationBottom={ this.state.showPagination }
               pageSize={ this.state.pageSize }
-              defaultSortMethod={ this.tableSorting }
+              defaultSortMethod={ tableSorting }
               defaultSorted={[{ // default sort
                 id: 'timestamp',
                 desc: true,
@@ -286,9 +275,10 @@ class Interest extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
     Main: state.root.Main,
+    input: ownProps.params.input,
   };
 };
 

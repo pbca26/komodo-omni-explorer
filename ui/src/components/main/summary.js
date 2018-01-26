@@ -2,9 +2,7 @@ import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
-import {
-  getSummary,
-} from '../../actions/actionCreators';
+import { getSummary } from '../../actions/actionCreators';
 
 class Summary extends React.Component {
   constructor(props) {
@@ -64,8 +62,8 @@ class Summary extends React.Component {
       }
 
       return (
-        <div className="table-responsive">
-          <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+        <div className="table-responsive margin-bottom-lg">
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table">
             <thead>
               <tr>
                 <th>Coin</th>

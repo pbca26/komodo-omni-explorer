@@ -1,8 +1,22 @@
-import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
+import {
+  createStore,
+  compose,
+  applyMiddleware,
+  combineReducers,
+} from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
-import { Router, Route, hashHistory } from 'react-router'
-import { syncHistoryWithStore, routerReducer, routerMiddleware, push } from 'react-router-redux'
+import {
+  Router,
+  Route,
+  hashHistory,
+} from 'react-router';
+import {
+  syncHistoryWithStore,
+  routerReducer,
+  routerMiddleware,
+  push,
+} from 'react-router-redux';
 import Config from './config';
 
 import rootReducer from './reducers/index';
@@ -22,7 +36,7 @@ const enhancers = Config.debug || Config.dev ? composeEnhancers(applyMiddleware(
 const store = createStore(
   combineReducers({
     root: rootReducer,
-    routing: routerReducer
+    routing: routerReducer,
   }),
   defaultState,
   enhancers);

@@ -1,6 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router';
 import * as actionCreators from '../../actions/actionCreators';
 import Main from '../main/main';
 
@@ -8,7 +8,7 @@ function mapStateToProps(state, ownProps) {
   return {
     Main: state.root.Main,
     path: ownProps.location.pathname,
-    input: ownProps.params.input
+    input: ownProps.params.input,
   };
 }
 

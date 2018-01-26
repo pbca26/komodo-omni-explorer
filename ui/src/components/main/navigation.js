@@ -1,5 +1,10 @@
 import React from 'react';
-import { Link, IndexLink, browserHistory, hashHistory } from 'react-router'
+import {
+  Link,
+  IndexLink,
+  browserHistory,
+  hashHistory,
+} from 'react-router';
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -7,11 +12,10 @@ class Navigation extends React.Component {
     this.state = {
       showNavigation: false,
     };
-    
   }
 
   componentWillMount() {
-    browserHistory.listen( location =>  {
+    browserHistory.listen(location => {
       // hide navigation in mobile when changing route
       this.setState({
         showNavigation: false,
@@ -21,8 +25,8 @@ class Navigation extends React.Component {
 
   toggleNavigation() {
     this.setState({
-      showNavigation: !this.state.showNavigation
-    })
+      showNavigation: !this.state.showNavigation,
+    });
   }
 
   render() {
@@ -41,7 +45,9 @@ class Navigation extends React.Component {
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
               </button>
-              <IndexLink to='/' className="navbar-brand">
+              <IndexLink
+                to="/"
+                className="navbar-brand">
                 Atomic Explorer
               </IndexLink>
             </div>
@@ -50,72 +56,72 @@ class Navigation extends React.Component {
               className={ !this.state.showNavigation ? 'collapse navbar-collapse' : 'navbar-collapse' }>
               <ul className="nav navbar-nav">
                 <li>
-                  <IndexLink 
-                    to='/' 
-                    className="navbar-link pointer" 
+                  <IndexLink
+                    to="/"
+                    className="navbar-link pointer"
                     activeClassName="active">
-                      <span className="fa fa-search"></span>
-                      <span className="menu-text">Explorer</span>
+                    <span className="fa fa-search"></span>
+                    <span className="menu-text">Explorer</span>
                   </IndexLink>
                 </li>
                 <li>
-                  <Link 
-                    to='/interest' 
-                    className="navbar-link pointer" 
+                  <Link
+                    to="/interest"
+                    className="navbar-link pointer"
                     activeClassName="active">
                     <span className="fa fa-money"></span>
                     <span className="menu-text">KMD Interest</span>
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to='/interest-calc' 
-                    className="navbar-link pointer" 
+                  <Link
+                    to="/interest-calc"
+                    className="navbar-link pointer"
                     activeClassName="active">
                     <span className="fa fa-calculator"></span>
                     <span className="menu-text">Interest Calc</span>
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to='/summary' 
-                    className="navbar-link pointer" 
+                  <Link
+                    to="/summary"
+                    className="navbar-link pointer"
                     activeClassName="active">
                     <span className="fa fa-share-alt"></span>
                     <span className="menu-text">Explorers list</span>
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to='/prices' 
-                    className="navbar-link pointer" 
+                  <Link
+                    to='/prices'
+                    className="navbar-link pointer"
                     activeClassName="active">
                     <span className="fa fa-usd"></span>
                     <span className="menu-text">DEX prices</span>
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to='/books' 
-                    className="navbar-link pointer" 
+                  <Link
+                    to="/books"
+                    className="navbar-link pointer"
                     activeClassName="active">
                     <span className="fa fa-line-chart"></span>
                     <span className="menu-text">DEX books</span>
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to='/charts' 
-                    className="navbar-link pointer" 
+                  <Link
+                    to="/charts"
+                    className="navbar-link pointer"
                     activeClassName="active">
                     <span className="fa fa-area-chart"></span>
                     <span className="menu-text">DEX charts</span>
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to='/coins'
-                    className="navbar-link pointer" 
+                  <Link
+                    to="/coins"
+                    className="navbar-link pointer"
                     activeClassName="active">
                     <span className="fa fa-th"></span>
                     <span className="menu-text">DEX coins</span>
@@ -135,7 +141,7 @@ class Navigation extends React.Component {
           </div>
         </div>
       );
-    } 
+    }
 }
 
 export default Navigation;

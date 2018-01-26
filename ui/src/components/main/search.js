@@ -7,10 +7,9 @@ import {
   sortByDate,
   formatValue,
   secondsToString,
+  tableSorting,
 } from '../../util/util';
-import {
-  searchTerm,
-} from '../../actions/actionCreators';
+import { searchTerm } from '../../actions/actionCreators';
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
@@ -31,43 +30,17 @@ class Search extends React.Component {
     };
   }
 
-  // https://react-table.js.org/#/custom-sorting
-  tableSorting(a, b) { // ugly workaround, override default sort
-    if (Date.parse(a)) { // convert date to timestamp
-      a = Date.parse(a);
-    }
-    if (Date.parse(b)) {
-      b = Date.parse(b);
-    }
-    // force null and undefined to the bottom
-    a = (a === null || a === undefined) ? -Infinity : a;
-    b = (b === null || b === undefined) ? -Infinity : b;
-    // force any string values to lowercase
-    a = typeof a === 'string' ? a.toLowerCase() : a;
-    b = typeof b === 'string' ? b.toLowerCase() : b;
-    // Return either 1 or -1 to indicate a sort priority
-    if (a > b) {
-      return 1;
-    }
-    if (a < b) {
-      return -1;
-    }
-    // returning 0 or undefined will use any subsequent column sorting methods or the row index as a tiebreaker
-    return 0;
-  }
-
   componentWillMount() {
     const _searchTerm = this.props.input;
+    const _search = this.props.Main.search;
 
-    if(_searchTerm) {
+    if (_searchTerm) {
       Store.dispatch(searchTerm(_searchTerm));
     }
 
-    const _search = this.props.Main.search;
-    
+    // remove?
     if (_search &&
         _search.balance) {
-    
       this.setState({
         balance: _search.balance,
         itemsList: _search.transactions,
@@ -146,15 +119,15 @@ class Search extends React.Component {
   }
 
   componentWillReceiveProps(props) {
+    const _search = this.props.Main.search;
 
-    if(props.input && props.input !== this.props.input) {
+    if (props.input &&
+        props.input !== this.props.input) {
       Store.dispatch(searchTerm(props.input));
     }
-    const _search = this.props.Main.search;
 
     if (_search &&
         _search.balance) {
-    
       this.setState({
         balance: _search.balance,
         itemsList: _search.transactions,
@@ -258,9 +231,7 @@ class Search extends React.Component {
 
   renderTransactions() {
     return (
-     <div
-      style={{ marginTop: '60px' }}
-      className="panel panel-default">
+      <div className="panel panel-default margin-top-60">
         <div className="panel-heading">
           <strong>Latest Transactions for { this.props.Main.searchTerm }</strong>
         </div>
@@ -280,27 +251,27 @@ class Search extends React.Component {
             previousText="Previous page"
             showPaginationBottom={ this.state.showPagination }
             pageSize={ this.state.pageSize }
-            defaultSortMethod={ this.tableSorting }
+            defaultSortMethod={ tableSorting }
             defaultSorted={[{ // default sort
               id: 'timestamp',
               desc: true,
             }]}
             onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
         </div>
-     </div>
+      </div>
     );
   }
 
   render() {
-    
     if (this.props.Main &&
-        this.props.Main.search && this.props.input) {
+        this.props.Main.search &&
+        this.props.input) {
       if (this.props.Main.search !== 'txid not found' &&
           this.props.Main.search !== 'wrong address') {
         if (!this.props.Main.search.balance) {
           return (
-            <div className="col-md-12 text-center">
-              <div style={{ marginBottom: '10px' }}>Found { this.props.Main.search } transaction</div>
+            <div className="col-md-12 text-center margin-bottom-10">
+              <div>Found { this.props.Main.search } transaction</div>
               <a
                 target="_blank"
                 href={ `${config.explorers[this.props.Main.search]}/tx/${this.props.Main.searchTerm}` }>{ this.props.Main.searchTerm }</a>

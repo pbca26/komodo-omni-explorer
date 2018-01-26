@@ -3,9 +3,7 @@ import ReactTable from 'react-table';
 import Store from '../../store';
 import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
-import {
-  getPrices
-} from '../../actions/actionCreators';
+import { getPrices } from '../../actions/actionCreators';
 import {
   sortByDate,
   formatValue,
@@ -31,6 +29,7 @@ class Prices extends React.Component {
     this.booksInterval = null;
     this.pricesInterval = null;
   };
+
   componentWillMount() {
     Store.dispatch(getPrices());
 
@@ -50,12 +49,12 @@ class Prices extends React.Component {
     return (
       <span>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${_pair[0].toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${_pair[0].toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ _pair[0] }</span>
         <i className="fa fa-exchange exchange-icon"></i>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${_pair[1].toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${_pair[1].toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ _pair[1] }</span>
       </span>
@@ -117,9 +116,35 @@ class Prices extends React.Component {
     return columns;
   }
 
+  componentWillMount() {
+    const _searchTerm = this.props.input && this.props.input.toUpperCase();
+
+    Store.dispatch(getPrices());
+
+    if (this.state.prices) {
+      this.setState({
+        searchTerm: _searchTerm,
+        filteredItemsList: this.filterData(this.state.prices, _searchTerm),
+        showPagination: this.state.prices && this.state.prices.length >= this.state.defaultPageSize,
+        itemsListColumns: this.generateItemsListColumns(this.state.prices.length),
+      });
+    } else {
+      this.setState({
+        searchTerm: _searchTerm,
+      });
+    }
+  }
+
   componentWillReceiveProps(props) {
     const __prices = this.props.Main.prices;
     let _prices = [];
+
+    if (props.input &&
+        props.input !== this.props.input) {
+      this.setState({
+        searchTerm: props.input.toUpperCase(),
+      });
+    }
 
     for (let key in __prices) {
       _prices.push({
@@ -133,7 +158,7 @@ class Prices extends React.Component {
       this.setState({
         prices: _prices,
         itemsList: _prices,
-        filteredItemsList: this.filterData(_prices, this.state.searchTerm),
+        filteredItemsList: this.filterData(_prices, props.input && props.input.toUpperCase() || ''),
         showPagination: _prices && _prices.length >= this.state.defaultPageSize,
         itemsListColumns: this.generateItemsListColumns(_prices.length),
       });
@@ -144,7 +169,7 @@ class Prices extends React.Component {
     this.setState(Object.assign({}, this.state, {
       pageSize: pageSize,
       showPagination: this.state.itemsList && this.state.itemsList.length >= this.state.defaultPageSize,
-    }))
+    }));
   }
 
   onSearchTermChange(newSearchTerm) {
@@ -155,7 +180,7 @@ class Prices extends React.Component {
   }
 
   filterData(list, searchTerm) {
-    return list.filter(item => this.filterDataByProp(item, searchTerm));
+    return list.filter(item => this.filterDataByProp(item, searchTerm.replace('-', '/')));
   }
 
   filterDataByProp(item, term) {
@@ -176,9 +201,7 @@ class Prices extends React.Component {
     if (this.state.prices &&
         this.state.prices.length) {
       return (
-        <div
-          style={{ maxWidth: '1080px', margin: '0 auto' }}
-          className="panel panel-default">
+        <div className="panel panel-default prices-block">
           <div className="panel-heading">
             <strong>Prices</strong>
           </div>
@@ -186,6 +209,7 @@ class Prices extends React.Component {
             <input
               className="form-control search-field"
               onChange={ e => this.onSearchTermChange(e.target.value) }
+              value={ this.state.searchTerm }
               placeholder="Filter" />
             <ReactTable
               data={ this.state.filteredItemsList }
@@ -212,9 +236,10 @@ class Prices extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
     Main: state.root.Main,
+    input: ownProps.params.input,
   };
 };
 

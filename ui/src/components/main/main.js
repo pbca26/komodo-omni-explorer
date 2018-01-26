@@ -1,5 +1,8 @@
 import React from 'react';
-import { browserHistory, hashHistory } from 'react-router'
+import {
+  browserHistory,
+  hashHistory,
+} from 'react-router'
 import Store from '../../store';
 import config from '../../config';
 import {
@@ -8,11 +11,8 @@ import {
   resetInterestState,
   fiatRates,
 } from '../../actions/actionCreators';
-import {
-  getQueryVariable,
-} from '../../util/util';
 import Search from './search';
-import Navigation from './navigation'
+import Navigation from './navigation';
 
 const FIAT_UPDATE_INTERVAL = 60000;
 
@@ -42,8 +42,9 @@ class Main extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(this.props.path !== nextProps.path) {
+    if (this.props.path !== nextProps.path) {
       Store.dispatch(resetInterestState());
+
       this.setState({
         searchTerm: '',
         showSearch: false,
@@ -58,10 +59,10 @@ class Main extends React.Component {
   }
 
   triggerSearch() {
-    if (this.props.path=== '/interest') {
+    if (this.props.path === '/interest') {
       Store.dispatch(getInterest(this.state.searchTerm));
     } else {
-      hashHistory.push('/search/'+ this.state.searchTerm);
+      hashHistory.push('/search/' + this.state.searchTerm);
     }
   }
 
@@ -122,45 +123,46 @@ class Main extends React.Component {
                 </div>
               </div>
             }
+          </div>
+          { this.props.path !== '/coins' &&
+            <div className="row text-center margin-top-md margin-bottom-xlg">
+              { this.renderCoinIcons() }
             </div>
-            { this.props.path !== '/coins' &&
-              <div className="row text-center margin-top-md margin-bottom-xlg">
-                { this.renderCoinIcons() }
-              </div>
-            }
-            { this.props.path == '/interest' ||
-              this.props.path == '/' &&
-              <div className="row text-center margin-top-md margin-bottom-xlg">
-                <div className="form-inline">
-                  <div
-                    id="index-search"
-                    className="form-group">
-                    <input
-                      onChange={ (event) => this.updateInput(event) }
-                      type="text"
-                      name="searchTerm"
-                      value={ this.state.searchTerm }
-                      placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a tx hash or an address.' }
-                      className="form-control" />
-                    <button
-                      onClick={ this.triggerSearch }
-                      disabled={ this.state.searchTerm.length < 34 }
-                      type="submit"
-                      className="btn btn-success">Search</button>
-                  </div>
+          }
+          { (this.props.path.indexOf('/interest') > -1 ||
+            this.props.path === '/') &&
+            <div className="row text-center margin-top-md margin-bottom-xlg">
+              <div className="form-inline">
+                <div
+                  id="index-search"
+                  className="form-group">
+                  <input
+                    onChange={ (event) => this.updateInput(event) }
+                    type="text"
+                    name="searchTerm"
+                    value={ this.state.searchTerm }
+                    placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a tx hash or an address.' }
+                    className="form-control" />
+                  <button
+                    onClick={ this.triggerSearch }
+                    disabled={ this.state.searchTerm.length < 34 }
+                    type="submit"
+                    className="btn btn-success margin-left-10">
+                    Search
+                  </button>
                 </div>
               </div>
-            }
+            </div>
+          }
           { this.props.children }
         </div>
         <footer className="site-footer hidden-xs">
           <div className="row">
             <div className="col-md-12">
               <a
-                id="twitter-icon"
                 href="https://twitter.com/KomodoPlatform"
                 target="_blank">
-                <span className="glyphicon fa fa-twitter"></span>
+                <span className="glyphicon fa fa-twitter twitter-icon"></span>
               </a>
               <p className="margin-top-md text-center">
                 Powered by<br />
@@ -169,7 +171,7 @@ class Main extends React.Component {
                   target="_blank"
                   className="navbar-link">Iquidus Explorer</a>,&nbsp;
                 <a
-                  href="hhttps://github.com/jl777/SuperNET"
+                  href="https://github.com/jl777/SuperNET"
                   target="_blank"
                   className="navbar-link">BarterDEX</a>
                 <span>&nbsp;&amp;&nbsp;</span>

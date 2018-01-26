@@ -4,19 +4,16 @@ import { hashHistory } from 'react-router';
 import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
-import {
-  coins,
-} from '../../actions/actionCreators';
-
+import { coins } from '../../actions/actionCreators';
 
 class Charts extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      base: config.charts.defaultPair.split("-")[0],
-      rel: config.charts.defaultPair.split("-")[1],
+      base: config.charts.defaultPair.split('-')[0],
+      rel: config.charts.defaultPair.split('-')[1],
       coins: [],
-     };
+    };
     this.updateInput = this.updateInput.bind(this);
     this.createTView = this.createTView.bind(this);
     this.getCoinValues = this.getCoinValues.bind(this);
@@ -24,56 +21,56 @@ class Charts extends React.Component {
     this.datafeed = null;
     this.widget = null;
   }
-  
+
   componentWillMount() {
     Store.dispatch(coins());
   }
 
   componentDidMount() {
-
-    if(this.props.coinpair) {
+    if (this.props.input) {
       this.setState({
-        base: this.props.coinpair.split("-")[0],
-        rel: this.props.coinpair.split("-")[1],
+        base: this.props.input.split('-')[0],
+        rel: this.props.input.split('-')[1],
       });
-      this.createTView(this.props.coinpair);
+      this.createTView(this.props.input);
     } else {
       this.createTView(config.charts.defaultPair);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-      if(nextProps.Main.coins !== this.props.Main.coins) {
-        this.getCoinValues(nextProps.Main.coins);
-      }
-      if(this.props.coinpair !== nextProps.coinpair) {
-        if(nextProps.coinpair) {
+    if (nextProps.Main.coins !== this.props.Main.coins) {
+      this.getCoinValues(nextProps.Main.coins);
+    }
+
+    if (this.props.input !== nextProps.input) {
+      if (nextProps.input) {
         this.setState({
-          base: nextProps.coinpair.split("-")[0],
-          rel: nextProps.coinpair.split("-")[1],
+          base: nextProps.input.split('-')[0],
+          rel: nextProps.input.split('-')[1],
         });
-        this.createTView(nextProps.coinpair);
+        this.createTView(nextProps.input);
       } else {
         this.setState({
-          base: config.charts.defaultPair.split("-")[0],
-          rel: config.charts.defaultPair.split("-")[1],
+          base: config.charts.defaultPair.split('-')[0],
+          rel: config.charts.defaultPair.split('-')[1],
         });
         this.createTView(config.charts.defaultPair);
       }
     }
   }
-  
+
   getCoinValues(coins) {
     const __coins = coins;
     let _coins = [];
 
     for (let key in __coins) {
-      _coins.push({ 
+      _coins.push({
         label: __coins[key].coin,
         value: __coins[key].coin,
       });
     }
-    
+
     this.setState({
       coins: _coins,
     });
@@ -81,26 +78,31 @@ class Charts extends React.Component {
 
   reinitTradingView() {
     const _feed = this.widget.options.datafeed._barsPulseUpdater._subscribers;
+
     this.datafeed.unsubscribeBars(Object.keys(_feed)[0]);
-    this.widget.remove();  
-    hashHistory.push('/charts/'+ this.state.base +  "-" + this.state.rel);
+    this.widget.remove();
+    hashHistory.push('/charts/' + this.state.base + '-' + this.state.rel);
     this.createTView(`${this.state.base}-${this.state.rel}`);
   }
 
   createTView(pair) {
     this.datafeed = new Datafeeds.UDFCompatibleDatafeed(config.charts.datafeedURL);
     this.widget = new TradingView.widget({
-      fullscreen: true,
+      fullscreen: false,
+      width: 1000,
       symbol: pair,
-      //debug: true,
+      // debug: true,
       interval: config.charts.interval,
       container_id: 'tv_chart_container',
       //  BEWARE: no trailing slash is expected in feed URL
       datafeed: this.datafeed,
       library_path: `${config.charts.urlPrefix}/charting_library/`,
-      locale: "en",
+      locale: 'en',
       //  Regression Trend-related functionality is not implemented yet, so it's hidden for a while
-      drawings_access: { type: 'black', tools: [ { name: 'Regression Trend' } ] },
+      drawings_access: {
+        type: 'black',
+        tools: [ { name: 'Regression Trend' } ]
+      },
       disabled_features: [
         'use_localstorage_for_settings',
         'volume_force_overlay'
@@ -109,6 +111,7 @@ class Charts extends React.Component {
       overrides: {
         'mainSeriesProperties.style': 1,
         'symbolWatermarkProperties.color': '#944',
+        'volumePaneSize': 'tiny',
       },
       time_frames: [
         { text: '5m', resolution: '5' },
@@ -118,16 +121,16 @@ class Charts extends React.Component {
         { text: '120m', resolution: '120' },
         { text: '240m', resolution: '240' },
         { text: '1D', resolution: 'D' },
-        { text: '1W', resolution: 'W' }
+        { text: '1W', resolution: 'W' },
       ],
       client_id: 'example.com',
       user_id: '',
-    });  
+    });
   }
 
   updateInput(e, type) {
-    if (e && 
-      e.value) {
+    if (e &&
+        e.value) {
       this.setState({
         [type === 'rel' ? 'rel' : 'base']: e.value,
       });
@@ -145,11 +148,10 @@ class Charts extends React.Component {
     );
   }
 
-
   render() {
     return (
-      <div className="main-container">
-         <div className="pair-selectors">
+      <div className="main-container charts-container">
+        <div className="pair-selectors">
           <Select
             className="pair"
             name="base"
@@ -171,7 +173,9 @@ class Charts extends React.Component {
             onClick={ this.reinitTradingView }
             disabled={ this.state.base === this.state.rel }>Update</button>
         </div>
-        <div id="tv_chart_container"></div>
+        <div
+          id="tv_chart_container"
+          className="tv-chart-container"></div>
       </div>
     );
   }
@@ -180,7 +184,7 @@ class Charts extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     Main: state.root.Main,
-    coinpair: ownProps.params.coinpair,
+    input: ownProps.params.input,
   };
 };
 
