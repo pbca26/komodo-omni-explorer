@@ -7,10 +7,9 @@ import {
   sortByDate,
   formatValue,
   secondsToString,
+  tableSorting,
 } from '../../util/util';
-import {
-  getOverview,
-} from '../../actions/actionCreators';
+import { getOverview } from '../../actions/actionCreators';
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
@@ -30,31 +29,6 @@ class Overview extends React.Component {
       loading: true,
     };
     this.overviewInterval = null;
-  }
-
-  // https://react-table.js.org/#/custom-sorting
-  tableSorting(a, b) { // ugly workaround, override default sort
-    if (Date.parse(a)) { // convert date to timestamp
-      a = Date.parse(a);
-    }
-    if (Date.parse(b)) {
-      b = Date.parse(b);
-    }
-    // force null and undefined to the bottom
-    a = (a === null || a === undefined) ? -Infinity : a;
-    b = (b === null || b === undefined) ? -Infinity : b;
-    // force any string values to lowercase
-    a = typeof a === 'string' ? a.toLowerCase() : a;
-    b = typeof b === 'string' ? b.toLowerCase() : b;
-    // Return either 1 or -1 to indicate a sort priority
-    if (a > b) {
-      return 1;
-    }
-    if (a < b) {
-      return -1;
-    }
-    // returning 0 or undefined will use any subsequent column sorting methods or the row index as a tiebreaker
-    return 0;
   }
 
   renderCoinIcon(coin) {
@@ -203,32 +177,32 @@ class Overview extends React.Component {
       <div className="row">
         <div className="col-md-12">
           <div className="panel panel-default">
-              <div className="panel-heading">
-                <strong>Latest Transactions</strong>
-              </div>
-              <div className="dex-table">
-                <input
-                  className="form-control search-field"
-                  onChange={ e => this.onSearchTermChange(e.target.value) }
-                  placeholder="Filter" />
-                <ReactTable
-                  data={ this.state.filteredItemsList }
-                  columns={ this.state.itemsListColumns }
-                  minRows="0"
-                  sortable={ true }
-                  className="-striped -highlight"
-                  PaginationComponent={ TablePaginationRenderer }
-                  nextText="Next page"
-                  previousText="Previous page"
-                  showPaginationBottom={ this.state.showPagination }
-                  pageSize={ this.state.pageSize }
-                  defaultSortMethod={ this.tableSorting }
-                  defaultSorted={[{ // default sort
-                    id: 'timestamp',
-                    desc: true,
-                  }]}
-                  onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
-              </div>
+            <div className="panel-heading">
+              <strong>Latest Transactions</strong>
+            </div>
+            <div className="dex-table">
+              <input
+                className="form-control search-field"
+                onChange={ e => this.onSearchTermChange(e.target.value) }
+                placeholder="Filter" />
+              <ReactTable
+                data={ this.state.filteredItemsList }
+                columns={ this.state.itemsListColumns }
+                minRows="0"
+                sortable={ true }
+                className="-striped -highlight"
+                PaginationComponent={ TablePaginationRenderer }
+                nextText="Next page"
+                previousText="Previous page"
+                showPaginationBottom={ this.state.showPagination }
+                pageSize={ this.state.pageSize }
+                defaultSortMethod={ tableSorting }
+                defaultSorted={[{ // default sort
+                  id: 'timestamp',
+                  desc: true,
+                }]}
+                onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
+            </div>
           </div>
           <div className="footer-padding"></div>
         </div>
@@ -239,7 +213,7 @@ class Overview extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

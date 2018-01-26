@@ -8,9 +8,16 @@ body {
 	width: 80%;
 	margin: auto;
 }
+
+#index-search input[type="text"] {
+	min-width: 80%;
+	margin-right: 5px;
+}
+
 @media(max-width:767px) {
 	#index-search input[type="text"] {
-		margin-bottom: 1em;	
+		margin-bottom: 1em;
+		margin-right: 0;
 	}
 }
 
@@ -56,7 +63,8 @@ body {
 table {
 	width: 100% !important;
 }
-.dataTables_info, .dataTables_length {
+.dataTables_info,
+.dataTables_length {
 	padding-left: 10px;
 }
 
@@ -76,8 +84,9 @@ table {
 	margin-top: 5px;
 }
 
-table a:not(.btn),.table a:not(.btn){
-	text-decoration:none
+table a:not(.btn),
+.table a:not(.btn) {
+	text-decoration: none
 }
 
 tr {
@@ -99,12 +108,9 @@ tr {
 }
 
 .menu-text {
-	margin-left:5px;
+	margin-left: 5px;
 }
 
-#twitter-icon {
-	font-size: 20px;
-}
 .connections {
 	position: absolute;
 	bottom: 15px;
@@ -115,49 +121,19 @@ tr {
 	margin-right: 10px;
 }
 
-#twitter-icon img{
-	width: 40px;
-	margin: 5px 5px;
-}
-
 #market_menu {
 	margin-bottom: 5px;
 }
 
-.label a:link {
-	color: #ffffff;
-}
-
-.label a:visited {
-	color: #ffffff;
-}
-
-.label a:hover {
-	color: #ffffff;
-}
-
-.label a:active {
-	color: #ffffff;
-}
-
-@media(max-width:767px){
-	body {
-		padding: 0px;
-		padding-top:60px;
+.label {
+	a:link,
+	a:visited,
+	a:hover,
+	a:active {
+		color: #ffffff;
 	}
 }
 
-@media(max-width:1096px){
-	.nav-search input {
-	    width: 300px !important;
-    }
-}
-
-@media(max-width:865px){
-	.nav-search input {
-	    width: 150px !important;
-    }
-}
 .qrcode {
 	position: absolute;
 	top: 65px;
@@ -168,4 +144,8 @@ tr {
 	height: 40px;
 	position: absolute;
 	bottom: 0px;
+}
+
+.fs-18 {
+	font-size: 18px;
 }

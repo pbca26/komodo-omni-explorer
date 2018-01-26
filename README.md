@@ -26,6 +26,38 @@ npm run build
 
 built ui version will be copied to /public folder
 
+## URL navigation
+
+#### KMD interest
+http://atomicexplorer.com/#/interest
+http://atomicexplorer.com/#/interest/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+
+#### KMD interest calc
+http://atomicexplorer.com/#/interest-calc
+
+#### Explorers list summary
+http://atomicexplorer.com/#/summary
+
+#### Balance
+http://atomicexplorer.com/#/search
+http://atomicexplorer.com/#/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+
+#### BarterDEX Charts
+http://atomicexplorer.com/#/charts
+http://atomicexplorer.com/#/charts/KMD-BTC
+
+#### BarterDEX Prices
+http://atomicexplorer.com/#/prices
+http://atomicexplorer.com/#/prices/KMD-BTC
+
+#### BarterDEX Orderbooks
+http://atomicexplorer.com/#/boks
+http://atomicexplorer.com/#/prices/KMD-BTC
+
+#### BarterDEX coins list
+http://atomicexplorer.com/#/boks
+http://atomicexplorer.com/#/prices/KMD-BTC
+
 ## API
 #### GET /api/explorer/search?term=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
@@ -50,21 +82,3 @@ params: none required
 #### GET /api/mm/orderbook
 
 params: none required
-
-## UI shortcuts
-
-#### http://ip:port/?search=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
-
-params: txid or pub address
-
-will trigger GET /api/explorer/search?term=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P on page load and render results
-
-#### http://ip:port/?interest=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
-
-params: pub address
-
-will trigger GET /api/kmd/interest?address=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P on page load and render results
-
-#### http://ip:port/?prices
-
-#### http://ip:port/?books

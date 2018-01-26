@@ -1,0 +1,41 @@
+.pair-selectors {
+  .pair {
+    display: inline-block;
+    width: calc(50% - 10px);
+    margin-bottom: 10px;
+    z-index: 3;
+
+    @media only screen and (min-width: 768px) {
+      width: 220px;
+    }
+    &.Select.last {
+      z-index: 2;
+      margin-left: 10px;
+
+      @media only screen and (min-width: 768px) {
+        margin-left: 20px;
+      }
+    }
+  }
+  .btn {
+    position: relative;
+    margin-bottom: 20px;
+    vertical-align: top;
+    margin-top: 2px;
+
+    @media only screen and (min-width: 768px) {
+      left: 20px;
+    }
+  }
+}
+
+.tv-chart-container {
+  margin: 0 auto;
+  margin-bottom: 40px;
+}
+
+.charts-container {
+  margin: 0 auto;
+  display: block;
+  width: 1000px;
+}

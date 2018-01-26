@@ -405,7 +405,7 @@ class InterestCalc extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

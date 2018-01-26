@@ -2,12 +2,19 @@ import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
+import {
+  coins,
+} from '../../actions/actionCreators';
 
 class Coins extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
     };
+  }
+
+  componentWillMount() {
+    Store.dispatch(coins());
   }
 
   renderDexCoins() {
@@ -51,7 +58,7 @@ class Coins extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

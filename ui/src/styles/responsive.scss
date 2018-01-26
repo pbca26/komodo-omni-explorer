@@ -1,4 +1,4 @@
-@media only screen and (max-width : 1000px) {
+@media only screen and (max-width: 1000px) {
   body {
     padding: 0;
     padding-top: 60px;
@@ -16,5 +16,24 @@
         margin-bottom: 60px;
       }
     }
+  }
+}
+
+@media(max-width: 767px){
+  body {
+    padding: 0px;
+    padding-top: 60px;
+  }
+}
+
+@media(max-width: 1096px){
+  .nav-search input {
+    width: 300px !important;
+  }
+}
+
+@media(max-width: 865px){
+  .nav-search input {
+    width: 150px !important;
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { hashHistory } from 'react-router';
 import ReactTable from 'react-table';
 import Store from '../../store';
 import TablePaginationRenderer from './pagination';
@@ -9,16 +10,18 @@ import {
   secondsToString,
 } from '../../util/util';
 import config from '../../config';
+import { getOrderbooks } from '../../actions/actionCreators';
 import Select from 'react-select';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
+const ORDERS_UPDATE_INTERVAL = 30000;
 
 class Books extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       books: null,
-      pair: 'BTC/KMD',
+      pair: '',
       pairs: [],
       asksItemsList: [],
       bidsItemsList: [],
@@ -30,17 +33,86 @@ class Books extends React.Component {
       showPagination: true,
     };
     this.updatePair = this.updatePair.bind(this);
+    this.booksInterval = null;
+    this.pricesInterval = null;
+  }
+
+  componentWillMount() {
+    Store.dispatch(getOrderbooks());
+
+    if (this.pricesInterval) {
+      clearInterval(this.pricesInterval);
+    }
+
+    this.booksInterval = setInterval(() => {
+      Store.dispatch(getOrderbooks());
+    }, ORDERS_UPDATE_INTERVAL);
+
+    if (this.booksInterval) {
+      clearInterval(this.booksInterval);
+    }
+
+    const __books = this.props.Main.orderbooks;
+    const _pairs = [];
+    let _books = [];
+
+    for (let key in __books) {
+      _books.push({
+        pair: key,
+        data: __books[key],
+      });
+
+      if (key.indexOf('KMD/') > -1) {
+        _pairs.push({ value: key });
+      }
+    }
+
+    for (let key in __books) {
+      if (key.indexOf('KMD/') === -1) {
+        _pairs.push({ value: key });
+      }
+    }
+
+    if (this.props.input) {
+      const formattedPair = this.props.input.replace('-', '/').toUpperCase();
+
+      this.setState({
+        pair: formattedPair,
+      }, ()=>{
+        this.setTableState(__books, _pairs);
+      });
+    } else {
+      this.setState({
+        pair: 'BTC/KMD',
+      }, ()=>{
+        this.setTableState(__books, _pairs);
+      });
+    }
   }
 
   renderCoinIcon(coin) {
     return (
       <span>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ coin}</span>
       </span>
     );
+  }
+
+  setTableState(__books, _pairs) {
+    if (__books &&
+        __books[this.state.pair]) {
+      this.setState({
+        books: __books,
+        pairs: _pairs,
+        asksItemsList: __books[this.state.pair].asks,
+        bidsItemsList: __books[this.state.pair].bids,
+        filteredAsksItemsList: this.filterData(__books[this.state.pair].asks, this.state.searchTerm),
+        filteredBidsItemsList: this.filterData(__books[this.state.pair].bids, this.state.searchTerm),
+      });
+    }
   }
 
   generateItemsListColumns(itemsCount) {
@@ -105,6 +177,7 @@ class Books extends React.Component {
         pair: key,
         data: __books[key],
       });
+
       if (key.indexOf('KMD/') > -1) {
         _pairs.push({ value: key });
       }
@@ -116,15 +189,20 @@ class Books extends React.Component {
       }
     }
 
-    if (__books &&
-        __books[this.state.pair]) {
+    if (props.input) {
+      const formattedPair = props.input.replace('-', '/').toUpperCase();
+
       this.setState({
-        books: __books,
-        pairs: _pairs,
-        asksItemsList: __books[this.state.pair].asks,
-        bidsItemsList: __books[this.state.pair].bids,
-        filteredAsksItemsList: this.filterData(__books[this.state.pair].asks, this.state.searchTerm),
-        filteredBidsItemsList: this.filterData(__books[this.state.pair].bids, this.state.searchTerm),
+        pair: formattedPair,
+      }, ()=>{
+        this.setTableState(__books, _pairs);
+      });
+
+    } else {
+      this.setState({
+        pair: 'BTC/KMD',
+      }, ()=>{
+        this.setTableState(__books, _pairs);
       });
     }
   }
@@ -133,13 +211,6 @@ class Books extends React.Component {
     this.setState(Object.assign({}, this.state, {
       pageSize: pageSize,
     }))
-  }
-
-  onSearchTermChange(newSearchTerm) {
-    this.setState(Object.assign({}, this.state, {
-      searchTerm: newSearchTerm,
-      filteredAsksItemsList: this.filterData(this.state.itemsList, newSearchTerm),
-    }));
   }
 
   filterData(list, searchTerm) {
@@ -166,6 +237,10 @@ class Books extends React.Component {
       const __books = this.props.Main.orderbooks;
       const _pair = e.value;
 
+      if (this.props.params) {
+        hashHistory.push('/books/' + e.value.replace('/', '-'));
+      }
+
       this.setState({
         pair: _pair,
         asksItemsList: __books[_pair].asks,
@@ -182,12 +257,12 @@ class Books extends React.Component {
     return (
       <div className="coin-dropdown">
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${_pair[0].toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${_pair[0].toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ _pair[0] }</span>
         <i className="fa fa-exchange exchange-icon"></i>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${_pair[1].toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${_pair[1].toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ _pair[1] }</span>
       </div>
@@ -231,8 +306,7 @@ class Books extends React.Component {
                   onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
               </div>
             </div>
-            <div
-              className="panel panel-default">
+            <div className="panel panel-default">
               <div className="panel-heading">
                 <strong>Bids</strong>
               </div>
@@ -264,9 +338,10 @@ class Books extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
+    input: ownProps.params.input,
   };
 };
 

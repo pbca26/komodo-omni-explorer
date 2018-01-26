@@ -3,6 +3,7 @@ import {
   SEARCH,
   SUMMARY,
   INTEREST,
+  RESET_INTEREST,
   UNSPENTS,
   PRICES,
   ORDERBOOKS,
@@ -74,10 +75,18 @@ export function Main(state = {
         ...state,
         fiatRates: action.fiatRates,
       };
-    case COINS:
+      case COINS:
       return {
         ...state,
         coins: action.coins,
+      };
+      case RESET_INTEREST:
+      return {
+        ...state,
+        unspentsAddress: null,
+        interestAddress: null,
+        unspents: null,
+        interest: null,
       };
     default:
       return state;

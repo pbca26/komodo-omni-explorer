@@ -2,12 +2,22 @@ import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
+import { getSummary } from '../../actions/actionCreators';
 
 class Summary extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
     };
+    this.openSummary = this.openSummary.bind(this);
+  }
+
+  componentWillMount() {
+    Store.dispatch(getSummary());
+  }
+
+  openSummary() {
+    Store.dispatch(getSummary());
   }
 
   renderSummary() {
@@ -52,7 +62,7 @@ class Summary extends React.Component {
       }
 
       return (
-        <div className="table-responsive">
+        <div className="table-responsive margin-bottom-lg">
           <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table">
             <thead>
               <tr>
@@ -83,7 +93,7 @@ class Summary extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    Main: state.Main,
+    Main: state.root.Main,
   };
 };
 

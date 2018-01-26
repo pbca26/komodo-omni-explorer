@@ -342,40 +342,39 @@ input:checked + .slider:before {
   }
 }
 
-.dex-table,
-.search-table,
-.prices-table,
-.summary-table {
-  .table-coin-icon-wrapper {
-    height: 35px;
-    width: 35px;
-    position: relative;
-    top: 3px;
+.site-footer {
+  border-color: #2f6363;
+  background-color: #2f6363;
+  color: #fff;
+  position: fixed;
+  z-index: 1030;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  padding-bottom: 7px;
 
-    .table-coin-icon {
-      transform: scale(0.35);
+  a {
+    color: #fff;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: #fff;
     }
   }
-}
 
-.search-table,
-.dex-table,
-.summary-table,
-.prices-table {
-  .rt-td:first-child a,
-  .coin-title, {
-    position: relative;
-    top: -9px;
-  }
-  .table-coin-name {
-    position: relative;
-    top: 8px;
+  .twitter-icon {
+    font-size: 24px;
+    line-height: 20px;
+    margin-left: 15px;
+    padding: 10px;
+    position: absolute;
+    top: 10px;
+    cursor: pointer;
   }
 }
 
-.prices-table {
-  .exchange-icon {
-    position: relative;
-    top: 8px;
-  }
+.prices-block {
+  max-width: 1080px;
+  margin: 0 auto;
 }

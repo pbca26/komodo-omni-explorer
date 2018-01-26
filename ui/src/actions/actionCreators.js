@@ -7,6 +7,7 @@ import {
   SEARCH,
   SUMMARY,
   INTEREST,
+  RESET_INTEREST,
   UNSPENTS,
   PRICES,
   ORDERBOOKS,
@@ -59,11 +60,7 @@ export function orderbooksState(orderbooks) {
 
 export function resetInterestState() {
   return {
-    type: UNSPENTS,
-    unspentsAddress: null,
-    interestAddress: null,
-    unspents: null,
-    interest: null,
+    type: RESET_INTEREST,
   }
 }
 
