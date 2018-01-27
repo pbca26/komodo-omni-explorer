@@ -20,6 +20,7 @@ const config = {
     CHIPS: 'http://CHIPS1.explorer.supernet.org',
     COQUI: 'https://explorer.coqui.cash',
     MNZ: 'https://www.mnzexplorer.com',
+    BTCH: 'http://www.btch.host',
   },
   charts: {
     urlPrefix: 'http://atomicexplorer.com/public/charts',

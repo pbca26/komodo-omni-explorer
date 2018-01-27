@@ -378,3 +378,10 @@ input:checked + .slider:before {
   max-width: 1080px;
   margin: 0 auto;
 }
+
+div[class^='coin_'],
+div[class*=' coin_'],
+span[class^='coin_'],
+span[class*=' coin_'] {
+  border-radius: 50%;
+}

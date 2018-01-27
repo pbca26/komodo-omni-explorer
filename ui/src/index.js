@@ -50,7 +50,9 @@ const router = (
         <Route
           path="/summary"
           component={Summary} />
-        <Route path="/books" component={Books}>
+        <Route
+          path="/books"
+          component={Books}>
           <Route
             path="/books/:input"
             component={Books} />

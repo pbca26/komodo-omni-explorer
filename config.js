@@ -19,6 +19,7 @@ const config = {
     CHIPS: 'http://CHIPS1.explorer.supernet.org',
     COQUI: 'https://explorer.coqui.cash',
     MNZ: 'https://www.mnzexplorer.com',
+    BTCH: 'http://www.btch.host',
   },
   komodoParams: { // networking
     messagePrefix: '\x19Komodo Signed Message:\n',
@@ -136,6 +137,12 @@ const config = {
       serverList: [
         'electrum1.cipig.net:10053',
         'electrum2.cipig.net:10053'
+      ],
+    },
+    btch: {
+      serverList: [
+        'electrum1.cipig.net:10020',
+        'electrum2.cipig.net:10020'
       ],
     },
   },
