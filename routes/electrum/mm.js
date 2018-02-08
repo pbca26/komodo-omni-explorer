@@ -8,6 +8,8 @@ const async = require('async');
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
+const STATS_UPDATE_INTERVAL = 20; // every 20s
+
 let electrumServers = [];
 
 const tempElectrumCoins = Object.keys(config.electrumServers).concat(Object.keys(config.electrumServersExtend));
@@ -64,6 +66,10 @@ module.exports = (shepherd) => {
     pricesUpdateInProgress: false,
     fiatRates: null,
     coins: {},
+    stats: {
+      detailed: {},
+      simplified: {},
+    },
     userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
   };
 
@@ -391,6 +397,57 @@ module.exports = (shepherd) => {
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.coins,
+    }));
+  });
+
+  shepherd.updateStats = () => {
+    const runStatsUpdate = () => {
+      const statsSource = fs.readFileSync('stats.log', 'utf-8');
+      const _lines = statsSource.split('\n');
+      const _numLast = 1000;
+      let _outDetailed = [];
+      let _outSimplified = [];
+
+      for (let i = _lines.length; i > _lines.length - _numLast; i--) {
+        try {
+          const _json = JSON.parse(_lines[i]);
+          const { method, rel, base, satoshis, timestamp, destsatoshis, price } = _json;
+          _outDetailed.push(_json);
+          _outSimplified.push({
+            method,
+            rel,
+            base,
+            satoshis,
+            timestamp,
+            destsatoshis,
+            price,
+          });
+        } catch (e) {}
+      }
+
+      shepherd.mm.stats = {
+        detailed: _outDetailed,
+        simplified: _outSimplified,
+      };
+    };
+
+    runStatsUpdate();
+    setInterval(() => {
+      runStatsUpdate();
+    }, STATS_UPDATE_INTERVAL);
+  };
+
+  shepherd.get('/mm/stats', (req, res, next) => {
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: shepherd.mm.stats.detailed,
+    }));
+  });
+
+  shepherd.get('/mm/stats/simple', (req, res, next) => {
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: shepherd.mm.stats.simplified,
     }));
   });
 

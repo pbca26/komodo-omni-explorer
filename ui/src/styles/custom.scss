@@ -385,3 +385,43 @@ span[class^='coin_'],
 span[class*=' coin_'] {
   border-radius: 50%;
 }
+
+.trades-block {
+  &.simple {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .trades-table {
+      .rt-thead {
+        .rt-th:nth-child(7),
+        .rt-th:nth-child(8),
+        .rt-th:nth-child(9) {
+          display: none !important;
+        }
+      }
+      .rt-tbody {
+        .rt-td:nth-child(7),
+        .rt-td:nth-child(8),
+        .rt-td:nth-child(9) {
+          display: none !important;
+        }
+      }
+    }
+  }
+}
+
+.trades-table {
+  .rt-td {
+    text-align: center;
+  }
+  .rt-td:nth-child(1) {
+    text-align: left;
+  }
+}
+
+.detailed-view-toggle {
+  float: right;
+  position: relative;
+  top: -12px;
+  left: -20px;
+}

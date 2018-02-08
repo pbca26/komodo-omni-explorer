@@ -19,6 +19,7 @@ import Prices from './components/main/prices';
 import Books from './components/main/books';
 import Coins from './components/main/coins';
 import Charts from './components/main/charts';
+import Stats from './components/main/stats';
 import './styles/index.scss';
 
 const router = (
@@ -31,6 +32,9 @@ const router = (
         <Route
           path="/summary"
           component={Summary} />
+        <Route
+          path="/trades"
+          component={Stats} />
         <Route
           path="/prices"
           component={Prices}>

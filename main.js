@@ -37,3 +37,4 @@ shepherd.getOverview(true);
 shepherd.getSummary(true);
 shepherd.getRates();
 shepherd.getMMCoins();
+shepherd.updateStats();
