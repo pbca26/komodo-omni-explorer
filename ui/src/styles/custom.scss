@@ -393,16 +393,17 @@ span[class*=' coin_'] {
 
     .trades-table {
       .rt-thead {
-        .rt-th:nth-child(7),
         .rt-th:nth-child(8),
-        .rt-th:nth-child(9) {
+        .rt-th:nth-child(9),
+        .rt-th:nth-child(10) {
           display: none !important;
         }
       }
-      .rt-tbody {
-        .rt-td:nth-child(7),
+      .rt-tbody,
+      .rt-tfoot {
         .rt-td:nth-child(8),
-        .rt-td:nth-child(9) {
+        .rt-td:nth-child(9),
+        .rt-td:nth-child(10) {
           display: none !important;
         }
       }
