@@ -1,19 +1,19 @@
 {
-  "name": "iquidus-omni-explorer",
-  "productName": "Insight Omni Explorer",
+  "name": "komodo-omni-explorer",
+  "productName": "Komodo Omni Explorer",
   "version": "0.0.3",
-  "description": "Electrum Proxy Server",
+  "description": "Komodo Omni Explorer",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"
   },
-  "repository": "https://github.com/pbca26/electrum-proxy/",
+  "repository": "https://github.com/pbca26/komodo-omni-explorer",
   "homepage": "http://supernet.org",
   "keywords": [
-    "agama",
+    "explorer",
     "SuperNET",
     "komodo",
-    "pax"
+    "BarterDEX"
   ],
   "author": "SuperNET",
   "license": "MIT",

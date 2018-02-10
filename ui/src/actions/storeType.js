@@ -9,3 +9,4 @@ export const ORDERBOOKS = 'ORDERBOOKS';
 export const PRICES = 'PRICES';
 export const FIAT = 'FIAT';
 export const COINS = 'COINS';
+export const STATS = 'STATS';

@@ -128,6 +128,15 @@ class Navigation extends React.Component {
                   </Link>
                 </li>
                 <li>
+                  <Link
+                    to="/trades"
+                    className="navbar-link pointer"
+                    activeClassName="active">
+                    <span className="fa fa-list-alt"></span>
+                    <span className="menu-text">DEX trades</span>
+                  </Link>
+                </li>
+                <li>
                   <a
                     href="https://github.com/pbca26/komodo-omni-explorer"
                     className="navbar-link"

@@ -14,6 +14,7 @@ import {
   UPDATE_SEARCH_TERM,
   FIAT,
   COINS,
+  STATS,
 } from './storeType';
 
 export function summaryState(summary) {
@@ -94,6 +95,13 @@ export function coinsState(coins) {
   }
 }
 
+
+export function statsState(stats) {
+  return {
+    type: STATS,
+    stats,
+  }
+}
 
 export function searchTerm(searchTerm, currentState) {
   return dispatch => {
@@ -259,6 +267,25 @@ export function coins(currentState) {
 
       if (!currentState) {
         dispatch(coinsState(json.result));
+      }
+    });
+  }
+}
+
+export function stats(currentState) {
+  return dispatch => {
+    return fetch(`http://${config.ip}:${config.port}/api/mm/stats`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(statsState(json.result));
+
+      if (!currentState) {
+        dispatch(statsState(json.result));
       }
     });
   }
