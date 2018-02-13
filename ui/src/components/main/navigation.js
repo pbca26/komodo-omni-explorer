@@ -6,6 +6,7 @@ import {
   hashHistory,
 } from 'react-router';
 import {
+  getOrderbooks,
   getPrices,
   stats,
 } from '../../actions/actionCreators';
@@ -13,6 +14,7 @@ import Store from '../../store';
 
 const PRICES_UPDATE_INTERVAL = 20000;
 const STATS_UPDATE_INTERVAL = 20000;
+const ORDERS_UPDATE_INTERVAL = 30000;
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -37,6 +39,10 @@ class Navigation extends React.Component {
       this.activeInterval = setInterval(() => {
         Store.dispatch(stats());
       }, STATS_UPDATE_INTERVAL);
+    } else if (type.indexOf('books') > -1) {
+      this.booksInterval = setInterval(() => {
+        Store.dispatch(getOrderbooks());
+      }, ORDERS_UPDATE_INTERVAL);
     }
   }
 
