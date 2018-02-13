@@ -121,12 +121,6 @@ const config = {
         'electrum2.cipig.net:10015'
       ],
     },
-    btch: {
-      serverList: [
-        'electrum1.cipig.net:10020',
-        'electrum2.cipig.net:10020'
-      ],
-    },
     kmd: {
       serverList: [
         'electrum1.cipig.net:10001',
@@ -143,6 +137,18 @@ const config = {
       serverList: [
         'electrum1.cipig.net:10020',
         'electrum2.cipig.net:10020'
+      ],
+    },
+    beer: {
+      serverList: [
+        'electrum1.cipig.net:10022',
+        'electrum2.cipig.net:10022'
+      ],
+    },
+    pizza: {
+      serverList: [
+        'electrum1.cipig.net:10024',
+        'electrum2.cipig.net:10024'
       ],
     },
   },
@@ -265,6 +271,30 @@ const config = {
       serverList: [
         'electrum1.cipig.net:10055',
         'electrum2.cipig.net:10055'
+      ],
+    },
+    hodlc: {
+      serverList: [
+        'hodl.amit177.cf:17989',
+        'hodl2.amit177.cf:17898'
+      ],
+    },
+    btx: {
+      serverList: [
+        'electrum1.cipig.net:10057',
+        'electrum2.cipig.net:10057'
+      ],
+    },
+    btcz: {
+      serverList: [
+        'electrum1.cipig.net:10056',
+        'electrum2.cipig.net:10056'
+      ],
+    },
+    qtum: {
+      serverList: [
+        's1.qtum.info:50001',
+        's2.qtum.info:50001'
       ],
     },
   },

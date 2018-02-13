@@ -34,15 +34,10 @@ class Books extends React.Component {
     };
     this.updatePair = this.updatePair.bind(this);
     this.booksInterval = null;
-    this.pricesInterval = null;
   }
 
   componentWillMount() {
     Store.dispatch(getOrderbooks());
-
-    if (this.pricesInterval) {
-      clearInterval(this.pricesInterval);
-    }
 
     this.booksInterval = setInterval(() => {
       Store.dispatch(getOrderbooks());
