@@ -515,7 +515,10 @@ module.exports = (shepherd) => {
               }
 
               if (!_utxo.length) { // no confirmed utxo
-                resolve({ code: -777, result: 'no valid utxo' });
+                resolve({
+                  code: -777,
+                  result: 'no valid utxo',
+                });
               } else {
                 Promise.all(_utxo.map((_utxoItem, index) => {
                   return new Promise((resolve, reject) => {
@@ -590,7 +593,8 @@ module.exports = (shepherd) => {
       ecl,
       req.query.address,
       network
-    ).then((json) => {
+    )
+    .then((json) => {
       const successObj = {
         msg: json.code ? 'error' : 'success',
         result: json,

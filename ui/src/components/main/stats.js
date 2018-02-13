@@ -12,7 +12,6 @@ import {
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
-const STATS_UPDATE_INTERVAL = 20000;
 
 class Stats extends React.Component {
   constructor(props) {
@@ -28,25 +27,12 @@ class Stats extends React.Component {
       detailedView: false,
     };
     this.toggleDetailedView = this.toggleDetailedView.bind(this);
-    this.statsInterval = null;
   };
 
   toggleDetailedView() {
     this.setState({
       detailedView: !this.state.detailedView,
     });
-  }
-
-  componentDidMount() {
-    Store.dispatch(stats());
-
-    if (this.statsInterval) {
-      clearInterval(this.statsInterval);
-    }
-
-    this.statsInterval = setInterval(() => {
-      Store.dispatch(stats());
-    }, STATS_UPDATE_INTERVAL);
   }
 
   renderPairIcon(base, rel) {
@@ -131,7 +117,7 @@ class Stats extends React.Component {
       Header: 'Price (Inv.)',
       Footer: 'Price (Inv.)',
       maxWidth: '150',
-      accessor: (item) => Number(formatValue(1 / item.price)),
+      accessor: (item) => Number(formatValue(1 / Number(formatValue(item.price)))),
     },
     { id: 'timestamp',
       Header: 'Time',
@@ -211,7 +197,7 @@ class Stats extends React.Component {
       this.setState({
         stats,
         itemsList: stats,
-        filteredItemsList: this.filterData(stats, props.input && props.input.toUpperCase() || ''),
+        filteredItemsList: this.filterData(stats, this.state.searchTerm/*props.input && props.input.toUpperCase()*/ || ''),
         showPagination: stats && stats.length >= this.state.defaultPageSize,
         itemsListColumns: this.generateItemsListColumns(stats.length),
       });

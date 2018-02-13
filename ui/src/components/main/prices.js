@@ -12,7 +12,6 @@ import {
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
-const PRICES_UPDATE_INTERVAL = 20000;
 
 class Prices extends React.Component {
   constructor(props) {
@@ -26,22 +25,7 @@ class Prices extends React.Component {
       pageSize: 100,
       showPagination: true,
     };
-    this.booksInterval = null;
-    this.pricesInterval = null;
   };
-
-  componentWillMount() {
-    Store.dispatch(getPrices());
-
-    if (this.booksInterval) {
-      clearInterval(this.booksInterval);
-    }
-
-    this.pricesInterval = setInterval(() => {
-      Store.dispatch(getPrices());
-    }, PRICES_UPDATE_INTERVAL);
-  }
-
 
   renderPairIcon(pair) {
     const _pair = pair.split('/');
@@ -158,7 +142,7 @@ class Prices extends React.Component {
       this.setState({
         prices: _prices,
         itemsList: _prices,
-        filteredItemsList: this.filterData(_prices, props.input && props.input.toUpperCase() || ''),
+        filteredItemsList: this.filterData(_prices, this.state.searchTerm || props.input && props.input.toUpperCase() || ''),
         showPagination: _prices && _prices.length >= this.state.defaultPageSize,
         itemsListColumns: this.generateItemsListColumns(_prices.length),
       });

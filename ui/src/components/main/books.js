@@ -14,7 +14,6 @@ import { getOrderbooks } from '../../actions/actionCreators';
 import Select from 'react-select';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
-const ORDERS_UPDATE_INTERVAL = 30000;
 
 class Books extends React.Component {
   constructor(props) {
@@ -33,24 +32,10 @@ class Books extends React.Component {
       showPagination: true,
     };
     this.updatePair = this.updatePair.bind(this);
-    this.booksInterval = null;
-    this.pricesInterval = null;
   }
 
   componentWillMount() {
     Store.dispatch(getOrderbooks());
-
-    if (this.pricesInterval) {
-      clearInterval(this.pricesInterval);
-    }
-
-    this.booksInterval = setInterval(() => {
-      Store.dispatch(getOrderbooks());
-    }, ORDERS_UPDATE_INTERVAL);
-
-    if (this.booksInterval) {
-      clearInterval(this.booksInterval);
-    }
 
     const __books = this.props.Main.orderbooks;
     const _pairs = [];
