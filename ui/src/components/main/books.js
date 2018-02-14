@@ -195,7 +195,7 @@ class Books extends React.Component {
   onPageSizeChange(pageSize, pageIndex) {
     this.setState(Object.assign({}, this.state, {
       pageSize: pageSize,
-    }))
+    }));
   }
 
   filterData(list, searchTerm) {

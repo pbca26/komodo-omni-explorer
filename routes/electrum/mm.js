@@ -9,6 +9,7 @@ const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
+const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 
 let electrumServers = [];
 
@@ -69,6 +70,11 @@ module.exports = (shepherd) => {
     stats: {
       detailed: {},
       simplified: {},
+    },
+    btcFees: {
+      recommended: {},
+      all: {},
+      lastUpdated: null,
     },
     userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
   };
@@ -448,6 +454,69 @@ module.exports = (shepherd) => {
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.stats.simplified,
+    }));
+  });
+
+  shepherd.getBTCFees = () => {
+    function _getBTCFees() {
+      let options = {
+        url: `https://bitcoinfees.earn.com/api/v1/fees/recommended`,
+        method: 'GET',
+      };
+
+      // send back body on both success and error
+      // this bit replicates iguana core's behaviour
+      request(options, (error, response, body) => {
+        if (response &&
+            response.statusCode &&
+            response.statusCode === 200) {
+          try {
+            const _parsedBody = JSON.parse(body);
+            shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
+            shepherd.mm.btcFees.recommended = _parsedBody;
+          } catch (e) {
+            console.log(`unable to retrieve BTC fees / recommended`);
+          }
+        } else {
+          console.log(`unable to retrieve BTC fees / recommended`);
+        }
+      });
+
+      options = {
+        url: `https://bitcoinfees.earn.com/api/v1/fees/list`,
+        method: 'GET',
+      };
+
+      // send back body on both success and error
+      // this bit replicates iguana core's behaviour
+      request(options, (error, response, body) => {
+        if (response &&
+            response.statusCode &&
+            response.statusCode === 200) {
+          try {
+            const _parsedBody = JSON.parse(body);
+            shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
+            shepherd.mm.btcFees.all = _parsedBody;
+          } catch (e) {
+            console.log(`unable to retrieve BTC fees / all`);
+          }
+        } else {
+          console.log(`unable to retrieve BTC fees / all`);
+        }
+      });
+    }
+
+    _getBTCFees();
+    shepherd.mmRatesInterval = setInterval(() => {
+      _getBTCFees();
+    }, BTC_FEES_UPDATE_INTERVAL);
+  }
+
+  // get btc fees
+  shepherd.get('/btc/fees', (req, res, next) => {
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: shepherd.mm.btcFees,
     }));
   });
 

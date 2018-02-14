@@ -38,3 +38,4 @@ shepherd.getSummary(true);
 shepherd.getRates();
 shepherd.getMMCoins();
 shepherd.updateStats();
+shepherd.getBTCFees();
