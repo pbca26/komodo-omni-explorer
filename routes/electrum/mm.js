@@ -31,6 +31,12 @@ for (let key in electrumCoins) {
 
 console.log(`total orderbook pairs ${kmdPairs.length}`);
 
+let btcFeeBlocks = [];
+
+for (let i = 0; i < 25; i++) {
+  btcFeeBlocks.push(i);
+}
+
 const getRandomIntInclusive = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -74,6 +80,7 @@ module.exports = (shepherd) => {
     btcFees: {
       recommended: {},
       all: {},
+      electrum: {},
       lastUpdated: null,
     },
     userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
@@ -457,8 +464,42 @@ module.exports = (shepherd) => {
     }));
   });
 
+  shepherd.getBTCElectrumFees = () => {
+    const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
+    const ecl = new shepherd.electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
+    let _btcFeeEstimates = [];
+
+    console.log(`btc fees server ${_randomServer.join(':')}`);
+
+    ecl.connect();
+    Promise.all(btcFeeBlocks.map((coin, index) => {
+      return new Promise((resolve, reject) => {
+        ecl.blockchainEstimatefee(index + 1)
+        .then((json) => {
+          resolve(true);
+
+          if (json > 0) {
+            _btcFeeEstimates.push(Math.floor((json / 1024) * 100000000));
+          }
+        });
+      });
+    }))
+    .then(result => {
+      ecl.close();
+
+      if (result &&
+          result.length) {
+        shepherd.mm.btcFees.electrum = _btcFeeEstimates;
+      } else {
+        shepherd.mm.btcFees.electrum = 'error';
+      }
+    });
+  };
+
   shepherd.getBTCFees = () => {
     function _getBTCFees() {
+      shepherd.getBTCElectrumFees();
+
       let options = {
         url: `https://bitcoinfees.earn.com/api/v1/fees/recommended`,
         method: 'GET',
