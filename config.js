@@ -1,5 +1,5 @@
 const config = {
-  ip: 'localhost',
+  ip: 'atomicexplorer.com',
   port: 8111,
   explorers: {
     KMD: 'http://kmd.komodochainz.info',

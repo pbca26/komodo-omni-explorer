@@ -72,18 +72,18 @@ module.exports = (shepherd) => {
             value: Math.floor((config.faucet.outSize * 100000000) + (config.faucet.fee * 100000000)),
           }];
 
-          console.log('targets');
-          console.log(targets);
+          // console.log('targets');
+          // console.log(targets);
 
           let { fee, inputs, outputs } = coinSelect(_formattedUtxoList, targets, 0);
 
-          console.log('coinselect');
-          console.log('fee');
-          console.log(fee);
-          console.log('inputs');
-          console.log(inputs);
-          console.log('outputs');
-          console.log(outputs);
+          // console.log('coinselect');
+          // console.log('fee');
+          // console.log(fee);
+          // console.log('inputs');
+          // console.log(inputs);
+          // console.log('outputs');
+          // console.log(outputs);
 
           let _vinSum = 0;
           let _voutSum = 0;
@@ -96,9 +96,9 @@ module.exports = (shepherd) => {
             _voutSum += outputs[i].value;
           }
 
-          console.log(`vin sum ${_vinSum}`);
-          console.log(`vout sum ${_voutSum}`);
-          console.log(`fee ${_vinSum - _voutSum}`);
+          // console.log(`vin sum ${_vinSum}`);
+          // console.log(`vout sum ${_voutSum}`);
+          // console.log(`fee ${_vinSum - _voutSum}`);
 
           if ((_vinSum - _voutSum) === 0) {
             const tx = new bitcoin.TransactionBuilder(config.komodoParams);
@@ -119,14 +119,14 @@ module.exports = (shepherd) => {
 
             const rawtx = tx.build().toHex();
 
-            console.log('buildSignedTx signed tx hex');
-            console.log(rawtx);
+            // console.log('buildSignedTx signed tx hex');
+            // console.log(rawtx);
 
             ecl.blockchainTransactionBroadcast(rawtx)
             .then((txid) => {
               ecl.close();
 
-              console.log(txid);
+              // console.log(txid);
 
               if (txid &&
                   txid.indexOf('bad-txns-inputs-spent') > -1) {
@@ -207,20 +207,6 @@ module.exports = (shepherd) => {
           res.end(JSON.stringify(successObj));
         }
       });
-
-      /*shepherd.listunspent(
-        ecl,
-        req.query.address,
-        network
-      )
-      .then((json) => {
-        const successObj = {
-          msg: json.code ? 'error' : 'success',
-          result: json,
-        };
-
-        res.end(JSON.stringify(successObj));
-      });*/
     } else if (!addressCheck || addressCheck === -777) {
       const successObj = {
         msg: 'error',

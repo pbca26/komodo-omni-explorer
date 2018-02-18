@@ -1,7 +1,6 @@
 import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
-
 import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
 
@@ -35,7 +34,7 @@ class Faucet extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="faucet">
         <div className="row text-center margin-top-md margin-bottom-xlg">
           <div className="form-inline">
             <div
@@ -70,7 +69,9 @@ class Faucet extends React.Component {
               <div>
                 <strong>{ config.faucet.outSize }</strong> BEER is sent to { this.state.address }
                 <div className="margin-top-md">
-                  <a href={ `${config.faucet.explorer}/tx/${this.state.result}` }>Open in explorer</a>
+                  <a
+                    target="_blank"
+                    href={ `${config.faucet.explorer}/tx/${this.state.result}` }>Open in explorer</a>
                 </div>
               </div>
             }
