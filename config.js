@@ -21,6 +21,13 @@ const config = {
     MNZ: 'https://www.mnzexplorer.com',
     BTCH: 'http://www.btch.host',
   },
+  faucet: {
+    coins: {
+      beer: '',
+    },
+    fee: 0.0001,
+    outSize: 0.0777,
+  },
   komodoParams: { // networking
     messagePrefix: '\x19Komodo Signed Message:\n',
     bip32: {

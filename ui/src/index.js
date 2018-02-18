@@ -20,6 +20,7 @@ import Books from './components/main/books';
 import Coins from './components/main/coins';
 import Charts from './components/main/charts';
 import Stats from './components/main/stats';
+import Faucet from './components/main/faucet';
 import './styles/index.scss';
 
 const router = (
@@ -29,6 +30,9 @@ const router = (
         path="/"
         component={App}>
         <IndexRoute component={Overview} />
+        <Route
+          path="/faucet"
+          component={Faucet} />
         <Route
           path="/summary"
           component={Summary} />

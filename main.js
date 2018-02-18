@@ -33,9 +33,9 @@ const server = require('http')
 
 console.log(`Komodo Atomic Explorer Server is running at ${config.ip}:${config.port}`);
 
-shepherd.getOverview(true);
+/*shepherd.getOverview(true);
 shepherd.getSummary(true);
 shepherd.getRates();
 shepherd.getMMCoins();
 shepherd.updateStats();
-shepherd.getBTCFees();
+shepherd.getBTCFees();*/

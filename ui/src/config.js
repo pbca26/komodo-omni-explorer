@@ -1,7 +1,7 @@
 const config = {
   port: 8111,
   dev: false,
-  ip: 'atomicexplorer.com',
+  ip: 'localhost',//'atomicexplorer.com',
   explorers: {
     KMD: 'http://kmd.komodochainz.info',
     MSHARK: 'http://MSHARK.explorer.supernet.org',
@@ -27,6 +27,10 @@ const config = {
     datafeedURL: 'http://94.130.108.82:8888',
     defaultPair: 'KMD-SUPERNET',
     interval: 60,
+  },
+  faucet: {
+    outSize: 0.777,
+    explorer: 'http://beer.komodochainz.info',
   },
 };
 

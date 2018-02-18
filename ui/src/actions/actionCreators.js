@@ -290,3 +290,21 @@ export function stats(currentState) {
     });
   }
 }
+
+export function faucet(address) {
+  return new Promise((resolve, reject) => {
+    fetch(`http://${config.ip}:${config.port}/api/faucet?address=${address}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      resolve(json);
+    });
+  });
+}
