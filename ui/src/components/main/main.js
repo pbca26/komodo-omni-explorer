@@ -30,7 +30,7 @@ class Main extends React.Component {
   componentWillMount() {
     const _searchTerm = this.props.input;
 
-    if(!_searchTerm) {
+    if (!_searchTerm) {
       Store.dispatch(resetInterestState());
     }
 

@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const config = require('./config');
 const path = require('path');
+const fs = require('fs');
 let shepherd = require('./routes/shepherd');
 let app = express();
 
@@ -24,14 +25,27 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
+// explorer, dex
 app.use('/api', shepherd);
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-const server = require('http')
-                .createServer(app)
-                .listen(config.port, config.ip);
+// web wallet
+app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
 
-console.log(`Komodo Atomic Explorer Server is running at ${config.ip}:${config.port}`);
+let options = {};
+
+if (!config.isDev) {
+  options = {
+    key: fs.readFileSync('certs/priv.pem'),
+    cert: fs.readFileSync('certs/cert.pem'),
+  };
+}
+
+const server = require(config.isDev ? 'http' : 'https')
+                .createServer(app, options)
+                .listen(config.port, config.isDev ? 'localhost' : config.ip);
+
+console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);
 
 shepherd.getOverview(true);
 shepherd.getSummary(true);

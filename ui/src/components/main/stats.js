@@ -36,19 +36,24 @@ class Stats extends React.Component {
   }
 
   renderPairIcon(base, rel) {
-    return (
-      <span>
-        <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${base.toLowerCase()}` }></span>
+    if (base &&
+        rel) {
+      return (
+        <span>
+          <span className="table-coin-icon-wrapper">
+            <span className={ `table-coin-icon coin_${base.toLowerCase()}` }></span>
+          </span>
+          <span className="table-coin-name">{ base }</span>
+          <i className="fa fa-exchange exchange-icon"></i>
+          <span className="table-coin-icon-wrapper">
+            <span className={ `table-coin-icon coin_${rel.toLowerCase()}` }></span>
+          </span>
+          <span className="table-coin-name">{ rel }</span>
         </span>
-        <span className="table-coin-name">{ base }</span>
-        <i className="fa fa-exchange exchange-icon"></i>
-        <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${rel.toLowerCase()}` }></span>
-        </span>
-        <span className="table-coin-name">{ rel }</span>
-      </span>
-    );
+      );
+    } else {
+      return null;
+    }
   }
 
   renderTxid(coinA, txidA, coinB, txidB) {

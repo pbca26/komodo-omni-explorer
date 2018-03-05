@@ -1,4 +1,5 @@
 const config = {
+  isDev: true,
   ip: 'atomicexplorer.com',
   port: 8111,
   explorers: {
@@ -22,11 +23,11 @@ const config = {
     BTCH: 'http://www.btch.host',
   },
   faucet: {
-    coins: {
-      beer: '',
+    beer: {
+      wif: '',
+      fee: 0.0001,
+      outSize: 0.777,
     },
-    fee: 0.0001,
-    outSize: 0.0777,
   },
   komodoParams: { // networking
     messagePrefix: '\x19Komodo Signed Message:\n',

@@ -430,4 +430,16 @@ span[class*=' coin_'] {
 .faucet {
   width: 600px;
   margin: 0 auto;
+
+  .table-coin-icon-wrapper {
+    position: absolute;
+    margin-left: -50px;
+    margin-top: -1px;
+    width: 40px;
+    height: 40px;
+
+    .table-coin-icon {
+      transform: scale(0.5);
+    }
+  }
 }

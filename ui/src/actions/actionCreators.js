@@ -291,9 +291,9 @@ export function stats(currentState) {
   }
 }
 
-export function faucet(address) {
+export function faucet(coin, address) {
   return new Promise((resolve, reject) => {
-    fetch(`http://${config.ip}:${config.port}/api/faucet?address=${address}`, {
+    fetch(`http://${config.ip}:${config.port}/api/faucet?address=${address}&coin=${coin}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

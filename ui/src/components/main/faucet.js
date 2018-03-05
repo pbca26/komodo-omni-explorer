@@ -11,13 +11,27 @@ class Faucet extends React.Component {
       address: '',
       error: false,
       result: null,
+      coin: null,
     };
     this.triggerFaucet = this.triggerFaucet.bind(this);
     this.updateInput = this.updateInput.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.input &&
+        config.faucet[this.props.input.toLowerCase()]) {
+      this.setState({
+        coin: this.props.input,
+      });
+    } else {
+      this.setState({
+        coin: 'beer',
+      });
+    }
+  }
+
   triggerFaucet() {
-    faucet(this.state.address)
+    faucet(this.state.coin, this.state.address)
     .then((res) => {
       this.setState({
         error: res.msg === 'error' ? true : false,
@@ -33,52 +47,61 @@ class Faucet extends React.Component {
   }
 
   render() {
-    return (
-      <div className="faucet">
-        <div className="row text-center margin-top-md margin-bottom-xlg">
-          <div className="form-inline">
-            <div
-              id="index-search"
-              className="form-group">
-              <input
-                onChange={ (event) => this.updateInput(event) }
-                type="text"
-                name="address"
-                value={ this.state.address }
-                placeholder="Enter an address"
-                className="form-control" />
-              <button
-                onClick={ this.triggerFaucet }
-                disabled={ this.state.address.length !== 34 }
-                type="submit"
-                className="btn btn-success margin-left-10">
-                OK
-              </button>
+    if (this.state.coin) {
+      return (
+        <div className="faucet">
+          <div className="row text-center margin-top-md margin-bottom-xlg">
+            <div className="form-inline">
+              <div
+                id="index-search"
+                className="form-group">
+                { this.state.coin &&
+                  <span className="table-coin-icon-wrapper">
+                    <span className={ `table-coin-icon coin_${this.state.coin.toLowerCase()}`}></span>
+                  </span>
+                }
+                <input
+                  onChange={ (event) => this.updateInput(event) }
+                  type="text"
+                  name="address"
+                  value={ this.state.address }
+                  placeholder={ `Enter a ${this.state.coin.toUpperCase()} address` }
+                  className="form-control" />
+                <button
+                  onClick={ this.triggerFaucet }
+                  disabled={ this.state.address.length !== 34 }
+                  type="submit"
+                  className="btn btn-success margin-left-10">
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="row text-center margin-top-md margin-bottom-xlg">
+            <div className="col-md-12">
+              { this.state.error &&
+                <div className="alert alert-danger alert-dismissable">
+                  <strong>{ this.state.result }</strong>
+                </div>
+              }
+              { !this.state.error &&
+                this.state.result &&
+                <div>
+                  <strong>{ config.faucet.outSize }</strong> { this.state.coin.toUpperCase() } is sent to { this.state.address }
+                  <div className="margin-top-md">
+                    <a
+                      target="_blank"
+                      href={ `${config.faucet[this.state.coin].explorer}/tx/${this.state.result}` }>Open in explorer</a>
+                  </div>
+                </div>
+              }
             </div>
           </div>
         </div>
-        <div className="row text-center margin-top-md margin-bottom-xlg">
-          <div className="col-md-12">
-            { this.state.error &&
-              <div className="alert alert-danger alert-dismissable">
-                <strong>{ this.state.result }</strong>
-              </div>
-            }
-            { !this.state.error &&
-              this.state.result &&
-              <div>
-                <strong>{ config.faucet.outSize }</strong> BEER is sent to { this.state.address }
-                <div className="margin-top-md">
-                  <a
-                    target="_blank"
-                    href={ `${config.faucet.explorer}/tx/${this.state.result}` }>Open in explorer</a>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-    );
+      );
+    } else {
+      return null;
+    }
   }
 }
 

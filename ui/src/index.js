@@ -32,7 +32,11 @@ const router = (
         <IndexRoute component={Overview} />
         <Route
           path="/faucet"
-          component={Faucet} />
+          component={Faucet}>
+          <Route
+            path="/faucet/:input"
+            component={Faucet} />
+        </Route>
         <Route
           path="/summary"
           component={Summary} />
