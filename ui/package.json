@@ -1,10 +1,11 @@
 {
-  "name": "IquidusOmniExplorerUI",
-  "version": "0.0.1",
-  "description": "Iquidus Omni Explorer UI",
+  "name": "KomodoOmniExplorerUI",
+  "version": "0.0.2",
+  "description": "Komodo Omni Explorer UI",
   "main": "src/index.js",
   "scripts": {
-    "start": "webpack-dashboard -t 'IquidusOmniExplorerUI' -- webpack-dev-server --colors --no-info",
+    "start": "webpack-dashboard -t 'KomodoOmniExplorerUI' -- webpack-dev-server --colors --no-info",
+    "server": "webpack-dev-server --colors --no-info",
     "build": "rm -rf ./build && mkdir build && NODE_ENV=\"production\" webpack && cp -R ./build/* ../public && cp index.html ../public && cp -R ./src/charts/* ../public/charts"
   },
   "keywords": [
@@ -15,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SuperNETorg/omniexplorer.git"
+    "url": "https://github.com/pbca26/komodo-omni-explorer.git"
   },
   "dependencies": {
     "babel-core": "^6.14.0",
