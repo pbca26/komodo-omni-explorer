@@ -1,7 +1,8 @@
 const config = {
   port: 8111,
   dev: false,
-  ip: 'localhost',
+  https: true,
+  ip: 'atomic.kmd.host',
   explorers: {
     KMD: 'http://kmd.komodochainz.info',
     MSHARK: 'http://MSHARK.explorer.supernet.org',
@@ -32,6 +33,10 @@ const config = {
     beer: {
       outSize: 0.777,
       explorer: 'http://beer.komodochainz.info',
+    },
+    coqui: {
+      outSize: 0.1,
+      explorer: 'https://explorer.coqui.cash',
     },
   },
 };

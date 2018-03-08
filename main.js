@@ -34,7 +34,7 @@ app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
 
 let options = {};
 
-if (!config.isDev) {
+if (config.https) {
   options = {
     key: fs.readFileSync('certs/priv.pem'),
     cert: fs.readFileSync('certs/cert.pem'),
@@ -42,7 +42,7 @@ if (!config.isDev) {
 }
 
 const server = require(config.isDev ? 'http' : 'https')
-                .createServer(app, options)
+                .createServer(options, app)
                 .listen(config.port, config.isDev ? 'localhost' : config.ip);
 
 console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);

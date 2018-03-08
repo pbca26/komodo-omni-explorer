@@ -15,8 +15,18 @@ const getRandomIntInclusive = (min, max) => {
 }
 
 module.exports = (shepherd) => {
-  shepherd.checkFaucetOutAddress = (address) => {
-    const faucetFundedList = fs.readFileSync('faucetFundedList.log', 'utf-8');
+  shepherd.checkFaucetOutAddress = (coin, address) => {
+    let faucetFundedList;
+
+    if (!config.faucet[coin]) {
+      return 777;
+    }
+
+    try {
+      faucetFundedList = fs.readFileSync(`faucetFundedList-${coin}.log`, 'utf-8');
+    } catch (e) {
+      faucetFundedList = '';
+    }
 
     if (faucetFundedList.indexOf(address) === -1) {
       try {
@@ -36,16 +46,16 @@ module.exports = (shepherd) => {
   };
 
   shepherd.get('/faucet', (req, res, next) => {
-    const addressCheck = shepherd.checkFaucetOutAddress(req.query.address);
+    const coin = req.query.coin || 'beer';
+    const addressCheck = shepherd.checkFaucetOutAddress(coin, req.query.address);
 
     if (addressCheck === true) {
       const network = 'komodo';
-      const coin = 'beer';// req.query.coin;
       const outputAddress = req.query.address;
       const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
       const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
-      const keyPair = bitcoin.ECPair.fromWIF(config.faucet.coins[coin], config.komodoParams);
+      const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
       const keys = {
         priv: keyPair.toWIF(),
         pub: keyPair.getAddress(),
@@ -69,7 +79,7 @@ module.exports = (shepherd) => {
 
           let targets = [{
             address: outputAddress,
-            value: Math.floor((config.faucet.outSize * 100000000) + (config.faucet.fee * 100000000)),
+            value: Math.floor((config.faucet[coin].outSize * 100000000) + (config.faucet[coin].fee * 100000000)),
           }];
 
           // console.log('targets');
@@ -107,7 +117,7 @@ module.exports = (shepherd) => {
               tx.addInput(inputs[i].txid, inputs[i].vout);
             }
 
-            tx.addOutput(outputAddress, Number(outputs[0].value - (config.faucet.fee * 100000000)));
+            tx.addOutput(outputAddress, Number(outputs[0].value - (config.faucet[coin].fee * 100000000)));
 
             if (outputs[1].value > 1000) {
               tx.addOutput(keys.pub, Number(outputs[1].value));
@@ -155,11 +165,11 @@ module.exports = (shepherd) => {
                     res.end(JSON.stringify(successObj));
 
                     try {
-                      fs.appendFileSync('faucetFundedList.log', `${outputAddress}\n`);
+                      fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress}\n`);
                       console.log(`new faucet address added ${outputAddress}`);
                     } catch (err) {
                       try {
-                        fs.appendFileSync('faucetFundedList.log', `${outputAddress}\n`);
+                        fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress}\n`);
                         console.log(`new faucet address added ${outputAddress}`);
                       } catch (err) {
                         console.log('fubar!');
