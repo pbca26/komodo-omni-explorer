@@ -2,9 +2,7 @@ import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
 import Select from 'react-select';
-import {
-  fiatRates,
-} from '../../actions/actionCreators';
+import { fiatRates } from '../../actions/actionCreators';
 
 let months = [
   'Jan',
@@ -89,14 +87,17 @@ class InterestCalc extends React.Component {
 
     for (let i = 0; i < Math.floor(frequency); i++) {
       _interestIncrement.push(_total * 0.05 / frequency);
-      if (frequency === 52 && i === 52) {
+
+      if (frequency === 52 &&
+          i === 52) {
         _interestIncrement[i] = (_total * 0.05 / frequency / 7);
       }
+
       _total += _interestIncrement[i];
       _ytdInterest += _interestIncrement[i];
       _amounts.push(this.state.interestAmount);
 
-      if(this.state.interestBreakdownFrequency === 'yearly') {
+      if (this.state.interestBreakdownFrequency === 'yearly') {
         _interestAmounts.push(Number(i !== 0 ? _interestAmounts[i - 1] : 0) + _amounts[i] * 0.05 / 12);
         _totalAmounts.push(Number(_amounts[i]) + Number(_interestAmounts[i]));
       } else {
@@ -104,13 +105,14 @@ class InterestCalc extends React.Component {
         _totalAmounts.push(_total);
       }
 
-      _items.push(<tr key={ `interest-calc-months-yearly-${i}` }>
-        <td>{ months[i] }</td>
-        <td>{ _amounts[i] }</td>
-        <td>{ _interestAmounts[i].toFixed(3) }</td>
-        <td>{ _totalAmounts[i].toFixed(3) }</td>
-        <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
-      </tr>
+      _items.push(
+        <tr key={ `interest-calc-months-yearly-${i}` }>
+          <td>{ months[i] }</td>
+          <td>{ _amounts[i] }</td>
+          <td>{ _interestAmounts[i].toFixed(3) }</td>
+          <td>{ _totalAmounts[i].toFixed(3) }</td>
+          <td>${ Number(_totalAmounts[i] * this.state.interestKMDFiatPrice).toFixed(3) }</td>
+        </tr>
       );
     }
 
@@ -202,7 +204,7 @@ class InterestCalc extends React.Component {
         }
         break;
       case 'weeks':
-        for (let i = 0; i < 365 / 7 ; i++) {
+        for (let i = 0; i < 365 / 7; i++) {
           _amounts.push(this.state.interestAmount);
           _interestAmounts.push(Number(i !== 0 ? _interestAmounts[i - 1] : 0) + _amounts[i] * 0.05 / (365 / 7));
 
@@ -223,7 +225,7 @@ class InterestCalc extends React.Component {
         }
         break;
       case 'days':
-        for (let i = 0; i < 365 ; i++) {
+        for (let i = 0; i < 365; i++) {
           _amounts.push(this.state.interestAmount);
           _interestAmounts.push(Number(i !== 0 ? _interestAmounts[i - 1] : 0) + _amounts[i] * 0.05 / 365);
           _totalAmounts.push(Number(_amounts[i]) + Number(_interestAmounts[i]));
@@ -293,9 +295,7 @@ class InterestCalc extends React.Component {
               ]} />
           </div>
         </div>
-        <div
-          style={{ marginTop: '20px' }}
-          className="col-md-12 col-sm-12">
+        <div className="col-md-12 col-sm-12 margin-top-20">
           <div className="col-md-4 col-sm-4 interest-label">
             I want to claim interest
           </div>
@@ -321,9 +321,7 @@ class InterestCalc extends React.Component {
                 ]} />
           </div>
         </div>
-        <div
-          style={{ marginTop: '20px' }}
-          className="col-md-12 col-sm-12">
+        <div className="col-md-12 col-sm-12 margin-top-20">
           <div className="col-md-4 col-sm-4 interest-label">
             KMD amount
           </div>
@@ -337,9 +335,7 @@ class InterestCalc extends React.Component {
               className="form-control" />
           </div>
         </div>
-        <div
-          style={{ marginTop: '20px', paddingBottom: '50px' }}
-          className="col-md-12 col-sm-12">
+        <div className="col-md-12 col-sm-12 padding-20-50">
           <div className="col-md-4 col-sm-4 interest-label">
             KMD / USD rate
           </div>
@@ -371,9 +367,7 @@ class InterestCalc extends React.Component {
             </span>
           </div>
         </div>
-        <div
-          className="col-md-12 col-sm-12"
-          style={{ paddingBottom: '100px' }}>
+        <div className="col-md-12 col-sm-12 padding-bottom-100">
           <div className="col-md-12 col-sm-12">
             { this.renderCalculatedInterest() }
           </div>
@@ -385,10 +379,9 @@ class InterestCalc extends React.Component {
   render() {
     return (
       <div>
-        <div className="row">
+        <div className="row interest-calc">
           <div className="col-md-12 col-sm-12">
             <button
-              style={{ float: 'right' }}
               onClick={ this.resetInterestCalc }
               type="submit"
               className="btn btn-interest">

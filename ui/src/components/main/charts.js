@@ -81,7 +81,7 @@ class Charts extends React.Component {
 
     this.datafeed.unsubscribeBars(Object.keys(_feed)[0]);
     this.widget.remove();
-    hashHistory.push('/charts/' + this.state.base + '-' + this.state.rel);
+    hashHistory.push(`/charts/${this.state.base}-${this.state.rel}`);
     this.createTView(`${this.state.base}-${this.state.rel}`);
   }
 
