@@ -292,6 +292,27 @@ input:checked + .slider:before {
   margin: 0 auto;
   padding-top: 20px;
 
+  .coins-list-item {
+    .fa {
+      color: #1a8cff;
+      position: absolute;
+      margin-left: 10px;
+      font-size: 16px;
+    }
+  }
+  .light-mode-desc {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+
+    .fa {
+      color: #1a8cff;
+      font-size: 20px;
+      position: absolute;
+      margin-left: -18px;
+    }
+  }
+
   h4 {
     text-align: center;
     margin-bottom: 20px;

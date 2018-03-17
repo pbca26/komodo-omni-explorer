@@ -400,13 +400,19 @@ module.exports = (shepherd) => {
 
   shepherd.getMMCoins = () => {
     const coinsFileLocation = path.join(__dirname, '../../coins.json');
-    const coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
+    let coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
+
+    for (let i = 0; i < coinsFile.length; i++) {
+      if (config.electrumServers[coinsFile[i].coin.toLowerCase()] ||
+          config.electrumServersExtend[coinsFile[i].coin.toLowerCase()]) {
+        coinsFile[i].spv = true;
+      }
+    }
 
     shepherd.mm.coins = coinsFile;
   }
 
   shepherd.get('/mm/coins', (req, res, next) => {
-
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.coins,
