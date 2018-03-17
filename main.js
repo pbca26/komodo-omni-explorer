@@ -32,18 +32,22 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 // web wallet
 app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
 
-let options = {};
+let server;
 
 if (config.https) {
-  options = {
+  const = options = {
     key: fs.readFileSync('certs/priv.pem'),
     cert: fs.readFileSync('certs/cert.pem'),
   };
+  server = require('https')
+            .createServer(options, app)
+            .listen(config.port, config.isDev ? 'localhost' : config.ip);
+} else {
+  server = require('http')
+            .createServer(app)
+            .listen(config.port, config.isDev ? 'localhost' : config.ip);
 }
 
-const server = require(config.isDev ? 'http' : 'https')
-                .createServer(options, app)
-                .listen(config.port, config.isDev ? 'localhost' : config.ip);
 
 console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);
 
