@@ -1,8 +1,7 @@
 const config = {
-  port: 8111,
   dev: false,
   https: true,
-  ip: 'atomic.kmd.host',
+  apiUrl: 'www.atomicexplorer.com',
   explorers: {
     KMD: 'http://kmd.komodochainz.info',
     MSHARK: 'http://MSHARK.explorer.supernet.org',
@@ -14,7 +13,6 @@ const config = {
     BET: 'http://BET.explorer.supernet.org',
     CRYPTO: 'http://CRYPTO.explorer.supernet.org',
     HODL: 'http://HODL.explorer.supernet.org',
-    SHARK: 'http://SHARK.explorer.supernet.org',
     BOTS: 'http://BOTS.explorer.supernet.org',
     MGW: 'http://MGW.explorer.supernet.org',
     WLC: 'http://WIRELESS.explorer.supernet.org',
@@ -23,9 +21,13 @@ const config = {
     MNZ: 'https://www.mnzexplorer.com',
     BTCH: 'http://www.btch.host',
   },
+  extendExplorers: {
+    BEER: 'http://beer.komodochainz.info',
+    PIZZA: 'http://pizza.komodochainz.info',
+  },
   charts: {
-    urlPrefix: 'http://atomicexplorer.com/public/charts',
-    datafeedURL: 'http://94.130.108.82:8888',
+    urlPrefix: 'https://www.atomicexplorer.com/public/charts',
+    datafeedURL: 'https://dexcharts.com:8888',
     defaultPair: 'KMD-SUPERNET',
     interval: 60,
   },

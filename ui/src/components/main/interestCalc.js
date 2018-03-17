@@ -1,7 +1,6 @@
 import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
-import config from '../../config';
 import Select from 'react-select';
 import {
   fiatRates,

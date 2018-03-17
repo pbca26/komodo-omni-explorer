@@ -9,7 +9,6 @@ import {
   formatValue,
   secondsToString,
 } from '../../util/util';
-import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 

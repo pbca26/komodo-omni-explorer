@@ -9,7 +9,6 @@ import {
   formatValue,
   secondsToString,
 } from '../../util/util';
-import config from '../../config';
 import { getOrderbooks } from '../../actions/actionCreators';
 import Select from 'react-select';
 

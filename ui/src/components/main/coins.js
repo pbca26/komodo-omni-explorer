@@ -1,10 +1,7 @@
 import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
-import config from '../../config';
-import {
-  coins,
-} from '../../actions/actionCreators';
+import { coins } from '../../actions/actionCreators';
 
 class Coins extends React.Component {
   constructor(props) {

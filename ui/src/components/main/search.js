@@ -12,6 +12,9 @@ import {
 import { searchTerm } from '../../actions/actionCreators';
 import config from '../../config';
 
+let _config = Object.assign({}, config);
+_config.explorers = Object.assign(_config.explorers, config.extendExplorers);
+
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 
 class Search extends React.Component {
@@ -38,7 +41,6 @@ class Search extends React.Component {
       Store.dispatch(searchTerm(_searchTerm));
     }
 
-    // remove?
     if (_search &&
         _search.balance) {
       this.setState({
@@ -66,7 +68,7 @@ class Search extends React.Component {
     return (
       <a
         target="_blank"
-        href={ `${config.explorers[coin]}/tx/${txid}` }>{ txid }</a>
+        href={ `${_config.explorers[coin]}/tx/${txid}` }>{ txid }</a>
     );
   }
 
@@ -181,8 +183,8 @@ class Search extends React.Component {
       let _items = [];
 
       for (let i = 0; i < _balance.length; i++) {
-        if (_balance[i] !== 'error' && (_balance[i].balance.confirmed > 0 ||
-            _balance[i].balance.unconfirmed > 0)) {
+        if (_balance[i] !== 'error' &&
+            (_balance[i].balance.confirmed > 0 || _balance[i].balance.unconfirmed > 0)) {
           _items.push(
             <tr key={ `balance-${_balance[i].coin}` }>
               <td>
@@ -192,7 +194,7 @@ class Search extends React.Component {
                 <span className="icon-text">
                   <a
                     target="_blank"
-                    href={ `${config.explorers[_balance[i].coin]}/address/${ this.props.Main.searchTerm }` }>{ _balance[i].coin }</a>
+                    href={ `${_config.explorers[_balance[i].coin]}/address/${ this.props.Main.searchTerm }` }>{ _balance[i].coin }</a>
                 </span>
               </td>
               <td>
@@ -208,7 +210,7 @@ class Search extends React.Component {
 
       if (_items.length) {
         return (
-          <table className="table table-bordered table-striped dataTable no-footer dtr-inline" >
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline">
             <thead>
               <tr>
                 <th>Coin</th>
@@ -274,7 +276,7 @@ class Search extends React.Component {
               <div>Found { this.props.Main.search } transaction</div>
               <a
                 target="_blank"
-                href={ `${config.explorers[this.props.Main.search]}/tx/${this.props.Main.searchTerm}` }>{ this.props.Main.searchTerm }</a>
+                href={ `${_config.explorers[this.props.Main.search]}/tx/${this.props.Main.searchTerm}` }>{ this.props.Main.searchTerm }</a>
             </div>
           );
         } else {

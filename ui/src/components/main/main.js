@@ -102,7 +102,7 @@ class Main extends React.Component {
             </div>
             <div className="col-md-2 col-sm-12">
               <img
-                src={ `${config.https ? 'https' : 'http'}://${config.ip}:${config.port}/public/images/kmd-logo.png` }
+                src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/kmd-logo.png` }
                 alt="Komodo logo"
                 height="100px" />
             </div>
