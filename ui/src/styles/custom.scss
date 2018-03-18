@@ -292,6 +292,27 @@ input:checked + .slider:before {
   margin: 0 auto;
   padding-top: 20px;
 
+  .coins-list-item {
+    .fa {
+      color: #1a8cff;
+      position: absolute;
+      margin-left: 10px;
+      font-size: 16px;
+    }
+  }
+  .light-mode-desc {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+
+    .fa {
+      color: #1a8cff;
+      font-size: 20px;
+      position: absolute;
+      margin-left: -18px;
+    }
+  }
+
   h4 {
     text-align: center;
     margin-bottom: 20px;
@@ -425,4 +446,37 @@ span[class*=' coin_'] {
   position: relative;
   top: -12px;
   left: -20px;
+}
+
+.faucet {
+  width: 600px;
+  margin: 0 auto;
+
+  .table-coin-icon-wrapper {
+    position: absolute;
+    margin-left: -50px;
+    margin-top: -1px;
+    width: 40px;
+    height: 40px;
+
+    .table-coin-icon {
+      transform: scale(0.5);
+    }
+  }
+}
+
+.interest-calc {
+  .btn-interest {
+    float: right;
+  }
+  .padding-20-50 {
+    margin-top: 20px;
+    padding-bottom: 50px;
+  }
+  .margin-top-20 {
+    margin-top: 20px;
+  }
+  .padding-bottom-100 {
+    padding-bottom: 100px;
+  }
 }

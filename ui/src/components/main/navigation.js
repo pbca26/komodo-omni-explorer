@@ -172,6 +172,15 @@ class Navigation extends React.Component {
                 </Link>
               </li>
               <li>
+                <Link
+                  to="/faucet"
+                  className="navbar-link pointer"
+                  activeClassName="active">
+                  <span className="fa fa-beer"></span>
+                  <span className="menu-text">Faucet</span>
+                </Link>
+              </li>
+              <li>
                 <a
                   href="https://github.com/pbca26/komodo-omni-explorer"
                   className="navbar-link"

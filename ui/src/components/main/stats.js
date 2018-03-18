@@ -36,19 +36,24 @@ class Stats extends React.Component {
   }
 
   renderPairIcon(base, rel) {
-    return (
-      <span>
-        <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${base.toLowerCase()}` }></span>
+    if (base &&
+        rel) {
+      return (
+        <span>
+          <span className="table-coin-icon-wrapper">
+            <span className={ `table-coin-icon coin_${base.toLowerCase()}` }></span>
+          </span>
+          <span className="table-coin-name">{ base }</span>
+          <i className="fa fa-exchange exchange-icon"></i>
+          <span className="table-coin-icon-wrapper">
+            <span className={ `table-coin-icon coin_${rel.toLowerCase()}` }></span>
+          </span>
+          <span className="table-coin-name">{ rel }</span>
         </span>
-        <span className="table-coin-name">{ base }</span>
-        <i className="fa fa-exchange exchange-icon"></i>
-        <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${rel.toLowerCase()}` }></span>
-        </span>
-        <span className="table-coin-name">{ rel }</span>
-      </span>
-    );
+      );
+    } else {
+      return null;
+    }
   }
 
   renderTxid(coinA, txidA, coinB, txidB) {
@@ -164,7 +169,7 @@ class Stats extends React.Component {
   }
 
   componentWillMount() {
-    const _searchTerm = '' /*this.props.input && this.props.input.toUpperCase()*/;
+    const _searchTerm = '';
 
     Store.dispatch(stats());
 
@@ -197,7 +202,7 @@ class Stats extends React.Component {
       this.setState({
         stats,
         itemsList: stats,
-        filteredItemsList: this.filterData(stats, this.state.searchTerm/*props.input && props.input.toUpperCase()*/ || ''),
+        filteredItemsList: this.filterData(stats, this.state.searchTerm || ''),
         showPagination: stats && stats.length >= this.state.defaultPageSize,
         itemsListColumns: this.generateItemsListColumns(stats.length),
       });

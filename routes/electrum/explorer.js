@@ -214,6 +214,7 @@ module.exports = (shepherd) => {
       // txid redirect
       let errorCount = 0;
       let coin;
+
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[0].split(':');

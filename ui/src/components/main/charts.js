@@ -81,7 +81,7 @@ class Charts extends React.Component {
 
     this.datafeed.unsubscribeBars(Object.keys(_feed)[0]);
     this.widget.remove();
-    hashHistory.push('/charts/' + this.state.base + '-' + this.state.rel);
+    hashHistory.push(`/charts/${this.state.base}-${this.state.rel}`);
     this.createTView(`${this.state.base}-${this.state.rel}`);
   }
 
@@ -94,14 +94,14 @@ class Charts extends React.Component {
       // debug: true,
       interval: config.charts.interval,
       container_id: 'tv_chart_container',
-      //  BEWARE: no trailing slash is expected in feed URL
+      // BEWARE: no trailing slash is expected in feed URL
       datafeed: this.datafeed,
       library_path: `${config.charts.urlPrefix}/charting_library/`,
       locale: 'en',
-      //  Regression Trend-related functionality is not implemented yet, so it's hidden for a while
+      // Regression Trend-related functionality is not implemented yet, so it's hidden for a while
       drawings_access: {
         type: 'black',
-        tools: [ { name: 'Regression Trend' } ]
+        tools: [ { name: 'Regression Trend' } ],
       },
       disabled_features: [
         'use_localstorage_for_settings',

@@ -30,7 +30,7 @@ class Main extends React.Component {
   componentWillMount() {
     const _searchTerm = this.props.input;
 
-    if(!_searchTerm) {
+    if (!_searchTerm) {
       Store.dispatch(resetInterestState());
     }
 
@@ -102,7 +102,7 @@ class Main extends React.Component {
             </div>
             <div className="col-md-2 col-sm-12">
               <img
-                src={ `http://${config.ip}:${config.port}/public/images/kmd-logo.png` }
+                src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/kmd-logo.png` }
                 alt="Komodo logo"
                 height="100px" />
             </div>

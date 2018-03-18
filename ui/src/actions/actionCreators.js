@@ -107,7 +107,7 @@ export function searchTerm(searchTerm, currentState) {
   return dispatch => {
     dispatch(searchTermState(searchTerm));
 
-    return fetch(`http://${config.ip}:${config.port}/api/explorer/search?term=${searchTerm}`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/search?term=${searchTerm}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -126,7 +126,7 @@ export function searchTerm(searchTerm, currentState) {
 
 export function getOverview(currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/explorer/overview`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/overview`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -145,7 +145,7 @@ export function getOverview(currentState) {
 
 export function getSummary(currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/explorer/summary`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/summary`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -164,7 +164,7 @@ export function getSummary(currentState) {
 
 export function getInterest(address, currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/kmd/interest?address=${address}`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/interest?address=${address}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -183,7 +183,7 @@ export function getInterest(address, currentState) {
 
 export function getUnspents(address, currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/kmd/listunspent?address=${address}`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/listunspent?address=${address}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -202,7 +202,7 @@ export function getUnspents(address, currentState) {
 
 export function getPrices(currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/mm/prices`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/prices`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -221,7 +221,7 @@ export function getPrices(currentState) {
 
 export function getOrderbooks(currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/mm/orderbook`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/orderbook`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -240,7 +240,7 @@ export function getOrderbooks(currentState) {
 
 export function fiatRates() {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/rates/kmd`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/rates/kmd`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -255,7 +255,7 @@ export function fiatRates() {
 
 export function coins(currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/mm/coins`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/coins`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -274,7 +274,7 @@ export function coins(currentState) {
 
 export function stats(currentState) {
   return dispatch => {
-    return fetch(`http://${config.ip}:${config.port}/api/mm/stats`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/stats`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -289,4 +289,22 @@ export function stats(currentState) {
       }
     });
   }
+}
+
+export function faucet(coin, address) {
+  return new Promise((resolve, reject) => {
+    fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/faucet?address=${address}&coin=${coin}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      resolve(json);
+    });
+  });
 }

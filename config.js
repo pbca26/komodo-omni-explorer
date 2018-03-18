@@ -1,5 +1,6 @@
 const config = {
-  ip: 'localhost',
+  isDev: true,
+  ip: 'atomicexplorer.com',
   port: 8111,
   explorers: {
     KMD: 'http://kmd.komodochainz.info',
@@ -20,6 +21,13 @@ const config = {
     COQUI: 'https://explorer.coqui.cash',
     MNZ: 'https://www.mnzexplorer.com',
     BTCH: 'http://www.btch.host',
+  },
+  faucet: {
+    beer: {
+      wif: '',
+      fee: 0.0001,
+      outSize: 0.777,
+    },
   },
   komodoParams: { // networking
     messagePrefix: '\x19Komodo Signed Message:\n',
@@ -155,8 +163,14 @@ const config = {
   electrumServersExtend: {
     btc: {
       serverList: [
-        '173.212.225.176:10000',
-        'node1.komodo.rocks:50001',
+        'mooo.not.fyi:50011',
+        'e-x.not.fyi:50001',
+        'vps.hsmiths.com:50001',
+        'us.electrum.be:50001',
+        'electrumx.bot.nu:50001',
+        'btc.asis.io:50001',
+        'electrum.backplanedns.org:50001',
+        'electrum.festivaldelhumor.org:50001'
       ],
     },
     arg: {

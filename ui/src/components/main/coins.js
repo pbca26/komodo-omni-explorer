@@ -1,10 +1,7 @@
 import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
-import config from '../../config';
-import {
-  coins,
-} from '../../actions/actionCreators';
+import { coins } from '../../actions/actionCreators';
 
 class Coins extends React.Component {
   constructor(props) {
@@ -27,7 +24,12 @@ class Coins extends React.Component {
           key={ `dex-coins-${i}` }
           className="coins-list-item">
           <div className={ `coin-icon coin_${_coins[i].coin.toLowerCase()}`}></div>
-          <div className="text-capitalize title">{ _coins[i].name || _coins[i].asset }</div>
+          <div className="text-capitalize title">
+            { _coins[i].name || _coins[i].asset }
+            { _coins[i].spv &&
+              <i className="fa fa-bolt"></i>
+            }
+          </div>
         </div>
       );
     }
@@ -46,6 +48,9 @@ class Coins extends React.Component {
           <h4>Total supported BarterDex coins: { this.props.Main.coins.length }</h4>
           <div className="list-a-coin">
             <a href="https://support.supernet.org/support/solutions/articles/29000014804-how-get-your-coin-listed-on-barterdex">How to get your coin listed on BarterDex</a>
+          </div>
+          <div className="light-mode-desc">
+            <i className="fa fa-bolt"></i> - Light (SPV) mode exchange capability
           </div>
           <div>{ this.renderDexCoins() }</div>
         </div>

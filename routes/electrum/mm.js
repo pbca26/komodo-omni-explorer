@@ -9,6 +9,7 @@ const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
+const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 
 let electrumServers = [];
 
@@ -29,6 +30,12 @@ for (let key in electrumCoins) {
 }
 
 console.log(`total orderbook pairs ${kmdPairs.length}`);
+
+let btcFeeBlocks = [];
+
+for (let i = 0; i < 25; i++) {
+  btcFeeBlocks.push(i);
+}
 
 const getRandomIntInclusive = (min, max) => {
   min = Math.ceil(min);
@@ -69,6 +76,12 @@ module.exports = (shepherd) => {
     stats: {
       detailed: {},
       simplified: {},
+    },
+    btcFees: {
+      recommended: {},
+      all: {},
+      electrum: {},
+      lastUpdated: null,
     },
     userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
   };
@@ -387,13 +400,19 @@ module.exports = (shepherd) => {
 
   shepherd.getMMCoins = () => {
     const coinsFileLocation = path.join(__dirname, '../../coins.json');
-    const coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
+    let coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
+
+    for (let i = 0; i < coinsFile.length; i++) {
+      if (config.electrumServers[coinsFile[i].coin.toLowerCase()] ||
+          config.electrumServersExtend[coinsFile[i].coin.toLowerCase()]) {
+        coinsFile[i].spv = true;
+      }
+    }
 
     shepherd.mm.coins = coinsFile;
   }
 
   shepherd.get('/mm/coins', (req, res, next) => {
-
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.coins,
@@ -448,6 +467,103 @@ module.exports = (shepherd) => {
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.stats.simplified,
+    }));
+  });
+
+  shepherd.getBTCElectrumFees = () => {
+    const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
+    const ecl = new shepherd.electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
+    let _btcFeeEstimates = [];
+
+    console.log(`btc fees server ${_randomServer.join(':')}`);
+
+    ecl.connect();
+    Promise.all(btcFeeBlocks.map((coin, index) => {
+      return new Promise((resolve, reject) => {
+        ecl.blockchainEstimatefee(index + 1)
+        .then((json) => {
+          resolve(true);
+
+          if (json > 0) {
+            _btcFeeEstimates.push(Math.floor((json / 1024) * 100000000));
+          }
+        });
+      });
+    }))
+    .then(result => {
+      ecl.close();
+
+      if (result &&
+          result.length) {
+        shepherd.mm.btcFees.electrum = _btcFeeEstimates;
+      } else {
+        shepherd.mm.btcFees.electrum = 'error';
+      }
+    });
+  };
+
+  shepherd.getBTCFees = () => {
+    function _getBTCFees() {
+      shepherd.getBTCElectrumFees();
+
+      let options = {
+        url: `https://bitcoinfees.earn.com/api/v1/fees/recommended`,
+        method: 'GET',
+      };
+
+      // send back body on both success and error
+      // this bit replicates iguana core's behaviour
+      request(options, (error, response, body) => {
+        if (response &&
+            response.statusCode &&
+            response.statusCode === 200) {
+          try {
+            const _parsedBody = JSON.parse(body);
+            shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
+            shepherd.mm.btcFees.recommended = _parsedBody;
+          } catch (e) {
+            console.log(`unable to retrieve BTC fees / recommended`);
+          }
+        } else {
+          console.log(`unable to retrieve BTC fees / recommended`);
+        }
+      });
+
+      options = {
+        url: `https://bitcoinfees.earn.com/api/v1/fees/list`,
+        method: 'GET',
+      };
+
+      // send back body on both success and error
+      // this bit replicates iguana core's behaviour
+      request(options, (error, response, body) => {
+        if (response &&
+            response.statusCode &&
+            response.statusCode === 200) {
+          try {
+            const _parsedBody = JSON.parse(body);
+            shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
+            shepherd.mm.btcFees.all = _parsedBody;
+          } catch (e) {
+            console.log(`unable to retrieve BTC fees / all`);
+          }
+        } else {
+          console.log(`unable to retrieve BTC fees / all`);
+        }
+      });
+    }
+
+    _getBTCFees();
+    shepherd.mmRatesInterval = setInterval(() => {
+      _getBTCFees();
+    }, BTC_FEES_UPDATE_INTERVAL);
+  }
+
+  // get btc fees
+  shepherd.get('/btc/fees', (req, res, next) => {
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: shepherd.mm.btcFees,
     }));
   });
 

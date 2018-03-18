@@ -9,7 +9,6 @@ import {
   formatValue,
   secondsToString,
 } from '../../util/util';
-import config from '../../config';
 import { getOrderbooks } from '../../actions/actionCreators';
 import Select from 'react-select';
 
@@ -195,7 +194,7 @@ class Books extends React.Component {
   onPageSizeChange(pageSize, pageIndex) {
     this.setState(Object.assign({}, this.state, {
       pageSize: pageSize,
-    }))
+    }));
   }
 
   filterData(list, searchTerm) {
