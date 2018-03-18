@@ -35,7 +35,7 @@ app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
 let server;
 
 if (config.https) {
-  const = options = {
+  const options = {
     key: fs.readFileSync('certs/priv.pem'),
     cert: fs.readFileSync('certs/cert.pem'),
   };
@@ -48,12 +48,11 @@ if (config.https) {
             .listen(config.port, config.isDev ? 'localhost' : config.ip);
 }
 
-
 console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);
 
 shepherd.getOverview(true);
 shepherd.getSummary(true);
-shepherd.getRates();
+shepherd.getRates();*/
 shepherd.getMMCoins();
 shepherd.updateStats();
 shepherd.getBTCFees();
