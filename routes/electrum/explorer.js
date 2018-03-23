@@ -9,6 +9,8 @@ const Promise = require('bluebird');
 
 const OVERVIEW_UPDATE_INTERVAL = 30000; // every 30s
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
+const MAX_REMOTE_EXPLORER_TIMEOUT = 5000;
+
 let remoteExplorersArray = [];
 let electrumServers = [];
 
@@ -68,12 +70,24 @@ module.exports = (shepherd) => {
 
   shepherd.getSummary = () => {
     const _getSummary = () => {
+      let remoteExplorersFinished = {};
+
       Promise.all(remoteExplorersArray.map((coin, index) => {
         return new Promise((resolve, reject) => {
           const options = {
             url: `${remoteExplorers[coin]}/ext/summary`,
             method: 'GET',
           };
+
+          setTimeout(() => {
+            if (!remoteExplorersFinished[coin]) {
+              console.log(`summary ${coin} is stuck, cancel req`);
+              resolve({
+                coin,
+                result: 'unable to get summary',
+              });
+            }
+          }, MAX_REMOTE_EXPLORER_TIMEOUT);
 
           request(options, (error, response, body) => {
             if (response &&
@@ -128,6 +142,8 @@ module.exports = (shepherd) => {
 
   shepherd.getOverview = (test) => {
     const _getOverview = () => {
+      let remoteExplorersFinished = {};
+
       Promise.all(remoteExplorersArray.map((coin, index) => {
         return new Promise((resolve, reject) => {
           const options = {
@@ -135,15 +151,29 @@ module.exports = (shepherd) => {
             method: 'GET',
           };
 
+          setTimeout(() => {
+            if (!remoteExplorersFinished[coin]) {
+              console.log(`overview ${coin} is stuck, cancel req`);
+              resolve({
+                coin,
+                result: 'unable to get lasttx',
+              });
+            }
+          }, MAX_REMOTE_EXPLORER_TIMEOUT);
+
           request(options, (error, response, body) => {
+            remoteExplorersFinished[coin] = true;
+
             if (response &&
                 response.statusCode &&
                 response.statusCode === 200) {
+              console.log(`overview got lasttx for ${coin}`);
               resolve({
                 coin,
                 result: body,
               });
             } else {
+              console.log(`overview unable to get lasttx for ${coin}`);
               resolve({
                 coin,
                 result: 'unable to get lasttx',
@@ -153,6 +183,7 @@ module.exports = (shepherd) => {
         });
       }))
       .then(result => {
+        console.log('overview executed');
         if (result &&
             result.length) {
           const overviewFileLocation = path.join(__dirname, '../../overview.json');

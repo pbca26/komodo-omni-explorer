@@ -27,37 +27,39 @@ class Summary extends React.Component {
       let _items = [];
 
       for (let i = 0; i < _summary.length; i++) {
-        const _data = _summary[i].data[0];
+        if (_summary[i].data) {
+          const _data = _summary[i].data[0];
 
-        if (_summary[i] !== 'error' &&
-            _data &&
-            _data.connections) {
-          _items.push(
-            <tr key={ `summary-${_summary[i].coin}` }>
-              <td>
-                <span className="table-coin-icon-wrapper">
-                  <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}`}></span>
-                </span>
-                <span className="table-coin-name">
-                  <a
-                    target="_blank"
-                    href={ `${config.explorers[_summary[i].coin]}` }>{ _summary[i].coin }</a>
-                </span>
-              </td>
-              <td>
-                { _data.blockcount }
-              </td>
-              <td>
-                { _data.difficulty }
-              </td>
-              <td>
-                { _data.supply }
-              </td>
-              <td>
-                { _data.connections }
-              </td>
-            </tr>
-          );
+          if (_summary[i] !== 'error' &&
+              _data &&
+              _data.connections) {
+            _items.push(
+              <tr key={ `summary-${_summary[i].coin}` }>
+                <td>
+                  <span className="table-coin-icon-wrapper">
+                    <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}`}></span>
+                  </span>
+                  <span className="table-coin-name">
+                    <a
+                      target="_blank"
+                      href={ `${config.explorers[_summary[i].coin]}` }>{ _summary[i].coin }</a>
+                  </span>
+                </td>
+                <td>
+                  { _data.blockcount }
+                </td>
+                <td>
+                  { _data.difficulty }
+                </td>
+                <td>
+                  { _data.supply }
+                </td>
+                <td>
+                  { _data.connections }
+                </td>
+              </tr>
+            );
+          }
         }
       }
 
