@@ -124,7 +124,8 @@ module.exports = (shepherd) => {
 
   // start coin pairs in electrum
   shepherd.get('/mm/coins/start', (req, res, next) => {
-    if (!shepherd.mm.coinsStartLaunched) {
+    if (!shepherd.mm.coinsStartLaunched ||
+        req.query.override === '') {
       shepherd.mm.coinsStartLaunched = true;
       const runElectrumStart = () => {
         shepherd.mm.ordersUpdateInProgress = true;
@@ -203,7 +204,8 @@ module.exports = (shepherd) => {
   });
   // start orderbooks
   shepherd.get('/mm/orderbook/start', (req, res, next) => {
-    if (!shepherd.mm.orderbookLaunched) {
+    if (!shepherd.mm.orderbookLaunched ||
+        req.query.override === '') {
       res.end(JSON.stringify({
         msg: 'succes',
         result: 'orders update is started',
@@ -291,7 +293,8 @@ module.exports = (shepherd) => {
   });
 
   shepherd.get('/mm/prices/start', (req, res, next) => {
-    if (!shepherd.mm.pricesLaunched) {
+    if (!shepherd.mm.pricesLaunched ||
+        req.query.override === '') {
       shepherd.mm.pricesLaunched = true;
       res.end(JSON.stringify({
         msg: 'succes',
