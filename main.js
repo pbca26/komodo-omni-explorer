@@ -50,9 +50,10 @@ if (config.https) {
 
 console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);
 
+shepherd.mmloop();
 shepherd.getOverview(true);
 shepherd.getSummary(true);
-shepherd.getRates();*/
+shepherd.getRates();
 shepherd.getMMCoins();
 shepherd.updateStats();
 shepherd.getBTCFees();

@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 const async = require('async');
+const exec = require('child_process').exec;
 
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
@@ -64,9 +65,6 @@ for (let key in config.electrumServersExtend) {
 
 module.exports = (shepherd) => {
   shepherd.mm = {
-    coinsStartLaunched: false,
-    orderbookLaunched: false,
-    pricesLaunched: false,
     prices: {},
     orders: {},
     ordersUpdateInProgress: false,
@@ -83,7 +81,7 @@ module.exports = (shepherd) => {
       electrum: {},
       lastUpdated: null,
     },
-    userpass: '470f8d83cf4389502d7cf20de971e61cbeb836365e8daca4df0131fa7e374a60',
+    userpass: '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f',
   };
 
   shepherd.getRates = () => {
@@ -123,193 +121,26 @@ module.exports = (shepherd) => {
   });
 
   // start coin pairs in electrum
-  shepherd.get('/mm/coins/start', (req, res, next) => {
-    if (!shepherd.mm.coinsStartLaunched ||
-        req.query.override === '') {
-      shepherd.mm.coinsStartLaunched = true;
-      const runElectrumStart = () => {
-        shepherd.mm.ordersUpdateInProgress = true;
-        let _callsCompleted = 0;
-        let _coins = [];
+  shepherd.mmStartCoins = () => {
+    const runElectrumStart = () => {
+      shepherd.mm.ordersUpdateInProgress = true;
+      let _callsCompleted = 0;
+      let _coins = [];
 
-        async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
-          const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-          const _payload = {
-            method: 'electrum',
-            coin: electrumServerData.coin.toUpperCase(),
-            ipaddr: _server[0],
-            port: _server[1],
-            userpass: shepherd.mm.userpass,
-          };
-          const options = {
-            url: `http://localhost:7783`,
-            method: 'POST',
-            body: JSON.stringify(_payload),
-            timeout: 10000,
-          };
-
-          request(options, (error, response, body) => {
-            if (response &&
-                response.statusCode &&
-                response.statusCode === 200) {
-              const _parsedBody = JSON.parse(body);
-              _coins.push({
-                coin: _payload.coin,
-                data: _parsedBody,
-                payload: _payload,
-              });
-              console.log(_payload.coin + ' connected');
-
-              callback();
-              _callsCompleted++;
-
-              if (_callsCompleted === electrumServers.length) {
-                console.log('all coins connected');
-                res.end(JSON.stringify({
-                  msg: 'success',
-                  result: _coins,
-                }));
-              }
-            } else {
-              _coins.push({
-                coin: _payload.coin,
-                data: _parsedBody,
-                payload: _payload,
-              });
-              console.log(_payload.coin + ' failed to connect');
-              callback();
-              _callsCompleted++;
-
-              if (_callsCompleted === electrumServers.length) {
-                console.log('all coins connected');
-                res.end(JSON.stringify({
-                  msg: 'success',
-                  result: _coins,
-                }));
-              }
-            }
-          });
-        }, err => {
-          if (err) console.error(err.message);
-          // do some
-        });
-      }
-      runElectrumStart();
-    } else {
-      res.end(JSON.stringify({
-        msg: 'error',
-        result: 'coins start was triggered already',
-      }));
-    }
-  });
-  // start orderbooks
-  shepherd.get('/mm/orderbook/start', (req, res, next) => {
-    if (!shepherd.mm.orderbookLaunched ||
-        req.query.override === '') {
-      res.end(JSON.stringify({
-        msg: 'succes',
-        result: 'orders update is started',
-      }));
-      shepherd.mm.orderbookLaunched = true;
-
-      const runOrdersUpdate = () => {
-        shepherd.mm.ordersUpdateInProgress = true;
-        let _orders = [];
-        let _callsCompleted = 0;
-
-        async.eachOfSeries(kmdPairs, (value, key, callback) => {
-          const _pair = value.split('/');
-          const _payload = {
-            method: 'orderbook',
-            base: _pair[0],
-            rel: _pair[1],
-            userpass: shepherd.mm.userpass,
-            duration: 172800 // 2 days
-          };
-          const options = {
-            url: `http://localhost:7783`,
-            method: 'POST',
-            body: JSON.stringify(_payload),
-            timeout: 10000,
-          };
-
-          request(options, (error, response, body) => {
-            if (response &&
-                response.statusCode &&
-                response.statusCode === 200) {
-              const _parsedBody = JSON.parse(body);
-
-              _orders.push({
-                coin: value,
-                data: _parsedBody,
-                payload: _payload,
-              });
-              console.log(value + ' / ' + key);
-              callback();
-              _callsCompleted++;
-
-              if (_callsCompleted === kmdPairs.length) {
-                console.log('done');
-                shepherd.mm.orders = shepherd.filterOrderbook(_orders);
-
-                setTimeout(() => {
-                  shepherd.mm.ordersUpdateInProgress = false;
-                  runOrdersUpdate();
-                }, 10000);
-              }
-            } else {
-              _orders.push({
-                pair: value,
-                data: `unable to call method ${_payload.method} at port 7783`,
-                payload: _payload,
-              });
-              console.log(value + ' / ' + key);
-              callback();
-              _callsCompleted++;
-
-              if (_callsCompleted === kmdPairs.length) {
-                console.log('done');
-                shepherd.mm.orders = shepherd.filterOrderbook(_orders);
-
-                setTimeout(() => {
-                  shepherd.mm.ordersUpdateInProgress = false;
-                  runOrdersUpdate();
-                }, 10000);
-              }
-            }
-          });
-        }, err => {
-          if (err) console.error(err.message);
-          // do some
-        });
-      }
-      runOrdersUpdate();
-    } else {
-      res.end(JSON.stringify({
-        msg: 'error',
-        result: 'orders update is active',
-      }));
-    }
-  });
-
-  shepherd.get('/mm/prices/start', (req, res, next) => {
-    if (!shepherd.mm.pricesLaunched ||
-        req.query.override === '') {
-      shepherd.mm.pricesLaunched = true;
-      res.end(JSON.stringify({
-        msg: 'succes',
-        result: 'prices update is started',
-      }));
-
-      const runPricesUpdate = () => {
+      async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
+        const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
         const _payload = {
-          method: 'getprices',
+          method: 'electrum',
+          coin: electrumServerData.coin.toUpperCase(),
+          ipaddr: _server[0],
+          port: _server[1],
           userpass: shepherd.mm.userpass,
         };
         const options = {
           url: `http://localhost:7783`,
           method: 'POST',
           body: JSON.stringify(_payload),
+          timeout: 10000,
         };
 
         request(options, (error, response, body) => {
@@ -317,25 +148,148 @@ module.exports = (shepherd) => {
               response.statusCode &&
               response.statusCode === 200) {
             const _parsedBody = JSON.parse(body);
-            console.log('prices updated');
-            shepherd.mm.prices = shepherd.pricesPairs(_parsedBody);
+            _coins.push({
+              coin: _payload.coin,
+              data: _parsedBody,
+              payload: _payload,
+            });
+            console.log(`${_payload.coin} connected`);
+
+            callback();
+            _callsCompleted++;
+
+            if (_callsCompleted === electrumServers.length) {
+              console.log('all coins connected');
+            }
           } else {
-            shepherd.mm.prices = 'error';
+            _coins.push({
+              coin: _payload.coin,
+              data: _parsedBody,
+              payload: _payload,
+            });
+            console.log(`${_payload.coin} failed to connect`);
+            callback();
+            _callsCompleted++;
+
+            if (_callsCompleted === electrumServers.length) {
+              console.log('all coins connected');
+            }
           }
         });
+      }, err => {
+        if (err) console.error(err.message);
+        // do some
+      });
+    };
+    runElectrumStart();
+  };
+
+  // start orderbooks
+  shepherd.mmOrderbooksStart = () => {
+    const runOrdersUpdate = () => {
+      shepherd.mm.ordersUpdateInProgress = true;
+      let _orders = [];
+      let _callsCompleted = 0;
+
+      async.eachOfSeries(kmdPairs, (value, key, callback) => {
+        const _pair = value.split('/');
+        const _payload = {
+          method: 'orderbook',
+          base: _pair[0],
+          rel: _pair[1],
+          userpass: shepherd.mm.userpass,
+          duration: 172800 // 2 days
+        };
+        const options = {
+          url: `http://localhost:7783`,
+          method: 'POST',
+          body: JSON.stringify(_payload),
+          timeout: 10000,
+        };
+
+        request(options, (error, response, body) => {
+          if (response &&
+              response.statusCode &&
+              response.statusCode === 200) {
+            const _parsedBody = JSON.parse(body);
+
+            _orders.push({
+              coin: value,
+              data: _parsedBody,
+              payload: _payload,
+            });
+            console.log(`${value} / ${key}`);
+            callback();
+            _callsCompleted++;
+
+            if (_callsCompleted === kmdPairs.length) {
+              console.log('done');
+              shepherd.mm.orders = shepherd.filterOrderbook(_orders);
+
+              setTimeout(() => {
+                shepherd.mm.ordersUpdateInProgress = false;
+                runOrdersUpdate();
+              }, 10000);
+            }
+          } else {
+            _orders.push({
+              pair: value,
+              data: `unable to call method ${_payload.method} at port 7783`,
+              payload: _payload,
+            });
+            console.log(`${value} / ${key}`);
+            callback();
+            _callsCompleted++;
+
+            if (_callsCompleted === kmdPairs.length) {
+              console.log('done');
+              shepherd.mm.orders = shepherd.filterOrderbook(_orders);
+
+              setTimeout(() => {
+                shepherd.mm.ordersUpdateInProgress = false;
+                runOrdersUpdate();
+              }, 10000);
+            }
+          }
+        });
+      }, err => {
+        if (err) console.error(err.message);
+        // do some
+      });
+    }
+    runOrdersUpdate();
+  };
+
+  shepherd.mmPricesStart = () => {
+    const runPricesUpdate = () => {
+      const _payload = {
+        method: 'getprices',
+        userpass: shepherd.mm.userpass,
+      };
+      const options = {
+        url: `http://localhost:7783`,
+        method: 'POST',
+        body: JSON.stringify(_payload),
       };
 
+      request(options, (error, response, body) => {
+        if (response &&
+            response.statusCode &&
+            response.statusCode === 200) {
+          const _parsedBody = JSON.parse(body);
+          console.log('prices updated');
+          shepherd.mm.prices = shepherd.pricesPairs(_parsedBody);
+        } else {
+          shepherd.mm.prices = 'error';
+        }
+      });
+    };
+
+    runPricesUpdate();
+    setInterval(() => {
       runPricesUpdate();
-      setInterval(() => {
-        runPricesUpdate();
-      }, PRICES_UPDATE_INTERVAL);
-    } else {
-      res.end(JSON.stringify({
-        msg: 'error',
-        result: 'prices update is active',
-      }));
-    }
-  });
+    }, PRICES_UPDATE_INTERVAL);
+  };
 
   shepherd.pricesPairs = (prices) => {
     let _prices = {};
@@ -569,6 +523,60 @@ module.exports = (shepherd) => {
       result: shepherd.mm.btcFees,
     }));
   });
+
+  const MM_RESTART_INTERVAL = 10800;
+
+  shepherd.mmloop = () => {
+    const _coins = fs.readJsonSync('coins.json', { throws: false });
+
+    const mmloop = () => {
+      const pkillCmd = 'pkill -15 marketmaker';
+
+      exec(pkillCmd, (error, stdout, stderr) => {
+        console.log(`${pkillCmd} is issued`);
+
+        const _mmbin = path.join(__dirname, '../../marketmaker');
+        const _customParam = {
+          'gui': 'nogui',
+          'client': 1,
+          'userhome': `${process.env.HOME}`,
+          'passphrase': 'default',
+          'coins': _coins,
+        };
+        params = JSON.stringify(_customParam);
+        params = `'${params}'`;
+
+        exec(`${_mmbin} ${params}`, {
+          maxBuffer: 1024 * 50000 // 50 mb
+        }, (error, stdout, stderr) => {
+          if (error !== null) {
+            console.log(`exec error: ${error}`);
+          }
+        });
+
+        if (error !== null) {
+          console.log(`${pkillCmd} exec error: ${error}`);
+        };
+
+        setTimeout(() => {
+          shepherd.mmStartCoins();
+        }, 3000);
+      });
+    };
+
+    mmloop();
+
+    setTimeout(() => {
+      shepherd.mmOrderbooksStart();
+    }, 10000);
+    setTimeout(() => {
+      shepherd.mmPricesStart();
+    }, 13000);
+
+    setInterval(() => {
+      mmloop();
+    }, MM_RESTART_INTERVAL);
+  };
 
   return shepherd;
 };

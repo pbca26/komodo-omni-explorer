@@ -1,6 +1,6 @@
 # Komodo-omni-explorer
 
-Omni explorer
+Atomic explorer
 
 ## Requirements
 
@@ -44,23 +44,29 @@ http://atomicexplorer.com/#/search
 
 http://atomicexplorer.com/#/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
-#### BarterDEX Charts
+#### BarterDEX charts
 http://atomicexplorer.com/#/charts
 
 http://atomicexplorer.com/#/charts/KMD-BTC
 
-#### BarterDEX Prices
+#### BarterDEX prices
 http://atomicexplorer.com/#/prices
 
 http://atomicexplorer.com/#/prices/KMD-BTC
 
-#### BarterDEX Orderbooks
+#### BarterDEX orderbooks
 http://atomicexplorer.com/#/books
 
 http://atomicexplorer.com/#/books/KMD-BTC
 
+#### BarterDEX trades feed
+http://atomicexplorer.com/#/trades
+
 #### BarterDEX coins list
 http://atomicexplorer.com/#/coins
+
+#### BEER faucet
+http://atomicexplorer.com/#/faucet
 
 ## API
 #### GET /api/explorer/search?term=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
@@ -84,5 +90,15 @@ params: none required
 params: none required
 
 #### GET /api/mm/orderbook
+
+params: none required
+
+#### GET /api/mm/trades
+
+params: none required
+
+#### GET /api/btc/fees
+
+BTC fees, combined result from Electrum servers and bitcoinfees.earn.com
 
 params: none required
