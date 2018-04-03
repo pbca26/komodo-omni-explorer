@@ -148,11 +148,11 @@ module.exports = (shepherd) => {
               response.statusCode &&
               response.statusCode === 200) {
             const _parsedBody = JSON.parse(body);
-            _coins.push({
+            /*_coins.push({
               coin: _payload.coin,
               data: _parsedBody,
               payload: _payload,
-            });
+            });*/
             console.log(`${_payload.coin} connected`);
 
             callback();
@@ -162,11 +162,11 @@ module.exports = (shepherd) => {
               console.log('all coins connected');
             }
           } else {
-            _coins.push({
+            /*_coins.push({
               coin: _payload.coin,
               data: _parsedBody,
               payload: _payload,
-            });
+            });*/
             console.log(`${_payload.coin} failed to connect`);
             callback();
             _callsCompleted++;
@@ -552,11 +552,11 @@ module.exports = (shepherd) => {
               console.log(`exec error: ${error}`);
             }
           });
-        }
 
-        setTimeout(() => {
-         shepherd.mmStartCoins();
-        }, 3000);
+          setTimeout(() => {
+           shepherd.mmStartCoins();
+          }, 3000);
+        }
       });
     };
 
