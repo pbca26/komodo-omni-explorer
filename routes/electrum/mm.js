@@ -85,7 +85,7 @@ module.exports = (shepherd) => {
   };
 
   shepherd.getRates = () => {
-    function _getRates() {
+    const _getRates = () => {
       const options = {
         url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,USD`,
         method: 'GET',
@@ -148,11 +148,11 @@ module.exports = (shepherd) => {
               response.statusCode &&
               response.statusCode === 200) {
             const _parsedBody = JSON.parse(body);
-            _coins.push({
+            /*_coins.push({
               coin: _payload.coin,
               data: _parsedBody,
               payload: _payload,
-            });
+            });*/
             console.log(`${_payload.coin} connected`);
 
             callback();
@@ -162,11 +162,11 @@ module.exports = (shepherd) => {
               console.log('all coins connected');
             }
           } else {
-            _coins.push({
+            /*_coins.push({
               coin: _payload.coin,
               data: _parsedBody,
               payload: _payload,
-            });
+            });*/
             console.log(`${_payload.coin} failed to connect`);
             callback();
             _callsCompleted++;
@@ -460,7 +460,7 @@ module.exports = (shepherd) => {
   };
 
   shepherd.getBTCFees = () => {
-    function _getBTCFees() {
+    const _getBTCFees = () => {
       shepherd.getBTCElectrumFees();
 
       let options = {
@@ -524,43 +524,39 @@ module.exports = (shepherd) => {
     }));
   });
 
-  const MM_RESTART_INTERVAL = 10800;
+  const MM_CHECK_ALIVE_INTERVAL = 30000; // every 30s
 
   shepherd.mmloop = () => {
     const _coins = fs.readJsonSync('coins.json', { throws: false });
 
     const mmloop = () => {
-      const pkillCmd = 'pkill -15 marketmaker';
+      exec('ps -A | grep "marketmaker"', (error, stdout, stderr) => {
+        if (stdout.indexOf('marketmaker') === -1) {
+          console.log('mm is dead, restart');
 
-      exec(pkillCmd, (error, stdout, stderr) => {
-        console.log(`${pkillCmd} is issued`);
+          const _mmbin = path.join(__dirname, '../../marketmaker');
+          const _customParam = {
+            'gui': 'nogui',
+            'client': 1,
+            'userhome': `${process.env.HOME}`,
+            'passphrase': 'default',
+            'coins': _coins,
+          };
+          params = JSON.stringify(_customParam);
+          params = `'${params}'`;
 
-        const _mmbin = path.join(__dirname, '../../marketmaker');
-        const _customParam = {
-          'gui': 'nogui',
-          'client': 1,
-          'userhome': `${process.env.HOME}`,
-          'passphrase': 'default',
-          'coins': _coins,
-        };
-        params = JSON.stringify(_customParam);
-        params = `'${params}'`;
+          exec(`${_mmbin} ${params}`, {
+            maxBuffer: 1024 * 50000 // 50 mb
+          }, (error, stdout, stderr) => {
+            if (error !== null) {
+              console.log(`exec error: ${error}`);
+            }
+          });
 
-        exec(`${_mmbin} ${params}`, {
-          maxBuffer: 1024 * 50000 // 50 mb
-        }, (error, stdout, stderr) => {
-          if (error !== null) {
-            console.log(`exec error: ${error}`);
-          }
-        });
-
-        if (error !== null) {
-          console.log(`${pkillCmd} exec error: ${error}`);
-        };
-
-        setTimeout(() => {
-          shepherd.mmStartCoins();
-        }, 3000);
+          setTimeout(() => {
+           shepherd.mmStartCoins();
+          }, 3000);
+        }
       });
     };
 
@@ -575,7 +571,7 @@ module.exports = (shepherd) => {
 
     setInterval(() => {
       mmloop();
-    }, MM_RESTART_INTERVAL);
+    }, MM_CHECK_ALIVE_INTERVAL);
   };
 
   return shepherd;

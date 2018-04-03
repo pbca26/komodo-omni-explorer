@@ -1,3 +1,4 @@
+const config = require('../../config');
 const remoteExplorers = require('../../config').explorers;
 const _electrumServers = require('../../config').electrumServers;
 const komodoParams = require('../../config').komodoParams;
@@ -7,7 +8,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 
-const OVERVIEW_UPDATE_INTERVAL = 30000; // every 30s
+const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
 const MAX_REMOTE_EXPLORER_TIMEOUT = 5000;
 
@@ -140,11 +141,105 @@ module.exports = (shepherd) => {
     }));
   });
 
+  shepherd.insightLastTransactions = (coin) => {
+    return new Promise((resolveMain, rejectMain) => {
+      const options = {
+        url: `${config.insight[coin]}/blocks?limit=${config.insight.maxTxLength}`,
+        method: 'GET',
+      };
+      // console.log(`${config.insight[coin]}/blocks?limit=${config.insight.maxTxLength}`);
+
+      request(options, (error, response, body) => {
+        if (response &&
+            response.statusCode &&
+            response.statusCode === 200) {
+          const _blocks = JSON.parse(body).blocks;
+          let _txs = [];
+          // console.log(JSON.stringify(_blocks));
+
+          if (_blocks &&
+              _blocks.length) {
+            Promise.all(_blocks.map((block, index) => {
+              return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  // console.log(`insight ${index}`);
+                  // console.log(`${config.insight[coin]}/api/txs?block=${block.hash}`);
+
+                  const options = {
+                    url: `${config.insight[coin]}/txs?block=${block.hash}`,
+                    method: 'GET',
+                  };
+
+                  request(options, (error, response, body) => {
+                    if (response &&
+                        response.statusCode &&
+                        response.statusCode === 200) {
+                      let txs = JSON.parse(body);
+
+                      if (txs &&
+                          txs.txs) {
+                        txs = txs.txs;
+                        // console.log(txs);
+
+                        for (let i = 0; i < txs.length; i++) {
+                          _txs.push({
+                            txid: txs[i].txid,
+                            blockhash: block.hash,
+                            blockindex: block.height,
+                            timestamp: txs[i].time,
+                            total: txs[i].valueOut,
+                            vout: txs[i].vout,
+                            vin: txs[i].vin,
+                          });
+                          resolve(true);
+                        }
+                      } else {
+                        console.log(`unable to get txs in ${coin} block ${block.height}`);
+                        resolve(false);
+                      }
+                    } else {
+                      console.log(`unable to get txs in ${coin} block ${block.height}`);
+                      resolve(false);
+                    }
+                  });
+                }, index * 1000);
+              });
+            }))
+            .then(result => {
+              console.log(`insight ${coin} last txs is finished, total txs ${_txs.length}`);
+              // console.log(JSON.stringify(_txs));
+
+              resolveMain({
+                coin,
+                result: JSON.stringify({
+                  data: _txs,
+                }),
+              });
+            });
+            // resolve(true);
+          } else {
+            resolveMain({
+              coin,
+              result: 'unable to get lasttx',
+            });
+            console.log(`unable to get insight last blocks for ${coin}`);
+          }
+        } else {
+          resolveMain({
+            coin,
+            result: 'unable to get lasttx',
+          });
+          console.log(`unable to get insight last blocks for ${coin}`);
+        }
+      });
+    });
+  };
+
   shepherd.getOverview = (test) => {
     const _getOverview = () => {
       let remoteExplorersFinished = {};
 
-      Promise.all(remoteExplorersArray.map((coin, index) => {
+      Promise.all(remoteExplorersArray.filter(x => x !== 'KMD').map((coin, index) => {
         return new Promise((resolve, reject) => {
           const options = {
             url: `${remoteExplorers[coin]}/ext/getlasttxs/0.00000001`,
@@ -184,49 +279,56 @@ module.exports = (shepherd) => {
       }))
       .then(result => {
         console.log('overview executed');
+
         if (result &&
             result.length) {
           const overviewFileLocation = path.join(__dirname, '../../overview.json');
 
-          fs.writeFile(overviewFileLocation, JSON.stringify({ result }), (err) => {
-            if (err) {
-              console.log(`error updating overview cache file ${err}`);
-            } else {
-              const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
+          // append insight kmd data
+          shepherd.insightLastTransactions('KMD')
+          .then((res) => {
+            result.push(res);
 
-              if (overviewFile &&
-                  overviewFile.result) {
-                const resSizeLimit = 1000;
-                let items = [];
-                console.log(`tracking ${overviewFile.result.length} coin explorers`);
+            fs.writeFile(overviewFileLocation, JSON.stringify({ result }), (err) => {
+              if (err) {
+                console.log(`error updating overview cache file ${err}`);
+              } else {
+                const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
 
-                for (let i = 0; i < overviewFile.result.length; i++) {
-                  try {
-                    const _parseData = JSON.parse(overviewFile.result[i].result).data;
+                if (overviewFile &&
+                    overviewFile.result) {
+                  const resSizeLimit = 1000;
+                  let items = [];
+                  console.log(`tracking ${overviewFile.result.length} coin explorers`);
 
-                    for (let j = 0; j < _parseData.length; j++) {
-                      items.push({
-                        coin: overviewFile.result[i].coin,
-                        txid: _parseData[j].txid,
-                        blockhash: _parseData[j].blockhash,
-                        blockindex: _parseData[j].blockindex,
-                        timestamp: _parseData[j].timestamp,
-                        total: _parseData[j].total,
-                        vout: _parseData[j].vout,
-                        vin: _parseData[j].vin,
-                      });
-                    }
-                  } catch (e) {}
+                  for (let i = 0; i < overviewFile.result.length; i++) {
+                    try {
+                      const _parseData = JSON.parse(overviewFile.result[i].result).data;
+
+                      for (let j = 0; j < _parseData.length; j++) {
+                        items.push({
+                          coin: overviewFile.result[i].coin,
+                          txid: _parseData[j].txid,
+                          blockhash: _parseData[j].blockhash,
+                          blockindex: _parseData[j].blockindex,
+                          timestamp: _parseData[j].timestamp,
+                          total: _parseData[j].total,
+                          vout: _parseData[j].vout,
+                          vin: _parseData[j].vin,
+                        });
+                      }
+                    } catch (e) {}
+                  }
+
+                  items = sortByDate(items, 'timestamp');
+                  items = items.slice(0, resSizeLimit + 1);
+
+                  shepherd.explorer.overview = items;
+
+                  console.log(`explorer overview updated at ${Date.now()}`);
                 }
-
-                items = sortByDate(items, 'timestamp');
-                items = items.slice(0, resSizeLimit + 1);
-
-                shepherd.explorer.overview = items;
-
-                console.log(`explorer overview updated at ${Date.now()}`);
               }
-            }
+            });
           });
         }
       });
