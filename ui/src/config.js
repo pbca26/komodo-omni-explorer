@@ -3,7 +3,7 @@ const config = {
   https: true,
   apiUrl: 'www.atomicexplorer.com',
   explorers: {
-    KMD: 'http://kmd.komodochainz.info',
+    KMD: 'https://kmd.explorer.supernet.org',
     MSHARK: 'http://MSHARK.explorer.supernet.org',
     REVS: 'http://revs.explorer.supernet.org',
     SUPERNET: 'http://SUPERNET.explorer.supernet.org',

@@ -1,7 +1,8 @@
 const config = {
   isDev: true,
+  https: false,
   ip: 'atomicexplorer.com',
-  port: 8111,
+  port: 8115,
   explorers: {
     KMD: 'http://kmd.komodochainz.info',
     MSHARK: 'http://MSHARK.explorer.supernet.org',
@@ -13,7 +14,6 @@ const config = {
     BET: 'http://BET.explorer.supernet.org',
     CRYPTO: 'http://CRYPTO.explorer.supernet.org',
     HODL: 'http://HODL.explorer.supernet.org',
-    SHARK: 'http://SHARK.explorer.supernet.org',
     BOTS: 'http://BOTS.explorer.supernet.org',
     MGW: 'http://MGW.explorer.supernet.org',
     WLC: 'http://WIRELESS.explorer.supernet.org',
@@ -22,11 +22,20 @@ const config = {
     MNZ: 'https://www.mnzexplorer.com',
     BTCH: 'http://www.btch.host',
   },
+  insight: {
+    maxTxLength: 50,
+    KMD: 'http://www.kmdexplorer.ru/insight-api-komodo',
+  },
   faucet: {
     beer: {
       wif: '',
       fee: 0.0001,
       outSize: 0.777,
+    },
+    coqui: {
+      wif: '',
+      fee: 0.0001,
+      outSize: 0.1,
     },
   },
   komodoParams: { // networking
