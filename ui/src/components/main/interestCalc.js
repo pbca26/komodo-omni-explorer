@@ -378,8 +378,8 @@ class InterestCalc extends React.Component {
 
   render() {
     return (
-      <div>
-        <div className="row interest-calc">
+      <div className="interest-calc">
+        <div className="row">
           <div className="col-md-12 col-sm-12">
             <button
               onClick={ this.resetInterestCalc }

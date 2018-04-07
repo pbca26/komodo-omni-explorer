@@ -153,71 +153,84 @@ module.exports = (shepherd) => {
         if (response &&
             response.statusCode &&
             response.statusCode === 200) {
-          const _blocks = JSON.parse(body).blocks;
-          let _txs = [];
-          // console.log(JSON.stringify(_blocks));
+          try {
+            const _blocks = JSON.parse(body).blocks;
+            let _txs = [];
+            // console.log(JSON.stringify(_blocks));
 
-          if (_blocks &&
-              _blocks.length) {
-            Promise.all(_blocks.map((block, index) => {
-              return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  // console.log(`insight ${index}`);
-                  // console.log(`${config.insight[coin]}/api/txs?block=${block.hash}`);
+            if (_blocks &&
+                _blocks.length) {
+              Promise.all(_blocks.map((block, index) => {
+                return new Promise((resolve, reject) => {
+                  setTimeout(() => {
+                    // console.log(`insight ${index}`);
+                    // console.log(`${config.insight[coin]}/api/txs?block=${block.hash}`);
 
-                  const options = {
-                    url: `${config.insight[coin]}/txs?block=${block.hash}`,
-                    method: 'GET',
-                  };
+                    const options = {
+                      url: `${config.insight[coin]}/txs?block=${block.hash}`,
+                      method: 'GET',
+                    };
 
-                  request(options, (error, response, body) => {
-                    if (response &&
-                        response.statusCode &&
-                        response.statusCode === 200) {
-                      let txs = JSON.parse(body);
+                    request(options, (error, response, body) => {
+                      if (response &&
+                          response.statusCode &&
+                          response.statusCode === 200) {
+                        try {
+                          let txs = JSON.parse(body);
 
-                      if (txs &&
-                          txs.txs) {
-                        txs = txs.txs;
-                        // console.log(txs);
+                          if (txs &&
+                              txs.txs) {
+                            txs = txs.txs;
+                            // console.log(txs);
 
-                        for (let i = 0; i < txs.length; i++) {
-                          _txs.push({
-                            txid: txs[i].txid,
-                            blockhash: block.hash,
-                            blockindex: block.height,
-                            timestamp: txs[i].time,
-                            total: txs[i].valueOut,
-                            vout: txs[i].vout,
-                            vin: txs[i].vin,
-                          });
-                          resolve(true);
+                            for (let i = 0; i < txs.length; i++) {
+                              _txs.push({
+                                txid: txs[i].txid,
+                                blockhash: block.hash,
+                                blockindex: block.height,
+                                timestamp: txs[i].time,
+                                total: txs[i].valueOut,
+                                vout: txs[i].vout,
+                                vin: txs[i].vin,
+                              });
+                              resolve(true);
+                            }
+                          } else {
+                            console.log(`unable to get txs in ${coin} block ${block.height}`);
+                            resolve(false);
+                          }
+                        } catch (e) {
+                          console.log(`unable to get txs in ${coin} block ${block.height}`);
+                          resolve(false);
                         }
                       } else {
                         console.log(`unable to get txs in ${coin} block ${block.height}`);
                         resolve(false);
                       }
-                    } else {
-                      console.log(`unable to get txs in ${coin} block ${block.height}`);
-                      resolve(false);
-                    }
-                  });
-                }, index * 1000);
-              });
-            }))
-            .then(result => {
-              console.log(`insight ${coin} last txs is finished, total txs ${_txs.length}`);
-              // console.log(JSON.stringify(_txs));
+                    });
+                  }, index * 1000);
+                });
+              }))
+              .then(result => {
+                console.log(`insight ${coin} last txs is finished, total txs ${_txs.length}`);
+                // console.log(JSON.stringify(_txs));
 
+                resolveMain({
+                  coin,
+                  result: JSON.stringify({
+                    data: _txs,
+                  }),
+                });
+              });
+              // resolve(true);
+            } else {
               resolveMain({
                 coin,
-                result: JSON.stringify({
-                  data: _txs,
-                }),
+                result: 'unable to get lasttx',
               });
-            });
-            // resolve(true);
-          } else {
+              console.log(`unable to get insight last blocks for ${coin}`);
+            }
+          } catch (e) {
             resolveMain({
               coin,
               result: 'unable to get lasttx',
@@ -313,8 +326,8 @@ module.exports = (shepherd) => {
                           blockindex: _parseData[j].blockindex,
                           timestamp: _parseData[j].timestamp,
                           total: _parseData[j].total,
-                          vout: _parseData[j].vout,
-                          vin: _parseData[j].vin,
+                          // vout: _parseData[j].vout,
+                          // vin: _parseData[j].vin,
                         });
                       }
                     } catch (e) {}
