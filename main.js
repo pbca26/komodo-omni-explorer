@@ -33,6 +33,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // web wallet
 app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
+app.use('/wallet.zip', express.static(path.join(__dirname, 'wallet.zip')));
 
 let server;
 

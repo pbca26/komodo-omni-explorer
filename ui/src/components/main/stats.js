@@ -61,7 +61,9 @@ class Stats extends React.Component {
       <div>
         { txidA &&
           <div>
-            <span>Dest. txid:&nbsp;</span>
+            { config.explorers[coinA] &&
+              <span>Dest. txid:&nbsp;</span>
+            }
             { config.explorers[coinA] &&
               <a
                 target="_blank"
@@ -74,7 +76,9 @@ class Stats extends React.Component {
         }
         { txidB &&
           <div>
-            <span>Dest. fee txid:&nbsp;</span>
+            { config.explorers[coinB] &&
+              <span>Dest. fee txid:&nbsp;</span>
+            }
             { config.explorers[coinB] &&
               <a
                 target="_blank"
