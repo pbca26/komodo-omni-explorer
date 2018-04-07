@@ -385,9 +385,25 @@ module.exports = (shepherd) => {
             timestamp,
             destsatoshis,
             price,
+            feetxid,
+            desttxid,
+            destaddr,
+            gui,
           } = _json;
 
-          _outDetailed.push(_json);
+          _outDetailed.push({
+            method,
+            rel,
+            base,
+            satoshis,
+            timestamp,
+            destsatoshis,
+            price,
+            feetxid,
+            desttxid,
+            destaddr,
+            gui,
+          });
           _outSimplified.push({
             method,
             rel,
