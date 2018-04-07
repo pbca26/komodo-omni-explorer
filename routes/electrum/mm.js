@@ -148,11 +148,6 @@ module.exports = (shepherd) => {
               response.statusCode &&
               response.statusCode === 200) {
             const _parsedBody = JSON.parse(body);
-            /*_coins.push({
-              coin: _payload.coin,
-              data: _parsedBody,
-              payload: _payload,
-            });*/
             console.log(`${_payload.coin} connected`);
 
             callback();
@@ -162,11 +157,6 @@ module.exports = (shepherd) => {
               console.log('all coins connected');
             }
           } else {
-            /*_coins.push({
-              coin: _payload.coin,
-              data: _parsedBody,
-              payload: _payload,
-            });*/
             console.log(`${_payload.coin} failed to connect`);
             callback();
             _callsCompleted++;
@@ -198,7 +188,7 @@ module.exports = (shepherd) => {
           base: _pair[0],
           rel: _pair[1],
           userpass: shepherd.mm.userpass,
-          duration: 172800 // 2 days
+          duration: 172800, // 2 days
         };
         const options = {
           url: `http://localhost:7783`,
@@ -387,7 +377,16 @@ module.exports = (shepherd) => {
       for (let i = _lines.length; i > _lines.length - _numLast; i--) {
         try {
           const _json = JSON.parse(_lines[i]);
-          const { method, rel, base, satoshis, timestamp, destsatoshis, price } = _json;
+          const {
+            method,
+            rel,
+            base,
+            satoshis,
+            timestamp,
+            destsatoshis,
+            price,
+          } = _json;
+
           _outDetailed.push(_json);
           _outSimplified.push({
             method,
@@ -536,17 +535,17 @@ module.exports = (shepherd) => {
 
           const _mmbin = path.join(__dirname, '../../marketmaker');
           const _customParam = {
-            'gui': 'nogui',
-            'client': 1,
-            'userhome': `${process.env.HOME}`,
-            'passphrase': 'default',
-            'coins': _coins,
+            gui: 'nogui',
+            client: 1,
+            userhome: `${process.env.HOME}`,
+            passphrase: 'default',
+            coins: _coins,
           };
           params = JSON.stringify(_customParam);
           params = `'${params}'`;
 
           exec(`${_mmbin} ${params}`, {
-            maxBuffer: 1024 * 50000 // 50 mb
+            maxBuffer: 1024 * 50000, // 50 mb
           }, (error, stdout, stderr) => {
             if (error !== null) {
               console.log(`exec error: ${error}`);

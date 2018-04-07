@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const config = require('./config');
 const path = require('path');
 const fs = require('fs');
+const datafeed = require('./routes/charts/datafeed');
+
 let shepherd = require('./routes/shepherd');
 let app = express();
 

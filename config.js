@@ -48,6 +48,12 @@ const config = {
     scriptHash: 0x55,
     wif: 0xbc,
   },
+  charts: {
+    https: false,
+    feedAPIPort: 8889,
+    feedSourceIP: 'localhost',
+    feedSourcePort: 7783,
+  },
   electrumServers: {
     coqui: {
       serverList: [
