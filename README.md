@@ -29,44 +29,56 @@ built ui version will be copied to /public folder
 ## URL navigation
 
 #### KMD interest
-http://atomicexplorer.com/#/interest
+http://atomicexplorer.com/interest
 
-http://atomicexplorer.com/#/interest/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+http://atomicexplorer.com/interest/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### KMD interest calc
-http://atomicexplorer.com/#/interest-calc
+http://atomicexplorer.com/interest-calc
 
 #### Explorers list summary
-http://atomicexplorer.com/#/summary
+http://atomicexplorer.com/summary
 
 #### Balance
-http://atomicexplorer.com/#/search
+http://atomicexplorer.com/search
 
-http://atomicexplorer.com/#/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+http://atomicexplorer.com/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### BarterDEX charts
-http://atomicexplorer.com/#/charts
+http://atomicexplorer.com/charts
 
-http://atomicexplorer.com/#/charts/KMD-BTC
+http://atomicexplorer.com/charts/KMD-BTC
 
 #### BarterDEX prices
-http://atomicexplorer.com/#/prices
+http://atomicexplorer.com/prices
 
-http://atomicexplorer.com/#/prices/KMD-BTC
+http://atomicexplorer.com/prices/KMD-BTC
 
 #### BarterDEX orderbooks
-http://atomicexplorer.com/#/books
+http://atomicexplorer.com/books
 
-http://atomicexplorer.com/#/books/KMD-BTC
+http://atomicexplorer.com/books/KMD-BTC
 
 #### BarterDEX trades feed
-http://atomicexplorer.com/#/trades
+http://atomicexplorer.com/trades
 
 #### BarterDEX coins list
-http://atomicexplorer.com/#/coins
+http://atomicexplorer.com/coins
 
 #### BEER faucet
-http://atomicexplorer.com/#/faucet
+http://atomicexplorer.com/faucet
+
+#### Agama Web wallet
+http://atomicexplorer.com/wallet
+
+http://atomicexplorer.com/wallet.zip
+
+#### Price ticker widget
+http://atomicexplorer.com/ticker
+
+http://atomicexplorer.com/wallet.zip
+
+How to use ticker https://github.com/pbca26/komodo-omni-explorer/wiki/Ticker-widget
 
 ## API
 #### GET /api/explorer/search?term=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
@@ -102,3 +114,8 @@ params: none required
 BTC fees, combined result from Electrum servers and bitcoinfees.earn.com
 
 params: none required
+
+#### GET /api/ticker
+#### GET /api/ticker?coin=DEX
+
+params (optional): coin
