@@ -38,6 +38,13 @@ const config = {
       outSize: 0.1,
     },
   },
+  ticker: [
+    'jumblr',
+    'dex',
+    'coqui',
+    'mnz'
+  ],
+  tickerUrl: 'http://192.99.71.59:7782',
   komodoParams: { // networking
     messagePrefix: '\x19Komodo Signed Message:\n',
     bip32: {
@@ -49,7 +56,6 @@ const config = {
     wif: 0xbc,
   },
   charts: {
-    https: false,
     feedAPIPort: 8889,
     feedSourceIP: 'localhost',
     feedSourcePort: 7783,

@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>Atomic Explorer Price Ticker Widget</title>
+    <script type="text/javascript" src="ticker/aeticker.min.js"></script>
+  </head>
+  <body>
+    <script>
+      initAETicker('aeTicker', 60000, 'coqui', 'ticker/coqui.png');
+      initAETicker('aeTickerMNZ', 60000, 'mnz', 'ticker/mnz.png');
+      initAETicker('aeTickerDEX', 60000, 'dex', 'ticker/dex.png');
+      initAETicker('aeTickerJUMBLR', 60000, 'jumblr', 'ticker/jumblr.png');
+    </script>
+
+    <div class="ae-ticker" id="aeTicker"></div>
+    <div class="ae-ticker" id="aeTickerMNZ"></div>
+    <div class="ae-ticker" id="aeTickerDEX"></div>
+    <div class="ae-ticker" id="aeTickerJUMBLR"></div>
+  </body>
+</html>

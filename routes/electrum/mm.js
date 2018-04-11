@@ -81,6 +81,7 @@ module.exports = (shepherd) => {
       electrum: {},
       lastUpdated: null,
     },
+    ticker: {},
     userpass: '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f',
   };
 
@@ -588,6 +589,106 @@ module.exports = (shepherd) => {
       mmloop();
     }, MM_CHECK_ALIVE_INTERVAL);
   };
+
+  const TICKER_INTERVAL = 60 * 1000; // 60s
+
+  shepherd._ticker = () => {
+    const coins = config.ticker;
+
+    Promise.all(coins.map((coin, index) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=900&starttime=0&endtime=0`;
+          // console.log(`ticker ${url}`);
+
+          const options = {
+            url: url,
+            method: 'GET',
+          };
+
+          request(options, (error, response, body) => {
+            if (response &&
+                response.statusCode &&
+                response.statusCode === 200) {
+              let _ticker;
+
+              try {
+                _ticker = JSON.parse(body);
+              } catch (e) {
+                console.log(`unable to get ticker for ${coin}`);
+                resolve(false);
+              }
+
+              if (_ticker &&
+                  _ticker.length) {
+                const _lastPrice = _ticker[_ticker.length - 1][4];
+
+                if (shepherd.mm.fiatRates &&
+                    shepherd.mm.fiatRates.USD &&
+                    shepherd.mm.fiatRates.BTC) {
+                  shepherd.mm.ticker[coin] = {
+                    btc: Number(shepherd.mm.fiatRates.BTC * _lastPrice).toFixed(8),
+                    kmd: Number(_lastPrice).toFixed(8),
+                    usd: Number(shepherd.mm.fiatRates.USD * _lastPrice).toFixed(8),
+                  };
+                } else {
+                  shepherd.mm.ticker[coin] = {
+                    kmd: Number(_lastPrice).toFixed(8),
+                  };
+                }
+
+                console.log(`${coin} last price ${_lastPrice}`);
+              } else {
+                console.log(`unable to get ticker for ${coin}`);
+                resolve(false);
+              }
+            } else {
+              console.log(`unable to get ticker for ${coin}`);
+              resolve(false);
+            }
+          });
+        }, index * 1000);
+      });
+    }))
+    .then(result => {
+      console.log('ticker update is finished');
+    });
+  };
+
+  shepherd.ticker = () => {
+    shepherd._ticker();
+
+    setInterval(() => {
+      shepherd._ticker();
+    }, TICKER_INTERVAL);
+  };
+
+  shepherd.get('/ticker', (req, res, next) => {
+    const _rqcoin = req.query.coin;
+
+    if (_rqcoin) {
+      const coin = config.ticker.find((item) => {
+        return item === _rqcoin.toLowerCase();
+      });
+
+      if (coin) {
+        res.end(JSON.stringify({
+          msg: 'success',
+          result: shepherd.mm.ticker[_rqcoin.toLowerCase()],
+        }));
+      } else {
+        res.end(JSON.stringify({
+          msg: 'error',
+          result: `unknown coin ${_rqcoin.toLowerCase()}`,
+        }));
+      }
+    } else {
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: shepherd.mm.ticker,
+      }));
+    }
+  });
 
   return shepherd;
 };

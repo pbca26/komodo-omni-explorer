@@ -35,6 +35,12 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
 app.use('/wallet.zip', express.static(path.join(__dirname, 'wallet.zip')));
 
+// ticker
+app.get('/ticker', (req, res) => {
+  res.sendFile(path.join(__dirname + '/ticker/index.html'));
+});
+app.use('/ticker', express.static(path.join(__dirname, 'ticker')));
+
 let server;
 
 if (config.https) {
@@ -60,3 +66,4 @@ shepherd.getRates();
 shepherd.getMMCoins();
 shepherd.updateStats();
 shepherd.getBTCFees();
+shepherd.ticker();
