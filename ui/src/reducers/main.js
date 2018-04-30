@@ -11,6 +11,7 @@ import {
   FIAT,
   COINS,
   STATS,
+  MULTI_ADDRESS_BALANCE,
 } from '../actions/storeType';
 
 export function Main(state = {
@@ -27,6 +28,7 @@ export function Main(state = {
   fiatRates: null,
   coins: null,
   stats: null,
+  balanceMulti: null,
 }, action) {
   switch (action.type) {
     case UPDATE:
@@ -94,6 +96,11 @@ export function Main(state = {
       return {
         ...state,
         stats: action.stats,
+      };
+    case MULTI_ADDRESS_BALANCE:
+      return {
+        ...state,
+        balanceMulti: action.balanceMulti,
       };
     default:
       return state;

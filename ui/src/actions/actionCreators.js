@@ -15,57 +15,65 @@ import {
   FIAT,
   COINS,
   STATS,
+  MULTI_ADDRESS_BALANCE,
 } from './storeType';
 
-export function summaryState(summary) {
+export const multiAddressBalanceState = (balanceMulti) => {
+  return {
+    type: MULTI_ADDRESS_BALANCE,
+    balanceMulti,
+  }
+}
+
+export const summaryState = (summary) => {
   return {
     type: SUMMARY,
     summary,
   }
 }
 
-export function overviewState(overview) {
+export const overviewState = (overview) => {
   return {
     type: UPDATE,
     overview,
   }
 }
 
-export function searchState(search) {
+export const searchState = (search) => {
   return {
     type: SEARCH,
     search,
   }
 }
 
-export function searchTermState(searchTerm) {
+export const searchTermState = (searchTerm) => {
   return {
     type: UPDATE_SEARCH_TERM,
     searchTerm,
   }
 }
 
-export function pricesState(prices) {
+export const pricesState = (prices) => {
   return {
     type: PRICES,
     prices,
   }
 }
 
-export function orderbooksState(orderbooks) {
+export const orderbooksState = (orderbooks) => {
   return {
     type: ORDERBOOKS,
     orderbooks,
   }
 }
 
-export function resetInterestState() {
+export const resetInterestState = () => {
   return {
     type: RESET_INTEREST,
   }
 }
 
-export function interestState(interestAddress, interest) {
+export const interestState = (interestAddress, interest) => {
   return {
     type: INTEREST,
     interestAddress,
@@ -73,7 +81,7 @@ export function interestState(interestAddress, interest) {
   }
 }
 
-export function unspentsState(unspentsAddress, unspents) {
+export const unspentsState = (unspentsAddress, unspents) => {
   return {
     type: UNSPENTS,
     unspentsAddress,
@@ -81,14 +89,14 @@ export function unspentsState(unspentsAddress, unspents) {
   }
 }
 
-export function fiatRatesState(fiatRates) {
+export const fiatRatesState = (fiatRates) => {
   return {
     type: FIAT,
     fiatRates,
   }
 }
 
-export function coinsState(coins) {
+export const coinsState = (coins) => {
   return {
     type: COINS,
     coins,
@@ -96,14 +104,14 @@ export function coinsState(coins) {
 }
 
 
-export function statsState(stats) {
+export const statsState = (stats) => {
   return {
     type: STATS,
     stats,
   }
 }
 
-export function searchTerm(searchTerm, currentState) {
+export const searchTerm = (searchTerm, currentState) => {
   return dispatch => {
     dispatch(searchTermState(searchTerm));
 
@@ -124,7 +132,7 @@ export function searchTerm(searchTerm, currentState) {
   }
 }
 
-export function getOverview(currentState) {
+export const getOverview = (currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/overview`, {
       method: 'GET',
@@ -143,7 +151,7 @@ export function getOverview(currentState) {
   }
 }
 
-export function getSummary(currentState) {
+export const getSummary = (currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/summary`, {
       method: 'GET',
@@ -162,7 +170,7 @@ export function getSummary(currentState) {
   }
 }
 
-export function getInterest(address, currentState) {
+export const getInterest = (address, currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/interest?address=${address}`, {
       method: 'GET',
@@ -181,7 +189,7 @@ export function getInterest(address, currentState) {
   }
 }
 
-export function getUnspents(address, currentState) {
+export const getUnspents = (address, currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/listunspent?address=${address}`, {
       method: 'GET',
@@ -200,7 +208,7 @@ export function getUnspents(address, currentState) {
   }
 }
 
-export function getPrices(currentState) {
+export const getPrices = (currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/prices`, {
       method: 'GET',
@@ -219,7 +227,7 @@ export function getPrices(currentState) {
   }
 }
 
-export function getOrderbooks(currentState) {
+export const getOrderbooks = (currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/orderbook`, {
       method: 'GET',
@@ -238,7 +246,7 @@ export function getOrderbooks(currentState) {
   }
 }
 
-export function fiatRates() {
+export const fiatRates = () => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/rates/kmd`, {
       method: 'GET',
@@ -253,7 +261,7 @@ export function fiatRates() {
   }
 }
 
-export function coins(currentState) {
+export const coins = (currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/coins`, {
       method: 'GET',
@@ -272,7 +280,7 @@ export function coins(currentState) {
   }
 }
 
-export function stats(currentState) {
+export const stats = (currentState) => {
   return dispatch => {
     return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/stats`, {
       method: 'GET',
@@ -291,7 +299,7 @@ export function stats(currentState) {
   }
 }
 
-export function faucet(coin, address) {
+export const faucet = (coin, address) => {
   return new Promise((resolve, reject) => {
     fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/faucet?address=${address}&coin=${coin}`, {
       method: 'GET',
@@ -307,4 +315,42 @@ export function faucet(coin, address) {
       resolve(json);
     });
   });
+}
+
+// remote bitcore api
+export const multiAddressBalance = (addressList, fallback) => {
+  return dispatch => {
+    return fetch(
+      fallback ? 'https://kmd.explorer.supernet.org/api/addrs/utxo' : 'https://www.kmdexplorer.ru/insight-api-komodo/addrs/utxo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ addrs: addressList }),
+      }
+    )
+    .catch((error) => {
+      // console.warn(error);
+      console.warn('fallback to 2nd kmd explorer');
+      dispatch(multiAddressBalance(addressList, true));
+    })
+    .then((response) => {
+      const _response = response.text().then((text) => { return text; });
+      return _response;
+    })
+    .then(json => {
+      try {
+        json = JSON.parse(json);
+        dispatch(multiAddressBalanceState({
+          msg: 'success',
+          result: json,
+        }));
+      } catch (e) {
+        dispatch(multiAddressBalanceState({
+          msg: 'error',
+          result: json,
+        }));
+      }
+    });
+  }
 }

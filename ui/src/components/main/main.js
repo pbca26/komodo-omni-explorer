@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  Link,
+  IndexLink,
   browserHistory,
   hashHistory,
 } from 'react-router'
@@ -130,7 +132,8 @@ class Main extends React.Component {
             </div>
           }
           { (this.props.path.indexOf('/interest') > -1 ||
-            this.props.path === '/') &&
+              this.props.path.indexOf('/balance-multi') > -1 ||
+              this.props.path === '/') &&
             <div className="row text-center margin-top-md margin-bottom-xlg">
               <div className="form-inline">
                 <div
@@ -152,6 +155,16 @@ class Main extends React.Component {
                   </button>
                 </div>
               </div>
+              { this.props.path === '/' &&
+                <div className="margin-top-lg">
+                  <Link
+                    to="/balance-multi"
+                    className="navbar-link pointer"
+                    activeClassName="active">
+                    Check multiple KMD addresses balance here
+                  </Link>
+                </div>
+              }
             </div>
           }
           { this.props.children }

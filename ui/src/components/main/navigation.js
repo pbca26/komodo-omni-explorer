@@ -22,8 +22,8 @@ class Navigation extends React.Component {
     this.state = {
       showNavigation: false,
     };
-    this.checkIntervals = this.checkIntervals.bind(this);
     this.activeInterval = null;
+    this.checkIntervals = this.checkIntervals.bind(this);
   }
 
   checkIntervals(type) {
