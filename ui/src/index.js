@@ -21,6 +21,7 @@ import Coins from './components/main/coins';
 import Charts from './components/main/charts';
 import Stats from './components/main/stats';
 import Faucet from './components/main/faucet';
+import BalanceMulti from './components/main/balanceMulti';
 import './styles/index.scss';
 
 const router = (
@@ -85,6 +86,9 @@ const router = (
         <Route
           path="/search/:input"
           component={Search} />
+        <Route
+          path="/balance-multi"
+          component={BalanceMulti} />
       </Route>
     </Router>
   </Provider>

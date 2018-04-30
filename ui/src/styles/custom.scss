@@ -303,7 +303,7 @@ input:checked + .slider:before {
   .light-mode-desc {
     text-align: center;
     font-size: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 45px;
 
     .fa {
       color: #1a8cff;
@@ -479,4 +479,26 @@ span[class*=' coin_'] {
   .padding-bottom-100 {
     padding-bottom: 100px;
   }
+}
+
+.balance-multi-block {
+  text-align: center;
+  padding-top: 30px;
+
+  .balance-multi-ta {
+    width: 450px;
+    height: 150px;
+    padding: 10px;
+  }
+
+  .table {
+    max-width: 750px;
+    margin: 0 auto;
+  }
+}
+
+/* for 80x80 px icons */
+.table-coin-icon {
+  -ms-transform: scale(.3) !important;
+  transform: scale(.3) !important;
 }
