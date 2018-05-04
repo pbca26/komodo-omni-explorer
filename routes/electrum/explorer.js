@@ -63,6 +63,7 @@ const sortTransactions = (transactions) => {
 
 module.exports = (shepherd) => {
   shepherd.get('/explorer/summary', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.explorer.summary,
@@ -135,6 +136,7 @@ module.exports = (shepherd) => {
   }
 
   shepherd.get('/explorer/overview', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.explorer.overview,
@@ -385,6 +387,7 @@ module.exports = (shepherd) => {
             result: 'txid not found',
           };
 
+          res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(successObj));
         } else {
           const successObj = {
@@ -392,6 +395,7 @@ module.exports = (shepherd) => {
             result: coin,
           };
 
+          res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(successObj));
         }
       });
@@ -436,6 +440,7 @@ module.exports = (shepherd) => {
             result: 'wrong address',
           };
 
+          res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(successObj));
         } else {
           const _balance = result;
@@ -500,6 +505,7 @@ module.exports = (shepherd) => {
               }
             };
 
+            res.set({ 'Content-Type': 'application/json' });
             res.end(JSON.stringify(successObj));
           });
         }
@@ -508,6 +514,8 @@ module.exports = (shepherd) => {
   });
 
   shepherd.kmdCalcInterest = (locktime, value) => { // value in sats
+    const KOMODO_ENDOFERA = 7777777;
+    const LOCKTIME_THRESHOLD = 500000000;
     const timestampDiff = Math.floor(Date.now() / 1000) - locktime - 777;
     const hoursPassed = Math.floor(timestampDiff / 3600);
     const minutesPassed = Math.floor((timestampDiff - (hoursPassed * 3600)) / 60);
@@ -515,14 +523,17 @@ module.exports = (shepherd) => {
     let timestampDiffMinutes = timestampDiff / 60;
     let interest = 0;
 
-    // calc interest
-    if (timestampDiffMinutes >= 60) {
-      if (timestampDiffMinutes > 365 * 24 * 60) {
-        timestampDiffMinutes = 365 * 24 * 60;
-      }
-      timestampDiffMinutes -= 59;
+    if (height < KOMODO_ENDOFERA &&
+        locktime >= LOCKTIME_THRESHOLD) {
+      // calc interest
+      if (timestampDiffMinutes >= 60) {
+        if (timestampDiffMinutes > 365 * 24 * 60) {
+          timestampDiffMinutes = 365 * 24 * 60;
+        }
+        timestampDiffMinutes -= 59;
 
-      interest = ((Number(value) * 0.00000001) / 10512000) * timestampDiffMinutes;
+        interest = ((Number(value) * 0.00000001) / 10512000) * timestampDiffMinutes;
+      }
     }
 
     return interest;
@@ -590,6 +601,7 @@ module.exports = (shepherd) => {
                   },
                 };
 
+                res.set({ 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(successObj));
               });
             } else {
@@ -607,6 +619,7 @@ module.exports = (shepherd) => {
                 },
               };
 
+              res.set({ 'Content-Type': 'application/json' });
               res.end(JSON.stringify(successObj));
             }
           } else {
@@ -624,6 +637,7 @@ module.exports = (shepherd) => {
               },
             };
 
+            res.set({ 'Content-Type': 'application/json' });
             res.end(JSON.stringify(successObj));
           }
         });
@@ -633,6 +647,7 @@ module.exports = (shepherd) => {
           result: json,
         };
 
+        res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(successObj));
       }
     });
@@ -747,6 +762,7 @@ module.exports = (shepherd) => {
         result: json,
       };
 
+      res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(successObj));
     });
   });
