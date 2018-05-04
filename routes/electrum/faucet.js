@@ -145,6 +145,7 @@ module.exports = (shepherd) => {
                   result: 'Bad transaction inputs spent',
                 };
 
+                res.set({ 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(successObj));
               } else {
                 if (txid &&
@@ -155,6 +156,7 @@ module.exports = (shepherd) => {
                       result: 'Bad transaction inputs spent',
                     };
 
+                    res.set({ 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(successObj));
                   } else {
                     const successObj = {
@@ -162,6 +164,7 @@ module.exports = (shepherd) => {
                       result: txid,
                     };
 
+                    res.set({ 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(successObj));
 
                     try {
@@ -184,6 +187,7 @@ module.exports = (shepherd) => {
                       result: 'Bad transaction inputs spent',
                     };
 
+                    res.set({ 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(successObj));
                   } else {
                     const successObj = {
@@ -191,6 +195,7 @@ module.exports = (shepherd) => {
                       result: 'Can\'t broadcast transaction',
                     };
 
+                    res.set({ 'Content-Type': 'application/json' });
                     res.end(JSON.stringify(successObj));
                   }
                 }
@@ -204,6 +209,7 @@ module.exports = (shepherd) => {
               result: 'tx error',
             };
 
+            res.set({ 'Content-Type': 'application/json' });
             res.end(JSON.stringify(successObj));
           }
         } else {
@@ -214,6 +220,7 @@ module.exports = (shepherd) => {
             result: 'no valid utxo',
           };
 
+          res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(successObj));
         }
       });
@@ -223,6 +230,7 @@ module.exports = (shepherd) => {
         result: 'Invalid pub address',
       };
 
+      res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(successObj));
     } else if (addressCheck === 777) {
       const successObj = {
@@ -230,6 +238,7 @@ module.exports = (shepherd) => {
         result: 'You had enough already. Go home.',
       };
 
+      res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(successObj));
     }
   });

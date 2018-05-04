@@ -115,6 +115,7 @@ module.exports = (shepherd) => {
 
   // get kmd rates
   shepherd.get('/rates/kmd', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.fiatRates,
@@ -332,6 +333,7 @@ module.exports = (shepherd) => {
 
   // fetch orderbooks
   shepherd.get('/mm/orderbook', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.orders,
@@ -340,6 +342,7 @@ module.exports = (shepherd) => {
 
   // fetch prices
   shepherd.get('/mm/prices', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.prices,
@@ -361,6 +364,7 @@ module.exports = (shepherd) => {
   }
 
   shepherd.get('/mm/coins', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.coins,
@@ -430,6 +434,7 @@ module.exports = (shepherd) => {
   };
 
   shepherd.get('/mm/stats', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.stats.detailed,
@@ -437,6 +442,7 @@ module.exports = (shepherd) => {
   });
 
   shepherd.get('/mm/stats/simple', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.stats.simplified,
@@ -534,6 +540,7 @@ module.exports = (shepherd) => {
 
   // get btc fees
   shepherd.get('/btc/fees', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
       result: shepherd.mm.btcFees,
@@ -672,17 +679,20 @@ module.exports = (shepherd) => {
       });
 
       if (coin) {
+        res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           msg: 'success',
           result: shepherd.mm.ticker[_rqcoin.toLowerCase()],
         }));
       } else {
+        res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           msg: 'error',
           result: `unknown coin ${_rqcoin.toLowerCase()}`,
         }));
       }
     } else {
+      res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         msg: 'success',
         result: shepherd.mm.ticker,

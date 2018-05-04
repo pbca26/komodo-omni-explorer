@@ -23,6 +23,7 @@
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
     "coinselect": "github:bitcoinjs/coinselect",
+    "compression": "^1.7.2",
     "express": "^4.14.0",
     "fs-extra": "^4.0.3",
     "request": "^2.80.0"

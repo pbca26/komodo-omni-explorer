@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const config = require('./config');
 const path = require('path');
 const fs = require('fs');
+const compression = require('compression');
 const datafeed = require('./routes/charts/datafeed');
 
 let shepherd = require('./routes/shepherd');
@@ -26,6 +27,11 @@ app.use(bodyParser.urlencoded({
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/index.html'));
 });
+
+app.use(compression({
+  level: 9,
+  threshold: 0,
+}));
 
 // explorer, dex
 app.use('/api', shepherd);
