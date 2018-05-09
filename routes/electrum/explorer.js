@@ -767,5 +767,15 @@ module.exports = (shepherd) => {
     });
   });
 
+  shepherd.get('/timestamp/now', (req, res, next) => {
+    const successObj = {
+      msg: 'success',
+      result: Date.now(),
+    };
+
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(successObj));
+  });
+
   return shepherd;
 };
