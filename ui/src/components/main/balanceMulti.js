@@ -83,6 +83,14 @@ class BalanceMulti extends React.Component {
             </tbody>
           </table>
         );
+      } else {
+        return (
+          <div className="col-md-12">
+            <div className="alert alert-warning alert-dismissable">
+              <strong>All balances are empty</strong>
+            </div>
+          </div>
+        );
       }
     }
   }

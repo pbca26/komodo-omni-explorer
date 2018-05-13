@@ -131,8 +131,8 @@ class Main extends React.Component {
               { this.renderCoinIcons() }
             </div>
           }
-          { (this.props.path.indexOf('/interest') > -1 ||
-              this.props.path.indexOf('/balance-multi') > -1 ||
+          { (this.props.path.indexOf('/interest') > -1 &&
+              this.props.path.indexOf('/balance-multi') === -1 ||
               this.props.path === '/') &&
             <div className="row text-center margin-top-md margin-bottom-xlg">
               <div className="form-inline">
@@ -144,7 +144,7 @@ class Main extends React.Component {
                     type="text"
                     name="searchTerm"
                     value={ this.state.searchTerm }
-                    placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a tx hash or an address.' }
+                    placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a transaction hash or an address.' }
                     className="form-control" />
                   <button
                     onClick={ this.triggerSearch }
