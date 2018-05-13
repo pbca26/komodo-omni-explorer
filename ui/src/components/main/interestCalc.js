@@ -24,14 +24,16 @@ class InterestCalc extends React.Component {
     super(props);
     this.state = {
       interestBreakdownThreshold: 'year',
-      interestBreakdownFrequency: 'yearly',
+      interestBreakdownFrequency: 'monthly',
       interestAmount: 100,
       interestTxFee: 0.0001,
       interestKMDFiatPrice: this.props.Main.fiatRates && this.props.Main.fiatRates.USD || 0,
       toggleInterestFiatAutoRate: true,
+      toggledNewInterestRulesModal: false,
     };
     this.resetInterestCalc = this.resetInterestCalc.bind(this);
     this.toggleInterestFiatAutoRate = this.toggleInterestFiatAutoRate.bind(this);
+    this.toggleNewInterestRulesModal = this.toggleNewInterestRulesModal.bind(this);
     this.updateInput = this.updateInput.bind(this);
     this.getInterestData = this.getInterestData.bind(this);
   }
@@ -45,6 +47,12 @@ class InterestCalc extends React.Component {
         interestKMDFiatPrice: props.Main.fiatRates.USD,
       });
     }
+  }
+
+  toggleNewInterestRulesModal() {
+    this.setState({
+      toggledNewInterestRulesModal: !this.state.toggledNewInterestRulesModal,
+    });
   }
 
   toggleInterestFiatAutoRate() {
@@ -251,7 +259,7 @@ class InterestCalc extends React.Component {
               <tr>
                 <th>Period</th>
                 <th>Amount</th>
-                <th>Interest (accumulative)</th>
+                <th>Rewards (accumulative)</th>
                 <th>Total (accumulative)</th>
                 <th>Total, USD (accumulative)</th>
               </tr>
@@ -266,10 +274,71 @@ class InterestCalc extends React.Component {
             <p className="margin-top-md">APR rate: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </p>
             <p>Expenses not included in calculation: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> in transaction fees, <strong>{ _hoursGap } hour(s)</strong> gap period when no interest is accrued.</p>
             <p>Your actual amounts will be less than what is presented in the table.</p>
-            <p className="margin-top-lg"><strong>Q:</strong> What will happen to my interest after 1 year period is passed.</p>
-            <p><strong>A:</strong> It will stop accruing and remain fixed until it is claimed.</p>
+            <p className="margin-top-lg">
+              <strong>Q:</strong> What will happen to my KMD rewards after 1 year period is passed.
+            </p>
+            <p>
+              <strong>A:</strong> It will stop accruing and remain fixed until it is claimed.
+            </p>
           </div>
         </div>
+        <div className="row margin-top-lg">
+          <div className="col-md-12">
+            <h3>Changes to KMD rewards past block height 1 000 000:</h3>
+            <p>
+              <ul className="regular-list margin-bottom-lg">
+                <li>new KMD coins are rewarded to users when they make transactions</li>
+                <li>total rate is <strong>~5.1% per year</strong> if done monthly or more often</li>
+                <li>you stop getting rewards if you haven't used Komodo network for one month (coins haven't moved in one month)</li>
+                <li>new changes don't affect rewards accrued under old rules</li>
+              </ul>
+              <span
+                className="link"
+                onClick={ this.toggleNewInterestRulesModal }>Read full announcement</span>
+            </p>
+            { this.renderNewInterestRulesDisclosure() }
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderNewInterestRulesDisclosure() {
+    return(
+      <div className={ 'modal modal-3d-sign add-coin-modal' + (this.state.toggledNewInterestRulesModal ? ' show in' : '') }>
+        <div className="modal-close-overlay"></div>
+        <div className="modal-dialog modal-center modal-lg">
+          <div className="modal-close-overlay"></div>
+          <div className="modal-content">
+            <div className="modal-header bg-orange-a400 wallet-send-header">
+              <button
+                type="button"
+                className="close white"
+                onClick={ this.toggleNewInterestRulesModal }>
+                <span>×</span>
+              </button>
+              <h4 className="modal-title white">Komodo’s 5% Reward Consensus Shifts from Annual to Monthly</h4>
+            </div>
+            <div className="modal-body">
+              <h5>By: Davion Ziere</h5>
+              <h5>May 7, 2018 (GLOBAL)</h5>
+              <p className="margin-top-lg">Breaking news from jl777, lead developer at Komodo: "As users know, the more transactions there are on a blockchain, the more difficult it is to conduct timing analysis. Over the past year, we have measured the need for even more active movement in order to better support the KMD privacy mechanism. To implement this, the annual time limit on the growing of 5% will be changed to monthly cap of 5%/12 (0.417%). The good news is that compounding will get you rewards of 5.1% over a year. Your contribution to the privacy ecosystem will now be more closely linked to your reward. As this is a consensus rules change, it will need to activate at a future height and all existing utxos will still operate under the old rules, so this will only affect new utxo created after the activation height of 1 million."</p>
+              <h5 className="margin-top-lg">What This Means</h5>
+              <p>All KMD holders need to begin actively collecting your KMD reward on a monthly basis to maximize your rewards for contributing to the activity of the KMD ecosystem. By collecting this reward monthly, users are actively contributing to the increase in privacy for everyone connected to the entire KMD protocol. As jl777 stated, there is a small bonus granted to those who collect the 0.417% reward every month in a year, resulting in a 5.1% annual reward. It is important to note that in order to gain the ability to be compounding this reward at all, users must still hold 10 or more KMD in their wallet.</p>
+              <p>In short KMD holders (who hold 10 KMD or more in their Agama wallet) have the opportunity to actively participate in supporting Komodo's ecosystem, enhancing KMD's privacy feature and earn a reward for doing so.</p>
+              <h5 className="margin-top-lg">In summary, these are the highlights of our updated consensus-wide KMD change:</h5>
+              <ul className="regular-list">
+                <li>These changes begin after the activation height of 1 million utxos, estimated to be 3 to 4 months from today (today is May 10th, 2018)</li>
+                <li>Boosting KMD earning potential from 5% to 5.1% annually</li>
+                <li>Increasing KMD Ecosystem Activity through incentivizing monthly Reward Collection</li>
+                <li>Enhanced Privacy for the entirety of the KMD ecosystem</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={ this.toggleNewInterestRulesModal }
+          className="modal-backdrop show in"></div>
       </div>
     );
   }
@@ -279,7 +348,7 @@ class InterestCalc extends React.Component {
       <div className="row">
         <div className="col-md-12 col-sm-12">
           <div className="col-md-4 col-sm-4 interest-label">
-            Show me interest breakdown by
+            Show me rewards breakdown by
           </div>
           <div className="col-md-3 col-sm-3">
             <Select
@@ -297,7 +366,7 @@ class InterestCalc extends React.Component {
         </div>
         <div className="col-md-12 col-sm-12 margin-top-20">
           <div className="col-md-4 col-sm-4 interest-label">
-            I want to claim interest
+            I want to claim rewards
           </div>
           <div className="col-md-3 col-sm-3">
             <Select
@@ -305,7 +374,10 @@ class InterestCalc extends React.Component {
               name="interestBreakdownFrequency"
               value={ this.state.interestBreakdownFrequency }
               onChange={ (event) => this.updateInput(event, 'interestBreakdownFrequency') }
-              disabled={ this.state.interestBreakdownThreshold !== 'year' && this.state.interestBreakdownThreshold !== 'months' }
+              disabled={
+                this.state.interestBreakdownThreshold !== 'year' &&
+                this.state.interestBreakdownThreshold !== 'months'
+              }
               options={
                 (this.state.interestBreakdownThreshold !== 'year' && this.state.interestBreakdownThreshold !== 'months') ?
                 [

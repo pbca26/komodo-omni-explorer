@@ -479,6 +479,14 @@ span[class*=' coin_'] {
   .padding-bottom-100 {
     padding-bottom: 100px;
   }
+  .link {
+    color: #2f6363;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .balance-multi-block {
@@ -501,4 +509,34 @@ span[class*=' coin_'] {
 .table-coin-icon {
   -ms-transform: scale(.3) !important;
   transform: scale(.3) !important;
+}
+
+.regular-list {
+  padding-top: 5px;
+
+  li {
+    margin-top: 10px;
+  }
+}
+
+.modal {
+  z-index: 3000;
+
+  .modal-close-overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+  .modal-dialog {
+    z-index: 100;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .modal-backdrop {
+    z-index: 1;
+  }
+  .modal-body {
+    max-height: calc(100vh - 30px);
+    overflow-y: auto;
+  }
 }
