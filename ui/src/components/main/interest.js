@@ -55,8 +55,8 @@ class Interest extends React.Component {
       accessor: (item) => item.amount,
     },
     { id: 'interest',
-      Header: 'Interest',
-      Footer: 'Interest',
+      Header: 'Rewards',
+      Footer: 'Rewards',
       maxWidth: '250',
       accessor: (item) => item.interest,
     },
@@ -214,7 +214,7 @@ class Interest extends React.Component {
     return (
       <div>
         <div className="margin-top-40 margin-bottom-30">
-          <strong>Requirements to accrue interest:</strong> spend transaction was made at least 1 hour ago, locktime field is set and UTXO amount is greater than 10 KMD.
+          <strong>Requirements to accrue awards:</strong> spend transaction was made at least 1 hour ago, locktime field is set and UTXO amount is greater than 10 KMD.
         </div>
         <div className="panel panel-default">
           <div className="panel-heading">

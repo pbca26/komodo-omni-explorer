@@ -19,21 +19,27 @@
   }
 }
 
-@media(max-width: 767px){
+@media(max-width: 780px) {
   body {
     padding: 0px;
     padding-top: 60px;
   }
 }
 
-@media(max-width: 1096px){
+@media(max-width: 1096px) {
   .nav-search input {
     width: 300px !important;
   }
 }
 
-@media(max-width: 865px){
+@media(max-width: 865px) {
   .nav-search input {
     width: 150px !important;
   }
 }
+
+/*@media(min-width: 780px) {
+  .navbar-collapse li:last-child {
+    display: none;
+  }
+}*/

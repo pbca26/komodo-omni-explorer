@@ -50,6 +50,7 @@ class Navigation extends React.Component {
     this.checkIntervals(window.location.hash);
 
     browserHistory.listen(location => {
+      // console.warn(location.hash);
       this.checkIntervals(location.hash);
       // hide navigation in mobile when changing route
       this.setState({
@@ -62,6 +63,28 @@ class Navigation extends React.Component {
     this.setState({
       showNavigation: !this.state.showNavigation,
     });
+  }
+
+  isActiveMenuParent(name) {
+    const _locationHash = window.location.hash;
+
+    switch (name) {
+      case 'dex':
+        if (_locationHash.indexOf('/prices') > -1 ||
+            _locationHash.indexOf('/books') > -1 ||
+            _locationHash.indexOf('/coins') > -1 ||
+            _locationHash.indexOf('/trades') > -1 ||
+            _locationHash.indexOf('/charts') > -1) {
+          return true;
+        }
+        break;
+      case 'interest':
+        if (_locationHash.indexOf('/interest-calc') > -1 ||
+            _locationHash.indexOf('/interest') > -1) {
+          return true;
+        }
+        break;
+    }
   }
 
   render() {
@@ -96,26 +119,34 @@ class Navigation extends React.Component {
                   className="navbar-link pointer"
                   activeClassName="active">
                   <span className="fa fa-search"></span>
-                  <span className="menu-text">Explorer</span>
+                  <span className="menu-text">Search</span>
                 </IndexLink>
               </li>
-              <li>
-                <Link
-                  to="/interest"
-                  className="navbar-link pointer"
-                  activeClassName="active">
+              <li className={ 'navbar-sub-parent rewards' + (this.isActiveMenuParent('interest') ? ' active-parent' : '') }>
+                <a className="navbar-link pointer">
                   <span className="fa fa-money"></span>
-                  <span className="menu-text">KMD Interest</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/interest-calc"
-                  className="navbar-link pointer"
-                  activeClassName="active">
-                  <span className="fa fa-calculator"></span>
-                  <span className="menu-text">Interest Calc</span>
-                </Link>
+                  <span className="menu-text">KMD rewards</span>
+                </a>
+                <ul className="nav navbar-sub">
+                  <li>
+                    <Link
+                      to="/interest"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-search"></span>
+                      <span className="menu-text">Check rewards</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/interest-calc"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-calculator"></span>
+                      <span className="menu-text">Rewards Calc</span>
+                    </Link>
+                  </li>
+                </ul>
               </li>
               <li>
                 <Link
@@ -123,53 +154,62 @@ class Navigation extends React.Component {
                   className="navbar-link pointer"
                   activeClassName="active">
                   <span className="fa fa-share-alt"></span>
-                  <span className="menu-text">Explorers list</span>
+                  <span className="menu-text">Explorers</span>
                 </Link>
               </li>
-              <li>
-                <Link
-                  to='/prices'
-                  className="navbar-link pointer"
-                  activeClassName="active">
-                  <span className="fa fa-usd"></span>
-                  <span className="menu-text">DEX prices</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/books"
-                  className="navbar-link pointer"
-                  activeClassName="active">
-                  <span className="fa fa-line-chart"></span>
-                  <span className="menu-text">DEX books</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/charts"
-                  className="navbar-link pointer"
-                  activeClassName="active">
-                  <span className="fa fa-area-chart"></span>
-                  <span className="menu-text">DEX charts</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/coins"
-                  className="navbar-link pointer"
-                  activeClassName="active">
-                  <span className="fa fa-th"></span>
-                  <span className="menu-text">DEX coins</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/trades"
-                  className="navbar-link pointer"
-                  activeClassName="active">
-                  <span className="fa fa-list-alt"></span>
-                  <span className="menu-text">DEX trades</span>
-                </Link>
+              {this.isActiveMenuParent('dex')}
+              <li className={ 'navbar-sub-parent dex' + (this.isActiveMenuParent('dex') ? ' active-parent' : '') }>
+                <a className="navbar-link pointer">
+                  <span className="fa fa-exchange"></span>
+                  <span className="menu-text">BarterDEX</span>
+                </a>
+                <ul className="nav navbar-sub">
+                  <li>
+                    <Link
+                      to='/prices'
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-usd"></span>
+                      <span className="menu-text">Prices</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/books"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-line-chart"></span>
+                      <span className="menu-text">Books</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/charts"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-area-chart"></span>
+                      <span className="menu-text">Charts</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/coins"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-th"></span>
+                      <span className="menu-text">Coins</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/trades"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-list-alt"></span>
+                      <span className="menu-text">Trades</span>
+                    </Link>
+                  </li>
+                </ul>
               </li>
               <li>
                 <Link

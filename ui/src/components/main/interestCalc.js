@@ -285,13 +285,13 @@ class InterestCalc extends React.Component {
         <div className="row margin-top-lg">
           <div className="col-md-12">
             <h3>Changes to KMD rewards past block height 1 000 000:</h3>
+            <ul className="regular-list margin-bottom-lg">
+              <li>new KMD coins are rewarded to users when they make transactions</li>
+              <li>total rate is <strong>~5.1% per year</strong> if done monthly or more often</li>
+              <li>you stop getting rewards if you haven't used Komodo network for one month (coins haven't moved in one month)</li>
+              <li>new changes don't affect rewards accrued under old rules</li>
+            </ul>
             <p>
-              <ul className="regular-list margin-bottom-lg">
-                <li>new KMD coins are rewarded to users when they make transactions</li>
-                <li>total rate is <strong>~5.1% per year</strong> if done monthly or more often</li>
-                <li>you stop getting rewards if you haven't used Komodo network for one month (coins haven't moved in one month)</li>
-                <li>new changes don't affect rewards accrued under old rules</li>
-              </ul>
               <span
                 className="link"
                 onClick={ this.toggleNewInterestRulesModal }>Read full announcement</span>
