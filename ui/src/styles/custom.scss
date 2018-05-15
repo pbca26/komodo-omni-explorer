@@ -578,6 +578,9 @@ span[class*=' coin_'] {
       border-left: solid 4px #f59c00;
       background: #2f6363;
     }
+    &.disable {
+      display: none !important;
+    }
   }
 
   &:hover {

@@ -21,9 +21,11 @@ class Navigation extends React.Component {
     super(props);
     this.state = {
       showNavigation: false,
+      disabledSubMenu: null,
     };
     this.activeInterval = null;
     this.checkIntervals = this.checkIntervals.bind(this);
+    this.disableActiveParentMenu = this.disableActiveParentMenu.bind(this);
   }
 
   checkIntervals(type) {
@@ -50,7 +52,6 @@ class Navigation extends React.Component {
     this.checkIntervals(window.location.hash);
 
     browserHistory.listen(location => {
-      // console.warn(location.hash);
       this.checkIntervals(location.hash);
       // hide navigation in mobile when changing route
       this.setState({
@@ -63,6 +64,18 @@ class Navigation extends React.Component {
     this.setState({
       showNavigation: !this.state.showNavigation,
     });
+  }
+
+  disableActiveParentMenu(name) {
+    this.setState({
+      disabledSubMenu: name,
+    });
+
+    setTimeout(() => {
+      this.setState({
+        disabledSubMenu: null,
+      });
+    }, 500);
   }
 
   isActiveMenuParent(name) {
@@ -127,8 +140,8 @@ class Navigation extends React.Component {
                   <span className="fa fa-money"></span>
                   <span className="menu-text">KMD rewards</span>
                 </a>
-                <ul className="nav navbar-sub">
-                  <li>
+                <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'interest' ? ' disable' : '')}>
+                  <li onClick={ () => this.disableActiveParentMenu('interest') }>
                     <Link
                       to="/interest"
                       className="navbar-link pointer"
@@ -137,7 +150,7 @@ class Navigation extends React.Component {
                       <span className="menu-text">Check rewards</span>
                     </Link>
                   </li>
-                  <li>
+                  <li onClick={ () => this.disableActiveParentMenu('interest') }>
                     <Link
                       to="/interest-calc"
                       className="navbar-link pointer"
@@ -157,14 +170,13 @@ class Navigation extends React.Component {
                   <span className="menu-text">Explorers</span>
                 </Link>
               </li>
-              {this.isActiveMenuParent('dex')}
               <li className={ 'navbar-sub-parent dex' + (this.isActiveMenuParent('dex') ? ' active-parent' : '') }>
                 <a className="navbar-link pointer">
                   <span className="fa fa-exchange"></span>
                   <span className="menu-text">BarterDEX</span>
                 </a>
-                <ul className="nav navbar-sub">
-                  <li>
+                <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'dex' ? ' disable' : '')}>
+                  <li onClick={ () => this.disableActiveParentMenu('dex') }>
                     <Link
                       to='/prices'
                       className="navbar-link pointer"
@@ -173,7 +185,7 @@ class Navigation extends React.Component {
                       <span className="menu-text">Prices</span>
                     </Link>
                   </li>
-                  <li>
+                  <li onClick={ () => this.disableActiveParentMenu('dex') }>
                     <Link
                       to="/books"
                       className="navbar-link pointer"
@@ -182,7 +194,7 @@ class Navigation extends React.Component {
                       <span className="menu-text">Books</span>
                     </Link>
                   </li>
-                  <li>
+                  <li onClick={ () => this.disableActiveParentMenu('dex') }>
                     <Link
                       to="/charts"
                       className="navbar-link pointer"
@@ -191,7 +203,7 @@ class Navigation extends React.Component {
                       <span className="menu-text">Charts</span>
                     </Link>
                   </li>
-                  <li>
+                  <li onClick={ () => this.disableActiveParentMenu('dex') }>
                     <Link
                       to="/coins"
                       className="navbar-link pointer"
@@ -200,7 +212,7 @@ class Navigation extends React.Component {
                       <span className="menu-text">Coins</span>
                     </Link>
                   </li>
-                  <li>
+                  <li onClick={ () => this.disableActiveParentMenu('dex') }>
                     <Link
                       to="/trades"
                       className="navbar-link pointer"
