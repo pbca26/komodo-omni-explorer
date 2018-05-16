@@ -513,7 +513,7 @@ module.exports = (shepherd) => {
     }
   });
 
-  shepherd.kmdCalcInterest = (locktime, value) => { // value in sats
+  shepherd.kmdCalcInterest = (locktime, value, height) => { // value in sats
     const KOMODO_ENDOFERA = 7777777;
     const LOCKTIME_THRESHOLD = 500000000;
     const timestampDiff = Math.floor(Date.now() / 1000) - locktime - 777;
@@ -577,7 +577,7 @@ module.exports = (shepherd) => {
                     if (decodedTx &&
                         decodedTx.format &&
                         decodedTx.format.locktime > 0) {
-                      interestTotal += shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value);
+                      interestTotal += shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height);
                     }
 
                     resolve(true);

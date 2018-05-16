@@ -161,14 +161,31 @@ class Navigation extends React.Component {
                   </li>
                 </ul>
               </li>
-              <li>
-                <Link
-                  to="/summary"
-                  className="navbar-link pointer"
-                  activeClassName="active">
+              <li className={ 'navbar-sub-parent explorers' + (this.isActiveMenuParent('explorers') ? ' active-parent' : '') }>
+                <a className="navbar-link pointer">
                   <span className="fa fa-share-alt"></span>
                   <span className="menu-text">Explorers</span>
-                </Link>
+                </a>
+                <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'explorers' ? ' disable' : '')}>
+                  <li onClick={ () => this.disableActiveParentMenu('explorers') }>
+                    <Link
+                      to="/explorers"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-list"></span>
+                      <span className="menu-text">List</span>
+                    </Link>
+                  </li>
+                  <li onClick={ () => this.disableActiveParentMenu('explorers') }>
+                    <Link
+                      to="/explorers/status"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-dashboard"></span>
+                      <span className="menu-text">Status</span>
+                    </Link>
+                  </li>
+                </ul>
               </li>
               <li className={ 'navbar-sub-parent dex' + (this.isActiveMenuParent('dex') ? ' active-parent' : '') }>
                 <a className="navbar-link pointer">
