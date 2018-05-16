@@ -611,4 +611,49 @@ span[class*=' coin_'] {
       width: 135px;
     }
   }
+  &.explorers {
+    &:before {
+      margin-left: 96px;
+    }
+    .nav.navbar-sub {
+      width: 106px;
+    }
+  }
+}
+
+.search-results,
+.explorers-list {
+  margin-bottom: 100px;
+
+  .table > thead > tr > th,
+  .table > tbody > tr > th,
+  .table > tfoot > tr > th,
+  .table > thead > tr > td,
+  .table > tbody > tr > td,
+  .table > tfoot > tr > td {
+    padding: 2px 12px;
+
+    .table-coin-icon-wrapper.icon-big {
+      width: 25px;
+      height: 25px;
+      margin-top: 13px;
+    }
+  }
+  .dex-table {
+    .ReactTable .rt-th,
+    .ReactTable .rt-td {
+      padding: 12px 5px 8px 15px;
+
+      .table-coin-icon-wrapper {
+        margin-top: 1px;
+      }
+    }
+  }
+}
+
+.explorers-list {
+  .table {
+    max-width: 600px;
+    margin: 0 auto;
+  }
 }

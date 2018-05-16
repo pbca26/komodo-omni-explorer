@@ -290,7 +290,7 @@ class Search extends React.Component {
             );
           } else {
             return (
-              <div>
+              <div className="search-results">
                 { this.renderBalance() }
                 { this.renderTransactions() }
               </div>
@@ -307,7 +307,7 @@ class Search extends React.Component {
         );
       }
     } else {
-      return(<div></div>);
+      return(<div className="text-center">Searching...</div>);
     }
   }
 }
