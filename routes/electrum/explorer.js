@@ -1,22 +1,30 @@
 const config = require('../../config');
 const remoteExplorers = require('../../config').explorers;
+const remoteExplorersInsight = require('../../config').insight;
 const _electrumServers = require('../../config').electrumServers;
-const komodoParams = require('../../config').komodoParams;
+const { komodoParams } = require('../../config');
 const txDecoder = require('./txDecoder');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
-
+const { komodoInterest } = require('agama-wallet-lib');
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
 const MAX_REMOTE_EXPLORER_TIMEOUT = 5000;
 
 let remoteExplorersArray = [];
+let remoteExplorersArrayInsight = [];
 let electrumServers = [];
 
 for (let key in remoteExplorers) {
   remoteExplorersArray.push(key);
+}
+
+for (let key in remoteExplorersInsight) {
+  if (key !== 'maxTxLength') {
+    remoteExplorersArrayInsight.push(key);
+  }
 }
 
 for (let key in _electrumServers) {
@@ -146,10 +154,10 @@ module.exports = (shepherd) => {
   shepherd.insightLastTransactions = (coin) => {
     return new Promise((resolveMain, rejectMain) => {
       const options = {
-        url: `${config.insight[coin]}/blocks?limit=${config.insight.maxTxLength}`,
+        url: `${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`,
         method: 'GET',
       };
-      // console.log(`${config.insight[coin]}/blocks?limit=${config.insight.maxTxLength}`);
+      // console.log(`${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`);
 
       request(options, (error, response, body) => {
         if (response &&
@@ -166,10 +174,10 @@ module.exports = (shepherd) => {
                 return new Promise((resolve, reject) => {
                   setTimeout(() => {
                     // console.log(`insight ${index}`);
-                    // console.log(`${config.insight[coin]}/api/txs?block=${block.hash}`);
+                    // console.log(`${config.insight[coin].url}/api/txs?block=${block.hash}`);
 
                     const options = {
-                      url: `${config.insight[coin]}/txs?block=${block.hash}`,
+                      url: `${config.insight[coin].url}/txs?block=${block.hash}`,
                       method: 'GET',
                     };
 
@@ -191,7 +199,7 @@ module.exports = (shepherd) => {
                                 blockhash: block.hash,
                                 blockindex: block.height,
                                 timestamp: txs[i].time,
-                                total: txs[i].valueOut,
+                                total: config.insight[coin].float ? txs[i].valueOut * 100000000 : txs[i].valueOut,
                                 vout: txs[i].vout,
                                 vin: txs[i].vin,
                               });
@@ -250,11 +258,11 @@ module.exports = (shepherd) => {
     });
   };
 
-  shepherd.getOverview = (test) => {
+  shepherd.getOverview = () => {
     const _getOverview = () => {
       let remoteExplorersFinished = {};
 
-      Promise.all(remoteExplorersArray.filter(x => x !== 'KMD').map((coin, index) => {
+      Promise.all(remoteExplorersArray.map((coin, index) => {
         return new Promise((resolve, reject) => {
           const options = {
             url: `${remoteExplorers[coin]}/ext/getlasttxs/0.00000001`,
@@ -292,18 +300,27 @@ module.exports = (shepherd) => {
           });
         });
       }))
-      .then(result => {
+      .then(_result => {
         console.log('overview executed');
+        let result = _result;
 
         if (result &&
             result.length) {
           const overviewFileLocation = path.join(__dirname, '../../overview.json');
 
-          // append insight kmd data
-          shepherd.insightLastTransactions('KMD')
-          .then((res) => {
-            result.push(res);
+          // run insight explorers
+          Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
+            return new Promise((resolve, reject) => {
+              console.log(`insight overview ${coin}`);
 
+              shepherd.insightLastTransactions(coin)
+              .then((res) => {
+                result.push(res);
+                resolve();
+              });
+            });
+          }))
+          .then(__result => {
             fs.writeFile(overviewFileLocation, JSON.stringify({ result }), (err) => {
               if (err) {
                 console.log(`error updating overview cache file ${err}`);
@@ -402,6 +419,7 @@ module.exports = (shepherd) => {
     } else {
       // pub address
       let errorCount = 0;
+
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
@@ -513,32 +531,6 @@ module.exports = (shepherd) => {
     }
   });
 
-  shepherd.kmdCalcInterest = (locktime, value, height) => { // value in sats
-    const KOMODO_ENDOFERA = 7777777;
-    const LOCKTIME_THRESHOLD = 500000000;
-    const timestampDiff = Math.floor(Date.now() / 1000) - locktime - 777;
-    const hoursPassed = Math.floor(timestampDiff / 3600);
-    const minutesPassed = Math.floor((timestampDiff - (hoursPassed * 3600)) / 60);
-    const secondsPassed = timestampDiff - (hoursPassed * 3600) - (minutesPassed * 60);
-    let timestampDiffMinutes = timestampDiff / 60;
-    let interest = 0;
-
-    if (height < KOMODO_ENDOFERA &&
-        locktime >= LOCKTIME_THRESHOLD) {
-      // calc interest
-      if (timestampDiffMinutes >= 60) {
-        if (timestampDiffMinutes > 365 * 24 * 60) {
-          timestampDiffMinutes = 365 * 24 * 60;
-        }
-        timestampDiffMinutes -= 59;
-
-        interest = ((Number(value) * 0.00000001) / 10512000) * timestampDiffMinutes;
-      }
-    }
-
-    return interest;
-  }
-
   shepherd.get('/kmd/interest', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
@@ -577,7 +569,7 @@ module.exports = (shepherd) => {
                     if (decodedTx &&
                         decodedTx.format &&
                         decodedTx.format.locktime > 0) {
-                      interestTotal += shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height);
+                      interestTotal += komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height);
                     }
 
                     resolve(true);
@@ -697,7 +689,7 @@ module.exports = (shepherd) => {
 
                         if (Number(_utxoItem.value) * 0.00000001 >= 10 &&
                             decodedTx.format.locktime > 0) {
-                          interest = shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value);
+                          interest = komodoInterest(decodedTx.format.locktime, _utxoItem.value);
                         }
 
                         let _resolveObj = {
