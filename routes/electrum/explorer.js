@@ -627,7 +627,7 @@ module.exports = (shepherd) => {
                     if (decodedTx &&
                         decodedTx.format &&
                         decodedTx.format.locktime > 0) {
-                      interestTotal += komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height);
+                      interestTotal += Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
                     }
 
                     resolve(true);
@@ -636,7 +636,6 @@ module.exports = (shepherd) => {
               }))
               .then(promiseResult => {
                 ecl.close();
-
                 const successObj = {
                   msg: 'success',
                   result: {
@@ -647,7 +646,7 @@ module.exports = (shepherd) => {
                     interest: Number(interestTotal.toFixed(8)),
                     interestSats: Math.floor(interestTotal * 100000000),
                     total: interestTotal > 0 ? Number((0.00000001 * json.confirmed + interestTotal).toFixed(8)) : 0,
-                    totalSats: interestTotal > 0 ?json.confirmed + Math.floor(interestTotal * 100000000) : 0,
+                    totalSats: interestTotal > 0 ? json.confirmed + Math.floor(interestTotal * 100000000) : 0,
                   },
                 };
 
@@ -747,7 +746,7 @@ module.exports = (shepherd) => {
 
                         if (Number(_utxoItem.value) * 0.00000001 >= 10 &&
                             decodedTx.format.locktime > 0) {
-                          interest = komodoInterest(decodedTx.format.locktime, _utxoItem.value);
+                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value));
                         }
 
                         let _resolveObj = {
