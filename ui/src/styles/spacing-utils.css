@@ -4,6 +4,9 @@
 .margin-top-lg {
   margin-top: 2em !important;
 }
+.margin-bottom-sm {
+  margin-bottom: 0.5em !important;
+}
 .margin-bottom-md {
   margin-bottom: 1em !important;
 }

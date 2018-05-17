@@ -1,22 +1,30 @@
 const config = require('../../config');
 const remoteExplorers = require('../../config').explorers;
+const remoteExplorersInsight = require('../../config').insight;
 const _electrumServers = require('../../config').electrumServers;
-const komodoParams = require('../../config').komodoParams;
+const { komodoParams } = require('../../config');
 const txDecoder = require('./txDecoder');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
-
+const { komodoInterest } = require('agama-wallet-lib');
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
-const MAX_REMOTE_EXPLORER_TIMEOUT = 5000;
+const MAX_REMOTE_EXPLORER_TIMEOUT = 10000;
 
 let remoteExplorersArray = [];
+let remoteExplorersArrayInsight = [];
 let electrumServers = [];
 
 for (let key in remoteExplorers) {
   remoteExplorersArray.push(key);
+}
+
+for (let key in remoteExplorersInsight) {
+  if (key !== 'maxTxLength') {
+    remoteExplorersArrayInsight.push(key);
+  }
 }
 
 for (let key in _electrumServers) {
@@ -92,6 +100,8 @@ module.exports = (shepherd) => {
           }, MAX_REMOTE_EXPLORER_TIMEOUT);
 
           request(options, (error, response, body) => {
+            remoteExplorersFinished[coin] = true;
+
             if (response &&
                 response.statusCode &&
                 response.statusCode === 200) {
@@ -108,24 +118,80 @@ module.exports = (shepherd) => {
           });
         });
       }))
-      .then(result => {
-        if (result &&
-            result.length) {
-          const summaryFileLocation = path.join(__dirname, '../../summary.json');
+      .then(_result => {
+        let result = _result;
+        let _remoteExplorersFinished = {};
 
-          fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
-            if (err) {
-              console.log(`error updating summary cache file ${err}`);
-            } else {
-              const summaryFile = fs.readJsonSync(summaryFileLocation, { throws: false });
-              let items = [];
+        // run insight explorers
+        Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
+          return new Promise((resolve, reject) => {
+            console.log(`insight summary ${coin}`);
+            // console.log(`${remoteExplorersInsight[coin].url}/status?q=getInfo`);
 
-              shepherd.explorer.summary = summaryFile;
+            const options = {
+              url: `${remoteExplorersInsight[coin].url}/status?q=getInfo`,
+              method: 'GET',
+            };
 
-              console.log('explorer summary updated');
-            }
+            setTimeout(() => {
+              if (!_remoteExplorersFinished[coin]) {
+                console.log(`summary ${coin} is stuck, cancel req`);
+                resolve({
+                  coin,
+                  result: 'unable to get summary',
+                });
+              }
+            }, MAX_REMOTE_EXPLORER_TIMEOUT);
+
+            request(options, (error, response, body) => {
+              _remoteExplorersFinished[coin] = true;
+
+              if (response &&
+                  response.statusCode &&
+                  response.statusCode === 200) {
+                const {
+                  difficulty,
+                  blocks,
+                  connections,
+                } = JSON.parse(body).info;
+                let data = [{
+                  difficulty,
+                  connections,
+                  blockcount: blocks,
+                }];
+                result.push({
+                  coin: coin.toUpperCase(),
+                  data,
+                });
+                resolve();
+              } else {
+                resolve({
+                  coin,
+                  data: 'unable to get summary',
+                });
+              }
+            });
           });
-        }
+        }))
+        .then(__result => {
+          if (result &&
+              result.length) {
+            const summaryFileLocation = path.join(__dirname, '../../summary.json');
+
+            fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
+              if (err) {
+                console.log(`error updating summary cache file ${err}`);
+              } else {
+                const summaryFile = fs.readJsonSync(summaryFileLocation, { throws: false });
+                let items = [];
+
+                shepherd.explorer.summary = summaryFile;
+
+                console.log('explorer summary updated');
+              }
+            });
+          }
+        });
       });
     }
 
@@ -146,10 +212,10 @@ module.exports = (shepherd) => {
   shepherd.insightLastTransactions = (coin) => {
     return new Promise((resolveMain, rejectMain) => {
       const options = {
-        url: `${config.insight[coin]}/blocks?limit=${config.insight.maxTxLength}`,
+        url: `${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`,
         method: 'GET',
       };
-      // console.log(`${config.insight[coin]}/blocks?limit=${config.insight.maxTxLength}`);
+      // console.log(`${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`);
 
       request(options, (error, response, body) => {
         if (response &&
@@ -166,10 +232,10 @@ module.exports = (shepherd) => {
                 return new Promise((resolve, reject) => {
                   setTimeout(() => {
                     // console.log(`insight ${index}`);
-                    // console.log(`${config.insight[coin]}/api/txs?block=${block.hash}`);
+                    // console.log(`${config.insight[coin].url}/api/txs?block=${block.hash}`);
 
                     const options = {
-                      url: `${config.insight[coin]}/txs?block=${block.hash}`,
+                      url: `${config.insight[coin].url}/txs?block=${block.hash}`,
                       method: 'GET',
                     };
 
@@ -191,7 +257,7 @@ module.exports = (shepherd) => {
                                 blockhash: block.hash,
                                 blockindex: block.height,
                                 timestamp: txs[i].time,
-                                total: txs[i].valueOut,
+                                total: config.insight[coin].float ? txs[i].valueOut * 100000000 : txs[i].valueOut,
                                 vout: txs[i].vout,
                                 vin: txs[i].vin,
                               });
@@ -250,11 +316,11 @@ module.exports = (shepherd) => {
     });
   };
 
-  shepherd.getOverview = (test) => {
+  shepherd.getOverview = () => {
     const _getOverview = () => {
       let remoteExplorersFinished = {};
 
-      Promise.all(remoteExplorersArray.filter(x => x !== 'KMD').map((coin, index) => {
+      Promise.all(remoteExplorersArray.map((coin, index) => {
         return new Promise((resolve, reject) => {
           const options = {
             url: `${remoteExplorers[coin]}/ext/getlasttxs/0.00000001`,
@@ -292,18 +358,27 @@ module.exports = (shepherd) => {
           });
         });
       }))
-      .then(result => {
+      .then(_result => {
         console.log('overview executed');
+        let result = _result;
 
         if (result &&
             result.length) {
           const overviewFileLocation = path.join(__dirname, '../../overview.json');
 
-          // append insight kmd data
-          shepherd.insightLastTransactions('KMD')
-          .then((res) => {
-            result.push(res);
+          // run insight explorers
+          Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
+            return new Promise((resolve, reject) => {
+              console.log(`insight overview ${coin}`);
 
+              shepherd.insightLastTransactions(coin)
+              .then((res) => {
+                result.push(res);
+                resolve();
+              });
+            });
+          }))
+          .then(__result => {
             fs.writeFile(overviewFileLocation, JSON.stringify({ result }), (err) => {
               if (err) {
                 console.log(`error updating overview cache file ${err}`);
@@ -402,6 +477,7 @@ module.exports = (shepherd) => {
     } else {
       // pub address
       let errorCount = 0;
+
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
@@ -513,32 +589,6 @@ module.exports = (shepherd) => {
     }
   });
 
-  shepherd.kmdCalcInterest = (locktime, value) => { // value in sats
-    const KOMODO_ENDOFERA = 7777777;
-    const LOCKTIME_THRESHOLD = 500000000;
-    const timestampDiff = Math.floor(Date.now() / 1000) - locktime - 777;
-    const hoursPassed = Math.floor(timestampDiff / 3600);
-    const minutesPassed = Math.floor((timestampDiff - (hoursPassed * 3600)) / 60);
-    const secondsPassed = timestampDiff - (hoursPassed * 3600) - (minutesPassed * 60);
-    let timestampDiffMinutes = timestampDiff / 60;
-    let interest = 0;
-
-    if (height < KOMODO_ENDOFERA &&
-        locktime >= LOCKTIME_THRESHOLD) {
-      // calc interest
-      if (timestampDiffMinutes >= 60) {
-        if (timestampDiffMinutes > 365 * 24 * 60) {
-          timestampDiffMinutes = 365 * 24 * 60;
-        }
-        timestampDiffMinutes -= 59;
-
-        interest = ((Number(value) * 0.00000001) / 10512000) * timestampDiffMinutes;
-      }
-    }
-
-    return interest;
-  }
-
   shepherd.get('/kmd/interest', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
@@ -577,7 +627,7 @@ module.exports = (shepherd) => {
                     if (decodedTx &&
                         decodedTx.format &&
                         decodedTx.format.locktime > 0) {
-                      interestTotal += shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value);
+                      interestTotal += Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
                     }
 
                     resolve(true);
@@ -586,7 +636,6 @@ module.exports = (shepherd) => {
               }))
               .then(promiseResult => {
                 ecl.close();
-
                 const successObj = {
                   msg: 'success',
                   result: {
@@ -597,7 +646,7 @@ module.exports = (shepherd) => {
                     interest: Number(interestTotal.toFixed(8)),
                     interestSats: Math.floor(interestTotal * 100000000),
                     total: interestTotal > 0 ? Number((0.00000001 * json.confirmed + interestTotal).toFixed(8)) : 0,
-                    totalSats: interestTotal > 0 ?json.confirmed + Math.floor(interestTotal * 100000000) : 0,
+                    totalSats: interestTotal > 0 ? json.confirmed + Math.floor(interestTotal * 100000000) : 0,
                   },
                 };
 
@@ -697,7 +746,7 @@ module.exports = (shepherd) => {
 
                         if (Number(_utxoItem.value) * 0.00000001 >= 10 &&
                             decodedTx.format.locktime > 0) {
-                          interest = shepherd.kmdCalcInterest(decodedTx.format.locktime, _utxoItem.value);
+                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value));
                         }
 
                         let _resolveObj = {
@@ -765,6 +814,16 @@ module.exports = (shepherd) => {
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(successObj));
     });
+  });
+
+  shepherd.get('/timestamp/now', (req, res, next) => {
+    const successObj = {
+      msg: 'success',
+      result: Date.now(),
+    };
+
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(successObj));
   });
 
   return shepherd;

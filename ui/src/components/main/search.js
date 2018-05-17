@@ -12,9 +12,6 @@ import {
 import { searchTerm } from '../../actions/actionCreators';
 import config from '../../config';
 
-let _config = Object.assign({}, config);
-_config.explorers = Object.assign(_config.explorers, config.extendExplorers);
-
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 
 class Search extends React.Component {
@@ -68,7 +65,7 @@ class Search extends React.Component {
     return (
       <a
         target="_blank"
-        href={ `${_config.explorers[coin]}/tx/${txid}` }>{ txid }</a>
+        href={ `${config.explorers[coin] || config.extendExplorers[coin]}/tx/${txid}` }>{ txid }</a>
     );
   }
 
@@ -194,7 +191,7 @@ class Search extends React.Component {
                 <span className="icon-text">
                   <a
                     target="_blank"
-                    href={ `${_config.explorers[_balance[i].coin]}/address/${ this.props.Main.searchTerm }` }>{ _balance[i].coin }</a>
+                    href={ `${config.explorers[_balance[i].coin] || config.extendExplorers[_balance[i].coin]}/address/${ this.props.Main.searchTerm }` }>{ _balance[i].coin }</a>
                 </span>
               </td>
               <td>
@@ -276,7 +273,7 @@ class Search extends React.Component {
               <div>Found { this.props.Main.search } transaction</div>
               <a
                 target="_blank"
-                href={ `${_config.explorers[this.props.Main.search]}/tx/${this.props.Main.searchTerm}` }>{ this.props.Main.searchTerm }</a>
+                href={ `${config.explorers[this.props.Main.search] || config.extendExplorers[this.props.Main.search]}/tx/${this.props.Main.searchTerm}` }>{ this.props.Main.searchTerm }</a>
             </div>
           );
         } else {
@@ -290,7 +287,7 @@ class Search extends React.Component {
             );
           } else {
             return (
-              <div>
+              <div className="search-results">
                 { this.renderBalance() }
                 { this.renderTransactions() }
               </div>
@@ -307,7 +304,7 @@ class Search extends React.Component {
         );
       }
     } else {
-      return(<div></div>);
+      return(<div className="text-center">Searching...</div>);
     }
   }
 }

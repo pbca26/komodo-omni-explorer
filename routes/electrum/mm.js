@@ -604,57 +604,71 @@ module.exports = (shepherd) => {
 
     Promise.all(coins.map((coin, index) => {
       return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=900&starttime=0&endtime=0`;
-          // console.log(`ticker ${url}`);
+        if (coin === 'kmd') {
+          if (shepherd.mm.fiatRates &&
+              shepherd.mm.fiatRates.USD &&
+              shepherd.mm.fiatRates.BTC) {
+            shepherd.mm.ticker.kmd = {
+              btc: shepherd.mm.fiatRates.BTC,
+              usd: shepherd.mm.fiatRates.USD,
+            };
+            console.log(`kmd last price ${shepherd.mm.fiatRates.BTC} btc`);
+          }
+          resolve();
+        } else {
+          setTimeout(() => {
+            const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=900&starttime=0&endtime=0&userpass=1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f`;
+            // console.log(`ticker ${url}`);
 
-          const options = {
-            url: url,
-            method: 'GET',
-          };
+            const options = {
+              url: url,
+              method: 'GET',
+            };
 
-          request(options, (error, response, body) => {
-            if (response &&
-                response.statusCode &&
-                response.statusCode === 200) {
-              let _ticker;
+            request(options, (error, response, body) => {
+              if (response &&
+                  response.statusCode &&
+                  response.statusCode === 200) {
+                let _ticker;
 
-              try {
-                _ticker = JSON.parse(body);
-              } catch (e) {
-                console.log(`unable to get ticker for ${coin}`);
-                resolve(false);
-              }
-
-              if (_ticker &&
-                  _ticker.length) {
-                const _lastPrice = _ticker[_ticker.length - 1][4];
-
-                if (shepherd.mm.fiatRates &&
-                    shepherd.mm.fiatRates.USD &&
-                    shepherd.mm.fiatRates.BTC) {
-                  shepherd.mm.ticker[coin] = {
-                    btc: Number(shepherd.mm.fiatRates.BTC * _lastPrice).toFixed(8),
-                    kmd: Number(_lastPrice).toFixed(8),
-                    usd: Number(shepherd.mm.fiatRates.USD * _lastPrice).toFixed(8),
-                  };
-                } else {
-                  shepherd.mm.ticker[coin] = {
-                    kmd: Number(_lastPrice).toFixed(8),
-                  };
+                try {
+                  _ticker = JSON.parse(body);
+                } catch (e) {
+                  console.log(`unable to get ticker for ${coin}`);
+                  resolve(false);
                 }
 
-                console.log(`${coin} last price ${_lastPrice}`);
+                if (_ticker &&
+                    _ticker.length) {
+                  const _lastPrice = _ticker[_ticker.length - 1][4];
+
+                  if (shepherd.mm.fiatRates &&
+                      shepherd.mm.fiatRates.USD &&
+                      shepherd.mm.fiatRates.BTC) {
+                    shepherd.mm.ticker[coin] = {
+                      btc: Number(shepherd.mm.fiatRates.BTC * _lastPrice).toFixed(8),
+                      kmd: Number(_lastPrice).toFixed(8),
+                      usd: Number(shepherd.mm.fiatRates.USD * _lastPrice).toFixed(8),
+                    };
+                  } else {
+                    shepherd.mm.ticker[coin] = {
+                      kmd: Number(_lastPrice).toFixed(8),
+                    };
+                  }
+                  resolve(true);
+
+                  console.log(`${coin} last price ${_lastPrice}`);
+                } else {
+                  console.log(`unable to get ticker for ${coin}`);
+                  resolve(false);
+                }
               } else {
                 console.log(`unable to get ticker for ${coin}`);
                 resolve(false);
               }
-            } else {
-              console.log(`unable to get ticker for ${coin}`);
-              resolve(false);
-            }
-          });
-        }, index * 1000);
+            });
+          }, index * 1000);
+        }
       });
     }))
     .then(result => {

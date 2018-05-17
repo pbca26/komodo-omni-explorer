@@ -103,7 +103,6 @@ export const coinsState = (coins) => {
   }
 }
 
-
 export const statsState = (stats) => {
   return {
     type: STATS,
@@ -341,15 +340,32 @@ export const multiAddressBalance = (addressList, fallback) => {
     .then(json => {
       try {
         json = JSON.parse(json);
-        dispatch(multiAddressBalanceState({
-          msg: 'success',
-          result: json,
-        }));
+
+        if (json.length ||
+            (typeof json === 'object' && !Object.keys(json).length)) {
+          dispatch(multiAddressBalanceState({
+            msg: 'success',
+            result: json,
+          }));
+        } else {
+          dispatch(multiAddressBalance(addressList, true));
+
+          if (fallback) {
+            dispatch(multiAddressBalanceState({
+              msg: 'error',
+              result: 'error parsing response',
+            }));
+          }
+        }
       } catch (e) {
-        dispatch(multiAddressBalanceState({
-          msg: 'error',
-          result: json,
-        }));
+        dispatch(multiAddressBalance(addressList, true));
+
+        if (fallback) {
+          dispatch(multiAddressBalanceState({
+            msg: 'error',
+            result: json.indexOf('<html>') === -1 ? json : 'error parsing response',
+          }));
+        }
       }
     });
   }

@@ -1,7 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2017 Yuki Akiyama, SuperNET
+Copyright (c) 2017 Yuki Akiyama
+Copyright (c) 2017 - 2018 SuperNET
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +30,10 @@ const SOCKET_MAX_TIMEOUT = 10000;
 
 const makeRequest = function(method, params, id) {
   return JSON.stringify({
-    jsonrpc : '2.0',
-    method : method,
-    params : params,
-    id : id,
+    jsonrpc: '2.0',
+    method: method,
+    params: params,
+    id: id,
   });
 }
 
@@ -131,7 +132,7 @@ const initSocket = function(self, protocol, options) {
 
   conn.setTimeout(SOCKET_MAX_TIMEOUT);
   conn.on('timeout', () => {
-    console.log('socket timeout');
+    // console.log('socket timeout');
     self.onError(new Error('socket timeout'));
     self.onClose();
   });
@@ -179,7 +180,13 @@ class Client {
     this.status = 1;
 
     return new Promise((resolve, reject) => {
-      const errorHandler = (e) => resolve(e)
+      const errorHandler = (e) => {
+        /* console.log(e);
+        console.log(this.port);
+        console.log(this.host);
+        console.log(e.syscall);*/
+        resolve(e);
+      }
 
       this.conn.connect(this.port, this.host, () => {
         this.conn.removeListener('error', errorHandler);
@@ -191,7 +198,7 @@ class Client {
 
   close() {
     if (!this.status) {
-      return
+      return;
     }
 
     this.conn.end();
@@ -250,7 +257,7 @@ class Client {
     Object.keys(this.callbackMessageQueue).forEach((key) => {
       this.callbackMessageQueue[key]({
         code: '-777',
-        result: 'failed to connect to electrum server'
+        result: 'failed to connect to electrum server',
       });
       delete this.callbackMessageQueue[key];
     });

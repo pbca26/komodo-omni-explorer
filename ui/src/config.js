@@ -1,46 +1,69 @@
-const config = {
+import { coin } from 'agama-wallet-lib/src/index-fe.js';
+
+const _config = {
   dev: false,
   https: true,
   apiUrl: 'www.atomicexplorer.com',
-  explorers: {
-    KMD: 'https://kmd.explorer.supernet.org',
-    MSHARK: 'http://MSHARK.explorer.supernet.org',
-    REVS: 'http://revs.explorer.supernet.org',
-    SUPERNET: 'http://SUPERNET.explorer.supernet.org',
-    DEX: 'http://DEX.explorer.supernet.org',
-    PANGEA: 'http://PANGEA.explorer.supernet.org',
-    JUMBLR: 'http://JUMBLR.explorer.supernet.org',
-    BET: 'http://BET.explorer.supernet.org',
-    CRYPTO: 'http://CRYPTO.explorer.supernet.org',
-    HODL: 'http://HODL.explorer.supernet.org',
-    BOTS: 'http://BOTS.explorer.supernet.org',
-    MGW: 'http://MGW.explorer.supernet.org',
-    WLC: 'http://WIRELESS.explorer.supernet.org',
-    CHIPS: 'http://CHIPS1.explorer.supernet.org',
-    COQUI: 'https://explorer.coqui.cash',
-    MNZ: 'https://www.mnzexplorer.com',
-    BTCH: 'http://www.btch.host',
-  },
-  extendExplorers: {
-    BEER: 'http://beer.komodochainz.info',
-    PIZZA: 'http://pizza.komodochainz.info',
-  },
+  explorers: [
+    'KMD',
+    'MSHARK',
+    'REVS',
+    'SUPERNET',
+    'DEX',
+    'PANGEA',
+    'JUMBLR',
+    'BET',
+    'CRYPTO',
+    'HODL',
+    'BOTS',
+    'MGW',
+    'WLC',
+    'CHIPS',
+    'COQUI',
+    'MNZ',
+    'BTCH',
+    'OOT',
+    'CHAIN',
+    'BNTN',
+    //'GLXT',
+    //'NINJA'
+  ],
+  extendExplorers: [
+    'BEER',
+    'PIZZA',
+  ],
   charts: {
     urlPrefix: 'https://www.atomicexplorer.com/public/charts',
-    datafeedURL: 'https://dexcharts.com:8888',
+    datafeedURL: 'https://www.atomicexplorer.com:8889',
     defaultPair: 'KMD-SUPERNET',
     interval: 60,
   },
   faucet: {
     beer: {
       outSize: 0.777,
-      explorer: 'http://beer.komodochainz.info',
+      explorer: coin.explorerList.BEER,
     },
     coqui: {
       outSize: 0.1,
-      explorer: 'https://explorer.coqui.cash',
+      explorer: coin.explorerList.COQUI,
     },
   },
 };
+
+let config = JSON.parse(JSON.stringify(_config));
+
+const explorers = () => {
+  config.explorers = {};
+
+  for (let i = 0; i < _config.explorers.length; i++) {
+    config.explorers[_config.explorers[i]] = typeof coin.explorerList[_config.explorers[i]] === 'string' ? coin.explorerList[_config.explorers[i]] : coin.explorerList[_config.explorers[i]].url;
+  }
+
+  for (let i = 0; i < _config.extendExplorers.length; i++) {
+    config.extendExplorers[_config.extendExplorers[i]] = typeof coin.explorerList[_config.extendExplorers[i]] === 'string' ? coin.explorerList[_config.extendExplorers[i]] : coin.explorerList[_config.extendExplorers[i]].url
+  }
+};
+
+explorers();
 
 export default config;

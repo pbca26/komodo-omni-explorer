@@ -131,8 +131,8 @@ class Main extends React.Component {
               { this.renderCoinIcons() }
             </div>
           }
-          { (this.props.path.indexOf('/interest') > -1 ||
-              this.props.path.indexOf('/balance-multi') > -1 ||
+          { (this.props.path.indexOf('/interest') > -1 &&
+              this.props.path.indexOf('/balance-multi') === -1 ||
               this.props.path === '/') &&
             <div className="row text-center margin-top-md margin-bottom-xlg">
               <div className="form-inline">
@@ -144,7 +144,7 @@ class Main extends React.Component {
                     type="text"
                     name="searchTerm"
                     value={ this.state.searchTerm }
-                    placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a tx hash or an address.' }
+                    placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a transaction hash or an address.' }
                     className="form-control" />
                   <button
                     onClick={ this.triggerSearch }
@@ -178,11 +178,15 @@ class Main extends React.Component {
                 <span className="glyphicon fa fa-twitter twitter-icon"></span>
               </a>
               <p className="margin-top-md text-center">
-                Powered by<br />
+                <div className="margin-bottom-sm">Powered by</div>
                 <a
                   href="https://github.com/iquidus/explorer"
                   target="_blank"
                   className="navbar-link">Iquidus Explorer</a>,&nbsp;
+                <a
+                  href="https://github.com/bitpay/insight-api"
+                  target="_blank"
+                  className="navbar-link">Insight Explorer</a>,&nbsp;
                 <a
                   href="https://github.com/jl777/SuperNET"
                   target="_blank"

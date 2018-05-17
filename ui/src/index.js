@@ -4,7 +4,7 @@ import {
   Router,
   Route,
   IndexRoute,
-  hashHistory
+  hashHistory,
 } from 'react-router';
 import { Provider } from 'react-redux';
 import store, { history } from './store';
@@ -25,70 +25,74 @@ import BalanceMulti from './components/main/balanceMulti';
 import './styles/index.scss';
 
 const router = (
-  <Provider store={store}>
-    <Router history={history}>
+  <Provider store={ store }>
+    <Router history={ history }>
       <Route
         path="/"
-        component={App}>
-        <IndexRoute component={Overview} />
+        component={ App }>
+        <IndexRoute component={ Overview} />
         <Route
           path="/faucet"
-          component={Faucet}>
+          component={ Faucet }>
           <Route
             path="/faucet/:input"
-            component={Faucet} />
+            component={ Faucet } />
         </Route>
         <Route
           path="/summary"
-          component={Summary} />
+          component={ Summary } />
         <Route
           path="/trades"
-          component={Stats} />
+          component={ Stats } />
         <Route
           path="/prices"
-          component={Prices}>
+          component={ Prices }>
           <Route
             path="/prices/:input"
-            component={Prices} />
+            component={ Prices } />
         </Route>
         <Route
           path="/interest"
-          component={Interest} />
+          component={ Interest } />
         <Route
           path="/interest/:input"
-          component={Interest} />
+          component={ Interest } />
         <Route
           path="/interest-calc"
-          component={InterestCalc} />
+          component={ InterestCalc } />
         <Route
-          path="/summary"
-          component={Summary} />
+          path="/explorers"
+          component={ Summary }>
+          <Route
+            path="/explorers/:input"
+            component={ Summary } />
+        </Route>
         <Route
           path="/books"
-          component={Books}>
+          component={ Books }>
           <Route
             path="/books/:input"
-            component={Books} />
+            component={ Books } />
         </Route>
         <Route
           path="/coins"
-          component={Coins} />
+          component={ Coins } />
         <Route
           path="/charts"
-          component={Charts}>
+          component={ Charts }>
           <Route
             path="/charts/:input"
-            component={Charts} />
+            component={ Charts } />
         </Route>
         <Route
           path="/search"
-          component={Search} />
+          component={ Search } />
         <Route
           path="/search/:input"
-          component={Search} />
+          component={ Search } />
         <Route
           path="/balance-multi"
-          component={BalanceMulti} />
+          component={ BalanceMulti } />
       </Route>
     </Router>
   </Provider>
