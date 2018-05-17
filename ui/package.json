@@ -1,6 +1,6 @@
 {
   "name": "KomodoOmniExplorerUI",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Komodo Omni Explorer UI",
   "main": "src/index.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "url": "https://github.com/pbca26/komodo-omni-explorer.git"
   },
   "dependencies": {
+    "agama-wallet-lib": "git://github.com/pbca26/agama-wallet-lib#dev",
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.14.0",

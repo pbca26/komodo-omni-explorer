@@ -460,8 +460,15 @@ span[class*=' coin_'] {
     height: 40px;
 
     .table-coin-icon {
-      transform: scale(0.5);
+      transform: scale(0.5) !important;
     }
+  }
+}
+
+#index-search {
+  input {
+    display: inline-block;
+    width: 200px;
   }
 }
 

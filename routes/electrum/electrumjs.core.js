@@ -181,10 +181,10 @@ class Client {
 
     return new Promise((resolve, reject) => {
       const errorHandler = (e) => {
-        /*console.log(e);
-        console.log(e.syscall);
+        /* console.log(e);
         console.log(this.port);
-        console.log(this.host);*/
+        console.log(this.host);
+        console.log(e.syscall);*/
         resolve(e);
       }
 

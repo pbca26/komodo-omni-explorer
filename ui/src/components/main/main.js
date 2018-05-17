@@ -178,11 +178,15 @@ class Main extends React.Component {
                 <span className="glyphicon fa fa-twitter twitter-icon"></span>
               </a>
               <p className="margin-top-md text-center">
-                Powered by<br />
+                <div className="margin-bottom-sm">Powered by</div>
                 <a
                   href="https://github.com/iquidus/explorer"
                   target="_blank"
                   className="navbar-link">Iquidus Explorer</a>,&nbsp;
+                <a
+                  href="https://github.com/bitpay/insight-api"
+                  target="_blank"
+                  className="navbar-link">Insight Explorer</a>,&nbsp;
                 <a
                   href="https://github.com/jl777/SuperNET"
                   target="_blank"

@@ -29,7 +29,7 @@ const _config = {
     'OOT',
   ],
   insight: {
-    maxTxLength: 5,
+    maxTxLength: 50,
     KMD: {
       url: 'https://www.kmdexplorer.ru/insight-api-komodo',
     },
@@ -91,9 +91,9 @@ const _config = {
     'pizza',
     'oot',
     'bntn',
-    'glxt',
     'chain',
-    'ninja'
+    //'glxt',
+    //'ninja'
   ],
   electrumServersExtend: [
     'btc',
@@ -119,7 +119,7 @@ const _config = {
     'hodlc',
     'btx',
     'btcz',
-    'qtum'
+    'qtum',
   ],
 };
 
