@@ -1,7 +1,7 @@
 {
   "name": "komodo-omni-explorer",
   "productName": "Komodo Omni Explorer",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Komodo Omni Explorer",
   "main": "main.js",
   "scripts": {
@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "async": "^2.6.0",
+    "agama-wallet-lib": "git://github.com/pbca26/agama-wallet-lib#dev",
     "bitcoinjs-lib": "^3.2.0",
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",

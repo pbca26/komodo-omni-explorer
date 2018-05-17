@@ -61,8 +61,12 @@ const router = (
           path="/interest-calc"
           component={ InterestCalc } />
         <Route
-          path="/summary"
-          component={ Summary } />
+          path="/explorers"
+          component={ Summary }>
+          <Route
+            path="/explorers/:input"
+            component={ Summary } />
+        </Route>
         <Route
           path="/books"
           component={ Books }>

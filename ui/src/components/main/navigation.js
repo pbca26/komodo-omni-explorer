@@ -171,7 +171,7 @@ class Navigation extends React.Component {
                     <Link
                       to="/explorers"
                       className="navbar-link pointer"
-                      activeClassName="active">
+                      activeClassName={ window.location.hash.indexOf('/explorers') > -1 && window.location.hash.indexOf('/explorers/status') === -1 ? 'active' : '' }>
                       <span className="fa fa-list"></span>
                       <span className="menu-text">List</span>
                     </Link>
@@ -248,6 +248,15 @@ class Navigation extends React.Component {
                   <span className="fa fa-beer"></span>
                   <span className="menu-text">Faucet</span>
                 </Link>
+              </li>
+              <li>
+                <a
+                  href="https://www.atomicexplorer.com/wallet"
+                  className="navbar-link"
+                  target="_blank">
+                  <span className="fa fa-desktop"></span>
+                  <span className="menu-text">Web wallet</span>
+                </a>
               </li>
               <li>
                 <a
