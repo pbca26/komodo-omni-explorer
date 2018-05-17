@@ -32,7 +32,8 @@ module.exports = (shepherd) => {
       try {
         const _b58check = bitcoin.address.fromBase58Check(address);
 
-        if (_b58check.version === config.komodoParams.pubKeyHash) {
+        if (_b58check.version === config.komodoParams.pubKeyHash ||
+            _b58check.version === config.komodoParams.scriptHash) {
           return true;
         } else {
           return false;

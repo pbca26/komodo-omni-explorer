@@ -11,7 +11,7 @@ const Promise = require('bluebird');
 const { komodoInterest } = require('agama-wallet-lib');
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
-const MAX_REMOTE_EXPLORER_TIMEOUT = 5000;
+const MAX_REMOTE_EXPLORER_TIMEOUT = 10000;
 
 let remoteExplorersArray = [];
 let remoteExplorersArrayInsight = [];
@@ -100,6 +100,8 @@ module.exports = (shepherd) => {
           }, MAX_REMOTE_EXPLORER_TIMEOUT);
 
           request(options, (error, response, body) => {
+            remoteExplorersFinished[coin] = true;
+
             if (response &&
                 response.statusCode &&
                 response.statusCode === 200) {
@@ -116,24 +118,80 @@ module.exports = (shepherd) => {
           });
         });
       }))
-      .then(result => {
-        if (result &&
-            result.length) {
-          const summaryFileLocation = path.join(__dirname, '../../summary.json');
+      .then(_result => {
+        let result = _result;
+        let _remoteExplorersFinished = {};
 
-          fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
-            if (err) {
-              console.log(`error updating summary cache file ${err}`);
-            } else {
-              const summaryFile = fs.readJsonSync(summaryFileLocation, { throws: false });
-              let items = [];
+        // run insight explorers
+        Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
+          return new Promise((resolve, reject) => {
+            console.log(`insight summary ${coin}`);
+            // console.log(`${remoteExplorersInsight[coin].url}/status?q=getInfo`);
 
-              shepherd.explorer.summary = summaryFile;
+            const options = {
+              url: `${remoteExplorersInsight[coin].url}/status?q=getInfo`,
+              method: 'GET',
+            };
 
-              console.log('explorer summary updated');
-            }
+            setTimeout(() => {
+              if (!_remoteExplorersFinished[coin]) {
+                console.log(`summary ${coin} is stuck, cancel req`);
+                resolve({
+                  coin,
+                  result: 'unable to get summary',
+                });
+              }
+            }, MAX_REMOTE_EXPLORER_TIMEOUT);
+
+            request(options, (error, response, body) => {
+              _remoteExplorersFinished[coin] = true;
+
+              if (response &&
+                  response.statusCode &&
+                  response.statusCode === 200) {
+                const {
+                  difficulty,
+                  blocks,
+                  connections,
+                } = JSON.parse(body).info;
+                let data = [{
+                  difficulty,
+                  connections,
+                  blockcount: blocks,
+                }];
+                result.push({
+                  coin: coin.toUpperCase(),
+                  data,
+                });
+                resolve();
+              } else {
+                resolve({
+                  coin,
+                  data: 'unable to get summary',
+                });
+              }
+            });
           });
-        }
+        }))
+        .then(__result => {
+          if (result &&
+              result.length) {
+            const summaryFileLocation = path.join(__dirname, '../../summary.json');
+
+            fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
+              if (err) {
+                console.log(`error updating summary cache file ${err}`);
+              } else {
+                const summaryFile = fs.readJsonSync(summaryFileLocation, { throws: false });
+                let items = [];
+
+                shepherd.explorer.summary = summaryFile;
+
+                console.log('explorer summary updated');
+              }
+            });
+          }
+        });
       });
     }
 
