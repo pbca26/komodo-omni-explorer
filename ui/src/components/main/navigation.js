@@ -11,6 +11,7 @@ import {
   stats,
 } from '../../actions/actionCreators';
 import Store from '../../store';
+import config from '../../config';
 
 const PRICES_UPDATE_INTERVAL = 20000;
 const STATS_UPDATE_INTERVAL = 20000;
@@ -98,6 +99,32 @@ class Navigation extends React.Component {
         }
         break;
     }
+  }
+
+  renderFaucetItems() {
+    let _items = [];
+
+    for (let key in config.faucet) {
+      _items.push(
+        <li
+          key={ `menu-faucet-${key}` }
+          onClick={ () => this.disableActiveParentMenu('tap') }>
+          <Link
+            to={ `/faucet/${key}` }
+            className="navbar-link pointer"
+            activeClassName="active">
+            <span>
+              <span className="table-coin-icon-wrapper">
+                <span className={ `table-coin-icon coin_${key}` }></span>
+              </span>
+              <span className="table-coin-name menu-text">{ key.toUpperCase() }</span>
+            </span>
+          </Link>
+        </li>
+      );
+    }
+
+    return _items;
   }
 
   render() {
@@ -240,14 +267,14 @@ class Navigation extends React.Component {
                   </li>
                 </ul>
               </li>
-              <li>
-                <Link
-                  to="/faucet"
-                  className="navbar-link pointer"
-                  activeClassName="active">
+              <li className={ 'navbar-sub-parent tap' + (this.isActiveMenuParent('tap') ? ' active-parent' : '') }>
+                <a className="navbar-link pointer">
                   <span className="fa fa-beer"></span>
                   <span className="menu-text">Faucet</span>
-                </Link>
+                </a>
+                <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'tap' ? ' disable' : '')}>
+                  { this.renderFaucetItems() }
+                </ul>
               </li>
               <li>
                 <a
