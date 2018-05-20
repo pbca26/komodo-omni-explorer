@@ -29,44 +29,44 @@ built ui version will be copied to /public folder
 ## URL navigation
 
 #### KMD interest
-http://atomicexplorer.com/interest
+http://atomicexplorer.com/#/interest
 
-http://atomicexplorer.com/interest/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+http://atomicexplorer.com/#/interest/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### KMD interest calc
-http://atomicexplorer.com/interest-calc
+http://atomicexplorer.com/#/interest-calc
 
 #### Explorers list summary
-http://atomicexplorer.com/summary
+http://atomicexplorer.com/#/summary
 
 #### Balance
-http://atomicexplorer.com/search
+http://atomicexplorer.com/#/search
 
-http://atomicexplorer.com/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+http://atomicexplorer.com/#/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### BarterDEX charts
-http://atomicexplorer.com/charts
+http://atomicexplorer.com/#/charts
 
-http://atomicexplorer.com/charts/KMD-BTC
+http://atomicexplorer.com/#/charts/KMD-BTC
 
 #### BarterDEX prices
-http://atomicexplorer.com/prices
+http://atomicexplorer.com/#/prices
 
-http://atomicexplorer.com/prices/KMD-BTC
+http://atomicexplorer.com/#/prices/KMD-BTC
 
 #### BarterDEX orderbooks
-http://atomicexplorer.com/books
+http://atomicexplorer.com/#/books
 
-http://atomicexplorer.com/books/KMD-BTC
+http://atomicexplorer.com/#/books/KMD-BTC
 
 #### BarterDEX trades feed
-http://atomicexplorer.com/trades
+http://atomicexplorer.com/#/trades
 
 #### BarterDEX coins list
-http://atomicexplorer.com/coins
+http://atomicexplorer.com/#/coins
 
 #### BEER faucet
-http://atomicexplorer.com/faucet
+http://atomicexplorer.com/#/faucet
 
 #### Agama Web wallet
 http://atomicexplorer.com/wallet

@@ -78,23 +78,43 @@ module.exports = (shepherd) => {
             });
           }
 
-          let targets = [{
-            address: outputAddress,
-            value: Math.floor((config.faucet[coin].outSize * 100000000) + (config.faucet[coin].fee * 100000000)),
-          }];
+          let targets = [];
 
-          // console.log('targets');
-          // console.log(targets);
+          if (typeof config.faucet[coin].outSize === 'object') {
+            const _outSizes = config.faucet[coin].outSize;
+
+            for (let i = 0; i < _outSizes.length; i++) {
+              if (i === _outSizes.length - 1) {
+                targets.push({
+                  address: outputAddress,
+                  value: Math.floor((_outSizes[i] * 100000000) + (config.faucet[coin].fee * 100000000)),
+                });
+              } else {
+                targets.push({
+                  address: outputAddress,
+                  value: Math.floor(_outSizes[i] * 100000000),
+                });
+              }
+            }
+          } else {
+            targets = [{
+              address: outputAddress,
+              value: Math.floor((config.faucet[coin].outSize * 100000000) + (config.faucet[coin].fee * 100000000)),
+            }];
+          }
+
+          /*console.log('targets');
+          console.log(targets);*/
 
           let { fee, inputs, outputs } = coinSelect(_formattedUtxoList, targets, 0);
 
-          // console.log('coinselect');
-          // console.log('fee');
-          // console.log(fee);
-          // console.log('inputs');
-          // console.log(inputs);
-          // console.log('outputs');
-          // console.log(outputs);
+          /*console.log('coinselect');
+          console.log('fee');
+          console.log(fee);
+          console.log('inputs');
+          console.log(inputs);
+          console.log('outputs');
+          console.log(outputs);*/
 
           let _vinSum = 0;
           let _voutSum = 0;
@@ -107,9 +127,9 @@ module.exports = (shepherd) => {
             _voutSum += outputs[i].value;
           }
 
-          // console.log(`vin sum ${_vinSum}`);
-          // console.log(`vout sum ${_voutSum}`);
-          // console.log(`fee ${_vinSum - _voutSum}`);
+          /*console.log(`vin sum ${_vinSum}`);
+          console.log(`vout sum ${_voutSum}`);
+          console.log(`fee ${_vinSum - _voutSum}`);*/
 
           if ((_vinSum - _voutSum) === 0) {
             const tx = new bitcoin.TransactionBuilder(config.komodoParams);
@@ -118,10 +138,24 @@ module.exports = (shepherd) => {
               tx.addInput(inputs[i].txid, inputs[i].vout);
             }
 
-            tx.addOutput(outputAddress, Number(outputs[0].value - (config.faucet[coin].fee * 100000000)));
+            if (typeof config.faucet[coin].outSize === 'object') {
+              for (i = 0; i < outputs.length - 1; i++) {
+                if (i === outputs.length - 2) {
+                  tx.addOutput(outputAddress, Number(outputs[i].value - (config.faucet[coin].fee * 100000000)));
+                } else {
+                  tx.addOutput(outputAddress, Number(outputs[i].value));
+                }
+              }
 
-            if (outputs[1].value > 1000) {
-              tx.addOutput(keys.pub, Number(outputs[1].value));
+              if (outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value > 1000) {
+                tx.addOutput(keys.pub, Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value));
+              }
+            } else {
+              tx.addOutput(outputAddress, Number(outputs[0].value - (config.faucet[coin].fee * 100000000)));
+
+              if (outputs[1].value > 1000) {
+                tx.addOutput(keys.pub, Number(outputs[1].value));
+              }
             }
 
             for (let i = 0; i < inputs.length; i++) {
@@ -129,6 +163,8 @@ module.exports = (shepherd) => {
             }
 
             const rawtx = tx.build().toHex();
+
+            // console.log(tx.build());
 
             // console.log('buildSignedTx signed tx hex');
             // console.log(rawtx);
