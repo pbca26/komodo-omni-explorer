@@ -38,12 +38,15 @@
   }
 }
 
-@media(max-width: 901px) {
+@media(max-width: 916px) {
   .navbar-sub-parent,
   .navbar-sub-parent:hover,
   .navbar-sub-parent.dex,
   .navbar-sub-parent.rewards,
-  .navbar-sub-parent.explorers, {
+  .navbar-sub-parent.explorers,
+  .navbar-sub-parent.tap {
+    width: 100%;
+
     > a {
       background: #2f6363 !important;
     }

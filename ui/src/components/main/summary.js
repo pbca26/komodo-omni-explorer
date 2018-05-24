@@ -35,7 +35,10 @@ const explorers = {
   'BOTS': 'http://bots.explorer.supernet.org',
   'CEAL': 'http://ceal.explorer.supernet.org',
   'CRYPTO': 'http://crypto.explorer.supernet.org',
-  'DEX': 'http://dex.explorer.supernet.org',
+  'DEX': [
+    'http://dex.explorer.supernet.org',
+    'http://dex.explorer.komodo.services'
+  ],
   'HODL': 'http://hodl.explorer.supernet.org',
   'JUMBLR': 'http://jumblr.explorer.supernet.org',
   'KV': 'http://kv.explorer.supernet.org',
@@ -52,7 +55,10 @@ const explorers = {
   'PANGEA': 'http://pangea.explorer.supernet.org',
   'PIZZA': 'http://pizza.komodochainz.info',
   'REVS': 'http://revs.explorer.supernet.org',
-  'SUPERNET': 'http://supernet.explorer.supernet.org',
+  'SUPERNET': [
+    'http://supernet.explorer.supernet.org',
+    'http://supernet.explorer.komodo.services'
+  ],
   'SHARK': [
     'http://shark.explorer.supernet.org',
     'https://shark.kmdexplorer.ru'

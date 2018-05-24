@@ -448,7 +448,12 @@ module.exports = (shepherd) => {
           .then((_rawtxJSON) => {
             ecl.close();
 
-            if (JSON.stringify(_rawtxJSON).indexOf("'code':") === -1) {
+            // console.log(`search ${req.query.term} in ${electrumServerData.coin}`);
+            // console.log(_rawtxJSON);
+
+            if (_rawtxJSON &&
+                !_rawtxJSON.status &&
+                !_rawtxJSON.code) {
               coin = electrumServerData.coin.toUpperCase();
             }
             resolve();

@@ -604,7 +604,7 @@ span[class*=' coin_'] {
       padding: 15px 0 15px 15px;
     }
     &:before {
-      margin-left: 88px;
+      margin-left: 98px;
     }
     .nav.navbar-sub {
       width: 115px;
@@ -620,7 +620,17 @@ span[class*=' coin_'] {
   }
   &.explorers {
     &:before {
-      margin-left: 96px;
+      margin-left: 88px;
+    }
+    .nav.navbar-sub {
+      width: 106px;
+    }
+  }
+  &.tap {
+    width: 106px;
+
+    &:before {
+      margin-left: 74px;
     }
     .nav.navbar-sub {
       width: 106px;

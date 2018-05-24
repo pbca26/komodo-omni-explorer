@@ -43,6 +43,10 @@ const _config = {
       outSize: 0.777,
       explorer: coin.explorerList.BEER,
     },
+    pizza: {
+      outSize: 0.777,
+      explorer: coin.explorerList.PIZZA,
+    },
     coqui: {
       outSize: 0.1,
       explorer: coin.explorerList.COQUI,

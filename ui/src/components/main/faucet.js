@@ -17,11 +17,24 @@ class Faucet extends React.Component {
     this.updateInput = this.updateInput.bind(this);
   }
 
+  componentWillReceiveProps(props) {
+    if (props.input &&
+        config.faucet[props.input.toLowerCase()]) {
+      this.setState({
+        coin: props.input.toLowerCase(),
+      });
+    } else {
+      this.setState({
+        coin: 'beer',
+      });
+    }
+  }
+
   componentDidMount() {
     if (this.props.input &&
         config.faucet[this.props.input.toLowerCase()]) {
       this.setState({
-        coin: this.props.input,
+        coin: this.props.input.toLowerCase(),
       });
     } else {
       this.setState({
