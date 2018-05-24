@@ -26,7 +26,7 @@ SOFTWARE.
 const tls = require('tls');
 const net = require('net');
 const EventEmitter = require('events').EventEmitter;
-const SOCKET_MAX_TIMEOUT = 10000;
+const SOCKET_MAX_TIMEOUT = 20000;
 
 const makeRequest = function(method, params, id) {
   return JSON.stringify({
