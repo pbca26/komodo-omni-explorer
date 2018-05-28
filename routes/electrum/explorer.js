@@ -12,6 +12,9 @@ const { komodoInterest } = require('agama-wallet-lib');
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
 const MAX_REMOTE_EXPLORER_TIMEOUT = 10000;
+const SOCKET_MAX_TIMEOUT = 20000;
+
+// TODO: add search one time caching, per request basis
 
 let remoteExplorersArray = [];
 let remoteExplorersArrayInsight = [];
@@ -480,13 +483,23 @@ module.exports = (shepherd) => {
         }
       });
     } else {
+      // TODO: switch tx history to be queried first, add pub address validation check
       // pub address
       let errorCount = 0;
+      let _finishedBalanceCalls = {};
 
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
           const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+
+          setTimeout(() => {
+            if (!_finishedBalanceCalls[electrumServerData.coin.toUpperCase()]) {
+              errorCount++;
+              resolve('error');
+              _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = 'error';
+            }
+          }, SOCKET_MAX_TIMEOUT);
 
           ecl.connect();
           ecl.blockchainAddressGetBalance(_searchTerm)
@@ -507,9 +520,11 @@ module.exports = (shepherd) => {
                   unconfirmed: Number((json.unconfirmed * 0.00000001).toFixed(8)),
                 },
               });
+              _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = true;
             } else {
               errorCount++;
               resolve('error');
+              _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = 'error';
             }
           });
         });
@@ -528,54 +543,58 @@ module.exports = (shepherd) => {
           let _transactions = [];
 
           Promise.all(electrumServers.map((electrumServerData, index) => {
-            return new Promise((resolve, reject) => {
-              const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-              const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
-              const MAX_TX = 20;
+            if (_finishedBalanceCalls[electrumServerData.coin.toUpperCase()] !== 'error') {
+              return new Promise((resolve, reject) => {
+                const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
+                const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+                const MAX_TX = 20;
 
-              ecl.connect();
-              ecl.blockchainAddressGetHistory(req.query.term)
-              .then((json) => {
-                if (!json.code) {
-                  if (json &&
-                      json.length) {
-                    json = sortTransactions(json);
-                    json = json.slice(0, MAX_TX);
+                ecl.connect();
+                ecl.blockchainAddressGetHistory(req.query.term)
+                .then((json) => {
+                  if (!json.code) {
+                    if (json &&
+                        json.length) {
+                      json = sortTransactions(json);
+                      json = json.slice(0, MAX_TX);
 
-                    Promise.all(json.map((transaction, index) => {
-                      return new Promise((resolve, reject) => {
-                        ecl.blockchainBlockGetHeader(transaction.height)
-                        .then((blockInfo) => {
-                          if (blockInfo &&
-                              blockInfo.timestamp) {
-                            ecl.blockchainTransactionGet(transaction['tx_hash'])
-                            .then((_rawtxJSON) => {
-                              _transactions.push({
-                                coin: electrumServerData.coin.toUpperCase(),
-                                blockindex: transaction.height,
-                                txid: transaction['tx_hash'],
-                                timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
+                      Promise.all(json.map((transaction, index) => {
+                        return new Promise((resolve, reject) => {
+                          ecl.blockchainBlockGetHeader(transaction.height)
+                          .then((blockInfo) => {
+                            if (blockInfo &&
+                                blockInfo.timestamp) {
+                              ecl.blockchainTransactionGet(transaction['tx_hash'])
+                              .then((_rawtxJSON) => {
+                                _transactions.push({
+                                  coin: electrumServerData.coin.toUpperCase(),
+                                  blockindex: transaction.height,
+                                  txid: transaction['tx_hash'],
+                                  timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
+                                });
+                                resolve();
                               });
+                            } else {
                               resolve();
-                            });
-                          }
+                            }
+                          });
                         });
+                      }))
+                      .then(promiseResult => {
+                        ecl.close();
+                        resolve();
                       });
-                    }))
-                    .then(promiseResult => {
+                    } else {
                       ecl.close();
                       resolve();
-                    });
+                    }
                   } else {
-                    ecl.close();
                     resolve();
+                    ecl.close();
                   }
-                } else {
-                  resolve();
-                  ecl.close();
-                }
+                });
               });
-            });
+            }
           }))
           .then(result => {
             const successObj = {

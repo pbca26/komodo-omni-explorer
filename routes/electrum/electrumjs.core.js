@@ -132,7 +132,7 @@ const initSocket = function(self, protocol, options) {
 
   conn.setTimeout(SOCKET_MAX_TIMEOUT);
   conn.on('timeout', () => {
-    // console.log('socket timeout');
+    console.log('socket timeout');
     self.onError(new Error('socket timeout'));
     self.onClose();
   });
