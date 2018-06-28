@@ -69,14 +69,12 @@ http://atomicexplorer.com/#/coins
 http://atomicexplorer.com/#/faucet
 
 #### Agama Web wallet
-http://atomicexplorer.com/wallet
+http://atomicexplorer.com/wallet (hosted)
 
-http://atomicexplorer.com/wallet.zip
+http://atomicexplorer.com/wallet.zip (standalone)
 
 #### Price ticker widget
 http://atomicexplorer.com/ticker
-
-http://atomicexplorer.com/wallet.zip
 
 How to use ticker https://github.com/pbca26/komodo-omni-explorer/wiki/Ticker-widget
 

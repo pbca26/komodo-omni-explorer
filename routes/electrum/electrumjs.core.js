@@ -352,8 +352,8 @@ class ElectrumJSCore extends Client {
     return this.request('blockchain.transaction.broadcast', [rawtx]);
   }
 
-  blockchainTransactionGet(tx_hash, height) {
-    return this.request('blockchain.transaction.get', [tx_hash, height]);
+  blockchainTransactionGet(tx_hash) {
+    return this.request('blockchain.transaction.get', [tx_hash]);
   }
 
   blockchainTransactionGetMerkle(tx_hash, height) {

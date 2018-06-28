@@ -726,6 +726,19 @@ module.exports = (shepherd) => {
     });
   });
 
+  shepherd.electrumGetCurrentBlock = (ecl) => {
+    return new Promise((resolve, reject) => {
+      ecl.blockchainHeadersSubscribe()
+      .then((json) => {
+        if (json['block_height']) {
+          resolve(json['block_height']);
+        } else {
+          resolve(json);
+        }
+      });
+    });
+  }
+
   shepherd.listunspent = (ecl, address, network) => {
     let _atLeastOneDecodeTxFailed = false;
 
@@ -738,7 +751,7 @@ module.exports = (shepherd) => {
           let formattedUtxoList = [];
           let _utxo = [];
 
-          ecl.blockchainNumblocksSubscribe()
+          shepherd.electrumGetCurrentBlock(ecl)
           .then((currentHeight) => {
             if (currentHeight &&
                 Number(currentHeight) > 0) {
@@ -770,7 +783,7 @@ module.exports = (shepherd) => {
 
                         if (Number(_utxoItem.value) * 0.00000001 >= 10 &&
                             decodedTx.format.locktime > 0) {
-                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value));
+                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
                         }
 
                         let _resolveObj = {
