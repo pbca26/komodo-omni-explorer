@@ -107,6 +107,9 @@ if (isProduction) {
               const {name} = path.parse(fullPathToSourceFile);
               return `coin_${name}`;
             }
+        },
+        exportOpts: {
+            quality: 50
         }
     })
   );
