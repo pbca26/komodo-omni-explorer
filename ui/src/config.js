@@ -2,8 +2,8 @@ import { coin } from 'agama-wallet-lib/src/index-fe.js';
 
 const _config = {
   dev: false,
-  https: true,
-  apiUrl: 'www.atomicexplorer.com',
+  https: false,
+  apiUrl: 'localhost:8115',
   explorers: [
     'KMD',
     'MSHARK',
@@ -18,6 +18,7 @@ const _config = {
     'BOTS',
     'MGW',
     'WLC',
+    'KV',
     'CHIPS',
     'COQUI',
     'MNZ',
@@ -25,8 +26,13 @@ const _config = {
     'OOT',
     'CHAIN',
     'BNTN',
-    //'GLXT',
-    //'NINJA'
+    'PRLPAY',
+    'GLXT',
+    'NINJA',
+    'EQL',
+    'ZILLA',
+    'DSEC',
+    'VRSC'
   ],
   extendExplorers: [
     'BEER',
@@ -51,6 +57,10 @@ const _config = {
       outSize: 0.1,
       explorer: coin.explorerList.COQUI,
     },
+    zilla: {
+      outSize: 0.1,
+      explorer: coin.explorerList.ZILLA,
+    },
   },
 };
 
@@ -60,11 +70,11 @@ const explorers = () => {
   config.explorers = {};
 
   for (let i = 0; i < _config.explorers.length; i++) {
-    config.explorers[_config.explorers[i]] = typeof coin.explorerList[_config.explorers[i]] === 'string' ? coin.explorerList[_config.explorers[i]] : coin.explorerList[_config.explorers[i]].url;
+    config.explorers[_config.explorers[i]] = coin.explorerList[_config.explorers[i]];
   }
 
   for (let i = 0; i < _config.extendExplorers.length; i++) {
-    config.extendExplorers[_config.extendExplorers[i]] = typeof coin.explorerList[_config.extendExplorers[i]] === 'string' ? coin.explorerList[_config.extendExplorers[i]] : coin.explorerList[_config.extendExplorers[i]].url
+    config.extendExplorers[_config.extendExplorers[i]] = coin.explorerList[_config.extendExplorers[i]];
   }
 };
 
