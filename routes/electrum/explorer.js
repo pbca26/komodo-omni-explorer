@@ -3,12 +3,17 @@ const remoteExplorers = require('../../config').explorers;
 const remoteExplorersInsight = require('../../config').insight;
 const _electrumServers = require('../../config').electrumServers;
 const { komodoParams } = require('../../config');
-const txDecoder = require('./txDecoder');
+const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 const { komodoInterest } = require('agama-wallet-lib');
+const {
+  toSats,
+  fromSats,
+} = require('agama-wallet-lib/src/utils');
+
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
 const MAX_REMOTE_EXPLORER_TIMEOUT = 10000;
@@ -260,7 +265,7 @@ module.exports = (shepherd) => {
                                 blockhash: block.hash,
                                 blockindex: block.height,
                                 timestamp: txs[i].time,
-                                total: config.insight[coin].float ? txs[i].valueOut * 100000000 : txs[i].valueOut,
+                                total: config.insight[coin].float ? toSats(txs[i].valueOut) : txs[i].valueOut,
                                 vout: txs[i].vout,
                                 vin: txs[i].vin,
                               });
@@ -279,7 +284,7 @@ module.exports = (shepherd) => {
                         resolve(false);
                       }
                     });
-                  }, index * 1000);
+                  }, index * 1500);
                 });
               }))
               .then(result => {
@@ -406,8 +411,6 @@ module.exports = (shepherd) => {
                           blockindex: _parseData[j].blockindex,
                           timestamp: _parseData[j].timestamp,
                           total: _parseData[j].total,
-                          // vout: _parseData[j].vout,
-                          // vin: _parseData[j].vin,
                         });
                       }
                     } catch (e) {}
@@ -516,8 +519,8 @@ module.exports = (shepherd) => {
                   unconfirmed: json.unconfirmed,
                 },
                 balance: {
-                  confirmed: Number((json.confirmed * 0.00000001).toFixed(8)),
-                  unconfirmed: Number((json.unconfirmed * 0.00000001).toFixed(8)),
+                  confirmed: Number(fromSats(json.confirmed).toFixed(8)),
+                  unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
                 },
               });
               _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = true;
@@ -632,7 +635,7 @@ module.exports = (shepherd) => {
             let _utxo = [];
 
             for (let i = 0; i < utxoList.length; i++) {
-              if (Number(utxoList[i].value) * 0.00000001 >= 10) {
+              if (fromSats(Number(utxoList[i].value)) >= 10) {
                 _utxo.push(utxoList[i]);
               }
             }
@@ -663,14 +666,14 @@ module.exports = (shepherd) => {
                 const successObj = {
                   msg: 'success',
                   result: {
-                    balance: Number((0.00000001 * json.confirmed).toFixed(8)),
-                    unconfirmed: Number((0.00000001 * json.unconfirmed).toFixed(8)),
+                    balance: Number(fromSats(json.confirmed).toFixed(8)),
+                    unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
                     unconfirmedSats: json.unconfirmed,
                     balanceSats: json.confirmed,
                     interest: Number(interestTotal.toFixed(8)),
-                    interestSats: Math.floor(interestTotal * 100000000),
-                    total: interestTotal > 0 ? Number((0.00000001 * json.confirmed + interestTotal).toFixed(8)) : 0,
-                    totalSats: interestTotal > 0 ? json.confirmed + Math.floor(interestTotal * 100000000) : 0,
+                    interestSats: Math.floor(toSats(interestTotal)),
+                    total: interestTotal > 0 ? Number((fromSats(json.confirmed) + interestTotal).toFixed(8)) : 0,
+                    totalSats: interestTotal > 0 ? json.confirmed + Math.floor(toSats(interestTotal)) : 0,
                   },
                 };
 
@@ -681,8 +684,8 @@ module.exports = (shepherd) => {
               const successObj = {
                 msg: 'success',
                 result: {
-                  balance: Number((0.00000001 * json.confirmed).toFixed(8)),
-                  unconfirmed: Number((0.00000001 * json.unconfirmed).toFixed(8)),
+                  balance: Number(fromSats(json.confirmed).toFixed(8)),
+                  unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
                   unconfirmedSats: json.unconfirmed,
                   balanceSats: json.confirmed,
                   interest: 0,
@@ -699,8 +702,8 @@ module.exports = (shepherd) => {
             const successObj = {
               msg: 'success',
               result: {
-                balance: Number((0.00000001 * json.confirmed).toFixed(8)),
-                unconfirmed: Number((0.00000001 * json.unconfirmed).toFixed(8)),
+                balance: Number(fromSats(json.confirmed).toFixed(8)),
+                unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
                 unconfirmedSats: json.unconfirmed,
                 balanceSats: json.confirmed,
                 interest: 0,
@@ -726,6 +729,19 @@ module.exports = (shepherd) => {
     });
   });
 
+  shepherd.electrumGetCurrentBlock = (ecl) => {
+    return new Promise((resolve, reject) => {
+      ecl.blockchainHeadersSubscribe()
+      .then((json) => {
+        if (json['block_height']) {
+          resolve(json['block_height']);
+        } else {
+          resolve(json);
+        }
+      });
+    });
+  }
+
   shepherd.listunspent = (ecl, address, network) => {
     let _atLeastOneDecodeTxFailed = false;
 
@@ -738,7 +754,7 @@ module.exports = (shepherd) => {
           let formattedUtxoList = [];
           let _utxo = [];
 
-          ecl.blockchainNumblocksSubscribe()
+          shepherd.electrumGetCurrentBlock(ecl)
           .then((currentHeight) => {
             if (currentHeight &&
                 Number(currentHeight) > 0) {
@@ -768,20 +784,20 @@ module.exports = (shepherd) => {
                       } else {
                         let interest = 0;
 
-                        if (Number(_utxoItem.value) * 0.00000001 >= 10 &&
+                        if (Number(fromSats(_utxoItem.value)) >= 10 &&
                             decodedTx.format.locktime > 0) {
-                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value));
+                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
                         }
 
                         let _resolveObj = {
                           txid: _utxoItem['tx_hash'],
                           vout: _utxoItem['tx_pos'],
                           address,
-                          amount: Number(_utxoItem.value) * 0.00000001,
+                          amount: Number(fromSats(_utxoItem.value)),
                           amountSats: _utxoItem.value,
                           locktime: decodedTx.format.locktime,
                           interest: Number(interest.toFixed(8)),
-                          interestSats: Math.floor(interest * 100000000),
+                          interestSats: Math.floor(toSats(interest)),
                           confirmations: Number(_utxoItem.height) === 0 ? 0 : currentHeight - _utxoItem.height,
                         };
 

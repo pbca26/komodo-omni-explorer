@@ -6,6 +6,8 @@ const Promise = require('bluebird');
 const async = require('async');
 const bitcoin = require('bitcoinjs-lib');
 const coinSelect = require('coinselect');
+const { checkTimestamp } = require('agama-wallet-lib/src/time');
+let minRemaining = 0;
 
 const getRandomIntInclusive = (min, max) => {
   min = Math.ceil(min);
@@ -28,21 +30,54 @@ module.exports = (shepherd) => {
       faucetFundedList = '';
     }
 
-    if (faucetFundedList.indexOf(address) === -1) {
-      try {
-        const _b58check = bitcoin.address.fromBase58Check(address);
+    if (config.faucet[coin].resetTimeout) {
+      const faucetFundedListItems = faucetFundedList.split('\n');
 
-        if (_b58check.version === config.komodoParams.pubKeyHash ||
-            _b58check.version === config.komodoParams.scriptHash) {
-          return true;
-        } else {
-          return false;
+      for (let i = 0; i < faucetFundedListItems.length; i++) {
+        if (faucetFundedListItems[i].indexOf(address + ':') > -1) {
+          const _timestamp = faucetFundedListItems[i].substr(faucetFundedListItems[i].indexOf(':') + 1, faucetFundedListItems[i].length);
+          const seconds = checkTimestamp(_timestamp);
+
+          minRemaining = Math.floor((config.faucet[coin].resetTimeout - seconds) / 60);
+
+          if (seconds < config.faucet[coin].resetTimeout) {
+            return 777;
+          } else {
+            faucetFundedListItems.splice(i, 1);
+            fs.writeFileSync(`faucetFundedList-${coin}.log`, faucetFundedListItems.join('\n'));
+
+            try {
+              const _b58check = bitcoin.address.fromBase58Check(address);
+
+              if (_b58check.version === config.komodoParams.pubKeyHash ||
+                  _b58check.version === config.komodoParams.scriptHash) {
+                return true;
+              } else {
+                return false;
+              }
+            } catch(e) {
+              return -777;
+            }
+          }
         }
-      } catch(e) {
-        return -777;
       }
     } else {
-      return 777;
+      if (faucetFundedList.indexOf(address) === -1) {
+        try {
+          const _b58check = bitcoin.address.fromBase58Check(address);
+
+          if (_b58check.version === config.komodoParams.pubKeyHash ||
+              _b58check.version === config.komodoParams.scriptHash) {
+            return true;
+          } else {
+            return false;
+          }
+        } catch(e) {
+          return -777;
+        }
+      } else {
+        return 777;
+      }
     }
   };
 
@@ -205,11 +240,11 @@ module.exports = (shepherd) => {
                     res.end(JSON.stringify(successObj));
 
                     try {
-                      fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress}\n`);
+                      fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
                       console.log(`new faucet address added ${outputAddress}`);
                     } catch (err) {
                       try {
-                        fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress}\n`);
+                        fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
                         console.log(`new faucet address added ${outputAddress}`);
                       } catch (err) {
                         console.log('fubar!');
@@ -272,7 +307,7 @@ module.exports = (shepherd) => {
     } else if (addressCheck === 777) {
       const successObj = {
         msg: 'error',
-        result: 'You had enough already. Go home.',
+        result: 'You had enough already. ' + (minRemaining > 0 ? `Come back in ${minRemaining} min(s)` : 'Go home.'),
       };
 
       res.set({ 'Content-Type': 'application/json' });
