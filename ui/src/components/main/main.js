@@ -127,7 +127,7 @@ class Main extends React.Component {
             }
           </div>
           { this.props.path !== '/coins' &&
-            <div className="row text-center margin-top-md margin-bottom-xlg">
+            <div className="row text-center margin-top-md margin-bottom-xlg explorer-icons">
               { this.renderCoinIcons() }
             </div>
           }
