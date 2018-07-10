@@ -634,6 +634,13 @@ span[class*=' coin_'] {
     }
     .nav.navbar-sub {
       width: 106px;
+
+      > li {
+        font-size: 13px;
+      }
+      > li > a {
+        padding: 15px 0 15px 7px;
+      }
     }
   }
 }
