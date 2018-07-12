@@ -7,6 +7,11 @@ const async = require('async');
 const bitcoin = require('bitcoinjs-lib');
 const coinSelect = require('coinselect');
 const { checkTimestamp } = require('agama-wallet-lib/src/time');
+const {
+  toSats,
+  fromSats,
+} = require('agama-wallet-lib/src/utils');
+
 let minRemaining = 0;
 
 const getRandomIntInclusive = (min, max) => {
@@ -32,11 +37,14 @@ module.exports = (shepherd) => {
 
     if (config.faucet[coin].resetTimeout) {
       const faucetFundedListItems = faucetFundedList.split('\n');
+      let addressNotFound = true;
 
       for (let i = 0; i < faucetFundedListItems.length; i++) {
         if (faucetFundedListItems[i].indexOf(address + ':') > -1) {
           const _timestamp = faucetFundedListItems[i].substr(faucetFundedListItems[i].indexOf(':') + 1, faucetFundedListItems[i].length);
           const seconds = checkTimestamp(_timestamp);
+
+          addressNotFound = false;
 
           minRemaining = Math.floor((config.faucet[coin].resetTimeout - seconds) / 60);
 
@@ -59,6 +67,21 @@ module.exports = (shepherd) => {
               return -777;
             }
           }
+        }
+      }
+
+      if (addressNotFound) {
+        try {
+          const _b58check = bitcoin.address.fromBase58Check(address);
+
+          if (_b58check.version === config.komodoParams.pubKeyHash ||
+              _b58check.version === config.komodoParams.scriptHash) {
+            return true;
+          } else {
+            return false;
+          }
+        } catch(e) {
+          return -777;
         }
       }
     } else {
@@ -122,19 +145,19 @@ module.exports = (shepherd) => {
               if (i === _outSizes.length - 1) {
                 targets.push({
                   address: outputAddress,
-                  value: Math.floor((_outSizes[i] * 100000000) + (config.faucet[coin].fee * 100000000)),
+                  value: Math.floor(toSats(_outSizes[i]) + toSats(config.faucet[coin].fee)),
                 });
               } else {
                 targets.push({
                   address: outputAddress,
-                  value: Math.floor(_outSizes[i] * 100000000),
+                  value: Math.floor(toSats(_outSizes[i])),
                 });
               }
             }
           } else {
             targets = [{
               address: outputAddress,
-              value: Math.floor((config.faucet[coin].outSize * 100000000) + (config.faucet[coin].fee * 100000000)),
+              value: Math.floor(toSats(config.faucet[coin].outSize) + toSats(config.faucet[coin].fee)),
             }];
           }
 
@@ -176,7 +199,7 @@ module.exports = (shepherd) => {
             if (typeof config.faucet[coin].outSize === 'object') {
               for (i = 0; i < outputs.length - 1; i++) {
                 if (i === outputs.length - 2) {
-                  tx.addOutput(outputAddress, Number(outputs[i].value - (config.faucet[coin].fee * 100000000)));
+                  tx.addOutput(outputAddress, Number(outputs[i].value - toSats(config.faucet[coin].fee)));
                 } else {
                   tx.addOutput(outputAddress, Number(outputs[i].value));
                 }
@@ -186,7 +209,7 @@ module.exports = (shepherd) => {
                 tx.addOutput(keys.pub, Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value));
               }
             } else {
-              tx.addOutput(outputAddress, Number(outputs[0].value - (config.faucet[coin].fee * 100000000)));
+              tx.addOutput(outputAddress, Number(outputs[0].value - toSats(config.faucet[coin].fee)));
 
               if (outputs[1].value > 1000) {
                 tx.addOutput(keys.pub, Number(outputs[1].value));

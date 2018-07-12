@@ -110,14 +110,21 @@ module.exports = (shepherd) => {
           request(options, (error, response, body) => {
             remoteExplorersFinished[coin] = true;
 
-            if (response &&
-                response.statusCode &&
-                response.statusCode === 200) {
-              resolve({
-                coin,
-                data: JSON.parse(body).data,
-              });
-            } else {
+            try {
+              if (response &&
+                  response.statusCode &&
+                  response.statusCode === 200) {
+                resolve({
+                  coin,
+                  data: JSON.parse(body).data,
+                });
+              } else {
+                resolve({
+                  coin,
+                  data: 'unable to get summary',
+                });
+              }
+            } catch (e) {
               resolve({
                 coin,
                 data: 'unable to get summary',

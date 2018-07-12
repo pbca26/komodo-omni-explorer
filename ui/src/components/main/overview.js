@@ -51,8 +51,9 @@ class Overview extends React.Component {
   }
 
   renderTotal(coin, total) {
+    // <span>{ Number((total * (coin === 'KMD' ? 1 : 0.00000001)).toFixed(8)) } { coin }</span>
     return (
-      <span>{ Number((total * (coin === 'KMD' ? 1 : 0.00000001)).toFixed(8)) } { coin }</span>
+      <span>{ total } { coin }</span>
     );
   }
 
