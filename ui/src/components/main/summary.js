@@ -35,9 +35,8 @@ const explorers = {
     'http://beer.explorer.dexstats.info'
   ],
   'CHIPS': [
-    'http://chips1.explorer.supernet.org',
-    'http://chips2.explorer.supernet.org',
-    'http://chips3.explorer.supernet.org'
+    'https://explorer.chips.cash',
+    'http://chips.komodochainz.info'
   ],
   'BTCH': [
     'https://btch.kmdexplorer.io',

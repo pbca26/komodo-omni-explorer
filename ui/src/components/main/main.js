@@ -98,7 +98,7 @@ class Main extends React.Component {
                   <strong>Coins</strong>
                 </div>
                 <div className="panel-body">
-                  <label id="hashrate">17</label>
+                  <label id="hashrate">28</label>
                 </div>
               </div>
             </div>
