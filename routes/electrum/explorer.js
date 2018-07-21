@@ -13,6 +13,7 @@ const {
   toSats,
   fromSats,
 } = require('agama-wallet-lib/src/utils');
+const acSupply = require('./acSupply');
 
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
@@ -141,7 +142,6 @@ module.exports = (shepherd) => {
         Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
           return new Promise((resolve, reject) => {
             console.log(`insight summary ${coin}`);
-            // console.log(`${remoteExplorersInsight[coin].url}/status?q=getInfo`);
 
             const options = {
               url: `${remoteExplorersInsight[coin].url}/status?q=getInfo`,
@@ -173,6 +173,7 @@ module.exports = (shepherd) => {
                   difficulty,
                   connections,
                   blockcount: blocks,
+                  supply: acSupply[coin.toUpperCase()] || '',
                 }];
                 result.push({
                   coin: coin.toUpperCase(),
