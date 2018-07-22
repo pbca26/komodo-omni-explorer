@@ -86,11 +86,12 @@ class Faucet extends React.Component {
       this.recaptchaToken
     )
     .then((res) => {
-      this.recaptchaToken = null;
       this.setState({
         error: res.msg === 'error' ? true : false,
         result: res.result,
       });
+      this.recaptchaToken = null;
+      this.captcha.reset();
     });
   }
 
