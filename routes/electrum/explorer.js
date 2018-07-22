@@ -87,6 +87,14 @@ module.exports = (shepherd) => {
     }));
   });
 
+  shepherd.get('/explorer/supply', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: req.query.coin && (acSupply[req.query.coin] || acSupply[req.query.coin.toUpperCase()]) ? acSupply[req.query.coin] || acSupply[req.query.coin.toUpperCase()] : acSupply,
+    }));
+  });
+
   shepherd.getSummary = () => {
     const _getSummary = () => {
       let remoteExplorersFinished = {};
