@@ -143,7 +143,7 @@ class Faucet extends React.Component {
               { !this.state.error &&
                 this.state.result &&
                 <div>
-                  <strong>{ config.faucet.outSize }</strong> { this.state.coin.toUpperCase() } is sent to { this.state.address }
+                  <strong>{ config.faucet[this.state.coin].outSize }</strong> { this.state.coin.toUpperCase() } is sent to { this.state.address }
                   <div className="margin-top-md">
                     <a
                       target="_blank"
