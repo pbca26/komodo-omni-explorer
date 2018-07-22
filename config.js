@@ -105,7 +105,7 @@ const _config = {
     pizza: {
       wif: '',
       fee: 0.0001,
-      outSize: [10000,10000,10000],
+      outSize: 10000,
     },
     coqui: {
       wif: '',
@@ -118,15 +118,43 @@ const _config = {
       outSize: 0.1,
       resetTimeout: 3600 * 24,
     },
+    prlpay: {
+      wif: '',
+      fee: 0.0001,
+      outSize: 0.1,
+    },
   },
+  recaptchaKey: '',
   ticker: [
-    'jumblr',
-    'dex',
+    'kmd',
     'coqui',
+    'revs',
+    'supernet',
+    'dex',
+    'bots',
+    'crypto',
+    'hodl',
+    'pangea',
+    'bet',
+    'mshark',
     'mnz',
+    'wlc',
+    'jumblr',
+    'mgw',
     'kmd',
     'chips',
-    'supernet'
+    'btch',
+    'beer',
+    'pizza',
+    'oot',
+    'bntn',
+    'chain',
+    'kv',
+    'prlpay',
+    'zilla',
+    'eql',
+    'glxt',
+    'ninja'
   ],
   tickerUrl: 'http://localhost:7783',
   komodoParams: btcnetworks.kmd,
@@ -191,38 +219,6 @@ const _config = {
     'btcz',
     'qtum',
   ],
-  iquidus: {
-    KMD: 'https://www.kmdexplorer.io',
-    KV: 'http://kv.explorer.supernet.org',
-    OOT: 'http://explorer.utrum.io',
-    BNTN: 'http://chain.blocnation.io',
-    CHAIN: 'http://explorer.chainmakers.co',
-    GLXT: 'http://glx.info',
-    PRLPAY: 'http://explorer.prlpay.com',
-    MSHARK: 'http://MSHARK.explorer.supernet.org',
-    REVS: 'http://revs.explorer.supernet.org',
-    SUPERNET: 'http://SUPERNET.explorer.supernet.org',
-    DEX: 'http://DEX.explorer.supernet.org',
-    PANGEA: 'http://PANGEA.explorer.supernet.org',
-    JUMBLR: 'http://JUMBLR.explorer.supernet.org',
-    BET: 'http://BET.explorer.supernet.org',
-    CRYPTO: 'http://CRYPTO.explorer.supernet.org',
-    HODL: 'http://HODL.explorer.supernet.org',
-    SHARK: 'http://SHARK.explorer.supernet.org',
-    BOTS: 'http://BOTS.explorer.supernet.org',
-    MGW: 'http://MGW.explorer.supernet.org',
-    WLC: 'http://WIRELESS.explorer.supernet.org',
-    CHIPS: 'http://CHIPS1.explorer.supernet.org',
-    COQUI: 'https://explorer.coqui.cash',
-    EQL: 'http://178.62.240.191',
-    MNZ: 'https://www.mnzexplorer.com',
-    BTCH: 'http://www.btch.host',
-    BTC: 'https://blockchain.info',
-    HUSH: 'https://explorer.myhush.org',
-    PIZZA: 'http://pizza.komodochainz.info',
-    BEER: 'http://beer.komodochainz.info',
-    NINJA: 'https://explorer.fund.ninja',
-  },
 };
 
 let config = JSON.parse(JSON.stringify(_config));
@@ -232,7 +228,6 @@ const explorers = () => {
 
   for (let i = 0; i < _config.explorers.length; i++) {
     config.explorers[_config.explorers[i]] = coin.explorerList[_config.explorers[i]];
-    config.explorers[_config.explorers[i]] = config.iquidus[_config.explorers[i]];
   }
 };
 
