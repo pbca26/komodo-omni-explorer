@@ -298,9 +298,9 @@ export const stats = (currentState) => {
   }
 }
 
-export const faucet = (coin, address) => {
+export const faucet = (coin, address, recaptcha) => {
   return new Promise((resolve, reject) => {
-    fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/faucet?address=${address}&coin=${coin}`, {
+    fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/faucet?address=${address}&coin=${coin}&grecaptcha=${recaptcha}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

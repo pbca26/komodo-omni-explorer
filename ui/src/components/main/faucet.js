@@ -3,6 +3,7 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
+import { ReCaptcha } from 'react-recaptcha-google'
 
 class Faucet extends React.Component {
   constructor(props) {
@@ -13,8 +14,11 @@ class Faucet extends React.Component {
       result: null,
       coin: null,
     };
+    this.recaptchaToken = null;
     this.triggerFaucet = this.triggerFaucet.bind(this);
     this.updateInput = this.updateInput.bind(this);
+    this.onLoadRecaptcha = this.onLoadRecaptcha.bind(this);
+    this.verifyCallback = this.verifyCallback.bind(this);
   }
 
   componentWillReceiveProps(props) {
@@ -23,10 +27,12 @@ class Faucet extends React.Component {
       this.setState({
         coin: props.input.toLowerCase(),
       });
+      this.captcha.reset();
     } else {
       this.setState({
         coin: 'beer',
       });
+      this.captcha.reset();
     }
   }
 
@@ -36,16 +42,41 @@ class Faucet extends React.Component {
       this.setState({
         coin: this.props.input.toLowerCase(),
       });
+      if (this.captcha) {
+        this.captcha.reset();
+      }
     } else {
       this.setState({
         coin: 'beer',
       });
+      if (this.captcha) {
+        this.captcha.reset();
+      }
+    }
+
+    if (this.captcha) {
+      this.captcha.reset();
     }
   }
 
+  onLoadRecaptcha() {
+    if (this.captcha) {
+      this.captcha.reset();
+    }
+  }
+
+  verifyCallback(recaptchaToken) {
+    this.recaptchaToken = recaptchaToken;
+  }
+
   triggerFaucet() {
-    faucet(this.state.coin, this.state.address)
+    faucet(
+      this.state.coin,
+      this.state.address,
+      this.recaptchaToken
+    )
     .then((res) => {
+      this.recaptchaToken = null;
       this.setState({
         error: res.msg === 'error' ? true : false,
         result: res.result,
@@ -56,6 +87,8 @@ class Faucet extends React.Component {
   updateInput(e) {
     this.setState({
       [e.target.name]: e.target.value,
+      error: false,
+      result: null,
     });
   }
 
@@ -80,6 +113,16 @@ class Faucet extends React.Component {
                   value={ this.state.address }
                   placeholder={ `Enter a ${this.state.coin.toUpperCase()} address` }
                   className="form-control" />
+                <div className="google-recaptcha">
+                  <ReCaptcha
+                    ref={ (el) => { this.captcha = el }}
+                    size="normal"
+                    data-theme="dark"
+                    render="explicit"
+                    sitekey="6Lf7bmUUAAAAAEdqyHVOakev8E1cfvnfHObtesiD"
+                    onloadCallback={ this.onLoadRecaptcha }
+                    verifyCallback={ this.verifyCallback } />
+                </div>
                 <button
                   onClick={ this.triggerFaucet }
                   disabled={ this.state.address.length !== 34 }
