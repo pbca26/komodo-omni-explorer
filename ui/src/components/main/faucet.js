@@ -26,13 +26,23 @@ class Faucet extends React.Component {
         config.faucet[props.input.toLowerCase()]) {
       this.setState({
         coin: props.input.toLowerCase(),
+        error: false,
+        result: null,
       });
-      this.captcha.reset();
+
+      if (this.state.coin != props.input.toLowerCase()) {
+        this.captcha.reset();
+      }
     } else {
       this.setState({
         coin: 'beer',
+        error: false,
+        result: null,
       });
-      this.captcha.reset();
+
+      if (this.state.coin != props.input.toLowerCase()) {
+        this.captcha.reset();
+      }
     }
   }
 
