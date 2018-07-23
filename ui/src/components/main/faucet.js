@@ -3,6 +3,7 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
+import { ReCaptcha } from 'react-recaptcha-google'
 
 class Faucet extends React.Component {
   constructor(props) {
@@ -12,21 +13,45 @@ class Faucet extends React.Component {
       error: false,
       result: null,
       coin: null,
+      processing: false,
     };
+    this.recaptchaToken = null;
     this.triggerFaucet = this.triggerFaucet.bind(this);
     this.updateInput = this.updateInput.bind(this);
+    this.onLoadRecaptcha = this.onLoadRecaptcha.bind(this);
+    this.verifyCallback = this.verifyCallback.bind(this);
   }
 
   componentWillReceiveProps(props) {
     if (props.input &&
         config.faucet[props.input.toLowerCase()]) {
-      this.setState({
-        coin: props.input.toLowerCase(),
-      });
+      if (this.state.coin != props.input.toLowerCase()) {
+        this.captcha.reset();
+
+        this.setState({
+          coin: props.input.toLowerCase(),
+          error: false,
+          result: null,
+        });
+      } else {
+        this.setState({
+          coin: props.input.toLowerCase(),
+        });
+      }
     } else {
-      this.setState({
-        coin: 'beer',
-      });
+      if (this.state.coin != props.input.toLowerCase()) {
+        this.captcha.reset();
+
+        this.setState({
+          coin: 'beer',
+          error: false,
+          result: null,
+        });
+      } else {
+        this.setState({
+          coin: 'beer',
+        });
+      }
     }
   }
 
@@ -36,26 +61,59 @@ class Faucet extends React.Component {
       this.setState({
         coin: this.props.input.toLowerCase(),
       });
+      if (this.captcha) {
+        this.captcha.reset();
+      }
     } else {
       this.setState({
         coin: 'beer',
       });
+      if (this.captcha) {
+        this.captcha.reset();
+      }
+    }
+
+    if (this.captcha) {
+      this.captcha.reset();
     }
   }
 
+  onLoadRecaptcha() {
+    if (this.captcha) {
+      this.captcha.reset();
+    }
+  }
+
+  verifyCallback(recaptchaToken) {
+    this.recaptchaToken = recaptchaToken;
+  }
+
   triggerFaucet() {
-    faucet(this.state.coin, this.state.address)
+    this.setState({
+      processing: true,
+    });
+
+    faucet(
+      this.state.coin,
+      this.state.address,
+      this.recaptchaToken
+    )
     .then((res) => {
       this.setState({
         error: res.msg === 'error' ? true : false,
         result: res.result,
+        processing: false,
       });
+      this.recaptchaToken = null;
+      this.captcha.reset();
     });
   }
 
   updateInput(e) {
     this.setState({
       [e.target.name]: e.target.value,
+      error: false,
+      result: null,
     });
   }
 
@@ -80,6 +138,16 @@ class Faucet extends React.Component {
                   value={ this.state.address }
                   placeholder={ `Enter a ${this.state.coin.toUpperCase()} address` }
                   className="form-control" />
+                <div className="google-recaptcha">
+                  <ReCaptcha
+                    ref={ (el) => { this.captcha = el }}
+                    size="normal"
+                    data-theme="dark"
+                    render="explicit"
+                    sitekey="6Lf7bmUUAAAAAEdqyHVOakev8E1cfvnfHObtesiD"
+                    onloadCallback={ this.onLoadRecaptcha }
+                    verifyCallback={ this.verifyCallback } />
+                </div>
                 <button
                   onClick={ this.triggerFaucet }
                   disabled={ this.state.address.length !== 34 }
@@ -97,10 +165,15 @@ class Faucet extends React.Component {
                   <strong>{ this.state.result }</strong>
                 </div>
               }
+              { this.state.processing &&
+                <div className="alert alert-warning alert-dismissable">
+                  <strong>Processing...</strong>
+                </div>
+              }
               { !this.state.error &&
                 this.state.result &&
                 <div>
-                  <strong>{ config.faucet.outSize }</strong> { this.state.coin.toUpperCase() } is sent to { this.state.address }
+                  <strong>{ config.faucet[this.state.coin].outSize }</strong> { this.state.coin.toUpperCase() } is sent to { this.state.address }
                   <div className="margin-top-md">
                     <a
                       target="_blank"

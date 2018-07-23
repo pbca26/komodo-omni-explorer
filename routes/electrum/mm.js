@@ -350,7 +350,7 @@ module.exports = (shepherd) => {
   });
 
   shepherd.getMMCoins = () => {
-    const coinsFileLocation = path.join(__dirname, '../../coins.json');
+    const coinsFileLocation = path.join(__dirname, '../../bdexCoins.json');
     let coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
 
     for (let i = 0; i < coinsFile.length; i++) {

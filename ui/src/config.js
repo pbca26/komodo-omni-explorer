@@ -48,7 +48,7 @@ const _config = {
   },
   faucet: {
     beer: {
-      outSize: 0.777,
+      outSize: 3,
       explorer: explorerList.BEER,
     },
     pizza: {

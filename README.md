@@ -65,7 +65,7 @@ http://atomicexplorer.com/#/trades
 #### BarterDEX coins list
 http://atomicexplorer.com/#/coins
 
-#### BEER faucet
+#### Faucet
 http://atomicexplorer.com/#/faucet
 
 #### Agama Web wallet
@@ -94,6 +94,10 @@ params: none required
 #### GET /api/explorer/summary
 
 params: none required
+
+### GET /api/explorer/supply
+
+params (optional): coin
 
 #### GET /api/mm/prices
 
