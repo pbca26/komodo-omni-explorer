@@ -13,6 +13,7 @@ class Faucet extends React.Component {
       error: false,
       result: null,
       coin: null,
+      processing: false,
     };
     this.recaptchaToken = null;
     this.triggerFaucet = this.triggerFaucet.bind(this);
@@ -24,24 +25,32 @@ class Faucet extends React.Component {
   componentWillReceiveProps(props) {
     if (props.input &&
         config.faucet[props.input.toLowerCase()]) {
-      this.setState({
-        coin: props.input.toLowerCase(),
-        error: false,
-        result: null,
-      });
-
       if (this.state.coin != props.input.toLowerCase()) {
         this.captcha.reset();
+
+        this.setState({
+          coin: props.input.toLowerCase(),
+          error: false,
+          result: null,
+        });
+      } else {
+        this.setState({
+          coin: props.input.toLowerCase(),
+        });
       }
     } else {
-      this.setState({
-        coin: 'beer',
-        error: false,
-        result: null,
-      });
-
       if (this.state.coin != props.input.toLowerCase()) {
         this.captcha.reset();
+
+        this.setState({
+          coin: 'beer',
+          error: false,
+          result: null,
+        });
+      } else {
+        this.setState({
+          coin: 'beer',
+        });
       }
     }
   }
@@ -80,6 +89,10 @@ class Faucet extends React.Component {
   }
 
   triggerFaucet() {
+    this.setState({
+      processing: true,
+    });
+
     faucet(
       this.state.coin,
       this.state.address,
@@ -89,6 +102,7 @@ class Faucet extends React.Component {
       this.setState({
         error: res.msg === 'error' ? true : false,
         result: res.result,
+        processing: false,
       });
       this.recaptchaToken = null;
       this.captcha.reset();
@@ -149,6 +163,11 @@ class Faucet extends React.Component {
               { this.state.error &&
                 <div className="alert alert-danger alert-dismissable">
                   <strong>{ this.state.result }</strong>
+                </div>
+              }
+              { this.state.processing &&
+                <div className="alert alert-warning alert-dismissable">
+                  <strong>Processing...</strong>
                 </div>
               }
               { !this.state.error &&
