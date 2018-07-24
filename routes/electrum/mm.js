@@ -12,6 +12,41 @@ const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 
+const fiat = [
+  'AUD',
+  'BRL',
+  'GBP',
+  'BGN',
+  'CAD',
+  'HRK',
+  'CZK',
+  'CNY',
+  'DKK',
+  'EUR',
+  'HKD',
+  'HUF',
+  'INR',
+  'IDR',
+  'ILS',
+  'JPY',
+  'KRW',
+  'MYR',
+  'MXN',
+  'NZD',
+  'NOK',
+  'PHP',
+  'PLN',
+  'RON',
+  'RUB',
+  'SGD',
+  'ZAR',
+  'SEK',
+  'CHF',
+  'THB',
+  'TRY',
+  'USD'
+];
+
 let electrumServers = [];
 
 const tempElectrumCoins = Object.keys(config.electrumServers).concat(Object.keys(config.electrumServersExtend));
@@ -70,6 +105,7 @@ module.exports = (shepherd) => {
     ordersUpdateInProgress: false,
     pricesUpdateInProgress: false,
     fiatRates: null,
+    fiatRatesAll: null,
     coins: {},
     stats: {
       detailed: {},
@@ -88,7 +124,7 @@ module.exports = (shepherd) => {
   shepherd.getRates = () => {
     const _getRates = () => {
       const options = {
-        url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,USD`,
+        url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,${fiat.join(',')}`,
         method: 'GET',
       };
 
@@ -100,7 +136,11 @@ module.exports = (shepherd) => {
             response.statusCode === 200) {
           const _parsedBody = JSON.parse(body);
           console.log(`rates ${body}`);
-          shepherd.mm.fiatRates = _parsedBody;
+          shepherd.mm.fiatRates = {
+            BTC: _parsedBody.BTC,
+            USD: _parsedBody.USD,
+          };
+          shepherd.mm.fiatRatesAll =_parsedBody;
         } else {
           console.log(`unable to retrieve KMD/BTC,USD rate`);
         }
@@ -115,10 +155,23 @@ module.exports = (shepherd) => {
 
   // get kmd rates
   shepherd.get('/rates/kmd', (req, res, next) => {
+    const _currency = req.query.currency;
+    let _resp = shepherd.mm.fiatRates;
+
+    if (_currency &&
+        shepherd.mm.fiatRatesAll[_currency.toUpperCase()]) {
+      _resp = {
+        BTC: shepherd.mm.fiatRatesAll.BTC,
+        [_currency.toUpperCase()]: shepherd.mm.fiatRatesAll[_currency.toUpperCase()],
+      };
+    } else if (_currency === 'all' || _currency === 'ALL') {
+      _resp = shepherd.mm.fiatRatesAll;
+    }
+
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.mm.fiatRates,
+      result: _resp,
     }));
   });
 
@@ -160,6 +213,7 @@ module.exports = (shepherd) => {
             }
           } else {
             console.log(`${_payload.coin} failed to connect`);
+
             callback();
             _callsCompleted++;
 
@@ -342,10 +396,47 @@ module.exports = (shepherd) => {
 
   // fetch prices
   shepherd.get('/mm/prices', (req, res, next) => {
+    const _currency = req.query.currency;
+    const _coin = req.query.coin;
+    let _resp = shepherd.mm.prices;
+
+    if (_coin) {
+      _resp = {};
+
+      if (shepherd.mm.prices[`KMD/${_coin.toUpperCase()}`]) {
+        _resp[`KMD/${_coin.toUpperCase()}`] = shepherd.mm.prices[`KMD/${_coin.toUpperCase()}`];
+      }
+      if (shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`]) {
+        _resp[`${_coin.toUpperCase()}/KMD`] = shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`];
+      }
+    }
+
+    if (_currency &&
+        shepherd.mm.fiatRatesAll[_currency.toUpperCase()] &&
+        shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`]) {
+      _resp = {
+        [_currency.toUpperCase()]: {
+          low: Number(shepherd.mm.fiatRatesAll[_currency.toUpperCase()] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].low).toFixed(8),
+          avg: Number(shepherd.mm.fiatRatesAll[_currency.toUpperCase()] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].avg).toFixed(8),
+          high: Number(shepherd.mm.fiatRatesAll[_currency.toUpperCase()] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].high).toFixed(8),
+        }
+      };
+    } else if (_currency === 'all' || _currency === 'ALL') {
+      for (let key in shepherd.mm.fiatRatesAll) {
+        if (key !== 'BTC') {
+          _resp[key] = {
+            low: Number(shepherd.mm.fiatRatesAll[key] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].low).toFixed(8),
+            avg: Number(shepherd.mm.fiatRatesAll[key] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].avg).toFixed(8),
+            high: Number(shepherd.mm.fiatRatesAll[key] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].high).toFixed(8),
+          }
+        }
+      }
+    }
+
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.mm.prices,
+      result: _resp,
     }));
   });
 

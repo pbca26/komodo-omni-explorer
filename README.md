@@ -95,13 +95,13 @@ params: none required
 
 params: none required
 
-### GET /api/explorer/supply
+#### GET /api/explorer/supply
 
 params (optional): coin
 
 #### GET /api/mm/prices
 
-params: none required
+params (optional): currency e.g. All or USD, coin e.g. BTC
 
 #### GET /api/mm/orderbook
 
@@ -116,6 +116,12 @@ params: none required
 BTC fees, combined result from Electrum servers and bitcoinfees.earn.com
 
 params: none required
+
+#### GET /api/rates/kmd
+
+Pricing from cryptocompare.com
+
+params (optional): currency e.g. All or USD
 
 #### GET /api/ticker
 #### GET /api/ticker?coin=DEX
