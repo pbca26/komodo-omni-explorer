@@ -5,6 +5,11 @@ import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
 import { ReCaptcha } from 'react-recaptcha-google'
 
+window.recaptchaOptions = {
+  lang: 'en',
+  useRecaptchaNet: true,
+};
+
 class Faucet extends React.Component {
   constructor(props) {
     super(props);
@@ -138,24 +143,24 @@ class Faucet extends React.Component {
                   value={ this.state.address }
                   placeholder={ `Enter a ${this.state.coin.toUpperCase()} address` }
                   className="form-control" />
-                <div className="google-recaptcha">
-                  <ReCaptcha
-                    ref={ (el) => { this.captcha = el }}
-                    size="normal"
-                    data-theme="dark"
-                    render="explicit"
-                    sitekey="6Lf7bmUUAAAAAEdqyHVOakev8E1cfvnfHObtesiD"
-                    onloadCallback={ this.onLoadRecaptcha }
-                    verifyCallback={ this.verifyCallback } />
-                </div>
-                <button
-                  onClick={ this.triggerFaucet }
-                  disabled={ this.state.address.length !== 34 }
-                  type="submit"
-                  className="btn btn-success margin-left-10">
-                  OK
-                </button>
               </div>
+              <div className="google-recaptcha">
+                <ReCaptcha
+                  ref={ (el) => { this.captcha = el }}
+                  size="normal"
+                  data-theme="dark"
+                  render="explicit"
+                  sitekey="6Lf7bmUUAAAAAEdqyHVOakev8E1cfvnfHObtesiD"
+                  onloadCallback={ this.onLoadRecaptcha }
+                  verifyCallback={ this.verifyCallback } />
+              </div>
+              <button
+                onClick={ this.triggerFaucet }
+                disabled={ this.state.address.length !== 34 }
+                type="submit"
+                className="btn btn-success margin-left-10">
+                OK
+              </button>
             </div>
           </div>
           <div className="row text-center margin-top-md margin-bottom-xlg">

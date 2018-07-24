@@ -449,7 +449,7 @@ span[class*=' coin_'] {
 }
 
 .faucet {
-  width: 600px;
+  max-width: 600px;
   margin: 0 auto;
 
   .table-coin-icon-wrapper {
@@ -694,4 +694,8 @@ span[class*=' coin_'] {
 .explorer-icons {
   max-width: 600px;
   margin: 0 auto;
+}
+
+td {
+  white-space: nowrap;
 }
