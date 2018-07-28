@@ -1,0 +1,177 @@
+.ReactTable {
+  .rt-th,
+  .rt-td {
+    padding: 10px 5px 10px 15px;
+  }
+  .rt-tfoot {
+    text-align: center;
+    font-weight: bold;
+
+    .rt-td:first-child {
+      text-align: left;
+      padding-left: 15px;
+    }
+  }
+  .pagination-bottom {
+    .-pagination {
+      padding: 10px;
+    }
+  }
+  .rt-head .rt-tr,
+  .rt-body .rt-tr {
+    .rt-td:first-child {
+      text-align: left !important;
+    }
+  }
+  .rt-thead {
+    .rt-th:first-child {
+      text-align: left;
+      padding-left: 15px;
+    }
+    &.-header {
+      height: 35px;
+      font-weight: bold;
+    }
+    .rt-th,
+    .rt-td {
+      padding: 9px 5px;
+    }
+  }
+  .rt-tbody {
+    .rt-td:nth-child(2),
+    .rt-td:nth-child(3) {
+      text-align: center;
+    }
+  }
+  .rt-tr {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.search-field {
+  border-radius: 0 !important;
+}
+
+.table > caption + thead > tr:first-child > th,
+.table > colgroup + thead > tr:first-child > th,
+.table > thead:first-child > tr:first-child > th,
+.table > caption + thead > tr:first-child > td,
+.table > colgroup + thead > tr:first-child > td,
+.table > thead:first-child > tr:first-child > td {
+  text-align: center;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: 8px 12px;
+}
+
+.table-bordered {
+  border-radius: 4px;
+}
+
+table,
+table td {
+  vertical-align: middle !important;
+}
+
+.prices-table,
+.books-table {
+  img {
+    border-radius: 50%;
+  }
+  .rt-th,
+  .rt-td {
+    text-align: center !important;
+  }
+}
+
+.prices-table .rt-tr-group .rt-td:first-child {
+  text-align: left !important;
+  margin-left: 5px;
+}
+
+.prices-usd-icon {
+  color: #737373;
+  margin-right: 1px;
+}
+
+.prices-block {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.books-table {
+  .ReactTable {
+    .rt-tbody {
+      max-height: 400px;
+    }
+    .pagination-bottom {
+      display: none;
+    }
+  }
+}
+.books-table-block {
+  > div {
+    display: inline-block;
+    width: 49%;
+
+    &:first-child {
+      margin-right: 2%;
+    }
+  }
+}
+
+.utxo-table,
+.utxo-table .ReactTable .rt-thead .rt-th:first-child {
+  text-align: center !important;
+}
+
+/* for 80x80 px icons */
+.table-coin-icon {
+  -ms-transform: scale(.3) !important;
+  transform: scale(.3) !important;
+}
+
+.regular-list {
+  padding-top: 5px;
+
+  li {
+    margin-top: 10px;
+  }
+}
+
+.search-results,
+.explorers-list {
+  margin-bottom: 100px;
+
+  .table > thead > tr > th,
+  .table > tbody > tr > th,
+  .table > tfoot > tr > th,
+  .table > thead > tr > td,
+  .table > tbody > tr > td,
+  .table > tfoot > tr > td {
+    padding: 2px 12px;
+
+    .table-coin-icon-wrapper.icon-big {
+      width: 25px;
+      height: 25px;
+      margin-top: 13px;
+    }
+  }
+  .dex-table {
+    .ReactTable .rt-th,
+    .ReactTable .rt-td {
+      padding: 12px 5px 8px 15px;
+
+      .table-coin-icon-wrapper {
+        margin-top: 1px;
+      }
+    }
+  }
+}

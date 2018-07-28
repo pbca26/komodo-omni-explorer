@@ -1,0 +1,40 @@
+.trades-block {
+  &.simple {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .trades-table {
+      .rt-thead {
+        .rt-th:nth-child(8),
+        .rt-th:nth-child(9),
+        .rt-th:nth-child(10) {
+          display: none !important;
+        }
+      }
+      .rt-tbody,
+      .rt-tfoot {
+        .rt-td:nth-child(8),
+        .rt-td:nth-child(9),
+        .rt-td:nth-child(10) {
+          display: none !important;
+        }
+      }
+    }
+  }
+}
+
+.trades-table {
+  .rt-td {
+    text-align: center;
+  }
+  .rt-td:nth-child(1) {
+    text-align: left;
+  }
+}
+
+.detailed-view-toggle {
+  float: right;
+  position: relative;
+  top: -12px;
+  left: -20px;
+}
