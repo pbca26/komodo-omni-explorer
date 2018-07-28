@@ -192,7 +192,11 @@ module.exports = (shepherd) => {
                 /*console.log('targets');
                 console.log(targets);*/
 
-                let { fee, inputs, outputs } = coinSelect(_formattedUtxoList, targets, 0);
+                let {
+                  fee,
+                  inputs,
+                  outputs,
+                } = coinSelect(_formattedUtxoList, targets, 0);
 
                 /*console.log('coinselect');
                 console.log('fee');

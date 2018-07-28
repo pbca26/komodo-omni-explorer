@@ -92,9 +92,9 @@ class Navigation extends React.Component {
           return true;
         }
         break;
-      case 'interest':
-        if (_locationHash.indexOf('/interest-calc') > -1 ||
-            _locationHash.indexOf('/interest') > -1) {
+      case 'rewards':
+        if (_locationHash.indexOf('/rewards-calc') > -1 ||
+            _locationHash.indexOf('/rewards') > -1) {
           return true;
         }
         break;
@@ -162,24 +162,24 @@ class Navigation extends React.Component {
                   <span className="menu-text">Search</span>
                 </IndexLink>
               </li>
-              <li className={ 'navbar-sub-parent rewards' + (this.isActiveMenuParent('interest') ? ' active-parent' : '') }>
+              <li className={ 'navbar-sub-parent rewards' + (this.isActiveMenuParent('rewards') ? ' active-parent' : '') }>
                 <a className="navbar-link pointer">
                   <span className="fa fa-money"></span>
                   <span className="menu-text">KMD rewards</span>
                 </a>
-                <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'interest' ? ' disable' : '')}>
-                  <li onClick={ () => this.disableActiveParentMenu('interest') }>
+                <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'rewards' ? ' disable' : '')}>
+                  <li onClick={ () => this.disableActiveParentMenu('rewards') }>
                     <Link
-                      to="/interest"
+                      to="/rewards"
                       className="navbar-link pointer"
                       activeClassName="active">
                       <span className="fa fa-search"></span>
                       <span className="menu-text">Check rewards</span>
                     </Link>
                   </li>
-                  <li onClick={ () => this.disableActiveParentMenu('interest') }>
+                  <li onClick={ () => this.disableActiveParentMenu('rewards') }>
                     <Link
-                      to="/interest-calc"
+                      to="/rewards-calc"
                       className="navbar-link pointer"
                       activeClassName="active">
                       <span className="fa fa-calculator"></span>

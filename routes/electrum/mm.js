@@ -5,6 +5,7 @@ const path = require('path');
 const Promise = require('bluebird');
 const async = require('async');
 const exec = require('child_process').exec;
+const { toSats } = require('agama-wallet-lib/src/utils');
 
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
@@ -142,7 +143,7 @@ module.exports = (shepherd) => {
           };
           shepherd.mm.fiatRatesAll =_parsedBody;
         } else {
-          console.log(`unable to retrieve KMD/BTC,USD rate`);
+          console.log('unable to retrieve KMD/BTC,USD rate');
         }
       });
     }
@@ -192,7 +193,7 @@ module.exports = (shepherd) => {
           userpass: shepherd.mm.userpass,
         };
         const options = {
-          url: `http://localhost:7783`,
+          url: 'http://localhost:7783',
           method: 'POST',
           body: JSON.stringify(_payload),
           timeout: 10000,
@@ -247,7 +248,7 @@ module.exports = (shepherd) => {
           duration: 172800, // 2 days
         };
         const options = {
-          url: `http://localhost:7783`,
+          url: 'http://localhost:7783',
           method: 'POST',
           body: JSON.stringify(_payload),
           timeout: 10000,
@@ -313,7 +314,7 @@ module.exports = (shepherd) => {
         userpass: shepherd.mm.userpass,
       };
       const options = {
-        url: `http://localhost:7783`,
+        url: 'http://localhost:7783',
         method: 'POST',
         body: JSON.stringify(_payload),
       };
@@ -555,7 +556,7 @@ module.exports = (shepherd) => {
           resolve(true);
 
           if (json > 0) {
-            _btcFeeEstimates.push(Math.floor((json / 1024) * 100000000));
+            _btcFeeEstimates.push(Math.floor(toSats(json / 1024)));
           }
         });
       });
@@ -577,7 +578,7 @@ module.exports = (shepherd) => {
       shepherd.getBTCElectrumFees();
 
       let options = {
-        url: `https://bitcoinfees.earn.com/api/v1/fees/recommended`,
+        url: 'https://bitcoinfees.earn.com/api/v1/fees/recommended',
         method: 'GET',
       };
 
@@ -592,10 +593,10 @@ module.exports = (shepherd) => {
             shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             shepherd.mm.btcFees.recommended = _parsedBody;
           } catch (e) {
-            console.log(`unable to retrieve BTC fees / recommended`);
+            console.log('unable to retrieve BTC fees / recommended');
           }
         } else {
-          console.log(`unable to retrieve BTC fees / recommended`);
+          console.log('unable to retrieve BTC fees / recommended');
         }
       });
 
@@ -615,10 +616,10 @@ module.exports = (shepherd) => {
             shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             shepherd.mm.btcFees.all = _parsedBody;
           } catch (e) {
-            console.log(`unable to retrieve BTC fees / all`);
+            console.log('unable to retrieve BTC fees / all');
           }
         } else {
-          console.log(`unable to retrieve BTC fees / all`);
+          console.log('unable to retrieve BTC fees / all');
         }
       });
     }
@@ -741,6 +742,7 @@ module.exports = (shepherd) => {
                       kmd: Number(_lastPrice).toFixed(8),
                       usd: Number(shepherd.mm.fiatRates.USD * _lastPrice).toFixed(8),
                     };
+                    // TODO: 32 fiat currencies
                   } else {
                     shepherd.mm.ticker[coin] = {
                       kmd: Number(_lastPrice).toFixed(8),

@@ -632,7 +632,7 @@ module.exports = (shepherd) => {
     }
   });
 
-  shepherd.get('/kmd/interest', (req, res, next) => {
+  shepherd.get('/kmd/rewards', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 

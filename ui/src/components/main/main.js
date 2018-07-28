@@ -61,7 +61,7 @@ class Main extends React.Component {
   }
 
   triggerSearch() {
-    if (this.props.path === '/interest') {
+    if (this.props.path === '/rewards') {
       Store.dispatch(getInterest(this.state.searchTerm));
     } else {
       hashHistory.push('/search/' + this.state.searchTerm);
@@ -77,7 +77,7 @@ class Main extends React.Component {
           <span
             key={ `explorer-icons-${key}` }
             className="header-coin-wrapper">
-            <span className={ `header-coin-icon coin_${key.toLowerCase()}`}></span>
+            <span className={ `header-coin-icon coin_${key.toLowerCase()}` }></span>
           </span>
         );
       }
@@ -131,7 +131,7 @@ class Main extends React.Component {
               { this.renderCoinIcons() }
             </div>
           }
-          { (this.props.path.indexOf('/interest') > -1 &&
+          { (this.props.path.indexOf('/rewards') > -1 &&
               this.props.path.indexOf('/balance-multi') === -1 ||
               this.props.path === '/') &&
             <div className="row text-center margin-top-md margin-bottom-xlg">
@@ -144,7 +144,7 @@ class Main extends React.Component {
                     type="text"
                     name="searchTerm"
                     value={ this.state.searchTerm }
-                    placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a transaction hash or an address.' }
+                    placeholder={ this.props.path === '/rewards' ? 'Enter a valid KMD address' : 'You may enter a transaction hash or an address.' }
                     className="form-control" />
                   <button
                     onClick={ this.triggerSearch }

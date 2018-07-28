@@ -475,6 +475,8 @@ span[class*=' coin_'] {
 }
 
 #index-search {
+  max-width: 500px;
+
   input {
     display: inline-block;
     width: 200px;
