@@ -171,7 +171,7 @@ export const getSummary = (currentState) => {
 
 export const getInterest = (address, currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/interest?address=${address}`, {
+    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/rewards?address=${address}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -320,7 +320,7 @@ export const faucet = (coin, address, recaptcha) => {
 export const multiAddressBalance = (addressList, fallback) => {
   return dispatch => {
     return fetch(
-      fallback ? 'https://kmd.explorer.supernet.org/api/addrs/utxo' : 'https://www.kmdexplorer.ru/insight-api-komodo/addrs/utxo', {
+      fallback ? 'https://kmdexplorer.io/insight-api-komodo/addrs/utxo' : 'https://www.kmdexplorer.ru/insight-api-komodo/addrs/utxo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

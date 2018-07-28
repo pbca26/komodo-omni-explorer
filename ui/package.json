@@ -1,6 +1,6 @@
 {
   "name": "KomodoOmniExplorerUI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Komodo Omni Explorer UI",
   "main": "src/index.js",
   "scripts": {
@@ -10,7 +10,8 @@
   },
   "keywords": [
     "supernet",
-    "explorer"
+    "explorer",
+    "assets explorer"
   ],
   "author": "SuperNET Team",
   "license": "MIT",
