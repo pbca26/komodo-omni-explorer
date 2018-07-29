@@ -14,6 +14,7 @@ import {
   getUnspents,
   resetInterestState,
 } from '../../actions/actionCreators';
+import translate from '../../util/translate/translate';
 import config from '../../config';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
@@ -49,14 +50,14 @@ class Interest extends React.Component {
 
     _col = [{
       id: 'amount',
-      Header: 'Amount',
-      Footer: 'Amount',
+      Header: translate('INTEREST.AMOUNT'),
+      Footer: translate('INTEREST.AMOUNT'),
       maxWidth: '150',
       accessor: (item) => item.amount,
     },
     { id: 'interest',
-      Header: 'Rewards',
-      Footer: 'Rewards',
+      Header: translate('INTEREST.REWARDS'),
+      Footer: translate('INTEREST.REWARDS'),
       maxWidth: '250',
       accessor: (item) => item.interest,
     },
@@ -68,8 +69,8 @@ class Interest extends React.Component {
     },
     {
       id: 'confirmations',
-      Header: 'Confirmations',
-      Footer: 'Confirmations',
+      Header: translate('INTEREST.CONFS'),
+      Footer: translate('INTEREST.CONFS'),
       accessor: (item) => item.confirmations,
     },
     {
@@ -95,7 +96,7 @@ class Interest extends React.Component {
   renderLocktimeIcon(locktime) {
     return (
       <i
-        title={ locktime > 0 ? `Locktime: ${locktime}` : 'Locktime field is not set!' }
+        title={ locktime > 0 ? `Locktime: ${locktime}` : translate('INTEREST.LOCKTIME_IS_NOT_SET') }
         className={ locktime > 0 ? 'fa fa-check-circle green fs-18' : 'fa fa-exclamation-circle red fs-18' }></i>
     );
   }
@@ -181,9 +182,9 @@ class Interest extends React.Component {
         <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest">
           <thead>
             <tr>
-              <th>Balance</th>
-              <th>Interest</th>
-              <th>Total</th>
+              <th>{ translate('INTEREST.BALANCE') }</th>
+              <th>{ translate('INTEREST.REWARDS') }</th>
+              <th>{ translate('INTEREST.TOTAL') }</th>
             </tr>
           </thead>
           <tbody>
@@ -214,18 +215,18 @@ class Interest extends React.Component {
     return (
       <div>
         <div className="margin-top-40 margin-bottom-30">
-          <strong>Requirements to accrue awards:</strong> spend transaction was made at least 1 hour ago, locktime field is set and UTXO amount is greater than 10 KMD.
+          <strong>{ translate('INTEREST.REQ_TO_ACCRUE_REWARDS_P1') }:</strong> { translate('INTEREST.REQ_TO_ACCRUE_REWARDS_P2') }.
         </div>
         <div className="panel panel-default">
           <div className="panel-heading">
-            <strong>UTXO list</strong>
+            <strong>{ translate('INTEREST.UTXO_LIST') }</strong>
           </div>
           <div className="utxo-table">
             { this.props.Main.unspents.length > 1 &&
               <input
                 className="form-control search-field"
                 onChange={ e => this.onSearchTermChange(e.target.value) }
-                placeholder="Filter" />
+                placeholder={ translate('INTEREST.FILTER') } />
             }
             <ReactTable
               data={ this.state.filteredItemsList }
@@ -234,8 +235,8 @@ class Interest extends React.Component {
               sortable={ true }
               className="-striped -highlight"
               PaginationComponent={ TablePaginationRenderer }
-              nextText="Next page"
-              previousText="Previous page"
+              nextText={ translate('INTEREST.NEXT_PAGE') }
+              previousText={ translate('INTEREST.PREVIOUS_PAGE') }
               showPaginationBottom={ this.state.showPagination }
               pageSize={ this.state.pageSize }
               defaultSortMethod={ tableSorting }
@@ -261,7 +262,7 @@ class Interest extends React.Component {
             <button
               onClick={ this.fetchUnspents }
               type="submit"
-              className="btn btn-success">Check UTXO</button>
+              className="btn btn-success">{ translate('INTEREST.CHECK_UTXO') }</button>
           }
           { this.props.Main.unspents &&
             this.props.Main.unspents.length &&

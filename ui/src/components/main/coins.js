@@ -2,6 +2,7 @@ import React from 'react';
 import Store from '../../store';
 import { connect } from 'react-redux';
 import { coins } from '../../actions/actionCreators';
+import translate from '../../util/translate/translate';
 
 class Coins extends React.Component {
   constructor(props) {
@@ -45,18 +46,18 @@ class Coins extends React.Component {
         this.props.Main.coins.length) {
       return (
         <div className="dex-coins">
-          <h4>Total supported BarterDex coins: { this.props.Main.coins.length }</h4>
+          <h4>{ translate('COINS.TOTAL_SUPPORTED_COINS') }: { this.props.Main.coins.length }</h4>
           <div className="list-a-coin">
-            <a href="https://support.supernet.org/support/solutions/articles/29000014804-how-get-your-coin-listed-on-barterdex">How to get your coin listed on BarterDex</a>
+            <a href="https://support.supernet.org/support/solutions/articles/29000014804-how-get-your-coin-listed-on-barterdex">{ translate('COINS.HOW_TO_GET_LISTED') }</a>
           </div>
           <div className="light-mode-desc">
-            <i className="fa fa-bolt"></i> - Light (SPV) mode exchange capability
+            <i className="fa fa-bolt"></i> - { translate('COINS.SPV_MODE') }
           </div>
           <div>{ this.renderDexCoins() }</div>
         </div>
       );
     } else {
-      return(<div>Loading...</div>);
+      return(<div>{ translate('INDEX.LOADING') }...</div>);
     }
   }
 }

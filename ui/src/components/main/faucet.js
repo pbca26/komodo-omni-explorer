@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
 import { ReCaptcha } from 'react-recaptcha-google'
+import translate from '../../util/translate/translate';
 
 window.recaptchaOptions = {
   lang: 'en',
@@ -141,7 +142,7 @@ class Faucet extends React.Component {
                   type="text"
                   name="address"
                   value={ this.state.address }
-                  placeholder={ `Enter a ${this.state.coin.toUpperCase()} address` }
+                  placeholder={ translate('FAUCET.ENTER_ADDRESS', this.state.coin.toUpperCase()) }
                   className="form-control" />
               </div>
               <div className="google-recaptcha">
@@ -172,17 +173,17 @@ class Faucet extends React.Component {
               }
               { this.state.processing &&
                 <div className="alert alert-warning alert-dismissable">
-                  <strong>Processing...</strong>
+                  <strong>{ translate('FAUCET.PROCESSING') }...</strong>
                 </div>
               }
               { !this.state.error &&
                 this.state.result &&
                 <div>
-                  <strong>{ config.faucet[this.state.coin].outSize }</strong> { this.state.coin.toUpperCase() } is sent to { this.state.address }
+                  <strong>{ config.faucet[this.state.coin].outSize }</strong> { this.state.coin.toUpperCase() } { translate('FAUCET.IS_SENT_TO') } { this.state.address }
                   <div className="margin-top-md">
                     <a
                       target="_blank"
-                      href={ `${config.faucet[this.state.coin].explorer}/tx/${this.state.result}` }>Open in explorer</a>
+                      href={ `${config.faucet[this.state.coin].explorer}/tx/${this.state.result}` }>{ translate('FAUCET.OPEN_IN_EXPLORER') }</a>
                   </div>
                 </div>
               }

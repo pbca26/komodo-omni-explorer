@@ -9,6 +9,7 @@ import {
   sort,
 } from 'agama-wallet-lib/src/utils';
 import { secondsToString } from 'agama-wallet-lib/src/time';
+import translate from '../../util/translate/translate';
 import { getOrderbooks } from '../../actions/actionCreators';
 import Select from 'react-select';
 
@@ -105,20 +106,20 @@ class Books extends React.Component {
 
     _col = [{
       id: 'coin',
-      Header: 'Coin',
-      Footer: 'Coin',
+      Header: translate('BOOKS.COIN'),
+      Footer: translate('BOOKS.COIN'),
       maxWidth: '250',
       accessor: (item) => this.renderCoinIcon(item.coin),
     },
     { id: 'price',
-      Header: 'Price',
-      Footer: 'Price',
+      Header: translate('BOOKS.PRICE'),
+      Footer: translate('BOOKS.PRICE'),
       maxWidth: '250',
       accessor: (item) => item.price,
     },
     { id: 'avevol',
-      Header: 'Avg. volume',
-      Footer: 'Avg. volume',
+      Header: translate('BOOKS.AVG_VOL'),
+      Footer: translate('BOOKS.AVG_VOL'),
       maxWidth: '250',
       accessor: (item) => item.avevolume,
     },
@@ -129,16 +130,10 @@ class Books extends React.Component {
       accessor: (item) => item.numutxos,
     },
     { id: 'age',
-      Header: 'Age',
-      Footer: 'Age',
+      Header: translate('BOOKS.AGE'),
+      Footer: translate('BOOKS.AGE'),
       maxWidth: '250',
       accessor: (item) => item.age,
-    },
-    { id: 'zcredits',
-      Header: 'Zcredits',
-      Footer: 'Zcredits',
-      maxWidth: '250',
-      accessor: (item) => item.zcredits,
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
@@ -269,7 +264,7 @@ class Books extends React.Component {
             <div
               className="panel panel-default">
               <div className="panel-heading">
-                <strong>Asks</strong>
+                <strong>{ translate('BOOKS.ASKS') }</strong>
               </div>
               <div className="books-table">
                 <ReactTable
@@ -279,8 +274,8 @@ class Books extends React.Component {
                   sortable={ true }
                   className="-striped -highlight"
                   PaginationComponent={ TablePaginationRenderer }
-                  nextText="Next page"
-                  previousText="Previous page"
+                  nextText={ translate('INTEREST.NEXT_PAGE') }
+                  previousText={ translate('INTEREST.PREVIOUS_PAGE') }
                   showPaginationBottom={ this.state.showPagination }
                   pageSize={ this.state.pageSize }
                   defaultSorted={[{ // default sort
@@ -292,7 +287,7 @@ class Books extends React.Component {
             </div>
             <div className="panel panel-default">
               <div className="panel-heading">
-                <strong>Bids</strong>
+                <strong>{ translate('BOOKS.BIDS') }</strong>
               </div>
               <div className="books-table">
                 <ReactTable
@@ -302,8 +297,8 @@ class Books extends React.Component {
                   sortable={ true }
                   className="-striped -highlight"
                   PaginationComponent={ TablePaginationRenderer }
-                  nextText="Next page"
-                  previousText="Previous page"
+                  nextText={ translate('INTEREST.NEXT_PAGE') }
+                  previousText={ translate('INTEREST.PREVIOUS_PAGE') }
                   showPaginationBottom={ this.state.showPagination }
                   pageSize={ this.state.pageSize }
                   defaultSorted={[{ // default sort
@@ -317,7 +312,7 @@ class Books extends React.Component {
         </div>
       );
     } else {
-      return(<div>Loading...</div>);
+      return(<div>{ translate('INDEX.LOADING') }...</div>);
     }
   }
 }

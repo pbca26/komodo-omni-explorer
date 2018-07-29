@@ -281,7 +281,7 @@ module.exports = (shepherd) => {
                                 blockhash: block.hash,
                                 blockindex: block.height,
                                 timestamp: txs[i].time,
-                                total: config.insight[coin].float ? toSats(txs[i].valueOut) : txs[i].valueOut,
+                                total: config.insight[coin].float && coin.toLowerCase() !== 'chips' ? toSats(txs[i].valueOut) : txs[i].valueOut,
                                 vout: txs[i].vout,
                                 vin: txs[i].vin,
                               });

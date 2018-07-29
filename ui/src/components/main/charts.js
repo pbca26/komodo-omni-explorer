@@ -5,6 +5,7 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
 import { coins } from '../../actions/actionCreators';
+import translate from '../../util/translate/translate';
 
 class Charts extends React.Component {
   constructor(props) {
@@ -171,7 +172,7 @@ class Charts extends React.Component {
           <button
             className="btn btn-primary"
             onClick={ this.reinitTradingView }
-            disabled={ this.state.base === this.state.rel }>Update</button>
+            disabled={ this.state.base === this.state.rel }>{ translate('INDEX.UPDATE') }</button>
         </div>
         <div
           id="tv_chart_container"

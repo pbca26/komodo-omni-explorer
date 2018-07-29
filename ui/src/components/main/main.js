@@ -15,6 +15,7 @@ import {
 } from '../../actions/actionCreators';
 import Search from './search';
 import Navigation from './navigation';
+import translate from '../../util/translate/translate';
 
 const FIAT_UPDATE_INTERVAL = 60000;
 
@@ -95,10 +96,10 @@ class Main extends React.Component {
             <div className="col-md-2 col-md-offset-3">
               <div className="panel panel-default hidden-sm hidden-xs">
                 <div className="panel-heading">
-                  <strong>Coins</strong>
+                  <strong>{ translate('INDEX.COINS') }</strong>
                 </div>
                 <div className="panel-body">
-                  <label id="hashrate">28</label>
+                  <label id="hashrate">{ Object.keys(config.explorers).length }</label>
                 </div>
               </div>
             </div>
@@ -112,7 +113,7 @@ class Main extends React.Component {
               <div className="col-md-2">
                 <div className="panel panel-default hidden-sm hidden-xs">
                   <div className="panel-heading">
-                    <strong>KMD Price</strong>
+                    <strong>{ translate('INDEX.KMD_PRICE') }</strong>
                   </div>
                   <div className="panel-body">
                     <div>
@@ -144,14 +145,14 @@ class Main extends React.Component {
                     type="text"
                     name="searchTerm"
                     value={ this.state.searchTerm }
-                    placeholder={ this.props.path === '/rewards' ? 'Enter a valid KMD address' : 'You may enter a transaction hash or an address.' }
+                    placeholder={ this.props.path === '/rewards' ? translate('INDEX.ENTER_A_VALID_KMD_ADDR') : translate('INDEX.YOU_MAY_ENTER_A_TXID') }
                     className="form-control" />
                   <button
                     onClick={ this.triggerSearch }
                     disabled={ this.state.searchTerm.length < 34 }
                     type="submit"
                     className="btn btn-success margin-left-10">
-                    Search
+                    { translate('INDEX.SEARCH') }
                   </button>
                 </div>
               </div>
@@ -161,7 +162,7 @@ class Main extends React.Component {
                     to="/balance-multi"
                     className="navbar-link pointer"
                     activeClassName="active">
-                    Check multiple KMD addresses balance here
+                    { translate('INDEX.CHECK_MULTIPLE_KMD_ADDRS') }
                   </Link>
                 </div>
               }

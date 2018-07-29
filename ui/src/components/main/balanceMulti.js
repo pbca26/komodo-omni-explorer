@@ -3,6 +3,7 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
 import { multiAddressBalance } from '../../actions/actionCreators';
+import translate from '../../util/translate/translate';
 
 class BalanceMulti extends React.Component {
   constructor(props) {
@@ -74,8 +75,8 @@ class BalanceMulti extends React.Component {
           <table className="table table-hover dataTable table-striped">
             <thead>
               <tr>
-                <th>Addess</th>
-                <th>Amount</th>
+                <th>{ translate('BALANCE_CHECK.ADDRESS') }</th>
+                <th>{ translate('BALANCE_CHECK.AMOUNT') }</th>
               </tr>
             </thead>
             <tbody>
@@ -87,7 +88,7 @@ class BalanceMulti extends React.Component {
         return (
           <div className="col-md-12">
             <div className="alert alert-warning alert-dismissable">
-              <strong>All balances are empty</strong>
+              <strong>{ translate('BALANCE_CHECK.ALL_BALANCES_EMPTY') }</strong>
             </div>
           </div>
         );
@@ -103,7 +104,7 @@ class BalanceMulti extends React.Component {
             onChange={ this.updateInput }
             name="balanceMultiAddrList"
             value={ this.state.balanceMultiAddrList }
-            placeholder="Enter KMD pub addresses each address on a new line."
+            placeholder={ translate('BALANCE_CHECK.ENTER_KMD_ADDRESS') }
             className="balance-multi-ta"></textarea>
         </div>
         <div className="margin-top-md margin-bottom-xlg">
@@ -112,7 +113,7 @@ class BalanceMulti extends React.Component {
             disabled={ !this.state.balanceMultiAddrList }
             type="submit"
             className="btn btn-success margin-left-10">
-            Search
+            { translate('INDEX.SEARCH') }
           </button>
         </div>
         { this.renderResult() }
