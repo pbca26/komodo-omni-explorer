@@ -5,10 +5,10 @@ import Store from '../../store';
 import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
 import {
-  sortByDate,
   formatValue,
-  secondsToString,
-} from '../../util/util';
+  sort,
+} from 'agama-wallet-lib/src/utils';
+import { secondsToString } from 'agama-wallet-lib/src/time';
 import { getOrderbooks } from '../../actions/actionCreators';
 import Select from 'react-select';
 

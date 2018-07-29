@@ -1,6 +1,7 @@
 import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 
 const _config = {
+  lang: 'EN',
   dev: false,
   https: true,
   apiUrl: 'www.atomicexplorer.com',

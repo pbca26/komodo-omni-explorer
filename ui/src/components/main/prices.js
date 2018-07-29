@@ -5,10 +5,10 @@ import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
 import { getPrices } from '../../actions/actionCreators';
 import {
-  sortByDate,
   formatValue,
-  secondsToString,
-} from '../../util/util';
+  sort,
+} from 'agama-wallet-lib/src/utils';
+import { secondsToString } from 'agama-wallet-lib/src/time';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 

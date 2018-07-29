@@ -1,4 +1,4 @@
-export const explorers = {
+const explorers = {
   KMD: [
     'http://www.kmdexplorer.ru',
     'https://kmdexplorer.io',
@@ -126,7 +126,7 @@ export const explorers = {
     'https://dsec.kmdexplorer.io'
   ],
   NINJA: [
-    'http://ninja.explorer.dexstats.info'
+    'http://ninja.explorer.dexstats.info',
     'https://ninja.kmdexplorer.io'
   ],
   GLXT: [
@@ -154,3 +154,5 @@ export const explorers = {
     'http://zilla.explorer.dexstats.info',
   ],
 };
+
+export default explorers;

@@ -3,12 +3,12 @@ import ReactTable from 'react-table';
 import Store from '../../store';
 import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
+import { tableSorting } from '../../util/util';
 import {
-  sortByDate,
   formatValue,
-  secondsToString,
-  tableSorting,
-} from '../../util/util';
+  sort,
+} from 'agama-wallet-lib/src/utils';
+import { secondsToString } from 'agama-wallet-lib/src/time';
 import { getOverview } from '../../actions/actionCreators';
 import config from '../../config';
 

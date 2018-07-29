@@ -5,8 +5,8 @@ const defaultButton = props =>
   <button
     type="button"
     className="-btn"
-    {...props}>
-    {props.children}
+    { ...props }>
+    { props.children }
   </button>
 
 const PaginationRender = function() {
@@ -29,56 +29,64 @@ const PaginationRender = function() {
 
   return (
     <div
-      className={classnames(className, '-pagination')}
-      style={this.props.paginationStyle}>
+      className={ classnames(className, '-pagination') }
+      style={ this.props.paginationStyle }>
       <div className="-previous">
         <PreviousComponent
-          onClick={e => {
-            if (!canPrevious) return;
-            this.changePage(page - 1)
-          }}
-          disabled={!canPrevious}>
-          {this.props.previousText}
+          onClick={
+            e => {
+              if (!canPrevious) return;
+              this.changePage(page - 1)
+            }
+          }
+          disabled={ !canPrevious }>
+          { this.props.previousText }
         </PreviousComponent>
       </div>
       <div className="-center">
         <span className="-pageInfo">
-          {this.props.pageText}{' '}
-          {showPageJump
+          { this.props.pageText }{ ' ' }
+          { showPageJump
             ?
             <div className="-pageJump">
               <input
-                type={this.state.page === '' ? 'text' : 'number'}
-                onChange={e => {
-                  const val = e.target.value;
-                  this.changePage(val - 1);
-                }}
-                value={this.state.page === '' ? '' : this.state.page + 1}
-                onBlur={this.applyPage}
-                onKeyPress={e => {
-                  if (e.which === 13 || e.keyCode === 13) {
-                    this.applyPage();
+                type={ this.state.page === '' ? 'text' : 'number' }
+                onChange={
+                  e => {
+                    const val = e.target.value;
+                    this.changePage(val - 1);
                   }
-                }} />
+                }
+                value={ this.state.page === '' ? '' : this.state.page + 1 }
+                onBlur={ this.applyPage }
+                onKeyPress={
+                  e => {
+                    if (e.which === 13 ||
+                        e.keyCode === 13) {
+                      this.applyPage();
+                    }
+                  }
+                } />
             </div>
             :
             <span className="-currentPage">
-              {page + 1}
-            </span>}{' '}
-          {this.props.ofText}{' '}
-          <span className="-totalPages">{pages || 1}</span>
+              { page + 1 }
+            </span>
+          }{ ' ' }
+          { this.props.ofText }{ ' ' }
+          <span className="-totalPages">{ pages || 1 }</span>
         </span>
         { showPageSizeOptions &&
           <span className="select-wrap -pageSizeOptions">
             <select
-              onChange={e => onPageSizeChange(Number(e.target.value))}
-              value={pageSize}>
+              onChange={ e => onPageSizeChange(Number(e.target.value)) }
+              value={ pageSize }>
               { pageSizeOptions.map((option, i) => {
                 return (
                   <option
-                    key={i}
-                    value={option}>
-                    {option} {this.props.rowsText}
+                    key={ i }
+                    value={ option }>
+                    { option } { this.props.rowsText }
                   </option>
                 );
               })}
@@ -88,12 +96,14 @@ const PaginationRender = function() {
       </div>
       <div className="-next">
         <NextComponent
-          onClick={e => {
-            if (!canNext) return;
-            this.changePage(page + 1);
-          }}
-          disabled={!canNext}>
-          {this.props.nextText}
+          onClick={
+            e => {
+              if (!canNext) return;
+              this.changePage(page + 1);
+            }
+          }
+          disabled={ !canNext }>
+          { this.props.nextText }
         </NextComponent>
       </div>
     </div>
