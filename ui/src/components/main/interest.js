@@ -226,7 +226,7 @@ class Interest extends React.Component {
               <input
                 className="form-control search-field"
                 onChange={ e => this.onSearchTermChange(e.target.value) }
-                placeholder={ translate('INTEREST.FILTER') } />
+                placeholder={ translate('INDEX.FILTER') } />
             }
             <ReactTable
               data={ this.state.filteredItemsList }
@@ -235,8 +235,8 @@ class Interest extends React.Component {
               sortable={ true }
               className="-striped -highlight"
               PaginationComponent={ TablePaginationRenderer }
-              nextText={ translate('INTEREST.NEXT_PAGE') }
-              previousText={ translate('INTEREST.PREVIOUS_PAGE') }
+              nextText={ translate('INDEX.NEXT_PAGE') }
+              previousText={ translate('INDEX.PREVIOUS_PAGE') }
               showPaginationBottom={ this.state.showPagination }
               pageSize={ this.state.pageSize }
               defaultSortMethod={ tableSorting }

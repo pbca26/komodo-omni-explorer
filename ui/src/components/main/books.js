@@ -297,8 +297,8 @@ class Books extends React.Component {
                   sortable={ true }
                   className="-striped -highlight"
                   PaginationComponent={ TablePaginationRenderer }
-                  nextText={ translate('INTEREST.NEXT_PAGE') }
-                  previousText={ translate('INTEREST.PREVIOUS_PAGE') }
+                  nextText={ translate('INDEX.NEXT_PAGE') }
+                  previousText={ translate('INDEX.PREVIOUS_PAGE') }
                   showPaginationBottom={ this.state.showPagination }
                   pageSize={ this.state.pageSize }
                   defaultSorted={[{ // default sort

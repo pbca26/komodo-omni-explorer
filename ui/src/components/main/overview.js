@@ -11,6 +11,7 @@ import {
 import { secondsToString } from 'agama-wallet-lib/src/time';
 import { getOverview } from '../../actions/actionCreators';
 import config from '../../config';
+import translate from '../../util/translate/translate';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 const OVERVIEW_UPDATE_INTERVAL = 20000;
@@ -51,7 +52,6 @@ class Overview extends React.Component {
   }
 
   renderTotal(coin, total) {
-    // <span>{ Number((total * (coin === 'KMD' ? 1 : 0.00000001)).toFixed(8)) } { coin }</span>
     return (
       <span>{ total } { coin }</span>
     );
@@ -71,28 +71,28 @@ class Overview extends React.Component {
 
     _col = [{
       id: 'coin',
-      Header: 'Coin',
-      Footer: 'Coin',
+      Header: translate('OVERVIEW.COIN'),
+      Footer: translate('OVERVIEW.COIN'),
       maxWidth: '150',
       accessor: (item) => this.renderCoinIcon(item.coin),
     },
     { id: 'block',
-      Header: 'Block',
-      Footer: 'Block',
+      Header: translate('OVERVIEW.BLOCK'),
+      Footer: translate('OVERVIEW.BLOCK'),
       maxWidth: '250',
       accessor: (item) => this.renderBlock(item.coin, item.blockindex, item.blockhash),
     },
     {
       id: 'timestamp',
-      Header: 'Time',
-      Footer: 'Time',
+      Header: translate('OVERVIEW.TIME'),
+      Footer: translate('OVERVIEW.TIME'),
       maxWidth: '350',
       accessor: (item) => secondsToString(item.timestamp),
     },
     {
       id: 'total',
-      Header: 'Total',
-      Footer: 'Total',
+      Header: translate('OVERVIEW.TOTAL'),
+      Footer: translate('OVERVIEW.TOTAL'),
       maxWidth: '350',
       accessor: (item) => this.renderTotal(item.coin, item.total),
     },
@@ -179,13 +179,13 @@ class Overview extends React.Component {
         <div className="col-md-12">
           <div className="panel panel-default">
             <div className="panel-heading">
-              <strong>Latest Transactions</strong>
+              <strong>{ translate('OVERVIEW.LATEST_TXS') }</strong>
             </div>
             <div className="dex-table">
               <input
                 className="form-control search-field"
                 onChange={ e => this.onSearchTermChange(e.target.value) }
-                placeholder="Filter" />
+                placeholder={ translate('INDEX.FILTER') } />
               <ReactTable
                 data={ this.state.filteredItemsList }
                 columns={ this.state.itemsListColumns }
@@ -193,8 +193,8 @@ class Overview extends React.Component {
                 sortable={ true }
                 className="-striped -highlight"
                 PaginationComponent={ TablePaginationRenderer }
-                nextText="Next page"
-                previousText="Previous page"
+                nextText={ translate('INDEX.NEXT_PAGE') }
+                previousText={ translate('INDEX.PREVIOUS_PAGE') }
                 showPaginationBottom={ this.state.showPagination }
                 pageSize={ this.state.pageSize }
                 defaultSortMethod={ tableSorting }

@@ -82,14 +82,15 @@ const PaginationRender = function() {
               onChange={ e => onPageSizeChange(Number(e.target.value)) }
               value={ pageSize }>
               { pageSizeOptions.map((option, i) => {
-                return (
-                  <option
-                    key={ i }
-                    value={ option }>
-                    { option } { this.props.rowsText }
-                  </option>
-                );
-              })}
+                  return (
+                    <option
+                      key={ i }
+                      value={ option }>
+                      { option } { this.props.rowsText }
+                    </option>
+                  );
+                })
+              }
             </select>
           </span>
         }

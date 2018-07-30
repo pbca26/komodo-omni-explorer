@@ -10,6 +10,7 @@ import {
 } from 'agama-wallet-lib/src/utils';
 import { secondsToString } from 'agama-wallet-lib/src/time';
 import config from '../../config';
+import translate from '../../util/translate/translate';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 
@@ -62,7 +63,7 @@ class Stats extends React.Component {
         { txidA &&
           <div>
             { config.explorers[coinA] &&
-              <span>Dest. txid:&nbsp;</span>
+              <span>{ translate('STATS.DEST_TXID') }:&nbsp;</span>
             }
             { config.explorers[coinA] &&
               <a
@@ -77,7 +78,7 @@ class Stats extends React.Component {
         { txidB &&
           <div>
             { config.explorers[coinB] &&
-              <span>Dest. fee txid:&nbsp;</span>
+              <span>{ translate('STATS.DEST_FEE_TXID') }:&nbsp;</span>
             }
             { config.explorers[coinB] &&
               <a
@@ -99,38 +100,38 @@ class Stats extends React.Component {
 
     _col = [{
       id: 'pair',
-      Header: 'Pair',
-      Footer: 'Pair',
+      Header: translate('STATS.PAIR'),
+      Footer: translate('STATS.PAIR'),
       maxWidth: '280',
       accessor: (item) => this.renderPairIcon(item.base, item.rel),
     },
     { id: 'src-amount',
-      Header: 'Src. Amount',
-      Footer: 'Src. Amount',
+      Header: translate('STATS.SRC_AMOUNT'),
+      Footer: translate('STATS.SRC_AMOUNT'),
       maxWidth: '150',
       accessor: (item) => Number(formatValue(item.satoshis * 0.00000001)),
     },
     { id: 'dest-amount',
-      Header: 'Dest. Amount',
-      Footer: 'Dest. Amount',
+      Header: translate('STATS.DEST_AMOUNT'),
+      Footer: translate('STATS.DEST_AMOUNT'),
       maxWidth: '150',
       accessor: (item) => Number(formatValue(item.destsatoshis * 0.00000001)),
     },
     { id: 'price',
-      Header: 'Price',
-      Footer: 'Price',
+      Header: translate('STATS.PRICE'),
+      Footer: translate('STATS.PRICE'),
       maxWidth: '150',
       accessor: (item) => Number(formatValue(item.price)),
     },
     { id: 'inv-price',
-      Header: 'Price (Inv.)',
-      Footer: 'Price (Inv.)',
+      Header: translate('STATS.PRICE_INV'),
+      Footer: translate('STATS.PRICE_INV'),
       maxWidth: '150',
       accessor: (item) => Number(formatValue(1 / Number(formatValue(item.price)))),
     },
     { id: 'timestamp',
-      Header: 'Time',
-      Footer: 'Time',
+      Header: translate('STATS.TIME'),
+      Footer: translate('STATS.TIME'),
       maxWidth: '200',
       accessor: (item) => secondsToString(item.timestamp),
     },
@@ -147,8 +148,8 @@ class Stats extends React.Component {
       accessor: (item) => item.gui,
     },
     { id: 'destaddr',
-      Header: 'Dest. addr',
-      Footer: 'Dest. addr',
+      Header: translate('STATS.DEST_ADDR'),
+      Footer: translate('STATS.DEST_ADDR'),
       maxWidth: '200',
       accessor: (item) => item.destaddr,
     },
@@ -255,7 +256,7 @@ class Stats extends React.Component {
       return (
         <div className={ 'panel panel-default trades-block' + (!this.state.detailedView ? ' simple' : '')}>
           <div className="panel-heading">
-            <strong>Trades Feed</strong>
+            <strong>{ translate('STATS.TRADES_FEED') }</strong>
             <span className="pointer toggle detailed-view-toggle">
               <label className="switch">
                 <input
@@ -269,7 +270,7 @@ class Stats extends React.Component {
               </label>
               <span
                 className="title"
-                onClick={ this.toggleDetailedView }>Detailed view</span>
+                onClick={ this.toggleDetailedView }>{ translate('STATS.DETAILED_VIEW') }</span>
             </span>
           </div>
           <div className="trades-table">
@@ -277,7 +278,7 @@ class Stats extends React.Component {
               className="form-control search-field"
               onChange={ e => this.onSearchTermChange(e.target.value) }
               value={ this.state.searchTerm }
-              placeholder="Filter" />
+              placeholder={ translate('INDEX.FILTER') } />
             <ReactTable
               data={ this.state.filteredItemsList }
               columns={ this.state.itemsListColumns }
@@ -285,8 +286,8 @@ class Stats extends React.Component {
               sortable={ true }
               className="-striped -highlight"
               PaginationComponent={ TablePaginationRenderer }
-              nextText="Next page"
-              previousText="Previous page"
+              nextText={ translate('INDEX.NEXT_PAGE') }
+              previousText={ translate('INDEX.PREVIOUS_PAGE') }
               showPaginationBottom={ this.state.showPagination }
               pageSize={ this.state.pageSize }
               defaultSorted={[{ // default sort
@@ -298,7 +299,7 @@ class Stats extends React.Component {
         </div>
       );
     } else {
-      return(<div>Loading...</div>);
+      return(<div>{ translate('INDEX.LOADING') }...</div>);
     }
   }
 }

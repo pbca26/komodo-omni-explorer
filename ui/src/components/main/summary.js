@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import config from '../../config';
 import { getSummary } from '../../actions/actionCreators';
 import explorers from '../../util/summaryUtils';
+import translate from '../../util/translate/translate';
 
 class Summary extends React.Component {
   constructor(props) {
