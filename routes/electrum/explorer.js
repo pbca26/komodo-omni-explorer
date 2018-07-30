@@ -281,7 +281,7 @@ module.exports = (shepherd) => {
                                 blockhash: block.hash,
                                 blockindex: block.height,
                                 timestamp: txs[i].time,
-                                total: config.insight[coin].float && coin.toLowerCase() !== 'chips' ? toSats(txs[i].valueOut) : txs[i].valueOut,
+                                total: config.insight[coin].float ? toSats(txs[i].valueOut) : txs[i].valueOut,
                                 vout: txs[i].vout,
                                 vin: txs[i].vin,
                               });
@@ -426,7 +426,7 @@ module.exports = (shepherd) => {
                           blockhash: _parseData[j].blockhash,
                           blockindex: _parseData[j].blockindex,
                           timestamp: _parseData[j].timestamp,
-                          total: _parseData[j].total,
+                          total: overviewFile.result[i].coin.toLowerCase() === 'chips' ? fromSats(_parseData[j].total) : _parseData[j].total,
                         });
                       }
                     } catch (e) {}

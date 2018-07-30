@@ -5,7 +5,7 @@ import Select from 'react-select';
 import { fiatRates } from '../../actions/actionCreators';
 import translate from '../../util/translate/translate';
 
-let months = [
+const months = [
   'Jan',
   'Feb',
   'Mar',
