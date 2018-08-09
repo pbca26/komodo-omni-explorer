@@ -1,5 +1,3 @@
-// TODO: clean old placeholders
-
 const LANG_EN = {
   INDEX: {
     CHECK_MULTIPLE_KMD_ADDRS: 'Check multiple KMD addresses balance here',
@@ -40,7 +38,7 @@ const LANG_EN = {
     EXPENSES_NOT_INCL: 'Expenses not included in calculation',
     IN_TX_FEES: 'in transaction fees',
     HOURS_SM: 'hour(s)',
-    GAP_PERIOD: 'gap period when no interest is accrued',
+    GAP_PERIOD: 'gap period when no rewards are accrued',
     YOUR_ACTUAL_AMOUNT: 'Your actual amounts will be less than what is presented in the table.',
     Q1: 'What will happen to my KMD rewards after 1 year period is passed.',
     A1: 'It will stop accruing and remain fixed until it is claimed.',
