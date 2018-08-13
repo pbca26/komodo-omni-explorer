@@ -29,12 +29,12 @@ built ui version will be copied to /public folder
 ## URL navigation
 
 #### KMD interest
-http://atomicexplorer.com/#/interest
+http://atomicexplorer.com/#/rewards
 
-http://atomicexplorer.com/#/interest/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+http://atomicexplorer.com/#/rewards/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### KMD interest calc
-http://atomicexplorer.com/#/interest-calc
+http://atomicexplorer.com/#/rewards-calc
 
 #### Explorers list summary
 http://atomicexplorer.com/#/summary
@@ -83,7 +83,7 @@ How to use ticker https://github.com/pbca26/komodo-omni-explorer/wiki/Ticker-wid
 
 params: txid or pub address
 
-#### GET /api/kmd/interest?address=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+#### GET /api/kmd/rewards?address=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 params: pub address
 
