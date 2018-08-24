@@ -154,6 +154,14 @@ const LANG_EN = {
     TRADES_FEED: 'Trades Feed',
     DETAILED_VIEW: 'Detailed view',
   },
+  SUMMARY: {
+    COIN: 'Coin',
+    BLOCK_COUNT: 'Block count',
+    DIFFICULTY: 'Difficulty',
+    SUPPLY: 'Supply',
+    CONN: 'Connections',
+    LINK: 'Link',
+  },
 };
 
 export default LANG_EN;

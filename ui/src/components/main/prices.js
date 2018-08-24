@@ -215,7 +215,9 @@ class Prices extends React.Component {
         </div>
       );
     } else {
-      return(<div>{ translate('INDEX.LOADING') }...</div>);
+      return(
+        <div>{ translate('INDEX.LOADING') }...</div>
+      );
     }
   }
 }

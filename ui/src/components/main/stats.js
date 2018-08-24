@@ -7,6 +7,7 @@ import { stats } from '../../actions/actionCreators';
 import {
   formatValue,
   sort,
+  fromSats,
 } from 'agama-wallet-lib/src/utils';
 import { secondsToString } from 'agama-wallet-lib/src/time';
 import config from '../../config';
@@ -109,13 +110,13 @@ class Stats extends React.Component {
       Header: translate('STATS.SRC_AMOUNT'),
       Footer: translate('STATS.SRC_AMOUNT'),
       maxWidth: '150',
-      accessor: (item) => Number(formatValue(item.satoshis * 0.00000001)),
+      accessor: (item) => Number(formatValue(fromSats(item.satoshis))),
     },
     { id: 'dest-amount',
       Header: translate('STATS.DEST_AMOUNT'),
       Footer: translate('STATS.DEST_AMOUNT'),
       maxWidth: '150',
-      accessor: (item) => Number(formatValue(item.destsatoshis * 0.00000001)),
+      accessor: (item) => Number(formatValue(fromSats(item.destsatoshis))),
     },
     { id: 'price',
       Header: translate('STATS.PRICE'),
@@ -299,7 +300,9 @@ class Stats extends React.Component {
         </div>
       );
     } else {
-      return(<div>{ translate('INDEX.LOADING') }...</div>);
+      return(
+        <div>{ translate('INDEX.LOADING') }...</div>
+      );
     }
   }
 }
