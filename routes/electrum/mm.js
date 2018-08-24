@@ -6,47 +6,14 @@ const Promise = require('bluebird');
 const async = require('async');
 const exec = require('child_process').exec;
 const { toSats } = require('agama-wallet-lib/src/utils');
+const fiat = require('./fiat');
 
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
-
-const fiat = [
-  'AUD',
-  'BRL',
-  'GBP',
-  'BGN',
-  'CAD',
-  'HRK',
-  'CZK',
-  'CNY',
-  'DKK',
-  'EUR',
-  'HKD',
-  'HUF',
-  'INR',
-  'IDR',
-  'ILS',
-  'JPY',
-  'KRW',
-  'MYR',
-  'MXN',
-  'NZD',
-  'NOK',
-  'PHP',
-  'PLN',
-  'RON',
-  'RUB',
-  'SGD',
-  'ZAR',
-  'SEK',
-  'CHF',
-  'THB',
-  'TRY',
-  'USD'
-];
+const USERPASS = '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f';
 
 let electrumServers = [];
 
@@ -66,11 +33,11 @@ for (let key in electrumCoins) {
   kmdPairs.push(`${key}/KMD`);
 }
 
-console.log(`total orderbook pairs ${kmdPairs.length}`);
+shepherd.log(`total orderbook pairs ${kmdPairs.length}`);
 
 let btcFeeBlocks = [];
 
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < 25; i++) { // up to 25 blocks waiting time
   btcFeeBlocks.push(i);
 }
 
@@ -119,7 +86,7 @@ module.exports = (shepherd) => {
       lastUpdated: null,
     },
     ticker: {},
-    userpass: '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f',
+    userpass: USERPASS,
   };
 
   shepherd.getRates = () => {
@@ -136,14 +103,14 @@ module.exports = (shepherd) => {
             response.statusCode &&
             response.statusCode === 200) {
           const _parsedBody = JSON.parse(body);
-          console.log(`rates ${body}`);
+          shepherd.log(`rates ${body}`);
           shepherd.mm.fiatRates = {
             BTC: _parsedBody.BTC,
             USD: _parsedBody.USD,
           };
           shepherd.mm.fiatRatesAll =_parsedBody;
         } else {
-          console.log('unable to retrieve KMD/BTC,USD rate');
+          shepherd.log('unable to retrieve KMD/BTC,USD rate');
         }
       });
     }
@@ -204,27 +171,29 @@ module.exports = (shepherd) => {
               response.statusCode &&
               response.statusCode === 200) {
             const _parsedBody = JSON.parse(body);
-            console.log(`${_payload.coin} connected`);
+            shepherd.log(`${_payload.coin} connected`);
 
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === electrumServers.length) {
-              console.log('all coins connected');
+              shepherd.log('all coins connected');
             }
           } else {
-            console.log(`${_payload.coin} failed to connect`);
+            shepherd.log(`${_payload.coin} failed to connect`);
 
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === electrumServers.length) {
-              console.log('all coins connected');
+              shepherd.log('all coins connected');
             }
           }
         });
       }, err => {
-        if (err) console.error(err.message);
+        if (err) {
+          shepherd.log(err.message);
+        }
         // do some
       });
     };
@@ -265,12 +234,12 @@ module.exports = (shepherd) => {
               data: _parsedBody,
               payload: _payload,
             });
-            console.log(`${value} / ${key}`);
+            shepherd.log(`${value} / ${key}`);
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === kmdPairs.length) {
-              console.log('done');
+              shepherd.log('done');
               shepherd.mm.orders = shepherd.filterOrderbook(_orders);
 
               setTimeout(() => {
@@ -284,12 +253,12 @@ module.exports = (shepherd) => {
               data: `unable to call method ${_payload.method} at port 7783`,
               payload: _payload,
             });
-            console.log(`${value} / ${key}`);
+            shepherd.log(`${value} / ${key}`);
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === kmdPairs.length) {
-              console.log('done');
+              shepherd.log('done');
               shepherd.mm.orders = shepherd.filterOrderbook(_orders);
 
               setTimeout(() => {
@@ -300,7 +269,9 @@ module.exports = (shepherd) => {
           }
         });
       }, err => {
-        if (err) console.error(err.message);
+        if (err) {
+          shepherd.log(err.message);
+        }
         // do some
       });
     }
@@ -324,7 +295,7 @@ module.exports = (shepherd) => {
             response.statusCode &&
             response.statusCode === 200) {
           const _parsedBody = JSON.parse(body);
-          console.log('prices updated');
+          shepherd.log('prices updated');
           shepherd.mm.prices = shepherd.pricesPairs(_parsedBody);
         } else {
           shepherd.mm.prices = 'error';
@@ -546,7 +517,7 @@ module.exports = (shepherd) => {
     const ecl = new shepherd.electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
     let _btcFeeEstimates = [];
 
-    console.log(`btc fees server ${_randomServer.join(':')}`);
+    shepherd.log(`btc fees server ${_randomServer.join(':')}`);
 
     ecl.connect();
     Promise.all(btcFeeBlocks.map((coin, index) => {
@@ -593,15 +564,15 @@ module.exports = (shepherd) => {
             shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             shepherd.mm.btcFees.recommended = _parsedBody;
           } catch (e) {
-            console.log('unable to retrieve BTC fees / recommended');
+            shepherd.log('unable to retrieve BTC fees / recommended');
           }
         } else {
-          console.log('unable to retrieve BTC fees / recommended');
+          shepherd.log('unable to retrieve BTC fees / recommended');
         }
       });
 
       options = {
-        url: `https://bitcoinfees.earn.com/api/v1/fees/list`,
+        url: 'https://bitcoinfees.earn.com/api/v1/fees/list',
         method: 'GET',
       };
 
@@ -616,10 +587,10 @@ module.exports = (shepherd) => {
             shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             shepherd.mm.btcFees.all = _parsedBody;
           } catch (e) {
-            console.log('unable to retrieve BTC fees / all');
+            shepherd.log('unable to retrieve BTC fees / all');
           }
         } else {
-          console.log('unable to retrieve BTC fees / all');
+          shepherd.log('unable to retrieve BTC fees / all');
         }
       });
     }
@@ -647,7 +618,7 @@ module.exports = (shepherd) => {
     const mmloop = () => {
       exec('ps -A | grep "marketmaker"', (error, stdout, stderr) => {
         if (stdout.indexOf('marketmaker') === -1) {
-          console.log('mm is dead, restart');
+          shepherd.log('mm is dead, restart');
 
           const _mmbin = path.join(__dirname, '../../marketmaker');
           const _customParam = {
@@ -664,7 +635,7 @@ module.exports = (shepherd) => {
             maxBuffer: 1024 * 50000, // 50 mb
           }, (error, stdout, stderr) => {
             if (error !== null) {
-              console.log(`exec error: ${error}`);
+              shepherd.log(`exec error: ${error}`);
             }
           });
 
@@ -704,13 +675,13 @@ module.exports = (shepherd) => {
               btc: shepherd.mm.fiatRates.BTC,
               usd: shepherd.mm.fiatRates.USD,
             };
-            console.log(`kmd last price ${shepherd.mm.fiatRates.BTC} btc`);
+            shepherd.log(`kmd last price ${shepherd.mm.fiatRates.BTC} btc`);
           }
           resolve();
         } else {
           setTimeout(() => {
-            const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=900&starttime=0&endtime=0&userpass=1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f`;
-            // console.log(`ticker ${url}`);
+            const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=900&starttime=0&endtime=0&userpass=${USERPASS}`;
+            // shepherd.log(`ticker ${url}`);
 
             const options = {
               url: url,
@@ -726,7 +697,7 @@ module.exports = (shepherd) => {
                 try {
                   _ticker = JSON.parse(body);
                 } catch (e) {
-                  console.log(`unable to get ticker for ${coin}`);
+                  shepherd.log(`unable to get ticker for ${coin}`);
                   resolve(false);
                 }
 
@@ -750,13 +721,13 @@ module.exports = (shepherd) => {
                   }
                   resolve(true);
 
-                  console.log(`${coin} last price ${_lastPrice}`);
+                  shepherd.log(`${coin} last price ${_lastPrice}`);
                 } else {
-                  console.log(`unable to get ticker for ${coin}`);
+                  shepherd.log(`unable to get ticker for ${coin}`);
                   resolve(false);
                 }
               } else {
-                console.log(`unable to get ticker for ${coin}`);
+                shepherd.log(`unable to get ticker for ${coin}`);
                 resolve(false);
               }
             });
@@ -765,7 +736,7 @@ module.exports = (shepherd) => {
       });
     }))
     .then(result => {
-      console.log('ticker update is finished');
+      shepherd.log('ticker update is finished');
     });
   };
 

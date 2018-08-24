@@ -28,7 +28,7 @@ const net = require('net');
 const EventEmitter = require('events').EventEmitter;
 const SOCKET_MAX_TIMEOUT = 20000;
 
-const makeRequest = function(method, params, id) {
+const makeRequest = (method, params, id) => {
   return JSON.stringify({
     jsonrpc: '2.0',
     method: method,
@@ -37,10 +37,10 @@ const makeRequest = function(method, params, id) {
   });
 }
 
-const createRecursiveParser = function(maxDepth, delimiter) {
+const createRecursiveParser = (maxDepth, delimiter) => {
   const MAX_DEPTH = maxDepth;
   const DELIMITER = delimiter;
-  const recursiveParser = function(n, buffer, callback) {
+  const recursiveParser = (n, buffer, callback) => {
     if (buffer.length === 0) {
       return {
         code: 0,
@@ -72,7 +72,7 @@ const createRecursiveParser = function(maxDepth, delimiter) {
   return recursiveParser;
 }
 
-const createPromiseResult = function(resolve, reject) {
+const createPromiseResult = (resolve, reject) => {
   return (err, result) => {
     if (err) {
       // console.log('electrum error:');
@@ -114,7 +114,7 @@ const util = {
   MessageParser,
 };
 
-const getSocket = function(protocol, options) {
+const getSocket = (protocol, options) => {
   switch (protocol) {
   case 'tcp':
     return new net.Socket();
@@ -127,7 +127,7 @@ const getSocket = function(protocol, options) {
   throw new Error('unknown protocol');
 }
 
-const initSocket = function(self, protocol, options) {
+const initSocket = (self, protocol, options) => {
   const conn = getSocket(protocol, options);
 
   conn.setTimeout(SOCKET_MAX_TIMEOUT);
