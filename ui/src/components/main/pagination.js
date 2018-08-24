@@ -44,6 +44,22 @@ export default class TablePaginationRenderer extends Component {
     this.changePage(page === '' ? this.props.page : page);
   }
 
+  renderPageNav(pageSizeOptions) {
+    let _items = [];
+
+    for (let i = 0; i < pageSizeOptions.length; i++) {
+      _items.push(
+        <option
+          key={ i }
+          value={ pageSizeOptions[i] }>
+          { pageSizeOptions[i] } { this.props.rowsText }
+        </option>
+      );
+    }
+
+    return _items;
+  }
+
   render() {
     return PaginationRender.call(this);
   }
