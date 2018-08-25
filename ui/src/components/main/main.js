@@ -192,7 +192,7 @@ class Main extends React.Component {
                 <span className="glyphicon fa fa-twitter twitter-icon"></span>
               </a>
               <p className="margin-top-md text-center">
-                <div className="margin-bottom-sm">Powered by</div>
+                <span className="margin-bottom-sm display--block">Powered by</span>
                 <a
                   href="https://github.com/iquidus/explorer"
                   target="_blank"
