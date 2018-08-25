@@ -140,6 +140,7 @@ const LANG_EN = {
     NO_TX: 'There are no transactions found for',
     ERR_SEARCHING: 'Error: search found no results for',
     SEARCHING: 'Searching',
+    INVALID_PUB: '@template@ is not a valid address',
   },
   STATS: {
     PAIR: 'Pair',

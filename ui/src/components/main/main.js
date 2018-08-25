@@ -12,10 +12,13 @@ import {
   getInterest,
   resetInterestState,
   fiatRates,
+  interestState,
 } from '../../actions/actionCreators';
 import Search from './search';
 import Navigation from './navigation';
 import translate from '../../util/translate/translate';
+import { addressVersionCheck } from 'agama-wallet-lib/src/keys';
+import btcNetworks from 'agama-wallet-lib/src/bitcoinjs-networks';
 
 const FIAT_UPDATE_INTERVAL = 60000;
 
@@ -63,7 +66,17 @@ class Main extends React.Component {
 
   triggerSearch() {
     if (this.props.path === '/rewards') {
-      Store.dispatch(getInterest(this.state.searchTerm));
+      if (addressVersionCheck(btcNetworks.kmd, this.state.searchTerm) === true) {
+        Store.dispatch(getInterest(this.state.searchTerm));
+      } else {
+        Store.dispatch(interestState('', {
+          msg: 'error',
+          result: {
+            code: 1,
+            message: translate('SEARCH.INVALID_PUB', this.state.searchTerm),
+          },
+        }));
+      }
     } else {
       hashHistory.push('/search/' + this.state.searchTerm);
     }

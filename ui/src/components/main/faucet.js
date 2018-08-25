@@ -5,6 +5,8 @@ import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
 import { ReCaptcha } from 'react-recaptcha-google'
 import translate from '../../util/translate/translate';
+import { addressVersionCheck } from 'agama-wallet-lib/src/keys';
+import btcNetworks from 'agama-wallet-lib/src/bitcoinjs-networks';
 
 window.recaptchaOptions = {
   lang: 'en',
@@ -95,24 +97,32 @@ class Faucet extends React.Component {
   }
 
   triggerFaucet() {
-    this.setState({
-      processing: true,
-    });
-
-    faucet(
-      this.state.coin,
-      this.state.address,
-      this.recaptchaToken
-    )
-    .then((res) => {
+    if (addressVersionCheck(btcNetworks.kmd, this.state.address) !== true) {
       this.setState({
-        error: res.msg === 'error' ? true : false,
-        result: res.result,
+        error: true,
+        result: translate('SEARCH.INVALID_PUB', this.state.address),
         processing: false,
       });
-      this.recaptchaToken = null;
-      this.captcha.reset();
-    });
+    } else {
+      this.setState({
+        processing: true,
+      });
+
+      faucet(
+        this.state.coin,
+        this.state.address,
+        this.recaptchaToken
+      )
+      .then((res) => {
+        this.setState({
+          error: res.msg === 'error' ? true : false,
+          result: res.result,
+          processing: false,
+        });
+        this.recaptchaToken = null;
+        this.captcha.reset();
+      });
+    }
   }
 
   updateInput(e) {
