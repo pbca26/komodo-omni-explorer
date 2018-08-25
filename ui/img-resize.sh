@@ -7,7 +7,7 @@
 
 # absolute path to image folder
 # e.g. /home/user/komodo-omni-explorer/ui/src/images/
-FOLDER="yourpathhere"
+FOLDER="/home/pbca/komodo-omni-explorer/ui/src/images/"
 
 # max height
 WIDTH=80

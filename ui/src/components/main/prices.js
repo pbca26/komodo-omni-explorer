@@ -46,7 +46,6 @@ class Prices extends React.Component {
   }
 
   generateItemsListColumns(itemsCount) {
-    let columns = [];
     let _col;
 
     _col = [{
@@ -54,7 +53,8 @@ class Prices extends React.Component {
       Header: translate('PRICES.PAIR'),
       Footer: translate('PRICES.PAIR'),
       maxWidth: '280',
-      accessor: (item) => this.renderPairIcon(item.pair),
+      Cell: row => this.renderPairIcon(row.value),
+      accessor: (item) => (item.pair),
     },
     { id: 'price-avg',
       Header: translate('PRICES.PRICE_AVG'),
@@ -95,9 +95,7 @@ class Prices extends React.Component {
       delete _col[2].Footer;
     }
 
-    columns.push(..._col);
-
-    return columns;
+    return _col;
   }
 
   componentWillMount() {

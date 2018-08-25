@@ -45,7 +45,6 @@ class Interest extends React.Component {
   }
 
   generateItemsListColumns(itemsCount) {
-    let columns = [];
     let _col;
 
     _col = [{
@@ -65,7 +64,8 @@ class Interest extends React.Component {
       id: 'locktime',
       Header: 'Locktime',
       Footer: 'Locktime',
-      accessor: (item) => this.renderLocktimeIcon(item.locktime),
+      Cell: row => this.renderLocktimeIcon(row.value),
+      accessor: (item) => (item.locktime),
     },
     {
       id: 'confirmations',
@@ -78,6 +78,8 @@ class Interest extends React.Component {
       Header: 'TxID',
       Footer: 'TxID',
       accessor: (item) => this.renderTxid(item.txid),
+      sortable: false,
+      filterable: false,
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
@@ -88,9 +90,7 @@ class Interest extends React.Component {
       delete _col[4].Footer;
     }
 
-    columns.push(..._col);
-
-    return columns;
+    return _col;
   }
 
   renderLocktimeIcon(locktime) {

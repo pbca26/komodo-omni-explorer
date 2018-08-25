@@ -69,10 +69,23 @@ class InterestCalc extends React.Component {
       this.setState({
         [e.target ? e.target.name : name]: e.target ? e.target.value : e.value,
       });
+      let interestBreakdownFrequency;
+
+      if (this.state.interestBreakdownThreshold !== 'year' &&
+          this.state.interestBreakdownThreshold !== 'months') {
+        interestBreakdownFrequency = 'yearly';
+      } else {
+        if (this.state.interestBreakdownThreshold === 'months' &&
+            (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly') {
+          interestBreakdownFrequency = 'yearly';
+        } else {
+          interestBreakdownFrequency = this.state.interestBreakdownFrequency;
+        }
+      }
 
       setTimeout(() => {
         this.setState({
-          interestBreakdownFrequency: (this.state.interestBreakdownThreshold !== 'year' && this.state.interestBreakdownThreshold !== 'months') ? 'yearly' : this.state.interestBreakdownThreshold === 'months' && (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly') ? 'yearly' : this.state.interestBreakdownFrequency,
+          interestBreakdownFrequency,
         });
       }, 10);
     }
@@ -199,7 +212,6 @@ class InterestCalc extends React.Component {
             _hoursGap = 1;
             _interestTable = this.getInterestData(12, _total)
             _items = _interestTable.items;
-
             break;
           case 'monthly':
             _total = Number(this.state.interestAmount);
@@ -224,7 +236,9 @@ class InterestCalc extends React.Component {
 
           _items.push(
             <tr key={ `interest-calc-days-${i}` }>
-              <td>{ translate('INTEREST_CALC.WEEK') } { i + 1 }{ i === 52 ? ' (< 1 ' + translate('INTEREST_CALC.DAY_SM') + ')' : '' }</td>
+              <td>
+                { translate('INTEREST_CALC.WEEK') } { i + 1 }{ i === 52 ? ' (< 1 ' + translate('INTEREST_CALC.DAY_SM') + ')' : '' }
+              </td>
               <td>{ _amounts[i] }</td>
               <td>{ _interestAmounts[i].toFixed(3) }</td>
               <td>{ _totalAmounts[i].toFixed(3) }</td>
@@ -272,8 +286,12 @@ class InterestCalc extends React.Component {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <p className="margin-top-md">{ translate('INTEREST_CALC.APR_RATE') }: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </p>
-            <p>{ translate('INTEREST_CALC.EXPENSES_NOT_INCL') }: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> { translate('INTEREST_CALC.IN_TX_FEES') }, <strong>{ _hoursGap } { translate('INTEREST_CALC.HOURS_SM') }</strong> { translate('INTEREST_CALC.GAP_PERIOD') }.</p>
+            <p className="margin-top-md">
+              { translate('INTEREST_CALC.APR_RATE') }: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong>
+            </p>
+            <p>
+              { translate('INTEREST_CALC.EXPENSES_NOT_INCL') }: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> { translate('INTEREST_CALC.IN_TX_FEES') }, <strong>{ _hoursGap } { translate('INTEREST_CALC.HOURS_SM') }</strong> { translate('INTEREST_CALC.GAP_PERIOD') }.
+            </p>
             <p>{ translate('INTEREST_CALC.YOUR_ACTUAL_AMOUNT') }</p>
             <p className="margin-top-lg">
               <strong>Q:</strong> { translate('INTEREST_CALC.Q1') }
@@ -288,14 +306,18 @@ class InterestCalc extends React.Component {
             <h3>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS') } 1 000 000:</h3>
             <ul className="regular-list margin-bottom-lg">
               <li>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC1') }</li>
-              <li>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_1') } <strong>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_2') }</strong> { translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_3') }</li>
+              <li>
+                { translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_1') } <strong>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_2') }</strong> { translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_3') }
+              </li>
               <li>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC3') }</li>
               <li>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC4') }</li>
             </ul>
             <p>
               <span
                 className="link"
-                onClick={ this.toggleNewInterestRulesModal }>{ translate('INTEREST_CALC.READ_FULL_ANN') }</span>
+                onClick={ this.toggleNewInterestRulesModal }>
+                { translate('INTEREST_CALC.READ_FULL_ANN') }
+              </span>
             </p>
             { this.renderNewInterestRulesDisclosure() }
           </div>
@@ -358,10 +380,22 @@ class InterestCalc extends React.Component {
               value={ this.state.interestBreakdownThreshold }
               onChange={ (event) => this.updateInput(event, 'interestBreakdownThreshold') }
               options={[
-                { value: 'year', label: translate('INTEREST_CALC.YEAR') },
-                { value: 'months', label: translate('INTEREST_CALC.MONTHS') },
-                { value: 'weeks', label: translate('INTEREST_CALC.WEEKS') },
-                { value: 'days', label: translate('INTEREST_CALC.DAYS') }
+                {
+                  value: 'year',
+                  label: translate('INTEREST_CALC.YEAR'),
+                },
+                {
+                  value: 'months',
+                  label: translate('INTEREST_CALC.MONTHS'),
+                },
+                {
+                  value: 'weeks',
+                  label: translate('INTEREST_CALC.WEEKS'),
+                },
+                {
+                  value: 'days',
+                  label: translate('INTEREST_CALC.DAYS'),
+                },
               ]} />
           </div>
         </div>
@@ -382,15 +416,36 @@ class InterestCalc extends React.Component {
               options={
                 (this.state.interestBreakdownThreshold !== 'year' && this.state.interestBreakdownThreshold !== 'months') ?
                 [
-                  { value: 'yearly', label: translate('INTEREST_CALC.YEARLY') },
+                  {
+                    value: 'yearly',
+                    label: translate('INTEREST_CALC.YEARLY'),
+                  },
                 ] : this.state.interestBreakdownThreshold === 'months' ? [
-                  { value: 'yearly', label: translate('INTEREST_CALC.YEARLY') },
-                  { value: 'monthly', label: translate('INTEREST_CALC.MONTHLY') }
+                  {
+                    value: 'yearly',
+                    label: translate('INTEREST_CALC.YEARLY'),
+                  },
+                  {
+                    value: 'monthly',
+                    label: translate('INTEREST_CALC.MONTHLY'),
+                  },
                 ] : [
-                  { value: 'yearly', label: translate('INTEREST_CALC.YEARLY') },
-                  { value: 'monthly', label: translate('INTEREST_CALC.MONTHLY') },
-                  { value: 'weekly', label: translate('INTEREST_CALC.WEEKLY') },
-                  { value: 'daily', label: translate('INTEREST_CALC.DAILY') }
+                  {
+                    value: 'yearly',
+                    label: translate('INTEREST_CALC.YEARLY'),
+                  },
+                  {
+                    value: 'monthly',
+                    label: translate('INTEREST_CALC.MONTHLY'),
+                  },
+                  {
+                    value: 'weekly',
+                    label: translate('INTEREST_CALC.WEEKLY'),
+                  },
+                  {
+                    value: 'daily',
+                    label: translate('INTEREST_CALC.DAILY'),
+                  },
                 ]} />
           </div>
         </div>
@@ -419,7 +474,7 @@ class InterestCalc extends React.Component {
               name="interestKMDFiatPrice"
               disabled={ this.state.toggleInterestFiatAutoRate }
               value={ this.state.interestKMDFiatPrice }
-              placeholder={ 'KMD / USD ' + translate('INTEREST_CALC.RATE_SM') }
+              placeholder={ `KMD / USD ${translate('INTEREST_CALC.RATE_SM')}` }
               className="form-control" />
           </div>
           <div className="col-md-3 col-sm-3">
@@ -436,7 +491,9 @@ class InterestCalc extends React.Component {
               </label>
               <span
                 className="title"
-                onClick={ this.toggleInterestFiatAutoRate }>{ translate('INTEREST_CALC.AUTO_UPDATE') }</span>
+                onClick={ this.toggleInterestFiatAutoRate }>
+                { translate('INTEREST_CALC.AUTO_UPDATE') }
+              </span>
             </span>
           </div>
         </div>

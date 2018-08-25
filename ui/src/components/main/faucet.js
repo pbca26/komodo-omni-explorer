@@ -134,7 +134,9 @@ class Faucet extends React.Component {
   }
 
   render() {
-    if (this.state.coin) {
+    const _coin = this.state.coin;
+
+    if (_coin) {
       return (
         <div className="faucet">
           <div className="row text-center margin-top-md margin-bottom-xlg">
@@ -142,17 +144,15 @@ class Faucet extends React.Component {
               <div
                 id="index-search"
                 className="form-group">
-                { this.state.coin &&
-                  <span className="table-coin-icon-wrapper">
-                    <span className={ `table-coin-icon coin_${this.state.coin.toLowerCase()}` }></span>
-                  </span>
-                }
+                <span className="table-coin-icon-wrapper">
+                  <span className={ `table-coin-icon coin_${_coin.toLowerCase()}` }></span>
+                </span>
                 <input
                   onChange={ (event) => this.updateInput(event) }
                   type="text"
                   name="address"
                   value={ this.state.address }
-                  placeholder={ translate('FAUCET.ENTER_ADDRESS', this.state.coin.toUpperCase()) }
+                  placeholder={ translate('FAUCET.ENTER_ADDRESS', _coin.toUpperCase()) }
                   className="form-control" />
               </div>
               <div className="google-recaptcha">
@@ -189,11 +189,11 @@ class Faucet extends React.Component {
               { !this.state.error &&
                 this.state.result &&
                 <div>
-                  <strong>{ config.faucet[this.state.coin].outSize }</strong> { this.state.coin.toUpperCase() } { translate('FAUCET.IS_SENT_TO') } { this.state.address }
+                  <strong>{ config.faucet[_coin].outSize }</strong> { _coin.toUpperCase() } { translate('FAUCET.IS_SENT_TO') } { this.state.address }
                   <div className="margin-top-md">
                     <a
                       target="_blank"
-                      href={ `${config.faucet[this.state.coin].explorer}/tx/${this.state.result}` }>{ translate('FAUCET.OPEN_IN_EXPLORER') }</a>
+                      href={ `${config.faucet[_coin].explorer}/tx/${this.state.result}` }>{ translate('FAUCET.OPEN_IN_EXPLORER') }</a>
                   </div>
                 </div>
               }

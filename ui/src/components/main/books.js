@@ -110,6 +110,8 @@ class Books extends React.Component {
       Footer: translate('BOOKS.COIN'),
       maxWidth: '250',
       accessor: (item) => this.renderCoinIcon(item.coin),
+      filterable: false,
+      sortable: false,
     },
     { id: 'price',
       Header: translate('BOOKS.PRICE'),
@@ -274,8 +276,8 @@ class Books extends React.Component {
                   sortable={ true }
                   className="-striped -highlight"
                   PaginationComponent={ TablePaginationRenderer }
-                  nextText={ translate('INTEREST.NEXT_PAGE') }
-                  previousText={ translate('INTEREST.PREVIOUS_PAGE') }
+                  nextText={ translate('INDEX.NEXT_PAGE') }
+                  previousText={ translate('INDEX.PREVIOUS_PAGE') }
                   showPaginationBottom={ this.state.showPagination }
                   pageSize={ this.state.pageSize }
                   defaultSorted={[{ // default sort
@@ -312,7 +314,9 @@ class Books extends React.Component {
         </div>
       );
     } else {
-      return(<div>{ translate('INDEX.LOADING') }...</div>);
+      return(
+        <div>{ translate('INDEX.LOADING') }...</div>
+      );
     }
   }
 }

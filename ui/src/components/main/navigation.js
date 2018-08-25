@@ -199,7 +199,10 @@ class Navigation extends React.Component {
                     <Link
                       to="/explorers"
                       className="navbar-link pointer"
-                      activeClassName={ window.location.hash.indexOf('/explorers') > -1 && window.location.hash.indexOf('/explorers/status') === -1 ? 'active' : '' }>
+                      activeClassName={
+                        window.location.hash.indexOf('/explorers') > -1 &&
+                        window.location.hash.indexOf('/explorers/status') === -1 ? 'active' : ''
+                      }>
                       <span className="fa fa-list"></span>
                       <span className="menu-text">{ translate('NAVIGATION.LIST') }</span>
                     </Link>
@@ -223,7 +226,7 @@ class Navigation extends React.Component {
                 <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'dex' ? ' disable' : '')}>
                   <li onClick={ () => this.disableActiveParentMenu('dex') }>
                     <Link
-                      to='/prices'
+                      to="/prices"
                       className="navbar-link pointer"
                       activeClassName="active">
                       <span className="fa fa-usd"></span>

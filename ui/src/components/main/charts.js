@@ -28,12 +28,14 @@ class Charts extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.input) {
+    const _input = this.props.input;
+
+    if (_input) {
       this.setState({
-        base: this.props.input.split('-')[0],
-        rel: this.props.input.split('-')[1],
+        base: _input.split('-')[0],
+        rel: _input.split('-')[1],
       });
-      this.createTView(this.props.input);
+      this.createTView(_input);
     } else {
       this.createTView(config.charts.defaultPair);
     }
@@ -172,7 +174,9 @@ class Charts extends React.Component {
           <button
             className="btn btn-primary"
             onClick={ this.reinitTradingView }
-            disabled={ this.state.base === this.state.rel }>{ translate('INDEX.UPDATE') }</button>
+            disabled={ this.state.base === this.state.rel }>
+            { translate('INDEX.UPDATE') }
+          </button>
         </div>
         <div
           id="tv_chart_container"

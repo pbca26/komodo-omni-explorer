@@ -271,7 +271,9 @@ class Stats extends React.Component {
               </label>
               <span
                 className="title"
-                onClick={ this.toggleDetailedView }>{ translate('STATS.DETAILED_VIEW') }</span>
+                onClick={ this.toggleDetailedView }>
+                { translate('STATS.DETAILED_VIEW') }
+              </span>
             </span>
           </div>
           <div className="trades-table">

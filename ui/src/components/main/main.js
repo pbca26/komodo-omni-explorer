@@ -158,7 +158,7 @@ class Main extends React.Component {
                     type="text"
                     name="searchTerm"
                     value={ this.state.searchTerm }
-                    placeholder={ this.props.path === '/rewards' ? translate('INDEX.ENTER_A_VALID_KMD_ADDR') : translate('INDEX.YOU_MAY_ENTER_A_TXID') }
+                    placeholder={  translate('INDEX.' + (this.props.path === '/rewards' ? 'ENTER_A_VALID_KMD_ADDR' : 'YOU_MAY_ENTER_A_TXID')) }
                     className="form-control" />
                   <button
                     onClick={ this.triggerSearch }

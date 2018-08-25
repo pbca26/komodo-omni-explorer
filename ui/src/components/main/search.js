@@ -78,7 +78,6 @@ class Search extends React.Component {
   }
 
   generateItemsListColumns(itemsCount) {
-    let columns = [];
     let _col;
 
     _col = [{
@@ -86,7 +85,8 @@ class Search extends React.Component {
       Header: translate('OVERVIEW.COIN'),
       Footer: translate('OVERVIEW.COIN'),
       maxWidth: '150',
-      accessor: (item) => this.renderCoinIcon(item.coin),
+      Cell: row => this.renderCoinIcon(row.value),
+      accessor: (item) => item.coin,
     },
     { id: 'block',
       Header: translate('OVERVIEW.BLOCK'),
@@ -105,6 +105,8 @@ class Search extends React.Component {
       Header: 'TxID',
       Footer: 'TxID',
       accessor: (item) => this.renderTxid(item.coin, item.txid),
+      filterable: false,
+      sortable: false,
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
@@ -114,9 +116,7 @@ class Search extends React.Component {
       delete _col[3].Footer;
     }
 
-    columns.push(..._col);
-
-    return columns;
+    return _col;
   }
 
   componentWillReceiveProps(props) {
