@@ -76,7 +76,7 @@ class InterestCalc extends React.Component {
         interestBreakdownFrequency = 'yearly';
       } else {
         if (this.state.interestBreakdownThreshold === 'months' &&
-            (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly') {
+            (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly')) {
           interestBreakdownFrequency = 'yearly';
         } else {
           interestBreakdownFrequency = this.state.interestBreakdownFrequency;

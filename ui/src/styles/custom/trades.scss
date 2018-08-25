@@ -26,9 +26,10 @@
 .trades-table {
   .rt-td {
     text-align: center;
-  }
-  .rt-td:nth-child(1) {
-    text-align: left;
+
+    &:nth-child(1) {
+      text-align: left;
+    }
   }
 }
 
