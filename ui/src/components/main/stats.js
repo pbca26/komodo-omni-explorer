@@ -255,7 +255,7 @@ class Stats extends React.Component {
     if (this.state.stats &&
         this.state.stats.length) {
       return (
-        <div className={ 'panel panel-default trades-block' + (!this.state.detailedView ? ' simple' : '')}>
+        <div className={ 'panel panel-default trades-block' + (!this.state.detailedView ? ' simple' : '') }>
           <div className="panel-heading">
             <strong>{ translate('STATS.TRADES_FEED') }</strong>
             <span className="pointer toggle detailed-view-toggle">

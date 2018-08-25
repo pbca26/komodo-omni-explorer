@@ -134,7 +134,7 @@ class Faucet extends React.Component {
                 className="form-group">
                 { this.state.coin &&
                   <span className="table-coin-icon-wrapper">
-                    <span className={ `table-coin-icon coin_${this.state.coin.toLowerCase()}`}></span>
+                    <span className={ `table-coin-icon coin_${this.state.coin.toLowerCase()}` }></span>
                   </span>
                 }
                 <input

@@ -39,7 +39,7 @@ class Summary extends React.Component {
               <tr key={ `summary-${_summary[i].coin}` }>
                 <td>
                   <span className="table-coin-icon-wrapper">
-                    <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}`}></span>
+                    <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}` }></span>
                   </span>
                   <span className="table-coin-name">
                     <a
@@ -98,7 +98,7 @@ class Summary extends React.Component {
             <tr key={ `explorers-${key}-${i}` }>
               <td>
                 <span className="table-coin-icon-wrapper icon-big">
-                  <span className={ `table-coin-icon coin_${key.toLowerCase()}`}></span>
+                  <span className={ `table-coin-icon coin_${key.toLowerCase()}` }></span>
                 </span>
                 <span className="icon-text">{ key.toUpperCase() }</span>
               </td>
@@ -115,7 +115,7 @@ class Summary extends React.Component {
           <tr key={ `explorers-${key}` }>
             <td>
               <span className="table-coin-icon-wrapper icon-big">
-                <span className={ `table-coin-icon coin_${key.toLowerCase()}`}></span>
+                <span className={ `table-coin-icon coin_${key.toLowerCase()}` }></span>
               </span>
               <span className="icon-text">{ key.toUpperCase() }</span>
             </td>

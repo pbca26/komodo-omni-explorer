@@ -56,7 +56,7 @@ class Search extends React.Component {
     return (
       <span>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ coin }</span>
       </span>
@@ -188,7 +188,7 @@ class Search extends React.Component {
             <tr key={ `balance-${_balance[i].coin}` }>
               <td>
                 <span className="table-coin-icon-wrapper icon-big">
-                  <span className={ `table-coin-icon coin_${_balance[i].coin.toLowerCase()}`}></span>
+                  <span className={ `table-coin-icon coin_${_balance[i].coin.toLowerCase()}` }></span>
                 </span>
                 <span className="icon-text">
                   <a
@@ -306,7 +306,9 @@ class Search extends React.Component {
         );
       }
     } else {
-      return(<div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>);
+      return(
+        <div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>
+      );
     }
   }
 }

@@ -24,7 +24,7 @@ class Coins extends React.Component {
         <div
           key={ `dex-coins-${i}` }
           className="coins-list-item">
-          <div className={ `coin-icon coin_${_coins[i].coin.toLowerCase()}`}></div>
+          <div className={ `coin-icon coin_${_coins[i].coin.toLowerCase()}` }></div>
           <div className="text-capitalize title">
             { _coins[i].name || _coins[i].asset }
             { _coins[i].spv &&
@@ -57,7 +57,9 @@ class Coins extends React.Component {
         </div>
       );
     } else {
-      return(<div>{ translate('INDEX.LOADING') }...</div>);
+      return(
+        <div>{ translate('INDEX.LOADING') }...</div>
+      );
     }
   }
 }

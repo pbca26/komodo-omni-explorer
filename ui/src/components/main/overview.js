@@ -36,7 +36,7 @@ class Overview extends React.Component {
     return (
       <span>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ coin }</span>
       </span>
@@ -53,7 +53,7 @@ class Overview extends React.Component {
 
   renderTotal(coin, total) {
     return (
-      <span>{ total } { coin }</span>
+      <span>{ total } { total === 0 ? `${coin} (Z)` : coin }</span>
     );
   }
 
@@ -66,7 +66,6 @@ class Overview extends React.Component {
   }
 
   generateItemsListColumns(itemsCount) {
-    let columns = [];
     let _col;
 
     _col = [{
@@ -74,13 +73,24 @@ class Overview extends React.Component {
       Header: translate('OVERVIEW.COIN'),
       Footer: translate('OVERVIEW.COIN'),
       maxWidth: '150',
-      accessor: (item) => this.renderCoinIcon(item.coin),
+      Cell: row => this.renderCoinIcon(row.value),
+      accessor: (item) => item.coin,
     },
     { id: 'block',
       Header: translate('OVERVIEW.BLOCK'),
       Footer: translate('OVERVIEW.BLOCK'),
       maxWidth: '250',
-      accessor: (item) => this.renderBlock(item.coin, item.blockindex, item.blockhash),
+      Cell: row => this.renderBlock(row.value.coin, row.value.blockindex, row.value.blockhash),
+      accessor: (item) => item,
+      sortMethod: (a, b) => {
+        if (a.blockindex > b.blockindex) {
+          return 1;
+        }
+        if (a.blockindex < b.blockindex) {
+          return -1;
+        }
+        return 0;
+      },
     },
     {
       id: 'timestamp',
@@ -94,13 +104,25 @@ class Overview extends React.Component {
       Header: translate('OVERVIEW.TOTAL'),
       Footer: translate('OVERVIEW.TOTAL'),
       maxWidth: '350',
-      accessor: (item) => this.renderTotal(item.coin, item.total),
+      Cell: row => this.renderTotal(row.value.coin, row.value.total),
+      accessor: (item) => (item),
+      sortMethod: (a, b) => {
+        if (a.total > b.total) {
+          return 1;
+        }
+        if (a.total < b.total) {
+          return -1;
+        }
+        return 0;
+      },
     },
     {
       id: 'txid',
       Header: 'TxID',
       Footer: 'TxID',
       accessor: (item) => this.renderTxid(item.coin, item.txid),
+      sortable: false,
+      filterable: false,
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
@@ -110,9 +132,7 @@ class Overview extends React.Component {
       delete _col[3].Footer;
     }
 
-    columns.push(..._col);
-
-    return columns;
+    return _col;
   }
 
   componentWillMount() {
