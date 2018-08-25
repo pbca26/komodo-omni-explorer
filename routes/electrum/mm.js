@@ -33,7 +33,7 @@ for (let key in electrumCoins) {
   kmdPairs.push(`${key}/KMD`);
 }
 
-shepherd.log(`total orderbook pairs ${kmdPairs.length}`);
+console.log(`total orderbook pairs ${kmdPairs.length}`);
 
 let btcFeeBlocks = [];
 

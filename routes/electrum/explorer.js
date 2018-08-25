@@ -811,7 +811,7 @@ module.exports = (shepherd) => {
                           txid: _utxoItem.tx_hash,
                           vout: _utxoItem.tx_pos,
                           address,
-                          amount: Number(fromSats(_utxoItem.value)),
+                          amount: Number(fromSats(_utxoItem.value).toFixed(8)),
                           amountSats: _utxoItem.value,
                           locktime: decodedTx.format.locktime,
                           interest: Number(interest.toFixed(8)),
