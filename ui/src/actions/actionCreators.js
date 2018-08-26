@@ -116,7 +116,7 @@ export const searchTerm = (searchTerm, currentState) => {
   return dispatch => {
     dispatch(searchTermState(searchTerm));
 
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/search?term=${searchTerm}`, {
+    return fetch(`${apiUrl}/explorer/search?term=${searchTerm}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -135,7 +135,7 @@ export const searchTerm = (searchTerm, currentState) => {
 
 export const getOverview = (currentState) => {
   return dispatch => {
-    return fetch(`${apiUrl}/api/explorer/overview`, {
+    return fetch(`${apiUrl}/explorer/overview`, {
       method: 'GET',
     })
     .catch((error) => {
