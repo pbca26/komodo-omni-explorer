@@ -71,19 +71,19 @@ class InterestCalc extends React.Component {
       });
       let interestBreakdownFrequency;
 
-      if (this.state.interestBreakdownThreshold !== 'year' &&
-          this.state.interestBreakdownThreshold !== 'months') {
-        interestBreakdownFrequency = 'yearly';
-      } else {
-        if (this.state.interestBreakdownThreshold === 'months' &&
-            (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly')) {
+      setTimeout(() => {
+        if (this.state.interestBreakdownThreshold !== 'year' &&
+            this.state.interestBreakdownThreshold !== 'months') {
           interestBreakdownFrequency = 'yearly';
         } else {
-          interestBreakdownFrequency = this.state.interestBreakdownFrequency;
+          if (this.state.interestBreakdownThreshold === 'months' &&
+              (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly')) {
+            interestBreakdownFrequency = 'yearly';
+          } else {
+            interestBreakdownFrequency = this.state.interestBreakdownFrequency;
+          }
         }
-      }
 
-      setTimeout(() => {
         this.setState({
           interestBreakdownFrequency,
         });
