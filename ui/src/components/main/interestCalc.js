@@ -484,7 +484,8 @@ class InterestCalc extends React.Component {
                   type="checkbox"
                   name="toggleInterestFiatAutoRate"
                   value={ this.state.toggleInterestFiatAutoRate }
-                  checked={ this.state.toggleInterestFiatAutoRate } />
+                  checked={ this.state.toggleInterestFiatAutoRate }
+                  readOnly />
                 <div
                   className="slider"
                   onClick={ this.toggleInterestFiatAutoRate }></div>

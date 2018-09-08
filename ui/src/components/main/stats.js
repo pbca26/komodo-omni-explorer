@@ -264,7 +264,8 @@ class Stats extends React.Component {
                   type="checkbox"
                   name="detailedView"
                   value={ this.state.detailedView }
-                  checked={ this.state.detailedView } />
+                  checked={ this.state.detailedView }
+                  readOnly />
                 <div
                   className="slider"
                   onClick={ this.toggleDetailedView }></div>
