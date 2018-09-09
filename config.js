@@ -94,6 +94,15 @@ const _config = {
     },
     NINJA: {
       url: 'https://ninja.kmdexplorer.io/insight-api-komodo',
+    },*/
+    MGNX: {
+      url: 'http://mgnx.explorer.dexstats.info/insight-api-komodo',
+    },
+    PIRATE: {
+      url: 'http://pirate.explorer.dexstats.info/insight-api-komodo',
+    },
+    CCL: {
+      url: 'http://ccl.explorer.dexstats.info/insight-api-komodo',
     },
   },
   faucet: {
@@ -112,19 +121,13 @@ const _config = {
       fee: 0.0001,
       outSize: 0.1,
     },
-    zilla: {
-      wif: '',
-      fee: 0.0001,
-      outSize: 0.1,
-      resetTimeout: 3600 * 24,
-    },
     prlpay: {
       wif: '',
       fee: 0.0001,
       outSize: 0.1,
     },
   },
-  recaptchaKey: '',
+  recaptchaKey: '6Lf7bmUUAAAAAK6QJnK7Iy5SnxfIEzpwdc7S4S2l',
   ticker: [
     'kmd',
     'coqui',
@@ -154,7 +157,10 @@ const _config = {
     'zilla',
     'eql',
     'glxt',
-    'ninja'
+    'ninja',
+    'ccl',
+    'call',
+    'vrsc',
   ],
   tickerUrl: 'http://localhost:7783',
   komodoParams: btcnetworks.kmd,
@@ -191,7 +197,9 @@ const _config = {
     'zilla',
     'eql',
     'glxt',
-    'ninja'
+    'ninja',
+    'ccl',
+    'call',
   ],
   electrumServersExtend: [
     'btc',
