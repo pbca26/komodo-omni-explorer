@@ -153,6 +153,13 @@ const explorers = {
     'https://zilla.kmdexplorer.io',
     'http://zilla.explorer.dexstats.info',
   ],
+  MGNX: 'http://mgnx.explorer.dexstats.info',
+  CALL: 'https://call.explorer.mycapitalco.in',
+  CCL: [
+    'http://ccl.explorer.dexstats.info',
+    'https://ccl.kmdexplorer.io',
+  ],
+  PIRATE: 'http://pirate.explorer.dexstats.info',
 };
 
 export default explorers;

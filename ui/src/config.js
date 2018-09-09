@@ -2,7 +2,7 @@ import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 
 const _config = {
   lang: 'EN',
-  dev: false,
+  dev: true,
   https: true,
   apiUrl: 'www.atomicexplorer.com',
   //https: false,
@@ -35,7 +35,10 @@ const _config = {
     'EQL',
     'ZILLA',
     'DSEC',
-    'VRSC'
+    'VRSC',
+    'MGNX',
+    'CCL',
+    'PIRATE',
   ],
   extendExplorers: [
     'BEER',
@@ -60,10 +63,10 @@ const _config = {
       outSize: 0.1,
       explorer: explorerList.COQUI,
     },
-    zilla: {
+    /*zilla: {
       outSize: 0.1,
       explorer: explorerList.ZILLA,
-    },
+    },*/
     prlpay: {
       outSize: 0.1,
       explorer: explorerList.PRLPAY,
