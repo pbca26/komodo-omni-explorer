@@ -1,5 +1,5 @@
 [
- {
+  {
     "coin":"CHAIN",
     "asset":"CHAIN",
     "fname": "Chainmakers",
@@ -10,6 +10,12 @@
     "asset":"GLXT",
     "fname": "GLX Token",
     "rpcport":13109
+  },
+  {
+    "coin": "CC",
+    "asset": "CCL",
+    "fname": "CoinCollect",
+    "rpcport": 20849
   },
   {
     "coin": "COLX",
@@ -70,6 +76,17 @@
     "confpath":"USERHOME/.brofistcore/brofist.conf"
   },
   {
+    "coin": "SUN",
+    "name": "suncoin",
+    "fname": "SunCoin",
+    "rpcport": 10332,
+    "pubtype": 63,
+    "p2shtype": 16,
+    "wiftype": 204,
+    "txfee": 10000,
+    "confpath": "USERHOME/.suncoincore/suncoin.conf"
+  },
+  {
     "coin":"WAVI",
     "name":"wavi",
     "fname": "Wavi",
@@ -101,6 +118,17 @@
     "wiftype":198,
     "txfee":10000,
     "confpath":"USERHOME/.bitcoinnodecore/bitnexus.conf"
+  },
+  {
+    "coin": "CHC",
+    "name": "chaincoin",
+    "fname": "ChainCoin",
+    "rpcport": 11995,
+    "pubtype": 28,
+    "p2shtype": 4,
+    "wiftype": 156,
+    "txfee": 10000,
+    "confpath": "USERHOME/.chaincoincore/chaincoin.conf"
   },
   {
     "coin":"DOPE",
@@ -334,6 +362,13 @@
     "rpcport":80
   },
   {
+    "coin": "BLZ",
+    "name": "bluzelle",
+    "fname": "Bluzelle",
+    "etomic": "0x5732046a883704404f284ce41ffadd5b007fd668",
+    "rpcport": 80
+  },
+  {
     "coin":"BOX",
     "name":"beonbox",
     "fname":"Beonbox",
@@ -376,6 +411,13 @@
     "rpcport":80
   },
   {
+    "coin": "CYFR",
+    "name": "cyphrcoin",
+    "fname": "CyphrCoin",
+    "etomic": "0xc68d6276eb43f2433f30500d74f155031606e249",
+    "rpcport": 80
+  },
+  {
     "coin":"DATA",
     "name":"streamr-datacoin",
     "fname":"Streamr DATAcoin",
@@ -397,10 +439,24 @@
     "rpcport":80
   },
   {
+    "coin": "ETK",
+    "name": "energitoken",
+    "fname": "EnergiToken",
+    "etomic": "0x3c4a3ffd813a107febd57b2f01bc344264d90fde",
+    "rpcport": 80
+  },
+  {
     "coin": "FOOD",
     "name": "foodcoin",
     "fname": "FoodCoin",
     "etomic": "0x2a093bcf0c98ef744bb6f69d74f2f85605324290",
+    "rpcport": 80
+  },
+  {
+    "coin": "GMBEL",
+    "name": "gmbel",
+    "fname": "G-Mbel",
+    "etomic": "0xf3cfbca4e083b1418f89545754c7da90d2418b10",
     "rpcport": 80
   },
   {
@@ -439,6 +495,13 @@
     "rpcport":80
   },
   {
+    "coin": "KICK",
+    "name": "kickico",
+    "fname": "KickCoin",
+    "etomic": "0x27695e09149adc738a978e9a678f99e4c39e9eb9",
+    "rpcport": 80
+  },
+  {
     "coin":"LIKE",
     "name":"likecoin",
     "fname":"LikeCoin",
@@ -452,6 +515,13 @@
     "etomic":"0x514910771af9ca656af840dff83e8264ecf986ca",
     "rpcport":80
   },
+  {
+    "coin": "LTR",
+    "name": "labtorum",
+    "fname": "Labtorum",
+    "etomic": "0x1bd4e709a076fb71ea1014293a739f2b19ca565d",
+    "rpcport": 80
+},
   {
     "coin":"LYS",
     "name":"lightyears",
@@ -472,6 +542,20 @@
     "fname":"Mechanix Token",
     "etomic":"0xe7c33a0e04f2316bb321c4ad2976873d09538b56",
     "rpcport":80
+  },
+  {
+    "coin": "MRPH",
+    "name": "morpheusnetwork",
+    "fname": "Morpheus Network",
+    "etomic": "0x7b0c06043468469967dba22d1af33d77d44056c8",
+    "rpcport": 80
+  },
+  {
+    "coin": "MTF",
+    "name": "mintflint",
+    "fname": "MintFlint Token",
+    "etomic": "0xf3b98d8c425c76e0c7abadffddc1a26ce3107e45",
+    "rpcport": 80
   },
   {
     "coin":"MYB",
@@ -509,11 +593,25 @@
     "rpcport":80
   },
   {
+    "coin": "PAO",
+    "name": "pacificocean",
+    "fname": "Pacific Ocean",
+    "etomic": "0x4b6509423371d35e022a2915be0edeffa9147f5a",
+    "rpcport": 80
+  },
+  {
     "coin":"PCL",
     "name":"peculium",
     "fname": "Peculium",
     "etomic":"0x3618516f45cd3c913f81f9987af41077932bc40d",
     "rpcport":80
+  },
+  {
+    "coin": "PCNC",
+    "name": "pcncoin",
+    "fname": "PCN Coin",
+    "etomic": "0x090b60abc45e2af60eb058a4c7f25574a1c6ae4a",
+    "rpcport": 80
   },
   {
     "coin":"POLY",
@@ -565,6 +663,14 @@
     "rpcport":80
   },
   {
+    "coin": "SVD",
+    "name": "savedroid",
+    "fname": "Savedroid",
+    "etomic": "0xbdeb4b83251fb146687fa19d1c660f99411eefe3",
+    "decimals": 18,
+    "rpcport": 80
+  },
+  {
     "coin":"THETA",
     "name":"theta-token",
     "fname":"Theta Token",
@@ -584,6 +690,13 @@
     "fname": "Dentacoin",
     "etomic":"0x08d32b0da63e2C3bcF8019c9c5d849d7a9d791e6",
     "rpcport":80
+  },
+  {
+    "coin": "ELY",
+    "name": "elysian",
+    "fname": "Elysian",
+    "etomic": "0xa95592dcffa3c080b4b40e459c5f5692f67db7f8",
+    "rpcport": 80
   },
   {
     "coin":"DROP",
@@ -751,6 +864,13 @@
     "rpcport": 80
   },
   {
+    "coin": "DDD",
+    "name": "scryinfo",
+    "fname": "Scry.info",
+    "etomic": "0x9F5F3CFD7a32700C93F971637407ff17b91c7342",
+    "rpcport": 80
+  },
+  {
     "coin": "DGD",
     "name": "digixdao",
     "fname": "DigixDAO",
@@ -816,6 +936,13 @@
     "rpcport": 80
   },
   {
+    "coin": "MDS",
+    "name": "medishares",
+    "fname": "MediShares",
+    "etomic": "0x66186008C1050627F979d464eABb258860563dbE",
+    "rpcport": 80
+  },
+  {
     "coin": "MKR",
     "name": "maker",
     "fname": "Maker",
@@ -841,6 +968,13 @@
     "name": "sirin-labs-token",
     "fname": "SIRIN LABS Token",
     "etomic": "0x68d57c9a1c35f63e2c83ee8e49a64e9d70528d25",
+    "rpcport": 80
+  },
+  {
+    "coin": "YLC",
+    "name": "yolocash",
+    "fname": "YoloCash",
+    "etomic": "0x21d5678A62DFe63a47062469Ebb2fAc2817D8832",
     "rpcport": 80
   },
   {
@@ -904,6 +1038,13 @@
     "name": "iconomi",
     "fname": "Iconomi",
     "etomic": "0x888666CA69E0f178DED6D75b5726Cee99A87D698",
+    "rpcport": 80
+  },
+  {
+    "coin": "LUPX",
+    "name": "lupecoin",
+    "fname": "Lupecoin",
+    "etomic": "0x49C67AE22c334D0123dD6DBDc44F5302e130a88b",
     "rpcport": 80
   },
   {
@@ -1962,7 +2103,7 @@
   {
     "coin": "ARC",
     "name": "arcticcoin",
-    "fname": "Arctic coin",
+    "fname": "Advanced Technology Coin",
     "confpath": "USERHOME/.arcticcore/arcticcoin.conf",
     "rpcport": 7208,
     "pubtype": 23,
@@ -2014,7 +2155,7 @@
   },
   {
     "coin": "FLO",
-    "name": "florincoin",
+    "name": "flo",
     "fname": "Florincoin",
     "rpcport": 7313,
     "pubtype": 35,
@@ -2193,8 +2334,8 @@
     "name": "bitcore",
     "fname": "Bitcore",
     "rpcport": 8556,
-    "pubtype": 0,
-    "p2shtype": 5,
+    "pubtype": 3,
+    "p2shtype": 125,
     "wiftype": 128,
     "txfee": 50000
   },
@@ -2444,5 +2585,35 @@
     "p2shtype": 5,
     "wiftype": 204,
     "txfee": 10000
-  }
+  },
+  {
+    "coin": "IMG",
+    "name": "ImageCoin",
+    "fname": "ImageCoin",
+    "rpcport": 6999,
+    "pubtype": 63,
+    "p2shtype": 5,
+    "wiftype": 204,
+    "txfee": 10000
+   },
+   {
+    "coin":"CALL",
+    "asset":"CALL",
+    "fname": "Capital",
+    "rpcport":19609
+   },
+   {
+    "coin": "OCALL",
+    "name": "capital",
+    "fname": "Old Capital",
+    "etomic": "0x2c02c801a3324b371ad285c64af372ff1e23f460",
+    "rpcport": 80
+   },
+   {
+    "coin": "CALLG",
+    "name": "capitalgas",
+    "fname": "Capital GAS",
+    "etomic": "0x6c28f85eb1dbc7651ce02f7af1f29890ad084b94",
+    "rpcport": 80
+   }  
 ]
