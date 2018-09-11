@@ -1266,6 +1266,6 @@
     "coin":"CALL",
     "asset":"CALL",
     "fname": "Capital",
-    "rpcport":19609
+    "rpcport": 19609
   }
 ]
