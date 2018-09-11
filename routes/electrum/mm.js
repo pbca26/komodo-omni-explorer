@@ -680,8 +680,8 @@ module.exports = (shepherd) => {
           resolve();
         } else {
           setTimeout(() => {
-            const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=900&starttime=0&endtime=0&userpass=${USERPASS}`;
-            // shepherd.log(`ticker ${url}`);
+            const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=9000&starttime=0&endtime=0&userpass=${USERPASS}`;
+            shepherd.log(`ticker ${url}`);
 
             const options = {
               url: url,
