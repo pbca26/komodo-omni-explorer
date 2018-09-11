@@ -3,8 +3,7 @@ const fs = require('fs-extra');
 let coins = [];
 
 makeSymbolsFile = () => {
-  const _location = path.join(__dirname, 'coinsSource.json');
-  const _allCoins = JSON.parse(fs.readFileSync(_location));
+  const _allCoins = JSON.parse(fs.readFileSync('./routes/charts/coinsSource.json'));
   let _coins = ['BTC', 'KMD']; // base coins
   let _symbols = [];
   let _coinsUI = [];
@@ -43,7 +42,7 @@ makeSymbolsFile = () => {
     });
   }
 
-  fs.writeFileSync('coinList.json', JSON.stringify(_symbols));
+  fs.writeFileSync('./routes/charts/coinList.json', JSON.stringify(_symbols));
 
   for (let i = 0; i < _coins.length; i++) {
     _coinsUI.push({
@@ -51,7 +50,7 @@ makeSymbolsFile = () => {
       label: _coins[i],
     });
   }
-  fs.writeFileSync('coins.json', JSON.stringify(_coinsUI));
+  fs.writeFileSync('./routes/charts/coins.json', JSON.stringify(_coinsUI));
 }
 
 makeSymbolsFile();
