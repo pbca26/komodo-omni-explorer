@@ -5,7 +5,7 @@ let coins = [];
 makeSymbolsFile = () => {
   const _location = path.join(__dirname, 'coinsSource.json');
   const _allCoins = JSON.parse(fs.readFileSync(_location));
-  let _coins = ['BTC', 'KMD'];
+  let _coins = ['BTC', 'KMD']; // base coins
   let _symbols = [];
   let _coinsUI = [];
 
@@ -16,13 +16,13 @@ makeSymbolsFile = () => {
   coins = _coins;
 
   // ref: https://codereview.stackexchange.com/questions/75658/pairwise-combinations-of-an-array-in-javascript
-  function pairwise(list) {
+  const pairwise = (list) => {
     if (list.length < 2) { return []; }
 
     const first = list[0];
     const rest  = list.slice(1);
 
-    let pairs = rest.map(function (x) { return [first, x]; });
+    let pairs = rest.map((x) => { return [first, x]; });
 
     return pairs.concat(pairwise(rest));
   }
@@ -30,8 +30,17 @@ makeSymbolsFile = () => {
   const _pairs = pairwise(_coins);
 
   for (let i = 0; i < _pairs.length; i++) {
-    _symbols.push({ "name": `${_pairs[i][1]}-${_pairs[i][0]}`, "description": _pairs[i][1], "exchange":"barterdex", "type":"barterdex"});
-    _symbols.push({ "name": `${_pairs[i][0]}-${_pairs[i][1]}`, "description": _pairs[i][0], "exchange":"barterdex", "type":"barterdex"});
+    _symbols.push({
+      name: `${_pairs[i][1]}-${_pairs[i][0]}`,
+      description: _pairs[i][1],
+      exchange: 'barterdex',
+      type: 'barterdex',
+    }, {
+      name: `${_pairs[i][0]}-${_pairs[i][1]}`,
+      description: _pairs[i][0],
+      exchange: 'barterdex',
+      type: 'barterdex',
+    });
   }
 
   fs.writeFileSync('coinList.json', JSON.stringify(_symbols));
