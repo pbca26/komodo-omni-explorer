@@ -108,7 +108,7 @@ module.exports = (shepherd) => {
 
           setTimeout(() => {
             if (!remoteExplorersFinished[coin]) {
-              console.log(`summary ${coin} is stuck, cancel req`);
+              shepherd.log(`summary ${coin} is stuck, cancel req`);
               resolve({
                 coin,
                 result: 'unable to get summary',
@@ -149,7 +149,7 @@ module.exports = (shepherd) => {
         // run insight explorers
         Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
           return new Promise((resolve, reject) => {
-            console.log(`insight summary ${coin}`);
+            shepherd.log(`insight summary ${coin}`);
 
             const options = {
               url: `${remoteExplorersInsight[coin].url}/status?q=getInfo`,
@@ -158,7 +158,7 @@ module.exports = (shepherd) => {
 
             setTimeout(() => {
               if (!_remoteExplorersFinished[coin]) {
-                console.log(`summary ${coin} is stuck, cancel req`);
+                shepherd.log(`summary ${coin} is stuck, cancel req`);
                 resolve({
                   coin,
                   result: 'unable to get summary',
@@ -204,14 +204,14 @@ module.exports = (shepherd) => {
 
             fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
               if (err) {
-                console.log(`error updating summary cache file ${err}`);
+                shepherd.log(`error updating summary cache file ${err}`);
               } else {
                 const summaryFile = fs.readJsonSync(summaryFileLocation, { throws: false });
                 let items = [];
 
                 shepherd.explorer.summary = summaryFile;
 
-                console.log('explorer summary updated');
+                shepherd.log('explorer summary updated');
               }
             });
           }
@@ -239,7 +239,7 @@ module.exports = (shepherd) => {
         url: `${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`,
         method: 'GET',
       };
-      // console.log(`${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`);
+      // shepherd.log(`${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`);
 
       request(options, (error, response, body) => {
         if (response &&
@@ -248,15 +248,15 @@ module.exports = (shepherd) => {
           try {
             const _blocks = JSON.parse(body).blocks;
             let _txs = [];
-            // console.log(JSON.stringify(_blocks));
+            // shepherd.log(JSON.stringify(_blocks));
 
             if (_blocks &&
                 _blocks.length) {
               Promise.all(_blocks.map((block, index) => {
                 return new Promise((resolve, reject) => {
                   setTimeout(() => {
-                    // console.log(`insight ${index}`);
-                    // console.log(`${config.insight[coin].url}/api/txs?block=${block.hash}`);
+                    // shepherd.log(`insight ${index}`);
+                    // shepherd.log(`${config.insight[coin].url}/api/txs?block=${block.hash}`);
 
                     const options = {
                       url: `${config.insight[coin].url}/txs?block=${block.hash}`,
@@ -273,7 +273,7 @@ module.exports = (shepherd) => {
                           if (txs &&
                               txs.txs) {
                             txs = txs.txs;
-                            // console.log(txs);
+                            // shepherd.log(txs);
 
                             for (let i = 0; i < txs.length; i++) {
                               _txs.push({
@@ -288,15 +288,15 @@ module.exports = (shepherd) => {
                               resolve(true);
                             }
                           } else {
-                            console.log(`unable to get txs in ${coin} block ${block.height}`);
+                            shepherd.log(`unable to get txs in ${coin} block ${block.height}`);
                             resolve(false);
                           }
                         } catch (e) {
-                          console.log(`unable to get txs in ${coin} block ${block.height}`);
+                          shepherd.log(`unable to get txs in ${coin} block ${block.height}`);
                           resolve(false);
                         }
                       } else {
-                        console.log(`unable to get txs in ${coin} block ${block.height}`);
+                        shepherd.log(`unable to get txs in ${coin} block ${block.height}`);
                         resolve(false);
                       }
                     });
@@ -304,8 +304,8 @@ module.exports = (shepherd) => {
                 });
               }))
               .then(result => {
-                console.log(`insight ${coin} last txs is finished, total txs ${_txs.length}`);
-                // console.log(JSON.stringify(_txs));
+                shepherd.log(`insight ${coin} last txs is finished, total txs ${_txs.length}`);
+                // shepherd.log(JSON.stringify(_txs));
 
                 resolveMain({
                   coin,
@@ -320,21 +320,21 @@ module.exports = (shepherd) => {
                 coin,
                 result: 'unable to get lasttx',
               });
-              console.log(`unable to get insight last blocks for ${coin}`);
+              shepherd.log(`unable to get insight last blocks for ${coin}`);
             }
           } catch (e) {
             resolveMain({
               coin,
               result: 'unable to get lasttx',
             });
-            console.log(`unable to get insight last blocks for ${coin}`);
+            shepherd.log(`unable to get insight last blocks for ${coin}`);
           }
         } else {
           resolveMain({
             coin,
             result: 'unable to get lasttx',
           });
-          console.log(`unable to get insight last blocks for ${coin}`);
+          shepherd.log(`unable to get insight last blocks for ${coin}`);
         }
       });
     });
@@ -353,7 +353,7 @@ module.exports = (shepherd) => {
 
           setTimeout(() => {
             if (!remoteExplorersFinished[coin]) {
-              console.log(`overview ${coin} is stuck, cancel req`);
+              shepherd.log(`overview ${coin} is stuck, cancel req`);
               resolve({
                 coin,
                 result: 'unable to get lasttx',
@@ -367,13 +367,13 @@ module.exports = (shepherd) => {
             if (response &&
                 response.statusCode &&
                 response.statusCode === 200) {
-              console.log(`overview got lasttx for ${coin}`);
+              shepherd.log(`overview got lasttx for ${coin}`);
               resolve({
                 coin,
                 result: body,
               });
             } else {
-              console.log(`overview unable to get lasttx for ${coin}`);
+              shepherd.log(`overview unable to get lasttx for ${coin}`);
               resolve({
                 coin,
                 result: 'unable to get lasttx',
@@ -383,8 +383,9 @@ module.exports = (shepherd) => {
         });
       }))
       .then(_result => {
-        console.log('overview executed');
         let result = _result;
+
+        shepherd.log('overview executed');
 
         if (result &&
             result.length) {
@@ -393,7 +394,7 @@ module.exports = (shepherd) => {
           // run insight explorers
           Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
             return new Promise((resolve, reject) => {
-              console.log(`insight overview ${coin}`);
+              shepherd.log(`insight overview ${coin}`);
 
               shepherd.insightLastTransactions(coin)
               .then((res) => {
@@ -405,7 +406,7 @@ module.exports = (shepherd) => {
           .then(__result => {
             fs.writeFile(overviewFileLocation, JSON.stringify({ result }), (err) => {
               if (err) {
-                console.log(`error updating overview cache file ${err}`);
+                shepherd.log(`error updating overview cache file ${err}`);
               } else {
                 const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
 
@@ -413,7 +414,8 @@ module.exports = (shepherd) => {
                     overviewFile.result) {
                   const resSizeLimit = 1000;
                   let items = [];
-                  console.log(`tracking ${overviewFile.result.length} coin explorers`);
+
+                  shepherd.log(`tracking ${overviewFile.result.length} coin explorers`);
 
                   for (let i = 0; i < overviewFile.result.length; i++) {
                     try {
@@ -426,7 +428,7 @@ module.exports = (shepherd) => {
                           blockhash: _parseData[j].blockhash,
                           blockindex: _parseData[j].blockindex,
                           timestamp: _parseData[j].timestamp,
-                          total: _parseData[j].total,
+                          total: overviewFile.result[i].coin.toLowerCase() === 'chips' ? fromSats(_parseData[j].total) : _parseData[j].total,
                         });
                       }
                     } catch (e) {}
@@ -437,7 +439,7 @@ module.exports = (shepherd) => {
 
                   shepherd.explorer.overview = items;
 
-                  console.log(`explorer overview updated at ${Date.now()}`);
+                  shepherd.log(`explorer overview updated at ${Date.now()}`);
                 }
               }
             });
@@ -470,8 +472,8 @@ module.exports = (shepherd) => {
           .then((_rawtxJSON) => {
             ecl.close();
 
-            // console.log(`search ${req.query.term} in ${electrumServerData.coin}`);
-            // console.log(_rawtxJSON);
+            // shepherd.log(`search ${req.query.term} in ${electrumServerData.coin}`);
+            // shepherd.log(_rawtxJSON);
 
             if (_rawtxJSON &&
                 !_rawtxJSON.status &&
@@ -484,21 +486,21 @@ module.exports = (shepherd) => {
       }))
       .then(result => {
         if (!coin) {
-          const successObj = {
+          const retObj = {
             msg: 'error',
             result: 'txid not found',
           };
 
           res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
+          res.end(JSON.stringify(retObj));
         } else {
-          const successObj = {
+          const retObj = {
             msg: 'success',
             result: coin,
           };
 
           res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
+          res.end(JSON.stringify(retObj));
         }
       });
     } else {
@@ -550,13 +552,13 @@ module.exports = (shepherd) => {
       }))
       .then(result => {
         if (errorCount === electrumServers.length) {
-          const successObj = {
+          const retObj = {
             msg: 'error',
             result: 'wrong address',
           };
 
           res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
+          res.end(JSON.stringify(retObj));
         } else {
           const _balance = result;
           let _transactions = [];
@@ -588,7 +590,7 @@ module.exports = (shepherd) => {
                                 _transactions.push({
                                   coin: electrumServerData.coin.toUpperCase(),
                                   blockindex: transaction.height,
-                                  txid: transaction['tx_hash'],
+                                  txid: transaction.tx_hash,
                                   timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
                                 });
                                 resolve();
@@ -616,23 +618,23 @@ module.exports = (shepherd) => {
             }
           }))
           .then(result => {
-            const successObj = {
+            const retObj = {
               msg: 'success',
               result: {
                 balance: _balance,
                 transactions: _transactions,
-              }
+              },
             };
 
             res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(successObj));
+            res.end(JSON.stringify(retObj));
           });
         }
       });
     }
   });
 
-  shepherd.get('/kmd/interest', (req, res, next) => {
+  shepherd.get('/kmd/rewards', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
@@ -662,7 +664,7 @@ module.exports = (shepherd) => {
 
               Promise.all(_utxo.map((_utxoItem, index) => {
                 return new Promise((resolve, reject) => {
-                  ecl.blockchainTransactionGet(_utxoItem['tx_hash'])
+                  ecl.blockchainTransactionGet(_utxoItem.tx_hash)
                   .then((_rawtxJSON) => {
                     // decode tx
                     const decodedTx = txDecoder(_rawtxJSON, komodoParams);
@@ -679,7 +681,7 @@ module.exports = (shepherd) => {
               }))
               .then(promiseResult => {
                 ecl.close();
-                const successObj = {
+                const retObj = {
                   msg: 'success',
                   result: {
                     balance: Number(fromSats(json.confirmed).toFixed(8)),
@@ -694,10 +696,10 @@ module.exports = (shepherd) => {
                 };
 
                 res.set({ 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(successObj));
+                res.end(JSON.stringify(retObj));
               });
             } else {
-              const successObj = {
+              const retObj = {
                 msg: 'success',
                 result: {
                   balance: Number(fromSats(json.confirmed).toFixed(8)),
@@ -712,10 +714,10 @@ module.exports = (shepherd) => {
               };
 
               res.set({ 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(successObj));
+              res.end(JSON.stringify(retObj));
             }
           } else {
-            const successObj = {
+            const retObj = {
               msg: 'success',
               result: {
                 balance: Number(fromSats(json.confirmed).toFixed(8)),
@@ -730,17 +732,17 @@ module.exports = (shepherd) => {
             };
 
             res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(successObj));
+            res.end(JSON.stringify(retObj));
           }
         });
       } else {
-        const successObj = {
+        const retObj = {
           msg: 'error',
           result: json,
         };
 
         res.set({ 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(successObj));
+        res.end(JSON.stringify(retObj));
       }
     });
   });
@@ -749,8 +751,8 @@ module.exports = (shepherd) => {
     return new Promise((resolve, reject) => {
       ecl.blockchainHeadersSubscribe()
       .then((json) => {
-        if (json['block_height']) {
-          resolve(json['block_height']);
+        if (json.block_height) {
+          resolve(json.block_height);
         } else {
           resolve(json);
         }
@@ -789,7 +791,7 @@ module.exports = (shepherd) => {
               } else {
                 Promise.all(_utxo.map((_utxoItem, index) => {
                   return new Promise((resolve, reject) => {
-                    ecl.blockchainTransactionGet(_utxoItem['tx_hash'])
+                    ecl.blockchainTransactionGet(_utxoItem.tx_hash)
                     .then((_rawtxJSON) => {
                       // decode tx
                       const decodedTx = txDecoder(_rawtxJSON, komodoParams);
@@ -806,10 +808,10 @@ module.exports = (shepherd) => {
                         }
 
                         let _resolveObj = {
-                          txid: _utxoItem['tx_hash'],
-                          vout: _utxoItem['tx_pos'],
+                          txid: _utxoItem.tx_hash,
+                          vout: _utxoItem.tx_pos,
                           address,
-                          amount: Number(fromSats(_utxoItem.value)),
+                          amount: Number(fromSats(_utxoItem.value).toFixed(8)),
                           amountSats: _utxoItem.value,
                           locktime: decodedTx.format.locktime,
                           interest: Number(interest.toFixed(8)),
@@ -862,24 +864,24 @@ module.exports = (shepherd) => {
       network
     )
     .then((json) => {
-      const successObj = {
+      const retObj = {
         msg: json.code ? 'error' : 'success',
         result: json,
       };
 
       res.set({ 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(successObj));
+      res.end(JSON.stringify(retObj));
     });
   });
 
   shepherd.get('/timestamp/now', (req, res, next) => {
-    const successObj = {
+    const retObj = {
       msg: 'success',
       result: Date.now(),
     };
 
     res.set({ 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(successObj));
+    res.end(JSON.stringify(retObj));
   });
 
   return shepherd;

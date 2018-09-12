@@ -106,16 +106,16 @@ module.exports = (shepherd) => {
 
   shepherd.get('/faucet', (req, res, next) => {
     // ref: https://codeforgeek.com/2016/03/google-recaptcha-node-js-tutorial/
-    if (req.query['grecaptcha'] === undefined ||
-        req.query['grecaptcha'] === '' ||
-        req.query['grecaptcha'] === null) {
-      const successObj = {
+    if (req.query.grecaptcha === undefined ||
+        req.query.grecaptcha === '' ||
+        req.query.grecaptcha === null) {
+      const retObj = {
         msg: 'error',
         result: 'Failed captcha verification',
       };
 
       res.set({ 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(successObj));
+      res.end(JSON.stringify(retObj));
     } else {
       // Put your secret key here.
       const secretKey = config.recaptchaKey;
@@ -125,13 +125,13 @@ module.exports = (shepherd) => {
 
         if (body.success !== undefined &&
             !body.success) {
-          const successObj = {
+          const retObj = {
             msg: 'error',
             result: 'Failed captcha verification',
           };
 
           res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
+          res.end(JSON.stringify(retObj));
         } else {
           const coin = req.query.coin || 'beer';
           const addressCheck = shepherd.checkFaucetOutAddress(coin, req.query.address);
@@ -158,9 +158,9 @@ module.exports = (shepherd) => {
 
                 for (let i = 0; i < _utxo.length; i++) {
                   _formattedUtxoList.push({
-                    txid: _utxo[i]['tx_hash'],
-                    vout: _utxo[i]['tx_pos'],
-                    value: _utxo[i]['value'],
+                    txid: _utxo[i].tx_hash,
+                    vout: _utxo[i].tx_pos,
+                    value: _utxo[i].value,
                   });
                 }
 
@@ -189,18 +189,22 @@ module.exports = (shepherd) => {
                   }];
                 }
 
-                /*console.log('targets');
-                console.log(targets);*/
+                /*shepherd.log('targets');
+                shepherd.log(targets);*/
 
-                let { fee, inputs, outputs } = coinSelect(_formattedUtxoList, targets, 0);
+                let {
+                  fee,
+                  inputs,
+                  outputs,
+                } = coinSelect(_formattedUtxoList, targets, 0);
 
-                /*console.log('coinselect');
-                console.log('fee');
-                console.log(fee);
-                console.log('inputs');
-                console.log(inputs);
-                console.log('outputs');
-                console.log(outputs);*/
+                /*shepherd.log('coinselect');
+                shepherd.log('fee');
+                shepherd.log(fee);
+                shepherd.log('inputs');
+                shepherd.log(inputs);
+                shepherd.log('outputs');
+                shepherd.log(outputs);*/
 
                 let _vinSum = 0;
                 let _voutSum = 0;
@@ -213,9 +217,9 @@ module.exports = (shepherd) => {
                   _voutSum += outputs[i].value;
                 }
 
-                /*console.log(`vin sum ${_vinSum}`);
-                console.log(`vout sum ${_voutSum}`);
-                console.log(`fee ${_vinSum - _voutSum}`);*/
+                /*shepherd.log(`vin sum ${_vinSum}`);
+                shepherd.log(`vout sum ${_voutSum}`);
+                shepherd.log(`fee ${_vinSum - _voutSum}`);*/
 
                 if ((_vinSum - _voutSum) === 0) {
                   const tx = new bitcoin.TransactionBuilder(config.komodoParams);
@@ -250,76 +254,76 @@ module.exports = (shepherd) => {
 
                   const rawtx = tx.build().toHex();
 
-                  // console.log(tx.build());
+                  // shepherd.log(tx.build());
 
-                  // console.log('buildSignedTx signed tx hex');
-                  // console.log(rawtx);
+                  // shepherd.log('buildSignedTx signed tx hex');
+                  // shepherd.log(rawtx);
 
                   ecl.blockchainTransactionBroadcast(rawtx)
                   .then((txid) => {
                     ecl.close();
 
-                    // console.log(txid);
+                    // shepherd.log(txid);
 
                     if (txid &&
                         txid.indexOf('bad-txns-inputs-spent') > -1) {
-                      const successObj = {
+                      const retObj = {
                         msg: 'error',
                         result: 'Bad transaction inputs spent',
                       };
 
                       res.set({ 'Content-Type': 'application/json' });
-                      res.end(JSON.stringify(successObj));
+                      res.end(JSON.stringify(retObj));
                     } else {
                       if (txid &&
                           txid.length === 64) {
                         if (txid.indexOf('bad-txns-in-belowout') > -1) {
-                          const successObj = {
+                          const retObj = {
                             msg: 'error',
                             result: 'Bad transaction inputs spent',
                           };
 
                           res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(successObj));
+                          res.end(JSON.stringify(retObj));
                         } else {
-                          const successObj = {
+                          const retObj = {
                             msg: 'success',
                             result: txid,
                           };
 
                           res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(successObj));
+                          res.end(JSON.stringify(retObj));
 
                           try {
                             fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
-                            console.log(`new faucet address added ${outputAddress}`);
+                            shepherd.log(`new faucet address added ${outputAddress}`);
                           } catch (err) {
                             try {
                               fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
-                              console.log(`new faucet address added ${outputAddress}`);
+                              shepherd.log(`new faucet address added ${outputAddress}`);
                             } catch (err) {
-                              console.log('fubar!');
+                              shepherd.log('fubar!');
                             }
                           }
                         }
                       } else {
                         if (txid &&
                             txid.indexOf('bad-txns-in-belowout') > -1) {
-                          const successObj = {
+                          const retObj = {
                             msg: 'error',
                             result: 'Bad transaction inputs spent',
                           };
 
                           res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(successObj));
+                          res.end(JSON.stringify(retObj));
                         } else {
-                          const successObj = {
+                          const retObj = {
                             msg: 'error',
                             result: 'Can\'t broadcast transaction',
                           };
 
                           res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(successObj));
+                          res.end(JSON.stringify(retObj));
                         }
                       }
                     }
@@ -327,42 +331,42 @@ module.exports = (shepherd) => {
                 } else {
                   ecl.close();
 
-                  const successObj = {
+                  const retObj = {
                     msg: 'error',
                     result: 'tx error',
                   };
 
                   res.set({ 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(successObj));
+                  res.end(JSON.stringify(retObj));
                 }
               } else {
                 ecl.close();
 
-                const successObj = {
+                const retObj = {
                   msg: 'error',
                   result: 'no valid utxo',
                 };
 
                 res.set({ 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(successObj));
+                res.end(JSON.stringify(retObj));
               }
             });
           } else if (!addressCheck || addressCheck === -777) {
-            const successObj = {
+            const retObj = {
               msg: 'error',
               result: 'Invalid pub address',
             };
 
             res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(successObj));
+            res.end(JSON.stringify(retObj));
           } else if (addressCheck === 777) {
-            const successObj = {
+            const retObj = {
               msg: 'error',
               result: 'You had enough already. ' + (minRemaining > 0 ? `Come back in ${minRemaining} min(s)` : 'Go home.'),
             };
 
             res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(successObj));
+            res.end(JSON.stringify(retObj));
           }
         }
       });

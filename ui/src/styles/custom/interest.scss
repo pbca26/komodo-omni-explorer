@@ -1,0 +1,59 @@
+.interest-calc {
+  .btn-interest {
+    float: right;
+  }
+  .padding-20-50 {
+    margin-top: 20px;
+    padding-bottom: 50px;
+  }
+  .margin-top-20 {
+    margin-top: 20px;
+  }
+  .padding-bottom-100 {
+    padding-bottom: 100px;
+  }
+  .link {
+    color: #2f6363;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.btn-interest,
+.btn-interest:active,
+.btn-interest:hover {
+  background: #2f6363;
+  color: #fff;
+
+  i {
+    margin-right: 10px;
+  }
+}
+
+.interest-calc-table {
+  text-align: center;
+}
+
+.interest-dropdown {
+  .Select-clear-zone {
+    display: none;
+  }
+}
+
+.interest-label {
+  padding-top: 8px;
+}
+
+.interest {
+  td {
+    text-align: center;
+  }
+  .alert {
+    display: inline-block;
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+}

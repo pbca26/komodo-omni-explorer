@@ -3,14 +3,15 @@ import ReactTable from 'react-table';
 import Store from '../../store';
 import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
+import { tableSorting } from '../../util/util';
 import {
-  sortByDate,
   formatValue,
-  secondsToString,
-  tableSorting,
-} from '../../util/util';
+  sort,
+} from 'agama-wallet-lib/src/utils';
+import { secondsToString } from 'agama-wallet-lib/src/time';
 import { getOverview } from '../../actions/actionCreators';
 import config from '../../config';
+import translate from '../../util/translate/translate';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 const OVERVIEW_UPDATE_INTERVAL = 20000;
@@ -35,7 +36,7 @@ class Overview extends React.Component {
     return (
       <span>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ coin }</span>
       </span>
@@ -51,9 +52,8 @@ class Overview extends React.Component {
   }
 
   renderTotal(coin, total) {
-    // <span>{ Number((total * (coin === 'KMD' ? 1 : 0.00000001)).toFixed(8)) } { coin }</span>
     return (
-      <span>{ total } { coin }</span>
+      <span>{ total } { total === 0 ? `${coin} (Z)` : coin }</span>
     );
   }
 
@@ -66,41 +66,63 @@ class Overview extends React.Component {
   }
 
   generateItemsListColumns(itemsCount) {
-    let columns = [];
     let _col;
 
     _col = [{
       id: 'coin',
-      Header: 'Coin',
-      Footer: 'Coin',
+      Header: translate('OVERVIEW.COIN'),
+      Footer: translate('OVERVIEW.COIN'),
       maxWidth: '150',
-      accessor: (item) => this.renderCoinIcon(item.coin),
+      Cell: row => this.renderCoinIcon(row.value),
+      accessor: (item) => item.coin,
     },
     { id: 'block',
-      Header: 'Block',
-      Footer: 'Block',
+      Header: translate('OVERVIEW.BLOCK'),
+      Footer: translate('OVERVIEW.BLOCK'),
       maxWidth: '250',
-      accessor: (item) => this.renderBlock(item.coin, item.blockindex, item.blockhash),
+      Cell: row => this.renderBlock(row.value.coin, row.value.blockindex, row.value.blockhash),
+      accessor: (item) => item,
+      sortMethod: (a, b) => {
+        if (a.blockindex > b.blockindex) {
+          return 1;
+        }
+        if (a.blockindex < b.blockindex) {
+          return -1;
+        }
+        return 0;
+      },
     },
     {
       id: 'timestamp',
-      Header: 'Time',
-      Footer: 'Time',
+      Header: translate('OVERVIEW.TIME'),
+      Footer: translate('OVERVIEW.TIME'),
       maxWidth: '350',
       accessor: (item) => secondsToString(item.timestamp),
     },
     {
       id: 'total',
-      Header: 'Total',
-      Footer: 'Total',
+      Header: translate('OVERVIEW.TOTAL'),
+      Footer: translate('OVERVIEW.TOTAL'),
       maxWidth: '350',
-      accessor: (item) => this.renderTotal(item.coin, item.total),
+      Cell: row => this.renderTotal(row.value.coin, row.value.total),
+      accessor: (item) => (item),
+      sortMethod: (a, b) => {
+        if (a.total > b.total) {
+          return 1;
+        }
+        if (a.total < b.total) {
+          return -1;
+        }
+        return 0;
+      },
     },
     {
       id: 'txid',
       Header: 'TxID',
       Footer: 'TxID',
       accessor: (item) => this.renderTxid(item.coin, item.txid),
+      sortable: false,
+      filterable: false,
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
@@ -110,9 +132,7 @@ class Overview extends React.Component {
       delete _col[3].Footer;
     }
 
-    columns.push(..._col);
-
-    return columns;
+    return _col;
   }
 
   componentWillMount() {
@@ -179,13 +199,13 @@ class Overview extends React.Component {
         <div className="col-md-12">
           <div className="panel panel-default">
             <div className="panel-heading">
-              <strong>Latest Transactions</strong>
+              <strong>{ translate('OVERVIEW.LATEST_TXS') }</strong>
             </div>
             <div className="dex-table">
               <input
                 className="form-control search-field"
                 onChange={ e => this.onSearchTermChange(e.target.value) }
-                placeholder="Filter" />
+                placeholder={ translate('INDEX.FILTER') } />
               <ReactTable
                 data={ this.state.filteredItemsList }
                 columns={ this.state.itemsListColumns }
@@ -193,8 +213,8 @@ class Overview extends React.Component {
                 sortable={ true }
                 className="-striped -highlight"
                 PaginationComponent={ TablePaginationRenderer }
-                nextText="Next page"
-                previousText="Previous page"
+                nextText={ translate('INDEX.NEXT_PAGE') }
+                previousText={ translate('INDEX.PREVIOUS_PAGE') }
                 showPaginationBottom={ this.state.showPagination }
                 pageSize={ this.state.pageSize }
                 defaultSortMethod={ tableSorting }

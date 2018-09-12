@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import { Main } from './main';
+import Main from './main';
 
 const appReducer = combineReducers({
   Main,

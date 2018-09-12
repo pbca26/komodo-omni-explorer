@@ -3,8 +3,9 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import Select from 'react-select';
 import { fiatRates } from '../../actions/actionCreators';
+import translate from '../../util/translate/translate';
 
-let months = [
+const months = [
   'Jan',
   'Feb',
   'Mar',
@@ -68,10 +69,23 @@ class InterestCalc extends React.Component {
       this.setState({
         [e.target ? e.target.name : name]: e.target ? e.target.value : e.value,
       });
+      let interestBreakdownFrequency;
 
       setTimeout(() => {
+        if (this.state.interestBreakdownThreshold !== 'year' &&
+            this.state.interestBreakdownThreshold !== 'months') {
+          interestBreakdownFrequency = 'yearly';
+        } else {
+          if (this.state.interestBreakdownThreshold === 'months' &&
+              (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly')) {
+            interestBreakdownFrequency = 'yearly';
+          } else {
+            interestBreakdownFrequency = this.state.interestBreakdownFrequency;
+          }
+        }
+
         this.setState({
-          interestBreakdownFrequency: (this.state.interestBreakdownThreshold !== 'year' && this.state.interestBreakdownThreshold !== 'months') ? 'yearly' : this.state.interestBreakdownThreshold === 'months' && (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly') ? 'yearly' : this.state.interestBreakdownFrequency,
+          interestBreakdownFrequency,
         });
       }, 10);
     }
@@ -181,7 +195,7 @@ class InterestCalc extends React.Component {
 
         _items.push(
           <tr key={ `interest-calc-days-year` }>
-            <td>1 year</td>
+            <td>{ translate('INTEREST_CALC.ONE_YEAR') }</td>
             <td>{ this.state.interestAmount }</td>
             <td>{ _ytdInterest.toFixed(3) }</td>
             <td>{ _total.toFixed(3) }</td>
@@ -198,7 +212,6 @@ class InterestCalc extends React.Component {
             _hoursGap = 1;
             _interestTable = this.getInterestData(12, _total)
             _items = _interestTable.items;
-
             break;
           case 'monthly':
             _total = Number(this.state.interestAmount);
@@ -223,7 +236,9 @@ class InterestCalc extends React.Component {
 
           _items.push(
             <tr key={ `interest-calc-days-${i}` }>
-              <td>Week { i + 1 }{ i === 52 ? ' (< 1 day)' : '' }</td>
+              <td>
+                { translate('INTEREST_CALC.WEEK') } { i + 1 }{ i === 52 ? ' (< 1 ' + translate('INTEREST_CALC.DAY_SM') + ')' : '' }
+              </td>
               <td>{ _amounts[i] }</td>
               <td>{ _interestAmounts[i].toFixed(3) }</td>
               <td>{ _totalAmounts[i].toFixed(3) }</td>
@@ -240,7 +255,7 @@ class InterestCalc extends React.Component {
 
           _items.push(
             <tr key={ `interest-calc-days-${i}` }>
-              <td>Day { i + 1 }</td>
+              <td>{ translate('INTEREST_CALC.DAY') } { i + 1 }</td>
               <td>{ _amounts[i] }</td>
               <td>{ _interestAmounts[i].toFixed(3) }</td>
               <td>{ _totalAmounts[i].toFixed(3) }</td>
@@ -257,11 +272,11 @@ class InterestCalc extends React.Component {
           <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table">
             <thead>
               <tr>
-                <th>Period</th>
-                <th>Amount</th>
-                <th>Rewards (accumulative)</th>
-                <th>Total (accumulative)</th>
-                <th>Total, USD (accumulative)</th>
+                <th>{ translate('INTEREST_CALC.PERIOD') }</th>
+                <th>{ translate('INTEREST_CALC.AMOUNT') }</th>
+                <th>{ translate('INTEREST_CALC.REWARDS') }</th>
+                <th>{ translate('INTEREST_CALC.TOTAL') }</th>
+                <th>{ translate('INTEREST_CALC.TOTAL_USD') }</th>
               </tr>
             </thead>
             <tbody>
@@ -271,30 +286,38 @@ class InterestCalc extends React.Component {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <p className="margin-top-md">APR rate: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong> </p>
-            <p>Expenses not included in calculation: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> in transaction fees, <strong>{ _hoursGap } hour(s)</strong> gap period when no interest is accrued.</p>
-            <p>Your actual amounts will be less than what is presented in the table.</p>
-            <p className="margin-top-lg">
-              <strong>Q:</strong> What will happen to my KMD rewards after 1 year period is passed.
+            <p className="margin-top-md">
+              { translate('INTEREST_CALC.APR_RATE') }: <strong>{ Number((_ytdInterest * 105 / _total).toFixed(3)) }%</strong>
             </p>
             <p>
-              <strong>A:</strong> It will stop accruing and remain fixed until it is claimed.
+              { translate('INTEREST_CALC.EXPENSES_NOT_INCL') }: <strong>{ Number(_fees.toFixed(4)) } KMD</strong> { translate('INTEREST_CALC.IN_TX_FEES') }, <strong>{ _hoursGap } { translate('INTEREST_CALC.HOURS_SM') }</strong> { translate('INTEREST_CALC.GAP_PERIOD') }.
+            </p>
+            <p>{ translate('INTEREST_CALC.YOUR_ACTUAL_AMOUNT') }</p>
+            <p className="margin-top-lg">
+              <strong>Q:</strong> { translate('INTEREST_CALC.Q1') }
+            </p>
+            <p>
+              <strong>A:</strong> { translate('INTEREST_CALC.A1') }
             </p>
           </div>
         </div>
         <div className="row margin-top-lg">
           <div className="col-md-12">
-            <h3>Changes to KMD rewards past block height 1 000 000:</h3>
+            <h3>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS') } 1 000 000:</h3>
             <ul className="regular-list margin-bottom-lg">
-              <li>new KMD coins are rewarded to users when they make transactions</li>
-              <li>total rate is <strong>~5.1% per year</strong> if done monthly or more often</li>
-              <li>you stop getting rewards if you haven't used Komodo network for one month (coins haven't moved in one month)</li>
-              <li>new changes don't affect rewards accrued under old rules</li>
+              <li>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC1') }</li>
+              <li>
+                { translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_1') } <strong>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_2') }</strong> { translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC2_3') }
+              </li>
+              <li>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC3') }</li>
+              <li>{ translate('INTEREST_CALC.CHANGES_TO_REWARDS_DESC4') }</li>
             </ul>
             <p>
               <span
                 className="link"
-                onClick={ this.toggleNewInterestRulesModal }>Read full announcement</span>
+                onClick={ this.toggleNewInterestRulesModal }>
+                { translate('INTEREST_CALC.READ_FULL_ANN') }
+              </span>
             </p>
             { this.renderNewInterestRulesDisclosure() }
           </div>
@@ -317,21 +340,21 @@ class InterestCalc extends React.Component {
                 onClick={ this.toggleNewInterestRulesModal }>
                 <span>×</span>
               </button>
-              <h4 className="modal-title white">Komodo’s 5% Reward Consensus Shifts from Annual to Monthly</h4>
+              <h4 className="modal-title white">{ translate('INTEREST_CALC.MODAL_REWARDS_CONSENSUS') }</h4>
             </div>
             <div className="modal-body">
-              <h5>By: Davion Ziere</h5>
-              <h5>May 7, 2018 (GLOBAL)</h5>
-              <p className="margin-top-lg">Breaking news from jl777, lead developer at Komodo: "As users know, the more transactions there are on a blockchain, the more difficult it is to conduct timing analysis. Over the past year, we have measured the need for even more active movement in order to better support the KMD privacy mechanism. To implement this, the annual time limit on the growing of 5% will be changed to monthly cap of 5%/12 (0.417%). The good news is that compounding will get you rewards of 5.1% over a year. Your contribution to the privacy ecosystem will now be more closely linked to your reward. As this is a consensus rules change, it will need to activate at a future height and all existing utxos will still operate under the old rules, so this will only affect new utxo created after the activation height of 1 million."</p>
-              <h5 className="margin-top-lg">What This Means</h5>
-              <p>All KMD holders need to begin actively collecting your KMD reward on a monthly basis to maximize your rewards for contributing to the activity of the KMD ecosystem. By collecting this reward monthly, users are actively contributing to the increase in privacy for everyone connected to the entire KMD protocol. As jl777 stated, there is a small bonus granted to those who collect the 0.417% reward every month in a year, resulting in a 5.1% annual reward. It is important to note that in order to gain the ability to be compounding this reward at all, users must still hold 10 or more KMD in their wallet.</p>
-              <p>In short KMD holders (who hold 10 KMD or more in their Agama wallet) have the opportunity to actively participate in supporting Komodo's ecosystem, enhancing KMD's privacy feature and earn a reward for doing so.</p>
-              <h5 className="margin-top-lg">In summary, these are the highlights of our updated consensus-wide KMD change:</h5>
+              <h5>{ translate('INTEREST_CALC.MODAL_BY_DAVION') }</h5>
+              <h5>{ translate('INTEREST_CALC.MODAL_MAY7') }</h5>
+              <p className="margin-top-lg">{ translate('INTEREST_CALC.MODAL_BREAKING_NEWS') }</p>
+              <h5 className="margin-top-lg">{ translate('INTEREST_CALC.MODAL_WHAT_THIS_MEANS') }</h5>
+              <p>{ translate('INTEREST_CALC.MODAL_ALL_KMD_HOLDERS') }</p>
+              <p>{ translate('INTEREST_CALC.MODAL_IN_SHORT') }</p>
+              <h5 className="margin-top-lg">{ translate('INTEREST_CALC.MODAL_IN_SUMMARY') }</h5>
               <ul className="regular-list">
-                <li>These changes begin after the activation height of 1 million utxos, estimated to be 3 to 4 months from today (today is May 10th, 2018)</li>
-                <li>Boosting KMD earning potential from 5% to 5.1% annually</li>
-                <li>Increasing KMD Ecosystem Activity through incentivizing monthly Reward Collection</li>
-                <li>Enhanced Privacy for the entirety of the KMD ecosystem</li>
+                <li>{ translate('INTEREST_CALC.MODAL_THESE_CHANGES') }</li>
+                <li>{ translate('INTEREST_CALC.MODAL_BOOSTING_KMD_EARNING') }</li>
+                <li>{ translate('INTEREST_CALC.MODAL_INCREASING_KMD_ECOSYS_ACTIVITY') }</li>
+                <li>{ translate('INTEREST_CALC.MODAL_ENHANCE_PRIVACY') }</li>
               </ul>
             </div>
           </div>
@@ -348,7 +371,7 @@ class InterestCalc extends React.Component {
       <div className="row">
         <div className="col-md-12 col-sm-12">
           <div className="col-md-4 col-sm-4 interest-label">
-            Show me rewards breakdown by
+            { translate('INTEREST_CALC.SHOW_ME_REWARDS_BREAKDOWN') }
           </div>
           <div className="col-md-3 col-sm-3">
             <Select
@@ -357,16 +380,28 @@ class InterestCalc extends React.Component {
               value={ this.state.interestBreakdownThreshold }
               onChange={ (event) => this.updateInput(event, 'interestBreakdownThreshold') }
               options={[
-                { value: 'year', label: 'Year' },
-                { value: 'months', label: 'Months' },
-                { value: 'weeks', label: 'Weeks' },
-                { value: 'days', label: 'Days' }
+                {
+                  value: 'year',
+                  label: translate('INTEREST_CALC.YEAR'),
+                },
+                {
+                  value: 'months',
+                  label: translate('INTEREST_CALC.MONTHS'),
+                },
+                {
+                  value: 'weeks',
+                  label: translate('INTEREST_CALC.WEEKS'),
+                },
+                {
+                  value: 'days',
+                  label: translate('INTEREST_CALC.DAYS'),
+                },
               ]} />
           </div>
         </div>
         <div className="col-md-12 col-sm-12 margin-top-20">
           <div className="col-md-4 col-sm-4 interest-label">
-            I want to claim rewards
+            { translate('INTEREST_CALC.I_WANT_TO_CLAIM_REWARDS') }
           </div>
           <div className="col-md-3 col-sm-3">
             <Select
@@ -381,21 +416,42 @@ class InterestCalc extends React.Component {
               options={
                 (this.state.interestBreakdownThreshold !== 'year' && this.state.interestBreakdownThreshold !== 'months') ?
                 [
-                  { value: 'yearly', label: 'Yearly' },
+                  {
+                    value: 'yearly',
+                    label: translate('INTEREST_CALC.YEARLY'),
+                  },
                 ] : this.state.interestBreakdownThreshold === 'months' ? [
-                  { value: 'yearly', label: 'Yearly' },
-                  { value: 'monthly', label: 'Monthly' }
+                  {
+                    value: 'yearly',
+                    label: translate('INTEREST_CALC.YEARLY'),
+                  },
+                  {
+                    value: 'monthly',
+                    label: translate('INTEREST_CALC.MONTHLY'),
+                  },
                 ] : [
-                  { value: 'yearly', label: 'Yearly' },
-                  { value: 'monthly', label: 'Monthly' },
-                  { value: 'weekly', label: 'Weekly' },
-                  { value: 'daily', label: 'Daily' }
+                  {
+                    value: 'yearly',
+                    label: translate('INTEREST_CALC.YEARLY'),
+                  },
+                  {
+                    value: 'monthly',
+                    label: translate('INTEREST_CALC.MONTHLY'),
+                  },
+                  {
+                    value: 'weekly',
+                    label: translate('INTEREST_CALC.WEEKLY'),
+                  },
+                  {
+                    value: 'daily',
+                    label: translate('INTEREST_CALC.DAILY'),
+                  },
                 ]} />
           </div>
         </div>
         <div className="col-md-12 col-sm-12 margin-top-20">
           <div className="col-md-4 col-sm-4 interest-label">
-            KMD amount
+            KMD { translate('INTEREST_CALC.AMOUNT_SM') }
           </div>
           <div className="col-md-3 col-sm-3">
             <input
@@ -403,13 +459,13 @@ class InterestCalc extends React.Component {
               type="text"
               name="interestAmount"
               value={ this.state.interestAmount }
-              placeholder="Amount"
+              placeholder={ translate('INTEREST_CALC.AMOUNT') }
               className="form-control" />
           </div>
         </div>
         <div className="col-md-12 col-sm-12 padding-20-50">
           <div className="col-md-4 col-sm-4 interest-label">
-            KMD / USD rate
+            KMD / USD { translate('INTEREST_CALC.RATE_SM') }
           </div>
           <div className="col-md-3 col-sm-3">
             <input
@@ -418,7 +474,7 @@ class InterestCalc extends React.Component {
               name="interestKMDFiatPrice"
               disabled={ this.state.toggleInterestFiatAutoRate }
               value={ this.state.interestKMDFiatPrice }
-              placeholder="KMD / USD rate"
+              placeholder={ `KMD / USD ${translate('INTEREST_CALC.RATE_SM')}` }
               className="form-control" />
           </div>
           <div className="col-md-3 col-sm-3">
@@ -428,14 +484,17 @@ class InterestCalc extends React.Component {
                   type="checkbox"
                   name="toggleInterestFiatAutoRate"
                   value={ this.state.toggleInterestFiatAutoRate }
-                  checked={ this.state.toggleInterestFiatAutoRate } />
+                  checked={ this.state.toggleInterestFiatAutoRate }
+                  readOnly />
                 <div
                   className="slider"
                   onClick={ this.toggleInterestFiatAutoRate }></div>
               </label>
               <span
                 className="title"
-                onClick={ this.toggleInterestFiatAutoRate }>Auto update</span>
+                onClick={ this.toggleInterestFiatAutoRate }>
+                { translate('INTEREST_CALC.AUTO_UPDATE') }
+              </span>
             </span>
           </div>
         </div>
@@ -457,7 +516,7 @@ class InterestCalc extends React.Component {
               onClick={ this.resetInterestCalc }
               type="submit"
               className="btn btn-interest">
-              <i className="fa fa-times"></i>Reset
+              <i className="fa fa-times"></i>{ translate('INTEREST_CALC.RESET') }
             </button>
           </div>
         </div>

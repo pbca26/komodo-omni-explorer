@@ -14,7 +14,7 @@ import {
   MULTI_ADDRESS_BALANCE,
 } from '../actions/storeType';
 
-export function Main(state = {
+const Main = (state = {
   overview: null,
   search: null,
   searchTerm: null,
@@ -29,7 +29,7 @@ export function Main(state = {
   coins: null,
   stats: null,
   balanceMulti: null,
-}, action) {
+}, action) => {
   switch (action.type) {
     case UPDATE:
       return {

@@ -12,9 +12,13 @@ import {
   getInterest,
   resetInterestState,
   fiatRates,
+  interestState,
 } from '../../actions/actionCreators';
 import Search from './search';
 import Navigation from './navigation';
+import translate from '../../util/translate/translate';
+import { addressVersionCheck } from 'agama-wallet-lib/src/keys';
+import btcNetworks from 'agama-wallet-lib/src/bitcoinjs-networks';
 
 const FIAT_UPDATE_INTERVAL = 60000;
 
@@ -61,8 +65,18 @@ class Main extends React.Component {
   }
 
   triggerSearch() {
-    if (this.props.path === '/interest') {
-      Store.dispatch(getInterest(this.state.searchTerm));
+    if (this.props.path === '/rewards') {
+      if (addressVersionCheck(btcNetworks.kmd, this.state.searchTerm) === true) {
+        Store.dispatch(getInterest(this.state.searchTerm));
+      } else {
+        Store.dispatch(interestState('', {
+          msg: 'error',
+          result: {
+            code: 1,
+            message: translate('SEARCH.INVALID_PUB', this.state.searchTerm),
+          },
+        }));
+      }
     } else {
       hashHistory.push('/search/' + this.state.searchTerm);
     }
@@ -77,7 +91,7 @@ class Main extends React.Component {
           <span
             key={ `explorer-icons-${key}` }
             className="header-coin-wrapper">
-            <span className={ `header-coin-icon coin_${key.toLowerCase()}`}></span>
+            <span className={ `header-coin-icon coin_${key.toLowerCase()}` }></span>
           </span>
         );
       }
@@ -95,10 +109,10 @@ class Main extends React.Component {
             <div className="col-md-2 col-md-offset-3">
               <div className="panel panel-default hidden-sm hidden-xs">
                 <div className="panel-heading">
-                  <strong>Coins</strong>
+                  <strong>{ translate('INDEX.COINS') }</strong>
                 </div>
                 <div className="panel-body">
-                  <label id="hashrate">28</label>
+                  <label id="hashrate">{ Object.keys(config.explorers).length }</label>
                 </div>
               </div>
             </div>
@@ -112,7 +126,7 @@ class Main extends React.Component {
               <div className="col-md-2">
                 <div className="panel panel-default hidden-sm hidden-xs">
                   <div className="panel-heading">
-                    <strong>KMD Price</strong>
+                    <strong>{ translate('INDEX.KMD_PRICE') }</strong>
                   </div>
                   <div className="panel-body">
                     <div>
@@ -131,7 +145,7 @@ class Main extends React.Component {
               { this.renderCoinIcons() }
             </div>
           }
-          { (this.props.path.indexOf('/interest') > -1 &&
+          { (this.props.path.indexOf('/rewards') > -1 &&
               this.props.path.indexOf('/balance-multi') === -1 ||
               this.props.path === '/') &&
             <div className="row text-center margin-top-md margin-bottom-xlg">
@@ -144,14 +158,14 @@ class Main extends React.Component {
                     type="text"
                     name="searchTerm"
                     value={ this.state.searchTerm }
-                    placeholder={ this.props.path === '/interest' ? 'Enter a valid KMD address' : 'You may enter a transaction hash or an address.' }
+                    placeholder={  translate('INDEX.' + (this.props.path === '/rewards' ? 'ENTER_A_VALID_KMD_ADDR' : 'YOU_MAY_ENTER_A_TXID')) }
                     className="form-control" />
                   <button
                     onClick={ this.triggerSearch }
                     disabled={ this.state.searchTerm.length < 34 }
                     type="submit"
                     className="btn btn-success margin-left-10">
-                    Search
+                    { translate('INDEX.SEARCH') }
                   </button>
                 </div>
               </div>
@@ -161,7 +175,7 @@ class Main extends React.Component {
                     to="/balance-multi"
                     className="navbar-link pointer"
                     activeClassName="active">
-                    Check multiple KMD addresses balance here
+                    { translate('INDEX.CHECK_MULTIPLE_KMD_ADDRS') }
                   </Link>
                 </div>
               }
@@ -178,7 +192,7 @@ class Main extends React.Component {
                 <span className="glyphicon fa fa-twitter twitter-icon"></span>
               </a>
               <p className="margin-top-md text-center">
-                <div className="margin-bottom-sm">Powered by</div>
+                <span className="margin-bottom-sm display--block">Powered by</span>
                 <a
                   href="https://github.com/iquidus/explorer"
                   target="_blank"

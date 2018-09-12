@@ -11,7 +11,8 @@ shepherd.explorer = {
 };
 
 shepherd.log = (msg) => {
-  if (config.isDev) {
+  if (config.isDev ||
+      config.debug) {
     console.log(msg);
   }
 }

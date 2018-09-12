@@ -3,14 +3,16 @@ import ReactTable from 'react-table';
 import Store from '../../store';
 import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
+import { tableSorting } from '../../util/util';
 import {
-  sortByDate,
   formatValue,
-  secondsToString,
-  tableSorting,
-} from '../../util/util';
+  sort,
+  fromSats,
+} from 'agama-wallet-lib/src/utils';
+import { secondsToString } from 'agama-wallet-lib/src/time';
 import { searchTerm } from '../../actions/actionCreators';
 import config from '../../config';
+import translate from '../../util/translate/translate';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 
@@ -54,7 +56,7 @@ class Search extends React.Component {
     return (
       <span>
         <span className="table-coin-icon-wrapper">
-          <span className={ `table-coin-icon coin_${coin.toLowerCase()}`}></span>
+          <span className={ `table-coin-icon coin_${coin.toLowerCase()}` }></span>
         </span>
         <span className="table-coin-name">{ coin }</span>
       </span>
@@ -71,31 +73,31 @@ class Search extends React.Component {
 
   renderTotal(coin, total) {
     return (
-      <span>{ Number((total * 0.00000001).toFixed(8)) } { coin }</span>
+      <span>{ Number(fromSats(total).toFixed(8)) } { coin }</span>
     );
   }
 
   generateItemsListColumns(itemsCount) {
-    let columns = [];
     let _col;
 
     _col = [{
       id: 'coin',
-      Header: 'Coin',
-      Footer: 'Coin',
+      Header: translate('OVERVIEW.COIN'),
+      Footer: translate('OVERVIEW.COIN'),
       maxWidth: '150',
-      accessor: (item) => this.renderCoinIcon(item.coin),
+      Cell: row => this.renderCoinIcon(row.value),
+      accessor: (item) => item.coin,
     },
     { id: 'block',
-      Header: 'Block',
-      Footer: 'Block',
+      Header: translate('OVERVIEW.BLOCK'),
+      Footer: translate('OVERVIEW.BLOCK'),
       maxWidth: '250',
       accessor: (item) => item.blockindex,
     },
     {
       id: 'timestamp',
-      Header: 'Time',
-      Footer: 'Time',
+      Header: translate('OVERVIEW.TIME'),
+      Footer: translate('OVERVIEW.TIME'),
       accessor: (item) => secondsToString(item.timestamp),
     },
     {
@@ -103,6 +105,8 @@ class Search extends React.Component {
       Header: 'TxID',
       Footer: 'TxID',
       accessor: (item) => this.renderTxid(item.coin, item.txid),
+      filterable: false,
+      sortable: false,
     }];
 
     if (itemsCount <= BOTTOM_BAR_DISPLAY_THRESHOLD) {
@@ -112,9 +116,7 @@ class Search extends React.Component {
       delete _col[3].Footer;
     }
 
-    columns.push(..._col);
-
-    return columns;
+    return _col;
   }
 
   componentWillReceiveProps(props) {
@@ -186,7 +188,7 @@ class Search extends React.Component {
             <tr key={ `balance-${_balance[i].coin}` }>
               <td>
                 <span className="table-coin-icon-wrapper icon-big">
-                  <span className={ `table-coin-icon coin_${_balance[i].coin.toLowerCase()}`}></span>
+                  <span className={ `table-coin-icon coin_${_balance[i].coin.toLowerCase()}` }></span>
                 </span>
                 <span className="icon-text">
                   <a
@@ -210,9 +212,9 @@ class Search extends React.Component {
           <table className="table table-bordered table-striped dataTable no-footer dtr-inline">
             <thead>
               <tr>
-                <th>Coin</th>
-                <th>Balance confirmed</th>
-                <th>Balance unconfirmed</th>
+                <th>{ translate('OVERVIEW.COIN') }</th>
+                <th>{ translate('SEARCH.BALANCE_CONF') }</th>
+                <th>{ translate('SEARCH.BALANCE_UNCONF') }</th>
               </tr>
             </thead>
             <tbody>
@@ -232,13 +234,13 @@ class Search extends React.Component {
     return (
       <div className="panel panel-default margin-top-60">
         <div className="panel-heading">
-          <strong>Latest Transactions for { this.props.Main.searchTerm }</strong>
+          <strong>{ translate('SEARCH.LATEST_TXS_FOR') } { this.props.Main.searchTerm }</strong>
         </div>
         <div className="dex-table">
           <input
             className="form-control search-field"
             onChange={ e => this.onSearchTermChange(e.target.value) }
-            placeholder="Filter" />
+            placeholder={ translate('INDEX.FILTER') } />
           <ReactTable
             data={ this.state.filteredItemsList }
             columns={ this.state.itemsListColumns }
@@ -246,8 +248,8 @@ class Search extends React.Component {
             sortable={ true }
             className="-striped -highlight"
             PaginationComponent={ TablePaginationRenderer }
-            nextText="Next page"
-            previousText="Previous page"
+            nextText={ translate('INDEX.NEXT_PAGE') }
+            previousText={ translate('INDEX.PREVIOUS_PAGE') }
             showPaginationBottom={ this.state.showPagination }
             pageSize={ this.state.pageSize }
             defaultSortMethod={ tableSorting }
@@ -270,7 +272,7 @@ class Search extends React.Component {
         if (!this.props.Main.search.balance) {
           return (
             <div className="col-md-12 text-center margin-bottom-10">
-              <div>Found { this.props.Main.search } transaction</div>
+              <div>{ translate('SEARCH.FOUND_TX', this.props.Main.search) }</div>
               <a
                 target="_blank"
                 href={ `${config.explorers[this.props.Main.search] || config.extendExplorers[this.props.Main.search]}/tx/${this.props.Main.searchTerm}` }>{ this.props.Main.searchTerm }</a>
@@ -281,7 +283,7 @@ class Search extends React.Component {
             return(
               <div className="col-md-12">
                 <div className="alert alert-warning">
-                  <strong>There are no transactions found for { this.props.Main.searchTerm }</strong>
+                  <strong>{ translate('SEARCH.NO_TX') } { this.props.Main.searchTerm }</strong>
                 </div>
               </div>
             );
@@ -298,13 +300,15 @@ class Search extends React.Component {
         return(
           <div className="col-md-12">
             <div className="alert alert-danger alert-dismissable">
-              <strong>Error: search found no results for { this.props.Main.searchTerm }</strong>
+              <strong>{ translate('SEARCH.ERR_SEARCHING') } { this.props.Main.searchTerm }</strong>
             </div>
           </div>
         );
       }
     } else {
-      return(<div className="text-center">Searching...</div>);
+      return(
+        <div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>
+      );
     }
   }
 }

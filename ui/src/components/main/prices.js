@@ -5,10 +5,11 @@ import TablePaginationRenderer from './pagination';
 import { connect } from 'react-redux';
 import { getPrices } from '../../actions/actionCreators';
 import {
-  sortByDate,
   formatValue,
-  secondsToString,
-} from '../../util/util';
+  sort,
+} from 'agama-wallet-lib/src/utils';
+import { secondsToString } from 'agama-wallet-lib/src/time';
+import translate from '../../util/translate/translate';
 
 const BOTTOM_BAR_DISPLAY_THRESHOLD = 15;
 
@@ -45,37 +46,37 @@ class Prices extends React.Component {
   }
 
   generateItemsListColumns(itemsCount) {
-    let columns = [];
     let _col;
 
     _col = [{
       id: 'pair',
-      Header: 'Pair',
-      Footer: 'Pair',
+      Header: translate('PRICES.PAIR'),
+      Footer: translate('PRICES.PAIR'),
       maxWidth: '280',
-      accessor: (item) => this.renderPairIcon(item.pair),
+      Cell: row => this.renderPairIcon(row.value),
+      accessor: (item) => (item.pair),
     },
     { id: 'price-avg',
-      Header: 'Price (avg)',
-      Footer: 'Price (avg)',
+      Header: translate('PRICES.PRICE_AVG'),
+      Footer: translate('PRICES.PRICE_AVG'),
       maxWidth: '200',
       accessor: (item) => Number(formatValue(item.value.avg)),
     },
     { id: 'price-low',
-      Header: 'Price (low)',
-      Footer: 'Price (low)',
+      Header: translate('PRICES.PRICE_LOW'),
+      Footer: translate('PRICES.PRICE_LOW'),
       maxWidth: '200',
       accessor: (item) => Number(formatValue(item.value.low)),
     },
     { id: 'price-high',
-      Header: 'Price (high)',
-      Footer: 'Price (high)',
+      Header: translate('PRICES.PRICE_HIGH'),
+      Footer: translate('PRICES.PRICE_HIGH'),
       maxWidth: '200',
       accessor: (item) => Number(formatValue(item.value.high)),
     },
     { id: 'price-usd',
-      Header: 'Price (low), USD',
-      Footer: 'Price (low), USD',
+      Header: translate('PRICES.PRICE_USD'),
+      Footer: translate('PRICES.PRICE_USD'),
       maxWidth: '200',
       Cell: row => (
         <div>
@@ -94,9 +95,7 @@ class Prices extends React.Component {
       delete _col[2].Footer;
     }
 
-    columns.push(..._col);
-
-    return columns;
+    return _col;
   }
 
   componentWillMount() {
@@ -186,14 +185,14 @@ class Prices extends React.Component {
       return (
         <div className="panel panel-default prices-block">
           <div className="panel-heading">
-            <strong>Prices</strong>
+            <strong>{ translate('PRICES.PRICES') }</strong>
           </div>
           <div className="prices-table">
             <input
               className="form-control search-field"
               onChange={ e => this.onSearchTermChange(e.target.value) }
               value={ this.state.searchTerm }
-              placeholder="Filter" />
+              placeholder={ translate('INDEX.FILTER') } />
             <ReactTable
               data={ this.state.filteredItemsList }
               columns={ this.state.itemsListColumns }
@@ -201,8 +200,8 @@ class Prices extends React.Component {
               sortable={ true }
               className="-striped -highlight"
               PaginationComponent={ TablePaginationRenderer }
-              nextText="Next page"
-              previousText="Previous page"
+              nextText={ translate('INDEX.NEXT_PAGE') }
+              previousText={ translate('INDEX.PREVIOUS_PAGE') }
               showPaginationBottom={ this.state.showPagination }
               pageSize={ this.state.pageSize }
               defaultSorted={[{ // default sort
@@ -214,7 +213,9 @@ class Prices extends React.Component {
         </div>
       );
     } else {
-      return(<div>Loading...</div>);
+      return(
+        <div>{ translate('INDEX.LOADING') }...</div>
+      );
     }
   }
 }

@@ -3,7 +3,8 @@ import Store from '../../store';
 import { connect } from 'react-redux';
 import config from '../../config';
 import { getSummary } from '../../actions/actionCreators';
-import { explorers } from './summaryUtils';
+import explorers from '../../util/summaryUtils';
+import translate from '../../util/translate/translate';
 
 class Summary extends React.Component {
   constructor(props) {
@@ -38,12 +39,12 @@ class Summary extends React.Component {
               <tr key={ `summary-${_summary[i].coin}` }>
                 <td>
                   <span className="table-coin-icon-wrapper">
-                    <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}`}></span>
+                    <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}` }></span>
                   </span>
                   <span className="table-coin-name">
                     <a
                       target="_blank"
-                      href={ `${config.explorers[_summary[i].coin]}` }>{ _summary[i].coin }</a>
+                      href={ config.explorers[_summary[i].coin] }>{ _summary[i].coin }</a>
                   </span>
                 </td>
                 <td>
@@ -69,11 +70,11 @@ class Summary extends React.Component {
           <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table">
             <thead>
               <tr>
-                <th>Coin</th>
-                <th>Block count</th>
-                <th>Difficulty</th>
-                <th>Supply</th>
-                <th>Connections</th>
+                <th>{ translate('SUMMARY.COIN') }</th>
+                <th>{ translate('SUMMARY.BLOCK_COUNT') }</th>
+                <th>{ translate('SUMMARY.DIFFICULTY') }</th>
+                <th>{ translate('SUMMARY.SUPPLY') }</th>
+                <th>{ translate('SUMMARY.CONN') }</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +98,7 @@ class Summary extends React.Component {
             <tr key={ `explorers-${key}-${i}` }>
               <td>
                 <span className="table-coin-icon-wrapper icon-big">
-                  <span className={ `table-coin-icon coin_${key.toLowerCase()}`}></span>
+                  <span className={ `table-coin-icon coin_${key.toLowerCase()}` }></span>
                 </span>
                 <span className="icon-text">{ key.toUpperCase() }</span>
               </td>
@@ -114,7 +115,7 @@ class Summary extends React.Component {
           <tr key={ `explorers-${key}` }>
             <td>
               <span className="table-coin-icon-wrapper icon-big">
-                <span className={ `table-coin-icon coin_${key.toLowerCase()}`}></span>
+                <span className={ `table-coin-icon coin_${key.toLowerCase()}` }></span>
               </span>
               <span className="icon-text">{ key.toUpperCase() }</span>
             </td>
@@ -132,8 +133,8 @@ class Summary extends React.Component {
       <table className="table table-bordered table-striped dataTable no-footer dtr-inline">
         <thead>
           <tr>
-            <th>Coin</th>
-            <th>Link</th>
+            <th>{ translate('SUMMARY.COIN') }</th>
+            <th>{ translate('SUMMARY.LINK') }</th>
           </tr>
         </thead>
         <tbody>

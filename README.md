@@ -28,12 +28,11 @@ built ui version will be copied to /public folder
 
 ## URL navigation
 
-#### KMD interest
+#### KMD rewards
 http://atomicexplorer.com/#/rewards
-
 http://atomicexplorer.com/#/rewards/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
-#### KMD interest calc
+#### KMD rewards calc
 http://atomicexplorer.com/#/rewards-calc
 
 #### Explorers list summary
@@ -95,13 +94,13 @@ params: none required
 
 params: none required
 
-### GET /api/explorer/supply
+#### GET /api/explorer/supply
 
-params (optional): coin
+params (optional): coin e.g. DEX
 
 #### GET /api/mm/prices
 
-params: none required
+params (optional): currency e.g. All or USD, coin e.g. BTC
 
 #### GET /api/mm/orderbook
 
@@ -116,6 +115,12 @@ params: none required
 BTC fees, combined result from Electrum servers and bitcoinfees.earn.com
 
 params: none required
+
+#### GET /api/rates/kmd
+
+Pricing from cryptocompare.com
+
+params (optional): currency e.g. All or USD
 
 #### GET /api/ticker
 #### GET /api/ticker?coin=DEX

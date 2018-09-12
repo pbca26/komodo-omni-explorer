@@ -18,6 +18,8 @@ import {
   MULTI_ADDRESS_BALANCE,
 } from './storeType';
 
+const apiUrl = `${config.https ? 'https' : 'http'}://${config.apiUrl}/api`;
+
 export const multiAddressBalanceState = (balanceMulti) => {
   return {
     type: MULTI_ADDRESS_BALANCE,
@@ -114,7 +116,7 @@ export const searchTerm = (searchTerm, currentState) => {
   return dispatch => {
     dispatch(searchTermState(searchTerm));
 
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/search?term=${searchTerm}`, {
+    return fetch(`${apiUrl}/explorer/search?term=${searchTerm}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -133,7 +135,7 @@ export const searchTerm = (searchTerm, currentState) => {
 
 export const getOverview = (currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/overview`, {
+    return fetch(`${apiUrl}/explorer/overview`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -152,7 +154,7 @@ export const getOverview = (currentState) => {
 
 export const getSummary = (currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/explorer/summary`, {
+    return fetch(`${apiUrl}/explorer/summary`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -171,7 +173,7 @@ export const getSummary = (currentState) => {
 
 export const getInterest = (address, currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/interest?address=${address}`, {
+    return fetch(`${apiUrl}/kmd/rewards?address=${address}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -190,7 +192,7 @@ export const getInterest = (address, currentState) => {
 
 export const getUnspents = (address, currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/kmd/listunspent?address=${address}`, {
+    return fetch(`${apiUrl}/kmd/listunspent?address=${address}`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -209,7 +211,7 @@ export const getUnspents = (address, currentState) => {
 
 export const getPrices = (currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/prices`, {
+    return fetch(`${apiUrl}/mm/prices`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -228,7 +230,7 @@ export const getPrices = (currentState) => {
 
 export const getOrderbooks = (currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/orderbook`, {
+    return fetch(`${apiUrl}/mm/orderbook`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -247,7 +249,7 @@ export const getOrderbooks = (currentState) => {
 
 export const fiatRates = () => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/rates/kmd`, {
+    return fetch(`${apiUrl}/rates/kmd`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -262,7 +264,7 @@ export const fiatRates = () => {
 
 export const coins = (currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/coins`, {
+    return fetch(`${apiUrl}/mm/coins`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -281,7 +283,7 @@ export const coins = (currentState) => {
 
 export const stats = (currentState) => {
   return dispatch => {
-    return fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/mm/stats`, {
+    return fetch(`${apiUrl}/mm/stats`, {
       method: 'GET',
     })
     .catch((error) => {
@@ -300,7 +302,7 @@ export const stats = (currentState) => {
 
 export const faucet = (coin, address, recaptcha) => {
   return new Promise((resolve, reject) => {
-    fetch(`${config.https ? 'https' : 'http'}://${config.apiUrl}/api/faucet?address=${address}&coin=${coin}&grecaptcha=${recaptcha}`, {
+    fetch(`${apiUrl}/faucet?address=${address}&coin=${coin}&grecaptcha=${recaptcha}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -320,7 +322,7 @@ export const faucet = (coin, address, recaptcha) => {
 export const multiAddressBalance = (addressList, fallback) => {
   return dispatch => {
     return fetch(
-      fallback ? 'https://kmd.explorer.supernet.org/api/addrs/utxo' : 'https://www.kmdexplorer.ru/insight-api-komodo/addrs/utxo', {
+      fallback ? 'https://kmdexplorer.io/insight-api-komodo/addrs/utxo' : 'https://www.kmdexplorer.ru/insight-api-komodo/addrs/utxo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

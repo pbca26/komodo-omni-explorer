@@ -52,13 +52,13 @@ const router = (
             component={ Prices } />
         </Route>
         <Route
-          path="/interest"
+          path="/rewards"
           component={ Interest } />
         <Route
-          path="/interest/:input"
+          path="/rewards/:input"
           component={ Interest } />
         <Route
-          path="/interest-calc"
+          path="/rewards-calc"
           component={ InterestCalc } />
         <Route
           path="/explorers"

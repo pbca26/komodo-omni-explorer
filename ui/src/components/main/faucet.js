@@ -4,6 +4,14 @@ import { connect } from 'react-redux';
 import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
 import { ReCaptcha } from 'react-recaptcha-google'
+import translate from '../../util/translate/translate';
+import { addressVersionCheck } from 'agama-wallet-lib/src/keys';
+import btcNetworks from 'agama-wallet-lib/src/bitcoinjs-networks';
+
+window.recaptchaOptions = {
+  lang: 'en',
+  useRecaptchaNet: true,
+};
 
 class Faucet extends React.Component {
   constructor(props) {
@@ -89,24 +97,32 @@ class Faucet extends React.Component {
   }
 
   triggerFaucet() {
-    this.setState({
-      processing: true,
-    });
-
-    faucet(
-      this.state.coin,
-      this.state.address,
-      this.recaptchaToken
-    )
-    .then((res) => {
+    if (addressVersionCheck(btcNetworks.kmd, this.state.address) !== true) {
       this.setState({
-        error: res.msg === 'error' ? true : false,
-        result: res.result,
+        error: true,
+        result: translate('SEARCH.INVALID_PUB', this.state.address),
         processing: false,
       });
-      this.recaptchaToken = null;
-      this.captcha.reset();
-    });
+    } else {
+      this.setState({
+        processing: true,
+      });
+
+      faucet(
+        this.state.coin,
+        this.state.address,
+        this.recaptchaToken
+      )
+      .then((res) => {
+        this.setState({
+          error: res.msg === 'error' ? true : false,
+          result: res.result,
+          processing: false,
+        });
+        this.recaptchaToken = null;
+        this.captcha.reset();
+      });
+    }
   }
 
   updateInput(e) {
@@ -118,7 +134,9 @@ class Faucet extends React.Component {
   }
 
   render() {
-    if (this.state.coin) {
+    const _coin = this.state.coin;
+
+    if (_coin) {
       return (
         <div className="faucet">
           <div className="row text-center margin-top-md margin-bottom-xlg">
@@ -126,36 +144,34 @@ class Faucet extends React.Component {
               <div
                 id="index-search"
                 className="form-group">
-                { this.state.coin &&
-                  <span className="table-coin-icon-wrapper">
-                    <span className={ `table-coin-icon coin_${this.state.coin.toLowerCase()}`}></span>
-                  </span>
-                }
+                <span className="table-coin-icon-wrapper">
+                  <span className={ `table-coin-icon coin_${_coin.toLowerCase()}` }></span>
+                </span>
                 <input
                   onChange={ (event) => this.updateInput(event) }
                   type="text"
                   name="address"
                   value={ this.state.address }
-                  placeholder={ `Enter a ${this.state.coin.toUpperCase()} address` }
+                  placeholder={ translate('FAUCET.ENTER_ADDRESS', _coin.toUpperCase()) }
                   className="form-control" />
-                <div className="google-recaptcha">
-                  <ReCaptcha
-                    ref={ (el) => { this.captcha = el }}
-                    size="normal"
-                    data-theme="dark"
-                    render="explicit"
-                    sitekey="6Lf7bmUUAAAAAEdqyHVOakev8E1cfvnfHObtesiD"
-                    onloadCallback={ this.onLoadRecaptcha }
-                    verifyCallback={ this.verifyCallback } />
-                </div>
-                <button
-                  onClick={ this.triggerFaucet }
-                  disabled={ this.state.address.length !== 34 }
-                  type="submit"
-                  className="btn btn-success margin-left-10">
-                  OK
-                </button>
               </div>
+              <div className="google-recaptcha">
+                <ReCaptcha
+                  ref={ (el) => { this.captcha = el }}
+                  size="normal"
+                  data-theme="dark"
+                  render="explicit"
+                  sitekey="6Lf7bmUUAAAAAEdqyHVOakev8E1cfvnfHObtesiD"
+                  onloadCallback={ this.onLoadRecaptcha }
+                  verifyCallback={ this.verifyCallback } />
+              </div>
+              <button
+                onClick={ this.triggerFaucet }
+                disabled={ this.state.address.length !== 34 }
+                type="submit"
+                className="btn btn-success margin-left-10">
+                OK
+              </button>
             </div>
           </div>
           <div className="row text-center margin-top-md margin-bottom-xlg">
@@ -167,17 +183,17 @@ class Faucet extends React.Component {
               }
               { this.state.processing &&
                 <div className="alert alert-warning alert-dismissable">
-                  <strong>Processing...</strong>
+                  <strong>{ translate('FAUCET.PROCESSING') }...</strong>
                 </div>
               }
               { !this.state.error &&
                 this.state.result &&
                 <div>
-                  <strong>{ config.faucet[this.state.coin].outSize }</strong> { this.state.coin.toUpperCase() } is sent to { this.state.address }
+                  <strong>{ config.faucet[_coin].outSize }</strong> { _coin.toUpperCase() } { translate('FAUCET.IS_SENT_TO') } { this.state.address }
                   <div className="margin-top-md">
                     <a
                       target="_blank"
-                      href={ `${config.faucet[this.state.coin].explorer}/tx/${this.state.result}` }>Open in explorer</a>
+                      href={ `${config.faucet[_coin].explorer}/tx/${this.state.result}` }>{ translate('FAUCET.OPEN_IN_EXPLORER') }</a>
                   </div>
                 </div>
               }

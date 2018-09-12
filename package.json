@@ -1,19 +1,20 @@
 {
   "name": "komodo-omni-explorer",
   "productName": "Komodo Omni Explorer",
-  "version": "0.0.6",
+  "version": "0.1.2",
   "description": "Komodo Omni Explorer",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"
   },
   "repository": "https://github.com/pbca26/komodo-omni-explorer",
-  "homepage": "http://supernet.org",
+  "homepage": "http://komodoplatform.org",
   "keywords": [
     "explorer",
     "SuperNET",
     "komodo",
-    "BarterDEX"
+    "BarterDEX",
+    "assetchain"
   ],
   "author": "SuperNET",
   "license": "MIT",

@@ -4,8 +4,17 @@
 @import '~react-table/react-table.css';
 @import '~react-select/dist/react-select.css';
 @import './style.css';
+
 /* custom styles */
 @import './custom.scss';
+@import './custom/nav.scss';
+@import './custom/modal.scss';
+@import './custom/faucet.scss';
+@import './custom/interest.scss';
+@import './custom/trades.scss';
+@import './custom/coins.scss';
+@import './custom/toggle.scss';
+@import './custom/table.scss';
 @import './coins.scss';
 @import './responsive.scss';
 @import './spacing-utils.css';

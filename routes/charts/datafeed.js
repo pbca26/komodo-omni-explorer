@@ -13,7 +13,7 @@
 const config = require('../../config');
 const http = require(config.https ? 'https' : 'http');
 const url = require('url');
-const symbolsDatabase = require('./symbols_database');
+const symbolsDatabase = require('./symbolsDatabase');
 const https = require('https'); // propose to remove this from both polo and coinbase
 const path = require('path');
 const fs = require('fs');
