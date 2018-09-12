@@ -30,7 +30,6 @@ built ui version will be copied to /public folder
 
 #### KMD rewards
 http://atomicexplorer.com/#/rewards
-
 http://atomicexplorer.com/#/rewards/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### KMD rewards calc
