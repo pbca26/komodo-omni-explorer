@@ -12,6 +12,7 @@ const { komodoInterest } = require('agama-wallet-lib');
 const {
   toSats,
   fromSats,
+  getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 const acSupply = require('./acSupply');
 
@@ -41,13 +42,6 @@ for (let key in _electrumServers) {
     coin: key,
     serverList: _electrumServers[key].serverList,
   });
-}
-
-const getRandomIntInclusive = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  return Math.floor(Math.random() * (max - min + 1)) + min; // the maximum is inclusive and the minimum is inclusive
 }
 
 const sortByDate = (data, sortKey) => {

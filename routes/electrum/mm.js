@@ -5,7 +5,10 @@ const path = require('path');
 const Promise = require('bluebird');
 const async = require('async');
 const exec = require('child_process').exec;
-const { toSats } = require('agama-wallet-lib/src/utils');
+const {
+  toSats,
+  getRandomIntInclusive,
+} = require('agama-wallet-lib/src/utils');
 const fiat = require('./fiat');
 
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
@@ -39,13 +42,6 @@ let btcFeeBlocks = [];
 
 for (let i = 0; i < 25; i++) { // up to 25 blocks waiting time
   btcFeeBlocks.push(i);
-}
-
-const getRandomIntInclusive = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  return Math.floor(Math.random() * (max - min + 1)) + min; // the maximum is inclusive and the minimum is inclusive
 }
 
 for (let key in config.electrumServers) {

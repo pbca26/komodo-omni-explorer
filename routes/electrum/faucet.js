@@ -10,16 +10,10 @@ const { checkTimestamp } = require('agama-wallet-lib/src/time');
 const {
   toSats,
   fromSats,
+  getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 
 let minRemaining = 0;
-
-const getRandomIntInclusive = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  return Math.floor(Math.random() * (max - min + 1)) + min; // the maximum is inclusive and the minimum is inclusive
-}
 
 module.exports = (shepherd) => {
   shepherd.checkFaucetOutAddress = (coin, address) => {
