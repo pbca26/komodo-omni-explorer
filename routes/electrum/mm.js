@@ -10,6 +10,7 @@ const {
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 const fiat = require('./fiat');
+const electrumJSCore = require('./electrumjs.core.js');
 
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
@@ -142,10 +143,11 @@ module.exports = (shepherd) => {
   // start coin pairs in electrum
   shepherd.mmStartCoins = () => {
     const runElectrumStart = () => {
-      shepherd.mm.ordersUpdateInProgress = true;
       let _callsCompleted = 0;
       let _coins = [];
 
+      shepherd.mm.ordersUpdateInProgress = true;
+      
       async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
         const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
         const _payload = {
@@ -199,10 +201,11 @@ module.exports = (shepherd) => {
   // start orderbooks
   shepherd.mmOrderbooksStart = () => {
     const runOrdersUpdate = () => {
-      shepherd.mm.ordersUpdateInProgress = true;
       let _orders = [];
       let _callsCompleted = 0;
 
+      shepherd.mm.ordersUpdateInProgress = true;
+      
       async.eachOfSeries(kmdPairs, (value, key, callback) => {
         const _pair = value.split('/');
         const _payload = {
@@ -510,7 +513,7 @@ module.exports = (shepherd) => {
 
   shepherd.getBTCElectrumFees = () => {
     const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
-    const ecl = new shepherd.electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
     let _btcFeeEstimates = [];
 
     shepherd.log(`btc fees server ${_randomServer.join(':')}`);

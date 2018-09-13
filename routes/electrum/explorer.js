@@ -15,6 +15,7 @@ const {
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 const acSupply = require('./acSupply');
+const electrumJSCore = require('./electrumjs.core.js');
 
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
@@ -459,7 +460,7 @@ module.exports = (shepherd) => {
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[0].split(':');
-          const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+          const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
 
           ecl.connect();
           ecl.blockchainTransactionGet(req.query.term)
@@ -506,7 +507,7 @@ module.exports = (shepherd) => {
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-          const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+          const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
 
           setTimeout(() => {
             if (!_finishedBalanceCalls[electrumServerData.coin.toUpperCase()]) {
@@ -561,7 +562,7 @@ module.exports = (shepherd) => {
             if (_finishedBalanceCalls[electrumServerData.coin.toUpperCase()] !== 'error') {
               return new Promise((resolve, reject) => {
                 const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-                const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+                const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
                 const MAX_TX = 20;
 
                 ecl.connect();
@@ -630,7 +631,7 @@ module.exports = (shepherd) => {
 
   shepherd.get('/kmd/rewards', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
-    const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
     ecl.connect();
     ecl.blockchainAddressGetBalance(req.query.address)
@@ -850,7 +851,7 @@ module.exports = (shepherd) => {
   shepherd.get('/kmd/listunspent', (req, res, next) => {
     const network = 'komodo';
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
-    const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
     shepherd.listunspent(
       ecl,

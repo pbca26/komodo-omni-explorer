@@ -12,6 +12,7 @@ const {
   fromSats,
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
+const electrumJSCore = require('./electrumjs.core.js');
 
 let minRemaining = 0;
 
@@ -134,7 +135,7 @@ module.exports = (shepherd) => {
             const network = 'komodo';
             const outputAddress = req.query.address;
             const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
-            const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+            const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
             const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
             const keys = {
