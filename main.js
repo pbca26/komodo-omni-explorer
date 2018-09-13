@@ -6,7 +6,7 @@ const fs = require('fs');
 const compression = require('compression');
 const datafeed = require('./routes/charts/datafeed');
 
-let shepherd = require('./routes/shepherd');
+let api = require('./routes/api');
 let app = express();
 
 app.use((req, res, next) => {
@@ -34,7 +34,7 @@ app.use(compression({
 }));
 
 // explorer, dex
-app.use('/api', shepherd);
+app.use('/api', api);
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // web wallet
@@ -65,11 +65,4 @@ if (config.https) {
 
 console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);
 
-shepherd.mmloop();
-shepherd.getOverview(true);
-shepherd.getSummary(true);
-shepherd.getRates();
-shepherd.getMMCoins();
-shepherd.updateStats();
-shepherd.getBTCFees();
-shepherd.ticker();
+api.start();

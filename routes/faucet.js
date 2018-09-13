@@ -16,8 +16,8 @@ const electrumJSCore = require('./electrumjs.core.js');
 
 let minRemaining = 0;
 
-module.exports = (shepherd) => {
-  shepherd.checkFaucetOutAddress = (coin, address) => {
+module.exports = (api) => {
+  api.checkFaucetOutAddress = (coin, address) => {
     let faucetFundedList;
 
     if (!config.faucet[coin]) {
@@ -99,7 +99,7 @@ module.exports = (shepherd) => {
     }
   };
 
-  shepherd.get('/faucet', (req, res, next) => {
+  api.get('/faucet', (req, res, next) => {
     // ref: https://codeforgeek.com/2016/03/google-recaptcha-node-js-tutorial/
     if (req.query.grecaptcha === undefined ||
         req.query.grecaptcha === '' ||
@@ -129,7 +129,7 @@ module.exports = (shepherd) => {
           res.end(JSON.stringify(retObj));
         } else {
           const coin = req.query.coin || 'beer';
-          const addressCheck = shepherd.checkFaucetOutAddress(coin, req.query.address);
+          const addressCheck = api.checkFaucetOutAddress(coin, req.query.address);
 
           if (addressCheck === true) {
             const network = 'komodo';
@@ -184,8 +184,8 @@ module.exports = (shepherd) => {
                   }];
                 }
 
-                /*shepherd.log('targets');
-                shepherd.log(targets);*/
+                /*api.log('targets');
+                api.log(targets);*/
 
                 let {
                   fee,
@@ -193,13 +193,13 @@ module.exports = (shepherd) => {
                   outputs,
                 } = coinSelect(_formattedUtxoList, targets, 0);
 
-                /*shepherd.log('coinselect');
-                shepherd.log('fee');
-                shepherd.log(fee);
-                shepherd.log('inputs');
-                shepherd.log(inputs);
-                shepherd.log('outputs');
-                shepherd.log(outputs);*/
+                /*api.log('coinselect');
+                api.log('fee');
+                api.log(fee);
+                api.log('inputs');
+                api.log(inputs);
+                api.log('outputs');
+                api.log(outputs);*/
 
                 let _vinSum = 0;
                 let _voutSum = 0;
@@ -212,9 +212,9 @@ module.exports = (shepherd) => {
                   _voutSum += outputs[i].value;
                 }
 
-                /*shepherd.log(`vin sum ${_vinSum}`);
-                shepherd.log(`vout sum ${_voutSum}`);
-                shepherd.log(`fee ${_vinSum - _voutSum}`);*/
+                /*api.log(`vin sum ${_vinSum}`);
+                api.log(`vout sum ${_voutSum}`);
+                api.log(`fee ${_vinSum - _voutSum}`);*/
 
                 if ((_vinSum - _voutSum) === 0) {
                   const tx = new bitcoin.TransactionBuilder(config.komodoParams);
@@ -249,16 +249,16 @@ module.exports = (shepherd) => {
 
                   const rawtx = tx.build().toHex();
 
-                  // shepherd.log(tx.build());
+                  // api.log(tx.build());
 
-                  // shepherd.log('buildSignedTx signed tx hex');
-                  // shepherd.log(rawtx);
+                  // api.log('buildSignedTx signed tx hex');
+                  // api.log(rawtx);
 
                   ecl.blockchainTransactionBroadcast(rawtx)
                   .then((txid) => {
                     ecl.close();
 
-                    // shepherd.log(txid);
+                    // api.log(txid);
 
                     if (txid &&
                         txid.indexOf('bad-txns-inputs-spent') > -1) {
@@ -291,13 +291,13 @@ module.exports = (shepherd) => {
 
                           try {
                             fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
-                            shepherd.log(`new faucet address added ${outputAddress}`);
+                            api.log(`new faucet address added ${outputAddress}`);
                           } catch (err) {
                             try {
                               fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
-                              shepherd.log(`new faucet address added ${outputAddress}`);
+                              api.log(`new faucet address added ${outputAddress}`);
                             } catch (err) {
-                              shepherd.log('fubar!');
+                              api.log('fubar!');
                             }
                           }
                         }
@@ -368,5 +368,5 @@ module.exports = (shepherd) => {
     }
   });
 
-  return shepherd;
+  return api;
 };
