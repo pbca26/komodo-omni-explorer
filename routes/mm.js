@@ -1,4 +1,4 @@
-const config = require('../../config');
+const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
@@ -147,7 +147,7 @@ module.exports = (api) => {
       let _coins = [];
 
       api.mm.ordersUpdateInProgress = true;
-      
+
       async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
         const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
         const _payload = {
@@ -205,7 +205,7 @@ module.exports = (api) => {
       let _callsCompleted = 0;
 
       api.mm.ordersUpdateInProgress = true;
-      
+
       async.eachOfSeries(kmdPairs, (value, key, callback) => {
         const _pair = value.split('/');
         const _payload = {
@@ -412,7 +412,7 @@ module.exports = (api) => {
   });
 
   api.getMMCoins = () => {
-    const coinsFileLocation = path.join(__dirname, '../../bdexCoins.json');
+    const coinsFileLocation = path.join(__dirname, '../bdexCoins.json');
     let coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
 
     for (let i = 0; i < coinsFile.length; i++) {
@@ -619,7 +619,7 @@ module.exports = (api) => {
         if (stdout.indexOf('marketmaker') === -1) {
           api.log('mm is dead, restart');
 
-          const _mmbin = path.join(__dirname, '../../marketmaker');
+          const _mmbin = path.join(__dirname, '../marketmaker');
           const _customParam = {
             gui: 'nogui',
             client: 1,
@@ -680,7 +680,7 @@ module.exports = (api) => {
         } else {
           setTimeout(() => {
             const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=9000&starttime=0&endtime=0&userpass=${USERPASS}`;
-            api.log(`ticker ${url}`);
+            // api.log(`ticker ${url}`);
 
             const options = {
               url: url,

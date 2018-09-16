@@ -1,8 +1,8 @@
-const config = require('../../config');
-const remoteExplorers = require('../../config').explorers;
-const remoteExplorersInsight = require('../../config').insight;
-const _electrumServers = require('../../config').electrumServers;
-const { komodoParams } = require('../../config');
+const config = require('../config');
+const remoteExplorers = require('../config').explorers;
+const remoteExplorersInsight = require('../config').insight;
+const _electrumServers = require('../config').electrumServers;
+const { komodoParams } = require('../config');
 const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
 const request = require('request');
 const fs = require('fs-extra');
@@ -195,7 +195,7 @@ module.exports = (api) => {
         .then(__result => {
           if (result &&
               result.length) {
-            const summaryFileLocation = path.join(__dirname, '../../summary.json');
+            const summaryFileLocation = path.join(__dirname, '../summary.json');
 
             fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
               if (err) {
@@ -384,7 +384,7 @@ module.exports = (api) => {
 
         if (result &&
             result.length) {
-          const overviewFileLocation = path.join(__dirname, '../../overview.json');
+          const overviewFileLocation = path.join(__dirname, '../overview.json');
 
           // run insight explorers
           Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
