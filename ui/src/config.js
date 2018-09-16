@@ -3,10 +3,11 @@ import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 const _config = {
   lang: 'EN',
   dev: true,
-  https: true,
-  apiUrl: 'www.atomicexplorer.com',
-  //https: false,
-  //apiUrl: 'localhost:8115',
+  //https: true,
+  //apiUrl: 'www.atomicexplorer.com',
+  https: false,
+  apiUrl: 'localhost:8115',
+  recaptchaKey: '6LdiinAUAAAAAAwLJjCrOVh-Ocj54Z3m3oX8mN9X',
   explorers: [
     'KMD',
     'MSHARK',
