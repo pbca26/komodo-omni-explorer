@@ -8,8 +8,7 @@ api.explorer = {
 };
 
 api.log = (msg) => {
-  if (config.isDev ||
-      config.debug) {
+  if (config.debug) {
     console.log(msg);
   }
 }

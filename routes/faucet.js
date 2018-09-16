@@ -184,8 +184,8 @@ module.exports = (api) => {
                   }];
                 }
 
-                /*api.log('targets');
-                api.log(targets);*/
+                api.log('targets');
+                api.log(targets);
 
                 let {
                   fee,
@@ -193,13 +193,13 @@ module.exports = (api) => {
                   outputs,
                 } = coinSelect(_formattedUtxoList, targets, 0);
 
-                /*api.log('coinselect');
+                api.log('coinselect');
                 api.log('fee');
                 api.log(fee);
                 api.log('inputs');
                 api.log(inputs);
                 api.log('outputs');
-                api.log(outputs);*/
+                api.log(outputs);
 
                 let _vinSum = 0;
                 let _voutSum = 0;
@@ -212,9 +212,9 @@ module.exports = (api) => {
                   _voutSum += outputs[i].value;
                 }
 
-                /*api.log(`vin sum ${_vinSum}`);
+                api.log(`vin sum ${_vinSum}`);
                 api.log(`vout sum ${_voutSum}`);
-                api.log(`fee ${_vinSum - _voutSum}`);*/
+                api.log(`fee ${_vinSum - _voutSum}`);
 
                 if ((_vinSum - _voutSum) === 0) {
                   const tx = new bitcoin.TransactionBuilder(config.komodoParams);
@@ -249,16 +249,15 @@ module.exports = (api) => {
 
                   const rawtx = tx.build().toHex();
 
-                  // api.log(tx.build());
-
-                  // api.log('buildSignedTx signed tx hex');
-                  // api.log(rawtx);
+                  api.log(tx.build());
+                  api.log('buildSignedTx signed tx hex');
+                  api.log(rawtx);
 
                   ecl.blockchainTransactionBroadcast(rawtx)
                   .then((txid) => {
                     ecl.close();
 
-                    // api.log(txid);
+                    api.log(txid);
 
                     if (txid &&
                         txid.indexOf('bad-txns-inputs-spent') > -1) {

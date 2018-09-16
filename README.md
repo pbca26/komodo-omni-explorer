@@ -67,6 +67,8 @@ http://atomicexplorer.com/#/coins
 #### Faucet
 http://atomicexplorer.com/#/faucet
 
+For standalone SPV faucet please visit the following repo https://github.com/pbca26/atomicexplorer-faucet
+
 #### Agama Web wallet
 http://atomicexplorer.com/wallet (hosted)
 
