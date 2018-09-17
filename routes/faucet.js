@@ -27,6 +27,7 @@ module.exports = (api) => {
     try {
       faucetFundedList = fs.readFileSync(`faucetFundedList-${coin}.log`, 'utf-8');
     } catch (e) {
+      fs.writeFileSync(`faucetFundedList-${coin}.log`, '');
       faucetFundedList = '';
     }
 
@@ -101,9 +102,10 @@ module.exports = (api) => {
 
   api.get('/faucet', (req, res, next) => {
     // ref: https://codeforgeek.com/2016/03/google-recaptcha-node-js-tutorial/
-    if (req.query.grecaptcha === undefined ||
+    if (config.captcha &&
+        (req.query.grecaptcha === undefined ||
         req.query.grecaptcha === '' ||
-        req.query.grecaptcha === null) {
+        req.query.grecaptcha === null)) {
       const retObj = {
         msg: 'error',
         result: 'Failed captcha verification',
@@ -112,258 +114,266 @@ module.exports = (api) => {
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(retObj));
     } else {
-      // Put your secret key here.
-      const secretKey = config.recaptchaKey;
-      const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.query['grecaptcha']}&remoteip=${req.connection.remoteAddress}`;
-      request(verificationUrl, (error, response, body) => {
-        body = JSON.parse(body);
+      const _faucet = () => {
+        const coin = req.query.coin || 'beer';
+        const addressCheck = api.checkFaucetOutAddress(coin, req.query.address);
 
-        if (body.success !== undefined &&
-            !body.success) {
-          const retObj = {
-            msg: 'error',
-            result: 'Failed captcha verification',
+        if (addressCheck === true) {
+          const network = 'komodo';
+          const outputAddress = req.query.address;
+          const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
+          const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+
+          const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
+          const keys = {
+            priv: keyPair.toWIF(),
+            pub: keyPair.getAddress(),
           };
 
-          res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(retObj));
-        } else {
-          const coin = req.query.coin || 'beer';
-          const addressCheck = api.checkFaucetOutAddress(coin, req.query.address);
+          ecl.connect();
+          ecl.blockchainAddressListunspent(keys.pub)
+          .then((json) => {
+            if (json &&
+                json.length) {
+              const _utxo = json;
+              let _formattedUtxoList = [];
 
-          if (addressCheck === true) {
-            const network = 'komodo';
-            const outputAddress = req.query.address;
-            const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
-            const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+              for (let i = 0; i < _utxo.length; i++) {
+                _formattedUtxoList.push({
+                  txid: _utxo[i].tx_hash,
+                  vout: _utxo[i].tx_pos,
+                  value: _utxo[i].value,
+                });
+              }
 
-            const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
-            const keys = {
-              priv: keyPair.toWIF(),
-              pub: keyPair.getAddress(),
-            };
+              let targets = [];
 
-            ecl.connect();
-            ecl.blockchainAddressListunspent(keys.pub)
-            .then((json) => {
-              if (json &&
-                  json.length) {
-                const _utxo = json;
-                let _formattedUtxoList = [];
+              if (typeof config.faucet[coin].outSize === 'object') {
+                const _outSizes = config.faucet[coin].outSize;
 
-                for (let i = 0; i < _utxo.length; i++) {
-                  _formattedUtxoList.push({
-                    txid: _utxo[i].tx_hash,
-                    vout: _utxo[i].tx_pos,
-                    value: _utxo[i].value,
-                  });
-                }
-
-                let targets = [];
-
-                if (typeof config.faucet[coin].outSize === 'object') {
-                  const _outSizes = config.faucet[coin].outSize;
-
-                  for (let i = 0; i < _outSizes.length; i++) {
-                    if (i === _outSizes.length - 1) {
-                      targets.push({
-                        address: outputAddress,
-                        value: Math.floor(toSats(_outSizes[i]) + toSats(config.faucet[coin].fee)),
-                      });
-                    } else {
-                      targets.push({
-                        address: outputAddress,
-                        value: Math.floor(toSats(_outSizes[i])),
-                      });
-                    }
+                for (let i = 0; i < _outSizes.length; i++) {
+                  if (i === _outSizes.length - 1) {
+                    targets.push({
+                      address: outputAddress,
+                      value: Math.floor(toSats(_outSizes[i]) + toSats(config.faucet[coin].fee)),
+                    });
+                  } else {
+                    targets.push({
+                      address: outputAddress,
+                      value: Math.floor(toSats(_outSizes[i])),
+                    });
                   }
-                } else {
-                  targets = [{
-                    address: outputAddress,
-                    value: Math.floor(toSats(config.faucet[coin].outSize) + toSats(config.faucet[coin].fee)),
-                  }];
                 }
+              } else {
+                targets = [{
+                  address: outputAddress,
+                  value: Math.floor(toSats(config.faucet[coin].outSize) + toSats(config.faucet[coin].fee)),
+                }];
+              }
 
-                api.log('targets');
-                api.log(targets);
+              api.log('targets');
+              api.log(targets);
 
-                let {
-                  fee,
-                  inputs,
-                  outputs,
-                } = coinSelect(_formattedUtxoList, targets, 0);
+              let {
+                fee,
+                inputs,
+                outputs,
+              } = coinSelect(_formattedUtxoList, targets, 0);
 
-                api.log('coinselect');
-                api.log('fee');
-                api.log(fee);
-                api.log('inputs');
-                api.log(inputs);
-                api.log('outputs');
-                api.log(outputs);
+              api.log('coinselect');
+              api.log('fee');
+              api.log(fee);
+              api.log('inputs');
+              api.log(inputs);
+              api.log('outputs');
+              api.log(outputs);
 
-                let _vinSum = 0;
-                let _voutSum = 0;
+              let _vinSum = 0;
+              let _voutSum = 0;
+
+              for (let i = 0; i < inputs.length; i++) {
+                _vinSum += inputs[i].value;
+              }
+
+              for (let i = 0; i < outputs.length; i++) {
+                _voutSum += outputs[i].value;
+              }
+
+              api.log(`vin sum ${_vinSum}`);
+              api.log(`vout sum ${_voutSum}`);
+              api.log(`fee ${_vinSum - _voutSum}`);
+
+              if ((_vinSum - _voutSum) === 0) {
+                const tx = new bitcoin.TransactionBuilder(config.komodoParams);
 
                 for (let i = 0; i < inputs.length; i++) {
-                  _vinSum += inputs[i].value;
+                  tx.addInput(inputs[i].txid, inputs[i].vout);
                 }
 
-                for (let i = 0; i < outputs.length; i++) {
-                  _voutSum += outputs[i].value;
-                }
-
-                api.log(`vin sum ${_vinSum}`);
-                api.log(`vout sum ${_voutSum}`);
-                api.log(`fee ${_vinSum - _voutSum}`);
-
-                if ((_vinSum - _voutSum) === 0) {
-                  const tx = new bitcoin.TransactionBuilder(config.komodoParams);
-
-                  for (let i = 0; i < inputs.length; i++) {
-                    tx.addInput(inputs[i].txid, inputs[i].vout);
-                  }
-
-                  if (typeof config.faucet[coin].outSize === 'object') {
-                    for (i = 0; i < outputs.length - 1; i++) {
-                      if (i === outputs.length - 2) {
-                        tx.addOutput(outputAddress, Number(outputs[i].value - toSats(config.faucet[coin].fee)));
-                      } else {
-                        tx.addOutput(outputAddress, Number(outputs[i].value));
-                      }
-                    }
-
-                    if (outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value > 1000) {
-                      tx.addOutput(keys.pub, Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value));
-                    }
-                  } else {
-                    tx.addOutput(outputAddress, Number(outputs[0].value - toSats(config.faucet[coin].fee)));
-
-                    if (outputs[1].value > 1000) {
-                      tx.addOutput(keys.pub, Number(outputs[1].value));
-                    }
-                  }
-
-                  for (let i = 0; i < inputs.length; i++) {
-                    tx.sign(i, keyPair);
-                  }
-
-                  const rawtx = tx.build().toHex();
-
-                  api.log(tx.build());
-                  api.log('buildSignedTx signed tx hex');
-                  api.log(rawtx);
-
-                  ecl.blockchainTransactionBroadcast(rawtx)
-                  .then((txid) => {
-                    ecl.close();
-
-                    api.log(txid);
-
-                    if (txid &&
-                        txid.indexOf('bad-txns-inputs-spent') > -1) {
-                      const retObj = {
-                        msg: 'error',
-                        result: 'Bad transaction inputs spent',
-                      };
-
-                      res.set({ 'Content-Type': 'application/json' });
-                      res.end(JSON.stringify(retObj));
+                if (typeof config.faucet[coin].outSize === 'object') {
+                  for (i = 0; i < outputs.length - 1; i++) {
+                    if (i === outputs.length - 2) {
+                      tx.addOutput(outputAddress, Number(outputs[i].value - toSats(config.faucet[coin].fee)));
                     } else {
-                      if (txid &&
-                          txid.length === 64) {
-                        if (txid.indexOf('bad-txns-in-belowout') > -1) {
-                          const retObj = {
-                            msg: 'error',
-                            result: 'Bad transaction inputs spent',
-                          };
+                      tx.addOutput(outputAddress, Number(outputs[i].value));
+                    }
+                  }
 
-                          res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(retObj));
-                        } else {
-                          const retObj = {
-                            msg: 'success',
-                            result: txid,
-                          };
+                  if (outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value > 1000) {
+                    tx.addOutput(keys.pub, Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value));
+                  }
+                } else {
+                  tx.addOutput(outputAddress, Number(outputs[0].value - toSats(config.faucet[coin].fee)));
 
-                          res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(retObj));
+                  if (outputs[1].value > 1000) {
+                    tx.addOutput(keys.pub, Number(outputs[1].value));
+                  }
+                }
 
+                for (let i = 0; i < inputs.length; i++) {
+                  tx.sign(i, keyPair);
+                }
+
+                const rawtx = tx.build().toHex();
+
+                api.log(tx.build());
+                api.log('buildSignedTx signed tx hex');
+                api.log(rawtx);
+
+                ecl.blockchainTransactionBroadcast(rawtx)
+                .then((txid) => {
+                  ecl.close();
+
+                  api.log(txid);
+
+                  if (txid &&
+                      txid.indexOf('bad-txns-inputs-spent') > -1) {
+                    const retObj = {
+                      msg: 'error',
+                      result: 'Bad transaction inputs spent',
+                    };
+
+                    res.set({ 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(retObj));
+                  } else {
+                    if (txid &&
+                        txid.length === 64) {
+                      if (txid.indexOf('bad-txns-in-belowout') > -1) {
+                        const retObj = {
+                          msg: 'error',
+                          result: 'Bad transaction inputs spent',
+                        };
+
+                        res.set({ 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(retObj));
+                      } else {
+                        const retObj = {
+                          msg: 'success',
+                          result: txid,
+                        };
+
+                        res.set({ 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(retObj));
+
+                        try {
+                          fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
+                          api.log(`new faucet address added ${outputAddress}`);
+                        } catch (err) {
                           try {
                             fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
                             api.log(`new faucet address added ${outputAddress}`);
                           } catch (err) {
-                            try {
-                              fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
-                              api.log(`new faucet address added ${outputAddress}`);
-                            } catch (err) {
-                              api.log('fubar!');
-                            }
+                            api.log('fubar!');
                           }
                         }
+                      }
+                    } else {
+                      if (txid &&
+                          txid.indexOf('bad-txns-in-belowout') > -1) {
+                        const retObj = {
+                          msg: 'error',
+                          result: 'Bad transaction inputs spent',
+                        };
+
+                        res.set({ 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(retObj));
                       } else {
-                        if (txid &&
-                            txid.indexOf('bad-txns-in-belowout') > -1) {
-                          const retObj = {
-                            msg: 'error',
-                            result: 'Bad transaction inputs spent',
-                          };
+                        const retObj = {
+                          msg: 'error',
+                          result: 'Can\'t broadcast transaction',
+                        };
 
-                          res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(retObj));
-                        } else {
-                          const retObj = {
-                            msg: 'error',
-                            result: 'Can\'t broadcast transaction',
-                          };
-
-                          res.set({ 'Content-Type': 'application/json' });
-                          res.end(JSON.stringify(retObj));
-                        }
+                        res.set({ 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(retObj));
                       }
                     }
-                  });
-                } else {
-                  ecl.close();
-
-                  const retObj = {
-                    msg: 'error',
-                    result: 'tx error',
-                  };
-
-                  res.set({ 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(retObj));
-                }
+                  }
+                });
               } else {
                 ecl.close();
 
                 const retObj = {
                   msg: 'error',
-                  result: 'no valid utxo',
+                  result: 'tx error',
                 };
 
                 res.set({ 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(retObj));
               }
-            });
-          } else if (!addressCheck || addressCheck === -777) {
-            const retObj = {
-              msg: 'error',
-              result: 'Invalid pub address',
-            };
+            } else {
+              ecl.close();
 
-            res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(retObj));
-          } else if (addressCheck === 777) {
-            const retObj = {
-              msg: 'error',
-              result: 'You had enough already. ' + (minRemaining > 0 ? `Come back in ${minRemaining} min(s)` : 'Go home.'),
-            };
+              const retObj = {
+                msg: 'error',
+                result: 'no valid utxo',
+              };
 
-            res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(retObj));
-          }
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(retObj));
+            }
+          });
+        } else if (!addressCheck || addressCheck === -777) {
+          const retObj = {
+            msg: 'error',
+            result: 'Invalid pub address',
+          };
+
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        } else if (addressCheck === 777) {
+          const retObj = {
+            msg: 'error',
+            result: 'You had enough already. ' + (minRemaining > 0 ? `Come back in ${minRemaining} min(s)` : 'Go home.'),
+          };
+
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
         }
-      });
+      };
+
+      if (config.captcha) {
+        // Put your secret key here.
+        const secretKey = config.recaptchaKey;
+        const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.query['grecaptcha']}&remoteip=${req.connection.remoteAddress}`;
+        request(verificationUrl, (error, response, body) => {
+          body = JSON.parse(body);
+
+          if (body.success !== undefined &&
+              !body.success) {
+            const retObj = {
+              msg: 'error',
+              result: 'Failed captcha verification',
+            };
+
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(retObj));
+          } else {
+            _faucet();
+          }
+        });
+      } else {
+        _faucet();
+      }
     }
   });
 
