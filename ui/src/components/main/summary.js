@@ -26,10 +26,10 @@ class Summary extends React.Component {
   renderSummary() {
     let _summary = this.props.Main.summary;
 
-    _summary = sort(_summary, 'coin');
-
     if (_summary) {
       let _items = [];
+
+      _summary = sort(_summary, 'coin');
 
       for (let i = 0; i < _summary.length; i++) {
         if (_summary[i].data) {
