@@ -5,6 +5,7 @@ import config from '../../config';
 import { getSummary } from '../../actions/actionCreators';
 import explorers from '../../util/summaryUtils';
 import translate from '../../util/translate/translate';
+import { sort } from 'agama-wallet-lib/src/utils';
 
 class Summary extends React.Component {
   constructor(props) {
@@ -23,7 +24,9 @@ class Summary extends React.Component {
   }
 
   renderSummary() {
-    const _summary = this.props.Main.summary;
+    let _summary = this.props.Main.summary;
+
+    _summary = sort(_summary, 'coin');
 
     if (_summary) {
       let _items = [];
