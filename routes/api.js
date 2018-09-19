@@ -7,15 +7,25 @@ api.explorer = {
   summary: [],
 };
 
-api.log = (msg) => {
+api.log = (msg, data) => {
   if (config.debug) {
-    console.log(msg);
+    if (data) {
+      if (typeof data !== 'object') {
+        console.log(`${msg} -> ${data}`);
+      } else {
+        console.log(msg);
+        console.log(data);
+      }
+    } else {
+      console.log(msg);
+    }
   }
 }
 
 api = require('./explorer.js')(api);
 api = require('./mm.js')(api);
 api = require('./faucet.js')(api);
+api = require('./kv.js')(api);
 
 api.start = () => {
   api.mmloop();
