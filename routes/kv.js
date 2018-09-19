@@ -13,6 +13,7 @@ const {
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 const electrumJSCore = require('./electrumjs.core.js');
+const transactionBuilder = require('agama-wallet-lib/src/transaction-builder');
 
 const KV_OPRETURN_MAX_SIZE_BYTES = 8192;
 
@@ -123,6 +124,146 @@ module.exports = (api) => {
       return false;
     }
   }
+
+  api.get('/kv/send', (req, res, next) => {
+    const _content = req.query.content;
+    const _encodedContent = api.kvEncode(_content);
+
+    if (_encodedContent) {
+      const coin = 'kv';
+      const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
+      const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+
+      const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);
+      const keys = {
+        priv: keyPair.toWIF(),
+        pub: keyPair.getAddress(),
+      };
+      const outputAddress = keys.pub;
+
+      ecl.connect();
+      ecl.blockchainAddressListunspent(keys.pub)
+      .then((json) => {
+        if (json &&
+            json.length) {
+          const _utxo = json;
+          let _formattedUtxoList = [];
+
+          for (let i = 0; i < _utxo.length; i++) {
+            _formattedUtxoList.push({
+              txid: _utxo[i].tx_hash,
+              vout: _utxo[i].tx_pos,
+              value: _utxo[i].value,
+            });
+          }
+
+          const _data = transactionBuilder.data(
+            config.komodoParams,
+            0.0001,
+            0.0001,
+            keys.pub,
+            keys.pub,
+            utxoList
+          );
+
+          api.log('tx data');
+          api.log('buildSignedTx signed tx hex');
+          api.log(rawtx);
+
+          api.log('send data', _data);
+
+          const _tx = transactionBuilder.transaction(
+            keys.pub,
+            keys.pub,
+            keys.priv,
+            config.komodoParams,
+            _data.inputs,
+            _data.change,
+            _data.value,
+            _encodedContent
+          );
+
+          api.log('send data rawtx', _tx);
+
+          ecl.blockchainTransactionBroadcast(_tx)
+          .then((txid) => {
+            ecl.close();
+
+            api.log(txid);
+
+            if (txid &&
+                txid.indexOf('bad-txns-inputs-spent') > -1) {
+              const retObj = {
+                msg: 'error',
+                result: 'Bad transaction inputs spent',
+              };
+
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(retObj));
+            } else {
+              if (txid &&
+                  txid.length === 64) {
+                if (txid.indexOf('bad-txns-in-belowout') > -1) {
+                  const retObj = {
+                    msg: 'error',
+                    result: 'Bad transaction inputs spent',
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                } else {
+                  const retObj = {
+                    msg: 'success',
+                    result: txid,
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                }
+              } else {
+                if (txid &&
+                    txid.indexOf('bad-txns-in-belowout') > -1) {
+                  const retObj = {
+                    msg: 'error',
+                    result: 'Bad transaction inputs spent',
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                } else {
+                  const retObj = {
+                    msg: 'error',
+                    result: 'Can\'t broadcast transaction',
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                }
+              }
+            }
+          });
+        } else {
+          ecl.close();
+
+          const retObj = {
+            msg: 'error',
+            result: 'no valid utxo',
+          };
+
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      });
+    } else {
+      const retObj = {
+        msg: 'error',
+        result: `Content exceeds max size ${KV_MAX_CONTENT_SIZE} chars`,
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
+  });
 
   return api;
 };
