@@ -36,38 +36,43 @@ const KV_CONTENT_HEADER_SIZE = [
   128, // title
 ];
 
-const KV_MAX_CONTENT_SIZE = config.kv.contentLimit;
+const KV_MAX_CONTENT_SIZE = 4096;
 
 module.exports = (api) => {
   api.kvEncode = (data) => {
     let kvBuf = [
-      new Buffer(KV_HEADER_SIZE[0]),
-      new Buffer(KV_HEADER_SIZE[1]),
-      new Buffer(KV_HEADER_SIZE[2]),
-      new Buffer(KV_CONTENT_HEADER_SIZE[0]),
-      new Buffer(KV_CONTENT_HEADER_SIZE[1]),
-      new Buffer(KV_CONTENT_HEADER_SIZE[2]),
-      new Buffer(data.content.body.length)
+      Buffer.alloc(KV_HEADER_SIZE[0]),
+      Buffer.alloc(KV_HEADER_SIZE[1]),
+      Buffer.alloc(KV_HEADER_SIZE[2]),
+      Buffer.alloc(KV_CONTENT_HEADER_SIZE[0]),
+      Buffer.alloc(KV_CONTENT_HEADER_SIZE[1]),
+      Buffer.alloc(KV_CONTENT_HEADER_SIZE[2]),
+      Buffer.alloc(data.content.body.length)
     ];
 
     kvBuf[0].write(KV_VERSION.current);
     kvBuf[1].write('0');
     kvBuf[2].write(data.tag);
-    kvBuf[3].write(data.content.version.toString());
+    kvBuf[3].write(data.content.version.toString() || '1');
     kvBuf[4].write(data.content.parent ? data.content.parent : '0000000000000000000000000000000000000000000000000000000000000000');
     kvBuf[5].write(data.content.title);
     kvBuf[6].write(data.content.body);
 
+    api.log('kv data');
     api.log(data.content.body.length, 'kv');
     api.log(data.content.body, 'kv');
     api.log(kvBuf[6], 'kv');
     api.log(kvBuf[6].toString(), 'kv');
 
+    api.log('kv buf', kvBuf.toString());
+
     const out = Buffer.concat(kvBuf);
 
+    api.log('concat kv buf');
     api.log(out, 'kv');
     api.log(out.toString('hex'), 'kv');
     api.log(out.toString('hex').length, 'kv');
+    api.log(`kv max allowed size ${KV_MAX_CONTENT_SIZE + KV_CONTENT_HEADER_SIZE[0] + KV_CONTENT_HEADER_SIZE[1] + KV_CONTENT_HEADER_SIZE[2]}`);
 
     if (out.toString('hex').length > KV_MAX_CONTENT_SIZE + KV_CONTENT_HEADER_SIZE[0] + KV_CONTENT_HEADER_SIZE[1] + KV_CONTENT_HEADER_SIZE[2]) {
       return -1;
@@ -126,142 +131,176 @@ module.exports = (api) => {
   }
 
   api.get('/kv/send', (req, res, next) => {
-    const _content = req.query.content;
-    const _encodedContent = api.kvEncode(_content);
-
-    if (_encodedContent) {
-      const coin = 'kv';
-      const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
-      const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
-
-      const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);
-      const keys = {
-        priv: keyPair.toWIF(),
-        pub: keyPair.getAddress(),
+    if (!req.query.content) {
+      const retObj = {
+        msg: 'error',
+        result: 'content cannot be an empty string',
       };
-      const outputAddress = keys.pub;
 
-      ecl.connect();
-      ecl.blockchainAddressListunspent(keys.pub)
-      .then((json) => {
-        if (json &&
-            json.length) {
-          const _utxo = json;
-          let _formattedUtxoList = [];
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else {
+      if (req.query.content.length > config.kv.contentLimit ||
+          (req.query.title && req.query.title > KV_CONTENT_HEADER_SIZE[2])) {
+        console.log(`title len ${req.query.title.length} vs max ${KV_CONTENT_HEADER_SIZE[2]}`);
+        console.log(`content len ${req.query.content.length} vs max ${config.kv.contentLimit}`);
 
-          for (let i = 0; i < _utxo.length; i++) {
-            _formattedUtxoList.push({
-              txid: _utxo[i].tx_hash,
-              vout: _utxo[i].tx_pos,
-              value: _utxo[i].value,
-            });
-          }
+        const retObj = {
+          msg: 'error',
+          result: `Please verify your data. Content cannot exceed max size of ${config.kv.contentLimit} chars. Name cannot exceed max size of ${KV_CONTENT_HEADER_SIZE[2]} chars`,
+        };
 
-          const _data = transactionBuilder.data(
-            config.komodoParams,
-            0.0001,
-            0.0001,
-            keys.pub,
-            keys.pub,
-            utxoList
-          );
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(retObj));
+      } else {
+        const _content = req.query.content;
+        const _kvData = {
+          tag: 'trollbox',
+          content: {
+            title: req.query.title || 'Anonymous troll',
+            version: 1,
+            body: _content,
+          },
+        };
+        const _encodedContent = api.kvEncode(_kvData);
 
-          api.log('tx data');
-          api.log('buildSignedTx signed tx hex');
-          api.log(rawtx);
+        api.log('kvEncode', _encodedContent);
+        api.log('kvDecode', api.kvDecode(_encodedContent));
 
-          api.log('send data', _data);
+        if (_encodedContent) {
+          const coin = 'kv';
+          const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
+          const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
-          const _tx = transactionBuilder.transaction(
-            keys.pub,
-            keys.pub,
-            keys.priv,
-            config.komodoParams,
-            _data.inputs,
-            _data.change,
-            _data.value,
-            _encodedContent
-          );
+          const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);
+          const keys = {
+            priv: keyPair.toWIF(),
+            pub: keyPair.getAddress(),
+          };
+          const outputAddress = keys.pub;
 
-          api.log('send data rawtx', _tx);
+          ecl.connect();
+          ecl.blockchainAddressListunspent(keys.pub)
+          .then((json) => {
+            if (json &&
+                json.length) {
+              const _utxo = json;
+              let _formattedUtxoList = [];
 
-          ecl.blockchainTransactionBroadcast(_tx)
-          .then((txid) => {
-            ecl.close();
+              for (let i = 0; i < _utxo.length; i++) {
+                _formattedUtxoList.push({
+                  txid: _utxo[i].tx_hash,
+                  vout: _utxo[i].tx_pos,
+                  value: _utxo[i].value,
+                });
+              }
 
-            api.log(txid);
+              const _data = transactionBuilder.data(
+                config.komodoParams,
+                toSats(0.0001),
+                toSats(0.0001),
+                keys.pub,
+                keys.pub,
+                _formattedUtxoList
+              );
 
-            if (txid &&
-                txid.indexOf('bad-txns-inputs-spent') > -1) {
+              api.log('tx data');
+              api.log('buildSignedTx signed tx hex');
+
+              api.log('send data', _data);
+
+              const _tx = transactionBuilder.transaction(
+                keys.pub,
+                keys.pub,
+                keys.priv,
+                config.komodoParams,
+                _data.inputs,
+                _data.change,
+                _data.value,
+                _encodedContent
+              );
+
+              api.log('send data rawtx', _tx);
+
+              ecl.blockchainTransactionBroadcast(_tx)
+              .then((txid) => {
+                ecl.close();
+
+                api.log(`txid ${txid}`);
+
+                if (txid &&
+                    txid.indexOf('bad-txns-inputs-spent') > -1) {
+                  const retObj = {
+                    msg: 'error',
+                    result: 'Bad transaction inputs spent',
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                } else {
+                  if (txid &&
+                      txid.length === 64) {
+                    if (txid.indexOf('bad-txns-in-belowout') > -1) {
+                      const retObj = {
+                        msg: 'error',
+                        result: 'Bad transaction inputs spent',
+                      };
+
+                      res.set({ 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify(retObj));
+                    } else {
+                      const retObj = {
+                        msg: 'success',
+                        result: txid,
+                      };
+
+                      res.set({ 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify(retObj));
+                    }
+                  } else {
+                    if (txid &&
+                        txid.indexOf('bad-txns-in-belowout') > -1) {
+                      const retObj = {
+                        msg: 'error',
+                        result: 'Bad transaction inputs spent',
+                      };
+
+                      res.set({ 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify(retObj));
+                    } else {
+                      const retObj = {
+                        msg: 'error',
+                        result: 'Can\'t broadcast transaction',
+                      };
+
+                      res.set({ 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify(retObj));
+                    }
+                  }
+                }
+              });
+            } else {
+              ecl.close();
+
               const retObj = {
                 msg: 'error',
-                result: 'Bad transaction inputs spent',
+                result: 'no valid utxo',
               };
 
               res.set({ 'Content-Type': 'application/json' });
               res.end(JSON.stringify(retObj));
-            } else {
-              if (txid &&
-                  txid.length === 64) {
-                if (txid.indexOf('bad-txns-in-belowout') > -1) {
-                  const retObj = {
-                    msg: 'error',
-                    result: 'Bad transaction inputs spent',
-                  };
-
-                  res.set({ 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(retObj));
-                } else {
-                  const retObj = {
-                    msg: 'success',
-                    result: txid,
-                  };
-
-                  res.set({ 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(retObj));
-                }
-              } else {
-                if (txid &&
-                    txid.indexOf('bad-txns-in-belowout') > -1) {
-                  const retObj = {
-                    msg: 'error',
-                    result: 'Bad transaction inputs spent',
-                  };
-
-                  res.set({ 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(retObj));
-                } else {
-                  const retObj = {
-                    msg: 'error',
-                    result: 'Can\'t broadcast transaction',
-                  };
-
-                  res.set({ 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(retObj));
-                }
-              }
             }
           });
         } else {
-          ecl.close();
-
           const retObj = {
             msg: 'error',
-            result: 'no valid utxo',
+            result: 'Unable to encode kv',
           };
 
           res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(retObj));
         }
-      });
-    } else {
-      const retObj = {
-        msg: 'error',
-        result: `Content exceeds max size ${KV_MAX_CONTENT_SIZE} chars`,
-      };
-
-      res.set({ 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(retObj));
+      }
     }
   });
 
