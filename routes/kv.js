@@ -135,8 +135,8 @@ module.exports = (api) => {
     }
   }
 
-  api.get('/kv/send', (req, res, next) => {
-    if (!req.query.content) {
+  api.post('/kv/send', (req, res, next) => {
+    if (!req.body.content) {
       const retObj = {
         msg: 'error',
         result: 'content cannot be an empty string',
@@ -145,10 +145,10 @@ module.exports = (api) => {
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(retObj));
     } else {
-      if (req.query.content.length > config.kv.contentLimit ||
-          (req.query.title && req.query.title > KV_CONTENT_HEADER_SIZE[2])) {
-        console.log(`title len ${req.query.title.length} vs max ${KV_CONTENT_HEADER_SIZE[2]}`);
-        console.log(`content len ${req.query.content.length} vs max ${config.kv.contentLimit}`);
+      if (req.body.content.length > config.kv.contentLimit ||
+          (req.body.title && req.body.title > KV_CONTENT_HEADER_SIZE[2])) {
+        console.log(`title len ${req.body.title.length} vs max ${KV_CONTENT_HEADER_SIZE[2]}`);
+        console.log(`content len ${req.body.content.length} vs max ${config.kv.contentLimit}`);
 
         const retObj = {
           msg: 'error',
@@ -158,11 +158,11 @@ module.exports = (api) => {
         res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(retObj));
       } else {
-        const _content = req.query.content;
+        const _content = req.body.content;
         const _kvData = {
           tag: 'trollbox',
           content: {
-            title: req.query.title || 'Anonymous troll',
+            title: req.body.title || 'Anonymous troll',
             version: 1,
             body: _content,
           },
@@ -384,7 +384,7 @@ module.exports = (api) => {
                           opreturn.kvDecoded &&
                           Number(opreturn.kvDecoded.content.version)) {
                         const _parsedTx = {
-                          timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
+                          timestamp: Number(transaction.height) === 0 || Number(transaction.height) === -1 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
                           title: opreturn.kvDecoded.content.title,
                           content: opreturn.kvDecoded.content.body,
                           txid: transaction.tx_hash,
