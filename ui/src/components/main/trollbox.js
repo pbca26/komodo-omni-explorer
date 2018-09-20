@@ -86,7 +86,7 @@ class Trollbox extends React.Component {
             className="trollbox-history-item">
             <div className="trollbox-history-item-header">
               <div className="left">
-                <strong>{ _history[i].title }</strong>
+                <strong>{ renderKvContent(_history[i].title) }</strong>
               </div>
               <div className="right">
                 <a

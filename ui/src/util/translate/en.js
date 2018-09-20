@@ -164,7 +164,7 @@ const LANG_EN = {
     LINK: 'Link',
   },
   TROLLBOX: {
-    TROLLBOX: 'Trollbox',
+    TROLLBOX: 'Trollbox (KV)',
     SAY_SOMETHING: 'Say something',
     YOUR_NAME_OPTIONAL: 'Your name (optional)',
     SUCCESS: 'Success! Your post will show up soon.',
