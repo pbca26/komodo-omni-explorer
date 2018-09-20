@@ -46,11 +46,13 @@ class Navigation extends React.Component {
         Store.dispatch(stats());
       }, STATS_UPDATE_INTERVAL);
     } else if (type.indexOf('books') > -1) {
-      this.booksInterval = setInterval(() => {
+      this.activeInterval = setInterval(() => {
         Store.dispatch(getOrderbooks());
       }, ORDERS_UPDATE_INTERVAL);
     } else if (type.indexOf('trollbox') > -1) {
-      this.booksInterval = setInterval(() => {
+      Store.dispatch(getTrollboxHistory());
+
+      this.activeInterval = setInterval(() => {
         Store.dispatch(getTrollboxHistory());
       }, TROLLBOX_UPDATE_INTERVAL);
     }

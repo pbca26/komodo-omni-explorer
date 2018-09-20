@@ -23,7 +23,7 @@ const apiUrl = `${config.https ? 'https' : 'http'}://${config.apiUrl}/api`;
 
 export const trollboxState = (history) => {
   return {
-    type: SUMMARY,
+    type: TROLLBOX,
     history,
   }
 }
@@ -398,4 +398,30 @@ export const multiAddressBalance = (addressList, fallback) => {
       }
     });
   }
+}
+
+export const trollboxSend = (title, content) => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${apiUrl}/kv/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(title ? {
+          title,
+          content
+        } : {
+          content,
+        }),
+      }
+    )
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      resolve(json);
+    });
+  });
 }

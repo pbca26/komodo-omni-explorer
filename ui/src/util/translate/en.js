@@ -163,6 +163,12 @@ const LANG_EN = {
     CONN: 'Connections',
     LINK: 'Link',
   },
+  TROLLBOX: {
+    TROLLBOX: 'Trollbox',
+    SAY_SOMETHING: 'Say something',
+    YOUR_NAME_OPTIONAL: 'Your name (optional)',
+    SUCCESS: 'Success! Your post will show up soon.',
+  },
 };
 
 export default LANG_EN;

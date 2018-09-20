@@ -12,6 +12,7 @@ import {
   COINS,
   STATS,
   MULTI_ADDRESS_BALANCE,
+  TROLLBOX,
 } from '../actions/storeType';
 
 const Main = (state = {
@@ -29,6 +30,7 @@ const Main = (state = {
   coins: null,
   stats: null,
   balanceMulti: null,
+  trollbox: null,
 }, action) => {
   switch (action.type) {
     case UPDATE:
@@ -101,6 +103,11 @@ const Main = (state = {
       return {
         ...state,
         balanceMulti: action.balanceMulti,
+      };
+    case TROLLBOX:
+      return {
+        ...state,
+        trollbox: action.history,
       };
     default:
       return state;
