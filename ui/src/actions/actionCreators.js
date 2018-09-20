@@ -120,7 +120,7 @@ export const statsState = (stats) => {
   }
 }
 
-export const getTrollbox = (currentState) => {
+export const getTrollboxHistory = (currentState) => {
   return dispatch => {
     return fetch(`${apiUrl}/kv/history`, {
       method: 'GET',

@@ -9,6 +9,7 @@ import {
   getOrderbooks,
   getPrices,
   stats,
+  getTrollboxHistory,
 } from '../../actions/actionCreators';
 import Store from '../../store';
 import config from '../../config';
@@ -17,6 +18,7 @@ import translate from '../../util/translate/translate';
 const PRICES_UPDATE_INTERVAL = 20000;
 const STATS_UPDATE_INTERVAL = 20000;
 const ORDERS_UPDATE_INTERVAL = 30000;
+const TROLLBOX_UPDATE_INTERVAL = 10000;
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -47,6 +49,10 @@ class Navigation extends React.Component {
       this.booksInterval = setInterval(() => {
         Store.dispatch(getOrderbooks());
       }, ORDERS_UPDATE_INTERVAL);
+    } else if (type.indexOf('trollbox') > -1) {
+      this.booksInterval = setInterval(() => {
+        Store.dispatch(getTrollboxHistory());
+      }, TROLLBOX_UPDATE_INTERVAL);
     }
   }
 

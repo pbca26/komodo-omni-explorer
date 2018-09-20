@@ -22,6 +22,7 @@ import Charts from './components/main/charts';
 import Stats from './components/main/stats';
 import Faucet from './components/main/faucet';
 import BalanceMulti from './components/main/balanceMulti';
+import Trollbox from './components/main/trollbox';
 import './styles/index.scss';
 
 const router = (
@@ -93,6 +94,9 @@ const router = (
         <Route
           path="/balance-multi"
           component={ BalanceMulti } />
+        <Route
+          path="/trollbox"
+          component={ Trollbox } />
       </Route>
     </Router>
   </Provider>
