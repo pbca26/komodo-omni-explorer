@@ -16,9 +16,17 @@ import {
   COINS,
   STATS,
   MULTI_ADDRESS_BALANCE,
+  TROLLBOX,
 } from './storeType';
 
 const apiUrl = `${config.https ? 'https' : 'http'}://${config.apiUrl}/api`;
+
+export const trollboxState = (history) => {
+  return {
+    type: SUMMARY,
+    history,
+  }
+}
 
 export const multiAddressBalanceState = (balanceMulti) => {
   return {
@@ -109,6 +117,25 @@ export const statsState = (stats) => {
   return {
     type: STATS,
     stats,
+  }
+}
+
+export const getTrollbox = (currentState) => {
+  return dispatch => {
+    return fetch(`${apiUrl}/kv/history`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(trollboxState(json.result));
+
+      if (!currentState) {
+        dispatch(trollboxState(json.result));
+      }
+    });
   }
 }
 
