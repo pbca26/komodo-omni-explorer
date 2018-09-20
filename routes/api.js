@@ -28,6 +28,7 @@ api = require('./faucet.js')(api);
 api = require('./kv.js')(api);
 
 api.start = () => {
+  api.kvLoop();
   api.mmloop();
   api.getOverview(true);
   api.getSummary(true);

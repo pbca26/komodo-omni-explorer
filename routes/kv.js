@@ -16,6 +16,8 @@ const electrumJSCore = require('./electrumjs.core.js');
 const transactionBuilder = require('agama-wallet-lib/src/transaction-builder');
 const transactionDecoder = require('agama-wallet-lib/src/transaction-decoder');
 
+const KV_HISTORY_UPDATE_INTERVAL = 10000; // every 10s
+
 const KV_OPRETURN_MAX_SIZE_BYTES = 8192;
 
 const KV_VERSION = {
@@ -40,6 +42,8 @@ const KV_CONTENT_HEADER_SIZE = [
 const KV_MAX_CONTENT_SIZE = 4096;
 
 module.exports = (api) => {
+  api.kv = [];
+
   api.kvEncode = (data) => {
     let kvBuf = [
       Buffer.alloc(KV_HEADER_SIZE[0]),
@@ -305,7 +309,7 @@ module.exports = (api) => {
     }
   });
 
-  api.get('/kv/history', (req, res, next) => {
+  api.kvLoop = () => {
     const network = 'kv';
     const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);
     const keys = {
@@ -317,119 +321,115 @@ module.exports = (api) => {
     const _address = keys.pub;
     const MAX_TX = 300;
 
-    api.log('kv history');
+    const _kvLoop = () => {
+      api.log('kv history');
 
-    ecl.connect();
+      ecl.connect();
 
-    ecl.blockchainHeadersSubscribe()
-    .then((currentHeight) => {
-      currentHeight = currentHeight.block_height;
+      ecl.blockchainHeadersSubscribe()
+      .then((currentHeight) => {
+        currentHeight = currentHeight.block_height;
 
-      if (currentHeight &&
-          Number(currentHeight) > 0) {
-        ecl.blockchainAddressGetHistory(_address)
-        .then((json) => {
-          if (json &&
-              json.length) {
-            let _rawtx = [];
+        if (currentHeight &&
+            Number(currentHeight) > 0) {
+          ecl.blockchainAddressGetHistory(_address)
+          .then((json) => {
+            if (json &&
+                json.length) {
+              let _rawtx = [];
 
-            json = api.sortTransactions(json);
-            json = json.length > MAX_TX ? json.slice(0, MAX_TX) : json;
+              json = api.sortTransactions(json);
+              json = json.length > MAX_TX ? json.slice(0, MAX_TX) : json;
 
-            api.log(json.length);
-            let index = 0;
+              api.log(json.length);
 
-            async.eachOfSeries(json, (transaction, ind, callback) => {
-              ecl.blockchainBlockGetHeader(transaction.height)
-              .then((blockInfo) => {
-                if (blockInfo &&
-                    blockInfo.timestamp) {
-                  ecl.blockchainTransactionGet(transaction.tx_hash)
-                  .then((_rawtxJSON) => {
-                    api.log('electrum gettransaction ==>');
-                    api.log((index + ' | ' + (_rawtxJSON.length - 1)));
-                    // api.log(_rawtxJSON);
+              async.eachOfSeries(json, (transaction, ind, callback) => {
+                ecl.blockchainBlockGetHeader(transaction.height)
+                .then((blockInfo) => {
+                  if (blockInfo &&
+                      blockInfo.timestamp) {
+                    ecl.blockchainTransactionGet(transaction.tx_hash)
+                    .then((_rawtxJSON) => {
+                      api.log('electrum gettransaction ==>');
+                      api.log((ind + ' | ' + (_rawtxJSON.length - 1)));
+                      // api.log(_rawtxJSON);
 
-                    // decode tx
-                    const _network = config.komodoParams;
-                    const decodedTx = transactionDecoder(_rawtxJSON, _network);
+                      // decode tx
+                      const _network = config.komodoParams;
+                      const decodedTx = transactionDecoder(_rawtxJSON, _network);
 
-                    let txInputs = [];
-                    let opreturn = false;
+                      let txInputs = [];
+                      let opreturn = false;
 
-                    api.log(`decodedtx network ${network}`);
+                      api.log(`decodedtx network ${network}`);
 
-                    api.log('decodedtx =>');
-                    // api.log(decodedTx.outputs);
+                      api.log('decodedtx =>');
+                      // api.log(decodedTx.outputs);
 
-                    let index2 = 0;
-
-                    if (decodedTx &&
-                        decodedTx.outputs &&
-                        decodedTx.outputs.length) {
-                      for (let i = 0; i < decodedTx.outputs.length; i++) {
-                        if (decodedTx.outputs[i].scriptPubKey.type === 'nulldata') {
-                          opreturn = {
-                            kvHex: decodedTx.outputs[i].scriptPubKey.hex,
-                            kvAsm: decodedTx.outputs[i].scriptPubKey.asm,
-                            kvDecoded: api.kvDecode(decodedTx.outputs[i].scriptPubKey.asm.substr(10, decodedTx.outputs[i].scriptPubKey.asm.length), true),
-                          };
+                      if (decodedTx &&
+                          decodedTx.outputs &&
+                          decodedTx.outputs.length) {
+                        for (let i = 0; i < decodedTx.outputs.length; i++) {
+                          if (decodedTx.outputs[i].scriptPubKey.type === 'nulldata') {
+                            opreturn = {
+                              kvHex: decodedTx.outputs[i].scriptPubKey.hex,
+                              kvAsm: decodedTx.outputs[i].scriptPubKey.asm,
+                              kvDecoded: api.kvDecode(decodedTx.outputs[i].scriptPubKey.asm.substr(10, decodedTx.outputs[i].scriptPubKey.asm.length), true),
+                            };
+                          }
                         }
                       }
-                    }
 
-                    if (opreturn &&
-                        opreturn.kvDecoded &&
-                        Number(opreturn.kvDecoded.content.version)) {
-                      const _parsedTx = {
-                        timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
-                        title: opreturn.kvDecoded.content.title,
-                        content: opreturn.kvDecoded.content.body,
-                        txid: transaction.tx_hash,
-                      };
+                      if (opreturn &&
+                          opreturn.kvDecoded &&
+                          Number(opreturn.kvDecoded.content.version)) {
+                        const _parsedTx = {
+                          timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
+                          title: opreturn.kvDecoded.content.title,
+                          content: opreturn.kvDecoded.content.body,
+                          txid: transaction.tx_hash,
+                        };
 
-                      _rawtx.push(_parsedTx);
-                    }
+                        _rawtx.push(_parsedTx);
+                      }
 
-                    if (ind === json.length - 1) {
-                      ecl.close();
+                      if (ind === json.length - 1) {
+                        ecl.close();
 
-                      const retObj = {
-                        msg: 'success',
-                        result: _rawtx,
-                      };
-
-                      res.set({ 'Content-Type': 'application/json' });
-                      res.end(JSON.stringify(retObj));
-                    } else {
-                      callback();
-                    }
-                  });
-                }
+                        api.kv = _rawtx;
+                      } else {
+                        callback();
+                      }
+                    });
+                  }
+                });
               });
-            });
-          } else {
-            ecl.close();
+            } else {
+              ecl.close();
 
-            const retObj = {
-              msg: 'success',
-              result: [],
-            };
+              api.kv = [];
+            }
+          });
+        } else {
+          api.kv = 'can\'t get current height';
+        }
+      });
+    };
 
-            res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(retObj));
-          }
-        });
-      } else {
-        const retObj = {
-          msg: 'error',
-          result: 'can\'t get current height',
-        };
+    _kvLoop();
+    setInterval(() => {
+      _kvLoop();
+    }, KV_HISTORY_UPDATE_INTERVAL);
+  };
 
-        res.set({ 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(retObj));
-      }
-    });
+  api.get('/kv/history', (req, res, next) => {
+    const retObj = {
+      msg: 'success',
+      result: api.kv,
+    };
+
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(retObj));
   });
 
   api.sortTransactions = (transactions, sortBy) => {
