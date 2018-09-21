@@ -42,7 +42,10 @@ const KV_CONTENT_HEADER_SIZE = [
 const KV_MAX_CONTENT_SIZE = 4096;
 
 module.exports = (api) => {
-  api.kv = [];
+  api.kv = {
+    txs: [],
+    cache: {},
+  };
 
   api.kvEncode = (data) => {
     let kvBuf = [
@@ -344,11 +347,11 @@ module.exports = (api) => {
               api.log(json.length);
 
               async.eachOfSeries(json, (transaction, ind, callback) => {
-                ecl.blockchainBlockGetHeader(transaction.height)
+                api.getBlockHeader(transaction.height, network, ecl)
                 .then((blockInfo) => {
                   if (blockInfo &&
                       blockInfo.timestamp) {
-                    ecl.blockchainTransactionGet(transaction.tx_hash)
+                    api.getTransaction(transaction.tx_hash, network, ecl)
                     .then((_rawtxJSON) => {
                       api.log('electrum gettransaction ==>');
                       api.log((ind + ' | ' + (_rawtxJSON.length - 1)));
@@ -356,7 +359,14 @@ module.exports = (api) => {
 
                       // decode tx
                       const _network = config.komodoParams;
-                      const decodedTx = transactionDecoder(_rawtxJSON, _network);
+                      let decodedTx;
+
+                      if (api.getTransactionDecoded(transaction.tx_hash, network)) {
+                        decodedTx = api.getTransactionDecoded(transaction.tx_hash, network);
+                      } else {
+                        decodedTx = transactionDecoder(_rawtxJSON, _network);
+                        api.getTransactionDecoded(transaction.tx_hash, network, decodedTx);
+                      }
 
                       let txInputs = [];
                       let opreturn = false;
@@ -396,7 +406,7 @@ module.exports = (api) => {
                       if (ind === json.length - 1) {
                         ecl.close();
 
-                        api.kv = _rawtx;
+                        api.kv.cache.txs = _rawtx;
                       } else {
                         callback();
                       }
@@ -407,11 +417,12 @@ module.exports = (api) => {
             } else {
               ecl.close();
 
-              api.kv = [];
+              api.kv.cache.txs = [];
             }
           });
         } else {
-          api.kv = 'can\'t get current height';
+          // api.kv = 'can\'t get current height';
+          console.log('kv error: can\'t get current height');
         }
       });
     };
@@ -425,12 +436,77 @@ module.exports = (api) => {
   api.get('/kv/history', (req, res, next) => {
     const retObj = {
       msg: 'success',
-      result: api.kv,
+      result: api.kv.cache.txs,
     };
 
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify(retObj));
   });
+
+  api.getTransaction = (txid, network, ecl) => {
+    return new Promise((resolve, reject) => {
+      if (!api.kv.cache[network]) {
+        api.kv.cache[network] = {};
+      }
+      if (!api.kv.cache[network].tx) {
+        api.kv.cache[network].tx = {};
+      }
+
+      if (!api.kv.cache[network].tx[txid]) {
+        api.log(`kv electrum raw input tx ${txid}`);
+
+        ecl.blockchainTransactionGet(txid)
+        .then((_rawtxJSON) => {
+          api.kv.cache[network].tx[txid] = _rawtxJSON;
+          resolve(_rawtxJSON);
+        });
+      } else {
+        api.log(`kv electrum cached raw input tx ${txid}`);
+        resolve(api.kv.cache[network].tx[txid]);
+      }
+    });
+  }
+
+  api.getTransactionDecoded = (txid, network, data) => {
+    if (!api.kv.cache[network].txDecoded) {
+      api.kv.cache[network].txDecoded = {};
+    }
+
+    if (api.kv.cache[network].txDecoded[txid]) {
+      api.log(`kv electrum raw input tx decoded ${txid}`);
+      return api.kv.cache[network].txDecoded[txid];
+    } else {
+      if (data) {
+        api.kv.cache[network].txDecoded[txid] = data;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  api.getBlockHeader = (height, network, ecl) => {
+    return new Promise((resolve, reject) => {
+      if (!api.kv.cache[network]) {
+        api.kv.cache[network] = {};
+      }
+      if (!api.kv.cache[network].blockHeader) {
+        api.kv.cache[network].blockHeader = {};
+      }
+
+      if (!api.kv.cache[network].blockHeader[height]) {
+        api.log(`kv electrum raw block ${height}`);
+
+        ecl.blockchainBlockGetHeader(height)
+        .then((_rawtxJSON) => {
+          api.kv.cache[network].blockHeader[height] = _rawtxJSON;
+          resolve(_rawtxJSON);
+        });
+      } else {
+        api.log(`kv electrum cached raw block ${height}`);
+        resolve(api.kv.cache[network].blockHeader[height]);
+      }
+    });
+  }
 
   api.sortTransactions = (transactions, sortBy) => {
     return transactions.sort((b, a) => {
