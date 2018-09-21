@@ -168,6 +168,10 @@ const LANG_EN = {
     SAY_SOMETHING: 'Say something',
     YOUR_NAME_OPTIONAL: 'Your name (optional)',
     SUCCESS: 'Success! Your post will show up soon.',
+    SEND: 'Send',
+    TOO_LONG: 'too long',
+    CHAR_LEFT: 'char left',
+    CHARS_LEFT: 'chars left',
   },
 };
 

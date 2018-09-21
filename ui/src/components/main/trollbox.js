@@ -14,6 +14,11 @@ import {
 import { secondsToString } from 'agama-wallet-lib/src/time';
 import { sort } from 'agama-wallet-lib/src/utils';
 
+const maxFieldLength = {
+  title: 128,
+  content: 300,
+};
+
 const renderKvContent = (content) => {
   return content
        .replace(/&/g, '&amp;')
@@ -114,6 +119,9 @@ class Trollbox extends React.Component {
   }
 
   render() {
+    const _titleLen = maxFieldLength.title - this.state.name.length;
+    const _contentLen = maxFieldLength.content - this.state.content.length;
+
     return (
       <div className="trollbox">
         <div className="row">
@@ -132,6 +140,9 @@ class Trollbox extends React.Component {
                 value={ this.state.name }
                 placeholder={ translate('TROLLBOX.YOUR_NAME_OPTIONAL') }
                 className="form-control" />
+              <small className="char-limit">
+                { _titleLen < 0 ? translate('TROLLBOX.TOO_LONG') : `${_titleLen} ${_titleLen === 1 ? translate('TROLLBOX.CHAR_LEFT') : translate('TROLLBOX.CHARS_LEFT')}` }
+              </small>
             </div>
           </div>
           <div className="col-md-12 col-sm-12">
@@ -143,6 +154,9 @@ class Trollbox extends React.Component {
                 placeholder={ translate('TROLLBOX.SAY_SOMETHING') }
                 className="form-control margin-top-md">
               </textarea>
+              <small className="char-limit">
+                { _contentLen < 0 ? translate('TROLLBOX.TOO_LONG') : `${_contentLen} ${_contentLen === 1 ? translate('TROLLBOX.CHAR_LEFT') : translate('TROLLBOX.CHARS_LEFT')}` }
+              </small>
             </div>
           </div>
           <div className="col-md-12 col-sm-12">
@@ -150,8 +164,12 @@ class Trollbox extends React.Component {
               <button
                 onClick={ this.send }
                 type="submit"
-                className="btn btn-interest margin-top-md">
-                Send
+                className="btn btn-interest margin-top-md"
+                disabled={
+                  _contentLen < 0 ||
+                  _titleLen < 0
+                }>
+                { translate('TROLLBOX.SEND') }
               </button>
             </div>
           </div>
