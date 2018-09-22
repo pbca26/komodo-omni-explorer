@@ -113,6 +113,12 @@ class Navigation extends React.Component {
           return true;
         }
         break;
+      case 'misc':
+        if (_locationHash.indexOf('/ac-params') > -1 ||
+            _locationHash.indexOf('/trollbox') > -1) {
+          return true;
+        }
+        break;
     }
   }
 
@@ -294,9 +300,9 @@ class Navigation extends React.Component {
                   { this.renderFaucetItems() }
                 </ul>
               </li>
-              <li className={ 'navbar-sub-parent tap' + (this.isActiveMenuParent('misc') ? ' active-parent' : '') }>
+              <li className={ 'navbar-sub-parent misc' + (this.isActiveMenuParent('misc') ? ' active-parent' : '') }>
                 <a className="navbar-link pointer">
-                  <span className="fa fa-folder-o"></span>
+                  <span className="fa fa-flask"></span>
                   <span className="menu-text">{ translate('NAVIGATION.MISC') }</span>
                 </a>
                 <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'misc' ? ' disable' : '')}>
@@ -321,25 +327,25 @@ class Navigation extends React.Component {
                       <span className="menu-text">{ translate('NAVIGATION.TROLLBOX') }</span>
                     </Link>
                   </li>
+                  <li onClick={ () => this.disableActiveParentMenu('misc') }>
+                    <Link
+                      to="/ac-params"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-code"></span>
+                      <span className="menu-text">{ translate('NAVIGATION.AC_PARAMS') }</span>
+                    </Link>
+                  </li>
+                  <li onClick={ () => this.disableActiveParentMenu('misc') }>
+                    <a
+                      href="https://github.com/pbca26/komodo-omni-explorer"
+                      className="navbar-link"
+                      target="_blank">
+                      <span className="fa fa-info-circle"></span>
+                      <span className="menu-text">API</span>
+                    </a>
+                  </li>
                 </ul>
-              </li>
-              <li>
-                <a
-                  href="https://www.atomicexplorer.com/wallet"
-                  className="navbar-link"
-                  target="_blank">
-                  <span className="fa fa-desktop"></span>
-                  <span className="menu-text">{ translate('NAVIGATION.WEB_WALLET') }</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/pbca26/komodo-omni-explorer"
-                  className="navbar-link"
-                  target="_blank">
-                  <span className="fa fa-info-circle"></span>
-                  <span className="menu-text">API</span>
-                </a>
               </li>
             </ul>
           </div>

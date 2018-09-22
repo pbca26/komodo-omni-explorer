@@ -96,11 +96,13 @@
     }
   }
   &.misc {
+    width: 125px;
+
     &:before {
-      margin-left: 106px;
+      margin-left: 72px;
     }
     .nav.navbar-sub {
-      width: 118px;
+      width: 125px;
     }
   }
 }

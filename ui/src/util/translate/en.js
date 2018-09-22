@@ -115,7 +115,7 @@ const LANG_EN = {
     COINS: 'Coins',
     TRADES: 'Trades',
     FAUCET: 'Faucet',
-    MISC: 'Misc.',
+    MISC: 'Extras',
     WEB_WALLET: 'Web wallet',
     TROLLBOX: 'Trollbox',
     AC_PARAMS: 'AC Params',
@@ -175,6 +175,11 @@ const LANG_EN = {
     TOO_LONG: 'too long',
     CHAR_LEFT: 'char left',
     CHARS_LEFT: 'chars left',
+  },
+  AC_PARAMS: {
+    PARAMS: 'Params',
+    VERUS_INFO: 'Requires a separate daemon that\'s a fork of komodo',
+    WINDOWS: 'Windows',
   },
 };
 

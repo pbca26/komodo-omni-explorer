@@ -23,6 +23,7 @@ import Stats from './components/main/stats';
 import Faucet from './components/main/faucet';
 import BalanceMulti from './components/main/balanceMulti';
 import Trollbox from './components/main/trollbox';
+import ACParams from './components/main/acParams';
 import './styles/index.scss';
 
 const router = (
@@ -97,6 +98,9 @@ const router = (
         <Route
           path="/trollbox"
           component={ Trollbox } />
+        <Route
+          path="/ac-params"
+          component={ ACParams } />
       </Route>
     </Router>
   </Provider>
