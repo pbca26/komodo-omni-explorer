@@ -107,6 +107,12 @@ class Navigation extends React.Component {
           return true;
         }
         break;
+      case 'explorers':
+        if (_locationHash.indexOf('/explorers') > -1 ||
+            _locationHash.indexOf('/explorers/status') > -1) {
+          return true;
+        }
+        break;
     }
   }
 
