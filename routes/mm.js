@@ -1,12 +1,16 @@
-const config = require('../../config');
+const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 const async = require('async');
 const exec = require('child_process').exec;
-const { toSats } = require('agama-wallet-lib/src/utils');
+const {
+  toSats,
+  getRandomIntInclusive,
+} = require('agama-wallet-lib/src/utils');
 const fiat = require('./fiat');
+const electrumJSCore = require('./electrumjs.core.js');
 
 const PRICES_UPDATE_INTERVAL = 20000; // every 20s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
@@ -41,13 +45,6 @@ for (let i = 0; i < 25; i++) { // up to 25 blocks waiting time
   btcFeeBlocks.push(i);
 }
 
-const getRandomIntInclusive = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  return Math.floor(Math.random() * (max - min + 1)) + min; // the maximum is inclusive and the minimum is inclusive
-}
-
 for (let key in config.electrumServers) {
   if (electrumCoins[key.toUpperCase()]) {
     electrumServers.push({
@@ -66,8 +63,8 @@ for (let key in config.electrumServersExtend) {
   }
 }
 
-module.exports = (shepherd) => {
-  shepherd.mm = {
+module.exports = (api) => {
+  api.mm = {
     prices: {},
     orders: {},
     ordersUpdateInProgress: false,
@@ -89,7 +86,7 @@ module.exports = (shepherd) => {
     userpass: USERPASS,
   };
 
-  shepherd.getRates = () => {
+  api.getRates = () => {
     const _getRates = () => {
       const options = {
         url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,${fiat.join(',')}`,
@@ -103,37 +100,37 @@ module.exports = (shepherd) => {
             response.statusCode &&
             response.statusCode === 200) {
           const _parsedBody = JSON.parse(body);
-          shepherd.log(`rates ${body}`);
-          shepherd.mm.fiatRates = {
+          api.log(`rates ${body}`);
+          api.mm.fiatRates = {
             BTC: _parsedBody.BTC,
             USD: _parsedBody.USD,
           };
-          shepherd.mm.fiatRatesAll =_parsedBody;
+          api.mm.fiatRatesAll =_parsedBody;
         } else {
-          shepherd.log('unable to retrieve KMD/BTC,USD rate');
+          api.log('unable to retrieve KMD/BTC,USD rate');
         }
       });
     }
 
     _getRates();
-    shepherd.mmRatesInterval = setInterval(() => {
+    api.mmRatesInterval = setInterval(() => {
       _getRates();
     }, RATES_UPDATE_INTERVAL);
   }
 
   // get kmd rates
-  shepherd.get('/rates/kmd', (req, res, next) => {
+  api.get('/rates/kmd', (req, res, next) => {
     const _currency = req.query.currency;
-    let _resp = shepherd.mm.fiatRates;
+    let _resp = api.mm.fiatRates;
 
     if (_currency &&
-        shepherd.mm.fiatRatesAll[_currency.toUpperCase()]) {
+        api.mm.fiatRatesAll[_currency.toUpperCase()]) {
       _resp = {
-        BTC: shepherd.mm.fiatRatesAll.BTC,
-        [_currency.toUpperCase()]: shepherd.mm.fiatRatesAll[_currency.toUpperCase()],
+        BTC: api.mm.fiatRatesAll.BTC,
+        [_currency.toUpperCase()]: api.mm.fiatRatesAll[_currency.toUpperCase()],
       };
     } else if (_currency === 'all' || _currency === 'ALL') {
-      _resp = shepherd.mm.fiatRatesAll;
+      _resp = api.mm.fiatRatesAll;
     }
 
     res.set({ 'Content-Type': 'application/json' });
@@ -144,11 +141,12 @@ module.exports = (shepherd) => {
   });
 
   // start coin pairs in electrum
-  shepherd.mmStartCoins = () => {
+  api.mmStartCoins = () => {
     const runElectrumStart = () => {
-      shepherd.mm.ordersUpdateInProgress = true;
       let _callsCompleted = 0;
       let _coins = [];
+
+      api.mm.ordersUpdateInProgress = true;
 
       async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
         const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
@@ -157,7 +155,7 @@ module.exports = (shepherd) => {
           coin: electrumServerData.coin.toUpperCase(),
           ipaddr: _server[0],
           port: _server[1],
-          userpass: shepherd.mm.userpass,
+          userpass: api.mm.userpass,
         };
         const options = {
           url: 'http://localhost:7783',
@@ -171,28 +169,28 @@ module.exports = (shepherd) => {
               response.statusCode &&
               response.statusCode === 200) {
             const _parsedBody = JSON.parse(body);
-            shepherd.log(`${_payload.coin} connected`);
+            api.log(`${_payload.coin} connected`);
 
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === electrumServers.length) {
-              shepherd.log('all coins connected');
+              api.log('all coins connected');
             }
           } else {
-            shepherd.log(`${_payload.coin} failed to connect`);
+            api.log(`${_payload.coin} failed to connect`);
 
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === electrumServers.length) {
-              shepherd.log('all coins connected');
+              api.log('all coins connected');
             }
           }
         });
       }, err => {
         if (err) {
-          shepherd.log(err.message);
+          api.log(err.message);
         }
         // do some
       });
@@ -201,11 +199,12 @@ module.exports = (shepherd) => {
   };
 
   // start orderbooks
-  shepherd.mmOrderbooksStart = () => {
+  api.mmOrderbooksStart = () => {
     const runOrdersUpdate = () => {
-      shepherd.mm.ordersUpdateInProgress = true;
       let _orders = [];
       let _callsCompleted = 0;
+
+      api.mm.ordersUpdateInProgress = true;
 
       async.eachOfSeries(kmdPairs, (value, key, callback) => {
         const _pair = value.split('/');
@@ -213,7 +212,7 @@ module.exports = (shepherd) => {
           method: 'orderbook',
           base: _pair[0],
           rel: _pair[1],
-          userpass: shepherd.mm.userpass,
+          userpass: api.mm.userpass,
           duration: 172800, // 2 days
         };
         const options = {
@@ -234,16 +233,16 @@ module.exports = (shepherd) => {
               data: _parsedBody,
               payload: _payload,
             });
-            shepherd.log(`${value} / ${key}`);
+            api.log(`${value} / ${key}`);
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === kmdPairs.length) {
-              shepherd.log('done');
-              shepherd.mm.orders = shepherd.filterOrderbook(_orders);
+              api.log('done');
+              api.mm.orders = api.filterOrderbook(_orders);
 
               setTimeout(() => {
-                shepherd.mm.ordersUpdateInProgress = false;
+                api.mm.ordersUpdateInProgress = false;
                 runOrdersUpdate();
               }, 10000);
             }
@@ -253,16 +252,16 @@ module.exports = (shepherd) => {
               data: `unable to call method ${_payload.method} at port 7783`,
               payload: _payload,
             });
-            shepherd.log(`${value} / ${key}`);
+            api.log(`${value} / ${key}`);
             callback();
             _callsCompleted++;
 
             if (_callsCompleted === kmdPairs.length) {
-              shepherd.log('done');
-              shepherd.mm.orders = shepherd.filterOrderbook(_orders);
+              api.log('done');
+              api.mm.orders = api.filterOrderbook(_orders);
 
               setTimeout(() => {
-                shepherd.mm.ordersUpdateInProgress = false;
+                api.mm.ordersUpdateInProgress = false;
                 runOrdersUpdate();
               }, 10000);
             }
@@ -270,7 +269,7 @@ module.exports = (shepherd) => {
         });
       }, err => {
         if (err) {
-          shepherd.log(err.message);
+          api.log(err.message);
         }
         // do some
       });
@@ -278,11 +277,11 @@ module.exports = (shepherd) => {
     runOrdersUpdate();
   };
 
-  shepherd.mmPricesStart = () => {
+  api.mmPricesStart = () => {
     const runPricesUpdate = () => {
       const _payload = {
         method: 'getprices',
-        userpass: shepherd.mm.userpass,
+        userpass: api.mm.userpass,
       };
       const options = {
         url: 'http://localhost:7783',
@@ -295,10 +294,10 @@ module.exports = (shepherd) => {
             response.statusCode &&
             response.statusCode === 200) {
           const _parsedBody = JSON.parse(body);
-          shepherd.log('prices updated');
-          shepherd.mm.prices = shepherd.pricesPairs(_parsedBody);
+          api.log('prices updated');
+          api.mm.prices = api.pricesPairs(_parsedBody);
         } else {
-          shepherd.mm.prices = 'error';
+          api.mm.prices = 'error';
         }
       });
     };
@@ -309,7 +308,7 @@ module.exports = (shepherd) => {
     }, PRICES_UPDATE_INTERVAL);
   };
 
-  shepherd.pricesPairs = (prices) => {
+  api.pricesPairs = (prices) => {
     let _prices = {};
     let _pairDiv = {};
     let _allCoinPrices = {};
@@ -344,7 +343,7 @@ module.exports = (shepherd) => {
     return _res;
   }
 
-  shepherd.filterOrderbook = (orderbook) => {
+  api.filterOrderbook = (orderbook) => {
     let _filteredResults = {};
 
     for (let i = 0; i < orderbook.length; i++) {
@@ -358,48 +357,48 @@ module.exports = (shepherd) => {
   }
 
   // fetch orderbooks
-  shepherd.get('/mm/orderbook', (req, res, next) => {
+  api.get('/mm/orderbook', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.mm.orders,
+      result: api.mm.orders,
     }));
   });
 
   // fetch prices
-  shepherd.get('/mm/prices', (req, res, next) => {
+  api.get('/mm/prices', (req, res, next) => {
     const _currency = req.query.currency;
     const _coin = req.query.coin;
-    let _resp = shepherd.mm.prices;
+    let _resp = api.mm.prices;
 
     if (_coin) {
       _resp = {};
 
-      if (shepherd.mm.prices[`KMD/${_coin.toUpperCase()}`]) {
-        _resp[`KMD/${_coin.toUpperCase()}`] = shepherd.mm.prices[`KMD/${_coin.toUpperCase()}`];
+      if (api.mm.prices[`KMD/${_coin.toUpperCase()}`]) {
+        _resp[`KMD/${_coin.toUpperCase()}`] = api.mm.prices[`KMD/${_coin.toUpperCase()}`];
       }
-      if (shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`]) {
-        _resp[`${_coin.toUpperCase()}/KMD`] = shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`];
+      if (api.mm.prices[`${_coin.toUpperCase()}/KMD`]) {
+        _resp[`${_coin.toUpperCase()}/KMD`] = api.mm.prices[`${_coin.toUpperCase()}/KMD`];
       }
     }
 
     if (_currency &&
-        shepherd.mm.fiatRatesAll[_currency.toUpperCase()] &&
-        shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`]) {
+        api.mm.fiatRatesAll[_currency.toUpperCase()] &&
+        api.mm.prices[`${_coin.toUpperCase()}/KMD`]) {
       _resp = {
         [_currency.toUpperCase()]: {
-          low: Number(shepherd.mm.fiatRatesAll[_currency.toUpperCase()] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].low).toFixed(8),
-          avg: Number(shepherd.mm.fiatRatesAll[_currency.toUpperCase()] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].avg).toFixed(8),
-          high: Number(shepherd.mm.fiatRatesAll[_currency.toUpperCase()] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].high).toFixed(8),
+          low: Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${_coin.toUpperCase()}/KMD`].low).toFixed(8),
+          avg: Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${_coin.toUpperCase()}/KMD`].avg).toFixed(8),
+          high: Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${_coin.toUpperCase()}/KMD`].high).toFixed(8),
         }
       };
     } else if (_currency === 'all' || _currency === 'ALL') {
-      for (let key in shepherd.mm.fiatRatesAll) {
+      for (let key in api.mm.fiatRatesAll) {
         if (key !== 'BTC') {
           _resp[key] = {
-            low: Number(shepherd.mm.fiatRatesAll[key] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].low).toFixed(8),
-            avg: Number(shepherd.mm.fiatRatesAll[key] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].avg).toFixed(8),
-            high: Number(shepherd.mm.fiatRatesAll[key] * shepherd.mm.prices[`${_coin.toUpperCase()}/KMD`].high).toFixed(8),
+            low: Number(api.mm.fiatRatesAll[key] * api.mm.prices[`${_coin.toUpperCase()}/KMD`].low).toFixed(8),
+            avg: Number(api.mm.fiatRatesAll[key] * api.mm.prices[`${_coin.toUpperCase()}/KMD`].avg).toFixed(8),
+            high: Number(api.mm.fiatRatesAll[key] * api.mm.prices[`${_coin.toUpperCase()}/KMD`].high).toFixed(8),
           }
         }
       }
@@ -412,8 +411,8 @@ module.exports = (shepherd) => {
     }));
   });
 
-  shepherd.getMMCoins = () => {
-    const coinsFileLocation = path.join(__dirname, '../../bdexCoins.json');
+  api.getMMCoins = () => {
+    const coinsFileLocation = path.join(__dirname, '../bdexCoins.json');
     let coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
 
     for (let i = 0; i < coinsFile.length; i++) {
@@ -423,18 +422,18 @@ module.exports = (shepherd) => {
       }
     }
 
-    shepherd.mm.coins = coinsFile;
+    api.mm.coins = coinsFile;
   }
 
-  shepherd.get('/mm/coins', (req, res, next) => {
+  api.get('/mm/coins', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.mm.coins,
+      result: api.mm.coins,
     }));
   });
 
-  shepherd.updateStats = () => {
+  api.updateStats = () => {
     const runStatsUpdate = () => {
       const statsSource = fs.readFileSync('stats.log', 'utf-8');
       const _lines = statsSource.split('\n');
@@ -484,7 +483,7 @@ module.exports = (shepherd) => {
         } catch (e) {}
       }
 
-      shepherd.mm.stats = {
+      api.mm.stats = {
         detailed: _outDetailed,
         simplified: _outSimplified,
       };
@@ -496,28 +495,28 @@ module.exports = (shepherd) => {
     }, STATS_UPDATE_INTERVAL);
   };
 
-  shepherd.get('/mm/stats', (req, res, next) => {
+  api.get('/mm/stats', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.mm.stats.detailed,
+      result: api.mm.stats.detailed,
     }));
   });
 
-  shepherd.get('/mm/stats/simple', (req, res, next) => {
+  api.get('/mm/stats/simple', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.mm.stats.simplified,
+      result: api.mm.stats.simplified,
     }));
   });
 
-  shepherd.getBTCElectrumFees = () => {
+  api.getBTCElectrumFees = () => {
     const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
-    const ecl = new shepherd.electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
     let _btcFeeEstimates = [];
 
-    shepherd.log(`btc fees server ${_randomServer.join(':')}`);
+    api.log(`btc fees server ${_randomServer.join(':')}`);
 
     ecl.connect();
     Promise.all(btcFeeBlocks.map((coin, index) => {
@@ -537,16 +536,16 @@ module.exports = (shepherd) => {
 
       if (result &&
           result.length) {
-        shepherd.mm.btcFees.electrum = _btcFeeEstimates;
+        api.mm.btcFees.electrum = _btcFeeEstimates;
       } else {
-        shepherd.mm.btcFees.electrum = 'error';
+        api.mm.btcFees.electrum = 'error';
       }
     });
   };
 
-  shepherd.getBTCFees = () => {
+  api.getBTCFees = () => {
     const _getBTCFees = () => {
-      shepherd.getBTCElectrumFees();
+      api.getBTCElectrumFees();
 
       let options = {
         url: 'https://bitcoinfees.earn.com/api/v1/fees/recommended',
@@ -561,13 +560,13 @@ module.exports = (shepherd) => {
             response.statusCode === 200) {
           try {
             const _parsedBody = JSON.parse(body);
-            shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
-            shepherd.mm.btcFees.recommended = _parsedBody;
+            api.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
+            api.mm.btcFees.recommended = _parsedBody;
           } catch (e) {
-            shepherd.log('unable to retrieve BTC fees / recommended');
+            api.log('unable to retrieve BTC fees / recommended');
           }
         } else {
-          shepherd.log('unable to retrieve BTC fees / recommended');
+          api.log('unable to retrieve BTC fees / recommended');
         }
       });
 
@@ -584,43 +583,43 @@ module.exports = (shepherd) => {
             response.statusCode === 200) {
           try {
             const _parsedBody = JSON.parse(body);
-            shepherd.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
-            shepherd.mm.btcFees.all = _parsedBody;
+            api.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
+            api.mm.btcFees.all = _parsedBody;
           } catch (e) {
-            shepherd.log('unable to retrieve BTC fees / all');
+            api.log('unable to retrieve BTC fees / all');
           }
         } else {
-          shepherd.log('unable to retrieve BTC fees / all');
+          api.log('unable to retrieve BTC fees / all');
         }
       });
     }
 
     _getBTCFees();
-    shepherd.mmRatesInterval = setInterval(() => {
+    api.mmRatesInterval = setInterval(() => {
       _getBTCFees();
     }, BTC_FEES_UPDATE_INTERVAL);
   }
 
   // get btc fees
-  shepherd.get('/btc/fees', (req, res, next) => {
+  api.get('/btc/fees', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.mm.btcFees,
+      result: api.mm.btcFees,
     }));
   });
 
   const MM_CHECK_ALIVE_INTERVAL = 30000; // every 30s
 
-  shepherd.mmloop = () => {
+  api.mmloop = () => {
     const _coins = fs.readJsonSync('coins.json', { throws: false });
 
     const mmloop = () => {
       exec('ps -A | grep "marketmaker"', (error, stdout, stderr) => {
         if (stdout.indexOf('marketmaker') === -1) {
-          shepherd.log('mm is dead, restart');
+          api.log('mm is dead, restart');
 
-          const _mmbin = path.join(__dirname, '../../marketmaker');
+          const _mmbin = path.join(__dirname, '../marketmaker');
           const _customParam = {
             gui: 'nogui',
             client: 1,
@@ -635,12 +634,12 @@ module.exports = (shepherd) => {
             maxBuffer: 1024 * 50000, // 50 mb
           }, (error, stdout, stderr) => {
             if (error !== null) {
-              shepherd.log(`exec error: ${error}`);
+              api.log(`exec error: ${error}`);
             }
           });
 
           setTimeout(() => {
-           shepherd.mmStartCoins();
+           api.mmStartCoins();
           }, 3000);
         }
       });
@@ -649,10 +648,10 @@ module.exports = (shepherd) => {
     mmloop();
 
     setTimeout(() => {
-      shepherd.mmOrderbooksStart();
+      api.mmOrderbooksStart();
     }, 10000);
     setTimeout(() => {
-      shepherd.mmPricesStart();
+      api.mmPricesStart();
     }, 13000);
 
     setInterval(() => {
@@ -662,26 +661,26 @@ module.exports = (shepherd) => {
 
   const TICKER_INTERVAL = 60 * 1000; // 60s
 
-  shepherd._ticker = () => {
+  api._ticker = () => {
     const coins = config.ticker;
 
     Promise.all(coins.map((coin, index) => {
       return new Promise((resolve, reject) => {
         if (coin === 'kmd') {
-          if (shepherd.mm.fiatRates &&
-              shepherd.mm.fiatRates.USD &&
-              shepherd.mm.fiatRates.BTC) {
-            shepherd.mm.ticker.kmd = {
-              btc: shepherd.mm.fiatRates.BTC,
-              usd: shepherd.mm.fiatRates.USD,
+          if (api.mm.fiatRates &&
+              api.mm.fiatRates.USD &&
+              api.mm.fiatRates.BTC) {
+            api.mm.ticker.kmd = {
+              btc: api.mm.fiatRates.BTC,
+              usd: api.mm.fiatRates.USD,
             };
-            shepherd.log(`kmd last price ${shepherd.mm.fiatRates.BTC} btc`);
+            api.log(`kmd last price ${api.mm.fiatRates.BTC} btc`);
           }
           resolve();
         } else {
           setTimeout(() => {
             const url = `${config.tickerUrl}/api/stats/tradesarray?base=${coin.toUpperCase()}&rel=KMD&timescale=9000&starttime=0&endtime=0&userpass=${USERPASS}`;
-            shepherd.log(`ticker ${url}`);
+            // api.log(`ticker ${url}`);
 
             const options = {
               url: url,
@@ -697,7 +696,7 @@ module.exports = (shepherd) => {
                 try {
                   _ticker = JSON.parse(body);
                 } catch (e) {
-                  shepherd.log(`unable to get ticker for ${coin}`);
+                  api.log(`unable to get ticker for ${coin}`);
                   resolve(false);
                 }
 
@@ -705,29 +704,29 @@ module.exports = (shepherd) => {
                     _ticker.length) {
                   const _lastPrice = _ticker[_ticker.length - 1][4];
 
-                  if (shepherd.mm.fiatRates &&
-                      shepherd.mm.fiatRates.USD &&
-                      shepherd.mm.fiatRates.BTC) {
-                    shepherd.mm.ticker[coin] = {
-                      btc: Number(shepherd.mm.fiatRates.BTC * _lastPrice).toFixed(8),
+                  if (api.mm.fiatRates &&
+                      api.mm.fiatRates.USD &&
+                      api.mm.fiatRates.BTC) {
+                    api.mm.ticker[coin] = {
+                      btc: Number(api.mm.fiatRates.BTC * _lastPrice).toFixed(8),
                       kmd: Number(_lastPrice).toFixed(8),
-                      usd: Number(shepherd.mm.fiatRates.USD * _lastPrice).toFixed(8),
+                      usd: Number(api.mm.fiatRates.USD * _lastPrice).toFixed(8),
                     };
                     // TODO: 32 fiat currencies
                   } else {
-                    shepherd.mm.ticker[coin] = {
+                    api.mm.ticker[coin] = {
                       kmd: Number(_lastPrice).toFixed(8),
                     };
                   }
                   resolve(true);
 
-                  shepherd.log(`${coin} last price ${_lastPrice}`);
+                  api.log(`${coin} last price ${_lastPrice}`);
                 } else {
-                  shepherd.log(`unable to get ticker for ${coin}`);
+                  api.log(`unable to get ticker for ${coin}`);
                   resolve(false);
                 }
               } else {
-                shepherd.log(`unable to get ticker for ${coin}`);
+                api.log(`unable to get ticker for ${coin}`);
                 resolve(false);
               }
             });
@@ -736,19 +735,19 @@ module.exports = (shepherd) => {
       });
     }))
     .then(result => {
-      shepherd.log('ticker update is finished');
+      api.log('ticker update is finished');
     });
   };
 
-  shepherd.ticker = () => {
-    shepherd._ticker();
+  api.ticker = () => {
+    api._ticker();
 
     setInterval(() => {
-      shepherd._ticker();
+      api._ticker();
     }, TICKER_INTERVAL);
   };
 
-  shepherd.get('/ticker', (req, res, next) => {
+  api.get('/ticker', (req, res, next) => {
     const _rqcoin = req.query.coin;
 
     if (_rqcoin) {
@@ -760,7 +759,7 @@ module.exports = (shepherd) => {
         res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           msg: 'success',
-          result: shepherd.mm.ticker[_rqcoin.toLowerCase()],
+          result: api.mm.ticker[_rqcoin.toLowerCase()],
         }));
       } else {
         res.set({ 'Content-Type': 'application/json' });
@@ -773,10 +772,10 @@ module.exports = (shepherd) => {
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         msg: 'success',
-        result: shepherd.mm.ticker,
+        result: api.mm.ticker,
       }));
     }
   });
 
-  return shepherd;
+  return api;
 };

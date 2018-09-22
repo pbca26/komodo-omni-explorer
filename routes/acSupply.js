@@ -32,6 +32,9 @@ const acSupply = {
   EQL: 500000000,
   ZILLA: 11000000,
   RFOX: 1000000000,
+  MGNX: 12465001,
+  CCL: 200000000,
+  CALL: 52500000,
 };
 
 module.exports = acSupply;

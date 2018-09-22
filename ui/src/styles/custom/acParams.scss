@@ -1,0 +1,21 @@
+.ac-params {
+  table {
+    tr {
+      td:last-child {
+        white-space: normal;
+      }
+    }
+  }
+
+  .table-coin-icon {
+    transform: scale(0.4) !important;
+    position: relative;
+    top: 9px;
+  }
+
+  .toggle {
+    position: relative;
+    top: -12px;
+    width: 126px;
+  }
+}

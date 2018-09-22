@@ -95,6 +95,16 @@
       }
     }
   }
+  &.misc {
+    width: 125px;
+
+    &:before {
+      margin-left: 72px;
+    }
+    .nav.navbar-sub {
+      width: 125px;
+    }
+  }
 }
 
 .navbar-fixed-top {

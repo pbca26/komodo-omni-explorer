@@ -161,7 +161,7 @@ class Faucet extends React.Component {
                   size="normal"
                   data-theme="dark"
                   render="explicit"
-                  sitekey="6Lf7bmUUAAAAAEdqyHVOakev8E1cfvnfHObtesiD"
+                  sitekey={ config.recaptchaKey }
                   onloadCallback={ this.onLoadRecaptcha }
                   verifyCallback={ this.verifyCallback } />
               </div>

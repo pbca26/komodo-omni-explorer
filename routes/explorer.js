@@ -1,8 +1,8 @@
-const config = require('../../config');
-const remoteExplorers = require('../../config').explorers;
-const remoteExplorersInsight = require('../../config').insight;
-const _electrumServers = require('../../config').electrumServers;
-const { komodoParams } = require('../../config');
+const config = require('../config');
+const remoteExplorers = require('../config').explorers;
+const remoteExplorersInsight = require('../config').insight;
+const _electrumServers = require('../config').electrumServers;
+const { komodoParams } = require('../config');
 const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
 const request = require('request');
 const fs = require('fs-extra');
@@ -12,8 +12,10 @@ const { komodoInterest } = require('agama-wallet-lib');
 const {
   toSats,
   fromSats,
+  getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 const acSupply = require('./acSupply');
+const electrumJSCore = require('./electrumjs.core.js');
 
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
@@ -41,13 +43,6 @@ for (let key in _electrumServers) {
     coin: key,
     serverList: _electrumServers[key].serverList,
   });
-}
-
-const getRandomIntInclusive = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  return Math.floor(Math.random() * (max - min + 1)) + min; // the maximum is inclusive and the minimum is inclusive
 }
 
 const sortByDate = (data, sortKey) => {
@@ -78,16 +73,16 @@ const sortTransactions = (transactions) => {
   });
 }
 
-module.exports = (shepherd) => {
-  shepherd.get('/explorer/summary', (req, res, next) => {
+module.exports = (api) => {
+  api.get('/explorer/summary', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.explorer.summary,
+      result: api.explorer.summary,
     }));
   });
 
-  shepherd.get('/explorer/supply', (req, res, next) => {
+  api.get('/explorer/supply', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
@@ -95,7 +90,7 @@ module.exports = (shepherd) => {
     }));
   });
 
-  shepherd.getSummary = () => {
+  api.getSummary = () => {
     const _getSummary = () => {
       let remoteExplorersFinished = {};
 
@@ -108,7 +103,7 @@ module.exports = (shepherd) => {
 
           setTimeout(() => {
             if (!remoteExplorersFinished[coin]) {
-              shepherd.log(`summary ${coin} is stuck, cancel req`);
+              api.log(`summary ${coin} is stuck, cancel req`);
               resolve({
                 coin,
                 result: 'unable to get summary',
@@ -149,7 +144,7 @@ module.exports = (shepherd) => {
         // run insight explorers
         Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
           return new Promise((resolve, reject) => {
-            shepherd.log(`insight summary ${coin}`);
+            api.log(`insight summary ${coin}`);
 
             const options = {
               url: `${remoteExplorersInsight[coin].url}/status?q=getInfo`,
@@ -158,7 +153,7 @@ module.exports = (shepherd) => {
 
             setTimeout(() => {
               if (!_remoteExplorersFinished[coin]) {
-                shepherd.log(`summary ${coin} is stuck, cancel req`);
+                api.log(`summary ${coin} is stuck, cancel req`);
                 resolve({
                   coin,
                   result: 'unable to get summary',
@@ -200,18 +195,18 @@ module.exports = (shepherd) => {
         .then(__result => {
           if (result &&
               result.length) {
-            const summaryFileLocation = path.join(__dirname, '../../summary.json');
+            const summaryFileLocation = path.join(__dirname, '../summary.json');
 
             fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
               if (err) {
-                shepherd.log(`error updating summary cache file ${err}`);
+                api.log(`error updating summary cache file ${err}`);
               } else {
                 const summaryFile = fs.readJsonSync(summaryFileLocation, { throws: false });
                 let items = [];
 
-                shepherd.explorer.summary = summaryFile;
+                api.explorer.summary = summaryFile;
 
-                shepherd.log('explorer summary updated');
+                api.log('explorer summary updated');
               }
             });
           }
@@ -225,21 +220,21 @@ module.exports = (shepherd) => {
     }, SUMMARY_UPDATE_INTERVAL);
   }
 
-  shepherd.get('/explorer/overview', (req, res, next) => {
+  api.get('/explorer/overview', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: shepherd.explorer.overview,
+      result: api.explorer.overview,
     }));
   });
 
-  shepherd.insightLastTransactions = (coin) => {
+  api.insightLastTransactions = (coin) => {
     return new Promise((resolveMain, rejectMain) => {
       const options = {
         url: `${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`,
         method: 'GET',
       };
-      // shepherd.log(`${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`);
+      // api.log(`${config.insight[coin].url}/blocks?limit=${config.insight.maxTxLength}`);
 
       request(options, (error, response, body) => {
         if (response &&
@@ -248,15 +243,15 @@ module.exports = (shepherd) => {
           try {
             const _blocks = JSON.parse(body).blocks;
             let _txs = [];
-            // shepherd.log(JSON.stringify(_blocks));
+            // api.log(JSON.stringify(_blocks));
 
             if (_blocks &&
                 _blocks.length) {
               Promise.all(_blocks.map((block, index) => {
                 return new Promise((resolve, reject) => {
                   setTimeout(() => {
-                    // shepherd.log(`insight ${index}`);
-                    // shepherd.log(`${config.insight[coin].url}/api/txs?block=${block.hash}`);
+                    // api.log(`insight ${index}`);
+                    // api.log(`${config.insight[coin].url}/api/txs?block=${block.hash}`);
 
                     const options = {
                       url: `${config.insight[coin].url}/txs?block=${block.hash}`,
@@ -273,7 +268,7 @@ module.exports = (shepherd) => {
                           if (txs &&
                               txs.txs) {
                             txs = txs.txs;
-                            // shepherd.log(txs);
+                            // api.log(txs);
 
                             for (let i = 0; i < txs.length; i++) {
                               _txs.push({
@@ -288,15 +283,15 @@ module.exports = (shepherd) => {
                               resolve(true);
                             }
                           } else {
-                            shepherd.log(`unable to get txs in ${coin} block ${block.height}`);
+                            api.log(`unable to get txs in ${coin} block ${block.height}`);
                             resolve(false);
                           }
                         } catch (e) {
-                          shepherd.log(`unable to get txs in ${coin} block ${block.height}`);
+                          api.log(`unable to get txs in ${coin} block ${block.height}`);
                           resolve(false);
                         }
                       } else {
-                        shepherd.log(`unable to get txs in ${coin} block ${block.height}`);
+                        api.log(`unable to get txs in ${coin} block ${block.height}`);
                         resolve(false);
                       }
                     });
@@ -304,8 +299,8 @@ module.exports = (shepherd) => {
                 });
               }))
               .then(result => {
-                shepherd.log(`insight ${coin} last txs is finished, total txs ${_txs.length}`);
-                // shepherd.log(JSON.stringify(_txs));
+                api.log(`insight ${coin} last txs is finished, total txs ${_txs.length}`);
+                // api.log(JSON.stringify(_txs));
 
                 resolveMain({
                   coin,
@@ -320,27 +315,27 @@ module.exports = (shepherd) => {
                 coin,
                 result: 'unable to get lasttx',
               });
-              shepherd.log(`unable to get insight last blocks for ${coin}`);
+              api.log(`unable to get insight last blocks for ${coin}`);
             }
           } catch (e) {
             resolveMain({
               coin,
               result: 'unable to get lasttx',
             });
-            shepherd.log(`unable to get insight last blocks for ${coin}`);
+            api.log(`unable to get insight last blocks for ${coin}`);
           }
         } else {
           resolveMain({
             coin,
             result: 'unable to get lasttx',
           });
-          shepherd.log(`unable to get insight last blocks for ${coin}`);
+          api.log(`unable to get insight last blocks for ${coin}`);
         }
       });
     });
   };
 
-  shepherd.getOverview = () => {
+  api.getOverview = () => {
     const _getOverview = () => {
       let remoteExplorersFinished = {};
 
@@ -353,7 +348,7 @@ module.exports = (shepherd) => {
 
           setTimeout(() => {
             if (!remoteExplorersFinished[coin]) {
-              shepherd.log(`overview ${coin} is stuck, cancel req`);
+              api.log(`overview ${coin} is stuck, cancel req`);
               resolve({
                 coin,
                 result: 'unable to get lasttx',
@@ -367,13 +362,13 @@ module.exports = (shepherd) => {
             if (response &&
                 response.statusCode &&
                 response.statusCode === 200) {
-              shepherd.log(`overview got lasttx for ${coin}`);
+              api.log(`overview got lasttx for ${coin}`);
               resolve({
                 coin,
                 result: body,
               });
             } else {
-              shepherd.log(`overview unable to get lasttx for ${coin}`);
+              api.log(`overview unable to get lasttx for ${coin}`);
               resolve({
                 coin,
                 result: 'unable to get lasttx',
@@ -385,18 +380,18 @@ module.exports = (shepherd) => {
       .then(_result => {
         let result = _result;
 
-        shepherd.log('overview executed');
+        api.log('overview executed');
 
         if (result &&
             result.length) {
-          const overviewFileLocation = path.join(__dirname, '../../overview.json');
+          const overviewFileLocation = path.join(__dirname, '../overview.json');
 
           // run insight explorers
           Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
             return new Promise((resolve, reject) => {
-              shepherd.log(`insight overview ${coin}`);
+              api.log(`insight overview ${coin}`);
 
-              shepherd.insightLastTransactions(coin)
+              api.insightLastTransactions(coin)
               .then((res) => {
                 result.push(res);
                 resolve();
@@ -406,7 +401,7 @@ module.exports = (shepherd) => {
           .then(__result => {
             fs.writeFile(overviewFileLocation, JSON.stringify({ result }), (err) => {
               if (err) {
-                shepherd.log(`error updating overview cache file ${err}`);
+                api.log(`error updating overview cache file ${err}`);
               } else {
                 const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
 
@@ -415,7 +410,7 @@ module.exports = (shepherd) => {
                   const resSizeLimit = 1000;
                   let items = [];
 
-                  shepherd.log(`tracking ${overviewFile.result.length} coin explorers`);
+                  api.log(`tracking ${overviewFile.result.length} coin explorers`);
 
                   for (let i = 0; i < overviewFile.result.length; i++) {
                     try {
@@ -437,9 +432,9 @@ module.exports = (shepherd) => {
                   items = sortByDate(items, 'timestamp');
                   items = items.slice(0, resSizeLimit + 1);
 
-                  shepherd.explorer.overview = items;
+                  api.explorer.overview = items;
 
-                  shepherd.log(`explorer overview updated at ${Date.now()}`);
+                  api.log(`explorer overview updated at ${Date.now()}`);
                 }
               }
             });
@@ -454,7 +449,7 @@ module.exports = (shepherd) => {
     }, OVERVIEW_UPDATE_INTERVAL);
   }
 
-  shepherd.get('/explorer/search', (req, res, next) => {
+  api.get('/explorer/search', (req, res, next) => {
     const _searchTerm = req.query.term;
 
     if (_searchTerm.length === 64) {
@@ -465,15 +460,15 @@ module.exports = (shepherd) => {
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[0].split(':');
-          const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+          const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
 
           ecl.connect();
           ecl.blockchainTransactionGet(req.query.term)
           .then((_rawtxJSON) => {
             ecl.close();
 
-            // shepherd.log(`search ${req.query.term} in ${electrumServerData.coin}`);
-            // shepherd.log(_rawtxJSON);
+            // api.log(`search ${req.query.term} in ${electrumServerData.coin}`);
+            // api.log(_rawtxJSON);
 
             if (_rawtxJSON &&
                 !_rawtxJSON.status &&
@@ -512,7 +507,7 @@ module.exports = (shepherd) => {
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-          const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+          const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
 
           setTimeout(() => {
             if (!_finishedBalanceCalls[electrumServerData.coin.toUpperCase()]) {
@@ -567,7 +562,7 @@ module.exports = (shepherd) => {
             if (_finishedBalanceCalls[electrumServerData.coin.toUpperCase()] !== 'error') {
               return new Promise((resolve, reject) => {
                 const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-                const ecl = new shepherd.electrumJSCore(_server[1], _server[0], 'tcp');
+                const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
                 const MAX_TX = 20;
 
                 ecl.connect();
@@ -634,9 +629,9 @@ module.exports = (shepherd) => {
     }
   });
 
-  shepherd.get('/kmd/rewards', (req, res, next) => {
+  api.get('/kmd/rewards', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
-    const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
     ecl.connect();
     ecl.blockchainAddressGetBalance(req.query.address)
@@ -747,7 +742,7 @@ module.exports = (shepherd) => {
     });
   });
 
-  shepherd.electrumGetCurrentBlock = (ecl) => {
+  api.electrumGetCurrentBlock = (ecl) => {
     return new Promise((resolve, reject) => {
       ecl.blockchainHeadersSubscribe()
       .then((json) => {
@@ -760,7 +755,7 @@ module.exports = (shepherd) => {
     });
   }
 
-  shepherd.listunspent = (ecl, address, network) => {
+  api.listunspent = (ecl, address, network) => {
     let _atLeastOneDecodeTxFailed = false;
 
     return new Promise((resolve, reject) => {
@@ -772,7 +767,7 @@ module.exports = (shepherd) => {
           let formattedUtxoList = [];
           let _utxo = [];
 
-          shepherd.electrumGetCurrentBlock(ecl)
+          api.electrumGetCurrentBlock(ecl)
           .then((currentHeight) => {
             if (currentHeight &&
                 Number(currentHeight) > 0) {
@@ -853,12 +848,12 @@ module.exports = (shepherd) => {
     });
   }
 
-  shepherd.get('/kmd/listunspent', (req, res, next) => {
+  api.get('/kmd/listunspent', (req, res, next) => {
     const network = 'komodo';
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
-    const ecl = new shepherd.electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
-    shepherd.listunspent(
+    api.listunspent(
       ecl,
       req.query.address,
       network
@@ -874,7 +869,7 @@ module.exports = (shepherd) => {
     });
   });
 
-  shepherd.get('/timestamp/now', (req, res, next) => {
+  api.get('/timestamp/now', (req, res, next) => {
     const retObj = {
       msg: 'success',
       result: Date.now(),
@@ -884,5 +879,5 @@ module.exports = (shepherd) => {
     res.end(JSON.stringify(retObj));
   });
 
-  return shepherd;
+  return api;
 };

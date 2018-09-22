@@ -27,7 +27,7 @@
     "coinselect": "github:bitcoinjs/coinselect",
     "compression": "^1.7.2",
     "express": "^4.14.0",
-    "fs-extra": "^4.0.3",
-    "request": "^2.80.0"
+    "fs-extra": "^7.0.0",
+    "request": "^2.88.0"
   }
 }

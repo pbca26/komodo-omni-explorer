@@ -237,16 +237,20 @@ class Client {
   }
 
   onMessage(body, n) {
-    const msg = JSON.parse(body);
+    try {
+      const msg = JSON.parse(body);
 
-    if (msg instanceof Array) {
-      // don't support batch request
-    } else {
-      if (msg.id !== void 0) {
-        this.response(msg);
+      if (msg instanceof Array) {
+        // don't support batch request
       } else {
-        this.subscribe.emit(msg.method, msg.params);
+        if (msg.id !== void 0) {
+          this.response(msg);
+        } else {
+          this.subscribe.emit(msg.method, msg.params);
+        }
       }
+    } catch (e) {
+      console.log('electrumjs.core parse error: ' + e);
     }
   }
 

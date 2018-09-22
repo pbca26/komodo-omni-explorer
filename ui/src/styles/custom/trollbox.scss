@@ -1,0 +1,48 @@
+.trollbox {
+  margin-bottom: 40px;
+
+  .char-limit {
+    padding-top: 5px;
+    display: block;
+    text-align: right;
+  }
+
+  h4 {
+    margin-bottom: 20px
+  }
+
+  .col-md-7 {
+    margin: 0 auto;
+    float: none;
+  }
+
+  .trollbox-history {
+    height: 50vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: solid 1px rgba(0, 0, 0, 0.1);
+
+    .trollbox-history-item {
+      margin-bottom: 25px;
+    }
+  }
+
+  .trollbox-history-item-header {
+    .left {
+      display: inline-block;
+      text-align: left;
+      width: 50%;
+    }
+    .right {
+      display: inline-block;
+      text-align: right;
+      width: 50%;
+    }
+  }
+
+  .trollbox-history-item-content {
+    margin-top: 5px;
+  }
+}

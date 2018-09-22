@@ -115,7 +115,10 @@ const LANG_EN = {
     COINS: 'Coins',
     TRADES: 'Trades',
     FAUCET: 'Faucet',
+    MISC: 'Extras',
     WEB_WALLET: 'Web wallet',
+    TROLLBOX: 'Trollbox',
+    AC_PARAMS: 'AC Params',
   },
   OVERVIEW: {
     COIN: 'Coin',
@@ -162,6 +165,21 @@ const LANG_EN = {
     SUPPLY: 'Supply',
     CONN: 'Connections',
     LINK: 'Link',
+  },
+  TROLLBOX: {
+    TROLLBOX: 'Trollbox (KV)',
+    SAY_SOMETHING: 'Say something',
+    YOUR_NAME_OPTIONAL: 'Your name (optional)',
+    SUCCESS: 'Success! Your post will show up soon.',
+    SEND: 'Send',
+    TOO_LONG: 'too long',
+    CHAR_LEFT: 'char left',
+    CHARS_LEFT: 'chars left',
+  },
+  AC_PARAMS: {
+    PARAMS: 'Params',
+    VERUS_INFO: 'Requires a separate daemon that\'s a fork of komodo',
+    WINDOWS: 'Windows',
   },
 };
 

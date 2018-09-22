@@ -16,9 +16,17 @@ import {
   COINS,
   STATS,
   MULTI_ADDRESS_BALANCE,
+  TROLLBOX,
 } from './storeType';
 
 const apiUrl = `${config.https ? 'https' : 'http'}://${config.apiUrl}/api`;
+
+export const trollboxState = (history) => {
+  return {
+    type: TROLLBOX,
+    history,
+  }
+}
 
 export const multiAddressBalanceState = (balanceMulti) => {
   return {
@@ -109,6 +117,25 @@ export const statsState = (stats) => {
   return {
     type: STATS,
     stats,
+  }
+}
+
+export const getTrollboxHistory = (currentState) => {
+  return dispatch => {
+    return fetch(`${apiUrl}/kv/history`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(trollboxState(json.result));
+
+      if (!currentState) {
+        dispatch(trollboxState(json.result));
+      }
+    });
   }
 }
 
@@ -371,4 +398,30 @@ export const multiAddressBalance = (addressList, fallback) => {
       }
     });
   }
+}
+
+export const trollboxSend = (title, content) => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${apiUrl}/kv/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(title ? {
+          title,
+          content
+        } : {
+          content,
+        }),
+      }
+    )
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      resolve(json);
+    });
+  });
 }

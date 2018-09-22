@@ -11,3 +11,4 @@ export const FIAT = 'FIAT';
 export const COINS = 'COINS';
 export const STATS = 'STATS';
 export const MULTI_ADDRESS_BALANCE = 'MULTI_ADDRESS_BALANCE'
+export const TROLLBOX = 'TROLLBOX';
