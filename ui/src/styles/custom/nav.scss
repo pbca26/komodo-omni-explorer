@@ -95,6 +95,14 @@
       }
     }
   }
+  &.misc {
+    &:before {
+      margin-left: 106px;
+    }
+    .nav.navbar-sub {
+      width: 118px;
+    }
+  }
 }
 
 .navbar-fixed-top {

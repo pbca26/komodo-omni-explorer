@@ -211,15 +211,6 @@ class Main extends React.Component {
                   target="_blank"
                   className="navbar-link">Electrum</a>
               </p>
-              <Link
-                to="/trollbox"
-                className="navbar-link pointer">
-                <img
-                  className="trollface-icon"
-                  src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/trollface.png` }
-                  alt="Trollface"
-                  height="100px" />
-              </Link>
             </div>
           </div>
         </footer>

@@ -294,6 +294,35 @@ class Navigation extends React.Component {
                   { this.renderFaucetItems() }
                 </ul>
               </li>
+              <li className={ 'navbar-sub-parent tap' + (this.isActiveMenuParent('misc') ? ' active-parent' : '') }>
+                <a className="navbar-link pointer">
+                  <span className="fa fa-folder-o"></span>
+                  <span className="menu-text">{ translate('NAVIGATION.MISC') }</span>
+                </a>
+                <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'misc' ? ' disable' : '')}>
+                  <li onClick={ () => this.disableActiveParentMenu('misc') }>
+                    <a
+                      href="https://www.atomicexplorer.com/wallet"
+                      className="navbar-link"
+                      target="_blank">
+                      <span className="fa fa-desktop"></span>
+                      <span className="menu-text">{ translate('NAVIGATION.WEB_WALLET') }</span>
+                    </a>
+                  </li>
+                  <li onClick={ () => this.disableActiveParentMenu('misc') }>
+                    <Link
+                      to="/trollbox"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <img
+                        src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/trollface.png` }
+                        alt="Trollface"
+                        height="25px" />
+                      <span className="menu-text">{ translate('NAVIGATION.TROLLBOX') }</span>
+                    </Link>
+                  </li>
+                </ul>
+              </li>
               <li>
                 <a
                   href="https://www.atomicexplorer.com/wallet"

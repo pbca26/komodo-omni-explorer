@@ -115,7 +115,10 @@ const LANG_EN = {
     COINS: 'Coins',
     TRADES: 'Trades',
     FAUCET: 'Faucet',
+    MISC: 'Misc.',
     WEB_WALLET: 'Web wallet',
+    TROLLBOX: 'Trollbox',
+    AC_PARAMS: 'AC Params',
   },
   OVERVIEW: {
     COIN: 'Coin',

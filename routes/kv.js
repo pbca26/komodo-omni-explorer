@@ -5,8 +5,6 @@ const path = require('path');
 const Promise = require('bluebird');
 const async = require('async');
 const bitcoin = require('bitcoinjs-lib');
-const coinSelect = require('coinselect');
-const { checkTimestamp } = require('agama-wallet-lib/src/time');
 const {
   toSats,
   fromSats,
