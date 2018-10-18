@@ -162,6 +162,8 @@ const explorers = sortObject({
     'https://ccl.kmdexplorer.io',
   ],
   PIRATE: 'http://pirate.explorer.dexstats.info',
+  DION: 'https://explorer.dionpay.com',
+  KOIN: 'http://3.0.32.41:3001',
 });
 
 export default explorers;
