@@ -6,7 +6,7 @@ const {
 
 const _config = {
   isDev: true,
-  debug: false,
+  debug: true,
   https: false,
   ip: 'localhost',
   port: 8115,
@@ -246,8 +246,8 @@ const electrumServers = () => {
 
   for (let i = 0; i < _config.electrumServers.length; i++) {
     if (eservers &&
-        [_config.electrumServers[i]] &&
-        [_config.electrumServers[i]].serverList) {
+        eservers[_config.electrumServers[i]] &&
+        eservers[_config.electrumServers[i]].serverList) {
       config.electrumServers[_config.electrumServers[i]] = {
         serverList: eservers[_config.electrumServers[i]].serverList,
       };

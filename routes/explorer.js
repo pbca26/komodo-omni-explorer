@@ -797,9 +797,11 @@ module.exports = (api) => {
                       } else {
                         let interest = 0;
 
-                        if (Number(fromSats(_utxoItem.value)) >= 10 &&
-                            decodedTx.format.locktime > 0) {
-                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
+                        if (network === 'kmd') {
+                          if (Number(fromSats(_utxoItem.value)) >= 10 &&
+                              decodedTx.format.locktime > 0) {
+                            interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
+                          }
                         }
 
                         let _resolveObj = {
@@ -813,6 +815,11 @@ module.exports = (api) => {
                           interestSats: Math.floor(toSats(interest)),
                           confirmations: Number(_utxoItem.height) === 0 ? 0 : currentHeight - _utxoItem.height,
                         };
+
+                        if (network !== 'kmd') {
+                          delete _resolveObj.interest;
+                          delete _resolveObj.interestSats;
+                        }
 
                         resolve(_resolveObj);
                       }
@@ -857,6 +864,27 @@ module.exports = (api) => {
       ecl,
       req.query.address,
       network
+    )
+    .then((json) => {
+      const retObj = {
+        msg: json.code ? 'error' : 'success',
+        result: json,
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    });
+  });
+
+  api.get('/coin/listunspent', (req, res, next) => {
+    const network = req.query.coin || 'kmd';
+    const randomServer = _electrumServers[network.toLowerCase()].serverList[getRandomIntInclusive(0, 1)].split(':');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+
+    api.listunspent(
+      ecl,
+      req.query.address,
+      network.toLowerCase()
     )
     .then((json) => {
       const retObj = {
