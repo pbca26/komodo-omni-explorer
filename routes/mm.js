@@ -1,3 +1,5 @@
+// TODO: split
+
 const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
@@ -121,7 +123,7 @@ module.exports = (api) => {
               
         for (let key in _rates) {
           if (key !== 'BTC') {
-            btcFiatRates[key] = _rates[key] * btcKmdRate;
+            btcFiatRates[key] = Number(_rates[key] * btcKmdRate).toFixed(8);
           }
         }
 
@@ -140,7 +142,7 @@ module.exports = (api) => {
           _fiatRates[key] = {};
 
           for (let _key in btcFiatRates) {
-            _fiatRates[key][_key] = btcFiatRates[_key] * Number(_rates[i].priceLast);
+            _fiatRates[key][_key] = Number(btcFiatRates[_key] * Number(_rates[i].priceLast)).toFixed(8);
           }
         }
       }
@@ -157,10 +159,10 @@ module.exports = (api) => {
 
           for (let _key in btcFiatRates) {
             if (_key !== 'USD') {
-              _fiatRates[key][_key] = btcFiatRates[_key] / btcFiatRates.USD * Number(api.mm.extRates.cmc[key]);
+              _fiatRates[key][_key] = Number(btcFiatRates[_key] / btcFiatRates.USD * Number(api.mm.extRates.cmc[key])).toFixed(8);
             }
           }
-          _fiatRates[key].USD = Number(api.mm.extRates.cmc[key]);
+          _fiatRates[key].USD = Number(api.mm.extRates.cmc[key]).toFixed(8);
         }
       }
     } catch (e) {
@@ -324,7 +326,7 @@ module.exports = (api) => {
         _resp[coins.toUpperCase()] = Number(api.mm.extRates.parsed[coins.toUpperCase()][_currency.toUpperCase()]).toFixed(8);;
 
         if (_currency.toLowerCase() === 'all') {
-          _resp[coins.toUpperCase()] = Number(api.mm.extRates.parsed[coins.toUpperCase()]).toFixed(8);
+          _resp[coins.toUpperCase()] = api.mm.extRates.parsed[coins.toUpperCase()];
         }
       } else if (
         api.mm.prices[`${coins.toUpperCase()}/KMD`] &&
