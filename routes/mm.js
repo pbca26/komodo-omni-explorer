@@ -12,7 +12,7 @@ const {
 const fiat = require('./fiat');
 const electrumJSCore = require('./electrumjs.core.js');
 
-const PRICES_UPDATE_INTERVAL = 20000; // every 20s
+const PRICES_UPDATE_INTERVAL = 60000; // every 60s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
@@ -171,10 +171,11 @@ module.exports = (api) => {
   };
 
   api.getRates = () => {
-    const TIMEOUT = 2000;
+    const DP_TIMEOUT = 5000;
+    const CMC_TIMEOUT = 10000;
 
     const _getCMCRates = () => {
-      for (let i = 0; i < 2/*_cryptocompareRatesList.length*/; i++) {
+      for (let i = 0; i < _cmcRatesList.length; i++) {
         setTimeout(() => {
           api.log(`ext rates req ${i + 1} url ${_cmcRatesList[i]}`);
 
@@ -201,7 +202,7 @@ module.exports = (api) => {
               api.log('unable to retrieve cmc rate ' + _cmcRatesList[i]);
             }
           });
-        }, i * TIMEOUT);
+        }, i * CMC_TIMEOUT);
       }
     }
 
@@ -234,7 +235,7 @@ module.exports = (api) => {
               api.log('unable to retrieve digitalprice rate ' + _urls[i]);
             }
           });
-        }, i * TIMEOUT);
+        }, i * DP_TIMEOUT);
       }
     }
 
@@ -243,6 +244,7 @@ module.exports = (api) => {
         url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,${fiat.join(',')}`,
         method: 'GET',
       };
+      api.log(`ext rates req https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,${fiat.join(',')}`);
 
       // send back body on both success and error
       // this bit replicates iguana core's behaviour
