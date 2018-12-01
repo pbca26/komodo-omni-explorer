@@ -13,12 +13,14 @@ const {
 } = require('agama-wallet-lib/src/utils');
 const fiat = require('./fiat');
 const electrumJSCore = require('./electrumjs.core.js');
+const { ethGasStationRateToWei } = require('agama-wallet-lib/src/eth');
 
 const PRICES_UPDATE_INTERVAL = 60000; // every 60s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
+const ETH_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const USERPASS = '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f';
 
 let electrumServers = [];
@@ -92,6 +94,7 @@ module.exports = (api) => {
       electrum: {},
       lastUpdated: null,
     },
+    ethGasPrice: {},
     ticker: {},
     userpass: USERPASS,
   };
@@ -830,7 +833,7 @@ module.exports = (api) => {
     }
 
     _getBTCFees();
-    api.mmRatesInterval = setInterval(() => {
+    api.btcFeesInterval = setInterval(() => {
       _getBTCFees();
     }, BTC_FEES_UPDATE_INTERVAL);
   }
@@ -1010,6 +1013,63 @@ module.exports = (api) => {
         result: api.mm.ticker,
       }));
     }
+  });
+
+  api.getGasPrice = () => {
+    const _getGasPrice = () => {
+      return new Promise((resolve, reject) => {
+        const options = {
+          url: 'https://ethgasstation.info/json/ethgasAPI.json',
+          method: 'GET',
+        };
+
+        api.log('ethgasstation.info gas price req');
+
+        request(options, (error, response, body) => {
+          if (response &&
+              response.statusCode &&
+              response.statusCode === 200) {
+            try {
+              const _json = JSON.parse(body);
+
+              if (_json &&
+                  _json.average &&
+                  _json.fast &&
+                  _json.safeLow) {
+                api.mm.ethGasPrice = {
+                  fast: ethGasStationRateToWei(_json.fast), // 2 min
+                  average: ethGasStationRateToWei(_json.average),
+                  slow: ethGasStationRateToWei(_json.safeLow),
+                };
+
+                resolve(api.mm.ethGasPrice);
+              } else {
+                resolve(false);
+              }
+            } catch (e) {
+              api.log('ethgasstation.info gas price req parse error');
+              api.log(e);
+            }
+          } else {
+            api.log('ethgasstation.info gas price req failed');
+          }
+        });
+      });
+    };
+
+    _getGasPrice();
+    api.ethGaspriceInterval = setInterval(() => {
+      _getGasPrice();
+    }, ETH_FEES_UPDATE_INTERVAL);
+  };
+
+  // get btc fees
+  api.get('/eth/gasprice', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: api.mm.ethGasPrice,
+    }));
   });
 
   return api;
