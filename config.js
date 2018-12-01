@@ -6,6 +6,7 @@ const {
 
 const _config = {
   isDev: true,
+  debug: true,
   https: false,
   ip: 'localhost',
   port: 8115,
@@ -94,7 +95,7 @@ const _config = {
     },
     NINJA: {
       url: 'https://ninja.kmdexplorer.io/insight-api-komodo',
-    },*/
+    },
     MGNX: {
       url: 'http://mgnx.explorer.dexstats.info/insight-api-komodo',
     },
@@ -244,9 +245,13 @@ const electrumServers = () => {
   config.electrumServersExtend = {};
 
   for (let i = 0; i < _config.electrumServers.length; i++) {
-    config.electrumServers[_config.electrumServers[i]] = {
-      serverList: eservers[_config.electrumServers[i]].serverList,
-    };
+    if (eservers &&
+        eservers[_config.electrumServers[i]] &&
+        eservers[_config.electrumServers[i]].serverList) {
+      config.electrumServers[_config.electrumServers[i]] = {
+        serverList: eservers[_config.electrumServers[i]].serverList,
+      };
+    }
   }
 
   for (let i = 0; i < _config.electrumServersExtend.length; i++) {

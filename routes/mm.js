@@ -1,3 +1,5 @@
+// TODO: split
+
 const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
@@ -11,12 +13,14 @@ const {
 } = require('agama-wallet-lib/src/utils');
 const fiat = require('./fiat');
 const electrumJSCore = require('./electrumjs.core.js');
+const { ethGasStationRateToWei } = require('agama-wallet-lib/src/eth');
 
-const PRICES_UPDATE_INTERVAL = 20000; // every 20s
+const PRICES_UPDATE_INTERVAL = 60000; // every 60s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
+const ETH_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const USERPASS = '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f';
 
 let electrumServers = [];
@@ -71,6 +75,14 @@ module.exports = (api) => {
     pricesUpdateInProgress: false,
     fiatRates: null,
     fiatRatesAll: null,
+    extRates: {
+      parsed: {},
+      digitalprice: {
+        btc: null,
+        kmd: null,
+      },
+      cmc: {},
+    },
     coins: {},
     stats: {
       detailed: {},
@@ -82,16 +94,162 @@ module.exports = (api) => {
       electrum: {},
       lastUpdated: null,
     },
+    ethGasPrice: {},
     ticker: {},
     userpass: USERPASS,
   };
 
+  api.prepCMCRatesList = () => {
+    const _rounds = 20;
+    const _bundleSize = 100;
+    let _items = [];
+
+    api.log(`cmc bundle size ${_bundleSize}, rounds ${_rounds}`);
+
+    for (let i = 0; i <= _rounds; i++) {
+      _items.push(`https://api.coinmarketcap.com/v2/ticker/?start=${i === 0 ? 0 : _bundleSize * i + 1}&limit=100&structure=array`);
+    }
+
+    return _items;
+  };
+
+  const _cmcRatesList = api.prepCMCRatesList();
+
+  api.parseExtRates = () => {
+    let btcFiatRates = {};
+    let _fiatRates = {};
+
+    try {
+      if (api.mm.fiatRatesAll) {
+        const _rates = api.mm.fiatRatesAll;
+        const btcKmdRate = 1 / _rates.BTC;
+              
+        for (let key in _rates) {
+          if (key !== 'BTC') {
+            btcFiatRates[key] = Number(_rates[key] * btcKmdRate).toFixed(8);
+          }
+        }
+
+        _fiatRates.BTC = btcFiatRates;
+      }
+    } catch (e) {
+      api.log('unable to parse cryptocompare');
+    }
+
+    try {
+      if (api.mm.extRates.digitalprice.btc) {
+        const _rates = api.mm.extRates.digitalprice.btc.data;
+
+        for (let i = 0; i < _rates.length; i++) {
+          const key = _rates[i].url.split('-')[0].toUpperCase();
+          _fiatRates[key] = {};
+
+          for (let _key in btcFiatRates) {
+            _fiatRates[key][_key] = Number(btcFiatRates[_key] * Number(_rates[i].priceLast)).toFixed(8);
+          }
+        }
+      }
+    } catch (e) {
+      api.log('unable to parse digitalprice');
+    }
+
+    try {
+      if (api.mm.extRates.cmc) {
+        const _rates = api.mm.extRates.cmc;
+
+        for (let key in _rates) {
+          _fiatRates[key] = {};
+
+          for (let _key in btcFiatRates) {
+            if (_key !== 'USD') {
+              _fiatRates[key][_key] = Number(btcFiatRates[_key] / btcFiatRates.USD * Number(api.mm.extRates.cmc[key])).toFixed(8);
+            }
+          }
+          _fiatRates[key].USD = Number(api.mm.extRates.cmc[key]).toFixed(8);
+        }
+      }
+    } catch (e) {
+      api.log('unable to parse cmc');
+    }
+
+    api.mm.extRates.parsed = _fiatRates;
+  };
+
   api.getRates = () => {
-    const _getRates = () => {
+    const DP_TIMEOUT = 5000;
+    const CMC_TIMEOUT = 10000;
+
+    const _getCMCRates = () => {
+      for (let i = 0; i < _cmcRatesList.length; i++) {
+        setTimeout(() => {
+          api.log(`ext rates req ${i + 1} url ${_cmcRatesList[i]}`);
+
+          const options = {
+            url: _cmcRatesList[i],
+            method: 'GET',
+          };
+
+          request(options, (error, response, body) => {
+            if (response &&
+                response.statusCode &&
+                response.statusCode === 200) {
+              try {
+                const _parsedBody = JSON.parse(body);
+
+                for (let i = 0; i < _parsedBody.data.length; i++) {
+                  api.mm.extRates.cmc[_parsedBody.data[i].symbol.toUpperCase()] = _parsedBody.data[i].quotes.USD.price;
+                }
+                api.parseExtRates();
+              } catch (e) {
+                api.log('unable to retrieve cmc rate ' + _cmcRatesList[i]);
+              }
+            } else {
+              api.log('unable to retrieve cmc rate ' + _cmcRatesList[i]);
+            }
+          });
+        }, i * CMC_TIMEOUT);
+      }
+    }
+
+    const _getDPRates = () => {
+      const _urls = ['https://digitalprice.io/api/markets?baseMarket=BTC'];
+
+      for (let i = 0; i < _urls.length; i++) {
+        setTimeout(() => {
+          api.log(`ext rates req ${i + 1} url ${_urls[i]}`);
+
+          const options = {
+            url: _urls[i],
+            method: 'GET',
+          };
+
+          request(options, (error, response, body) => {
+            if (response &&
+                response.statusCode &&
+                response.statusCode === 200) {
+              try {
+                const _parsedBody = JSON.parse(body);
+
+                const _prop = _urls[i].split('https://digitalprice.io/api/markets?baseMarket=');
+                api.mm.extRates.digitalprice[_prop[1].toLowerCase()] = _parsedBody;
+                api.parseExtRates();
+              } catch (e) {
+                api.log('unable to retrieve digitalprice rate ' + _urls[i]);
+              }
+            } else {
+              api.log('unable to retrieve digitalprice rate ' + _urls[i]);
+            }
+          });
+        }, i * DP_TIMEOUT);
+      }
+    }
+
+    const _getKMDRates = () => {
       const options = {
         url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,${fiat.join(',')}`,
         method: 'GET',
       };
+      api.log(`ext rates req https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,${fiat.join(',')}`);
 
       // send back body on both success and error
       // this bit replicates iguana core's behaviour
@@ -99,24 +257,104 @@ module.exports = (api) => {
         if (response &&
             response.statusCode &&
             response.statusCode === 200) {
-          const _parsedBody = JSON.parse(body);
-          api.log(`rates ${body}`);
-          api.mm.fiatRates = {
-            BTC: _parsedBody.BTC,
-            USD: _parsedBody.USD,
-          };
-          api.mm.fiatRatesAll =_parsedBody;
+          try {
+            const _parsedBody = JSON.parse(body);
+            api.mm.fiatRates = {
+              BTC: _parsedBody.BTC,
+              USD: _parsedBody.USD,
+            };
+            api.mm.fiatRatesAll = _parsedBody;
+            api.parseExtRates();
+          } catch (e) {
+            api.log('unable to retrieve cryptocompare KMD/BTC,USD rate');
+          }
         } else {
-          api.log('unable to retrieve KMD/BTC,USD rate');
+          api.log('unable to retrieve cryptocompare KMD/BTC,USD rate');
         }
       });
     }
 
-    _getRates();
+    _getKMDRates();
+    _getDPRates();
+    _getCMCRates();
     api.mmRatesInterval = setInterval(() => {
-      _getRates();
+      _getKMDRates();
+      _getDPRates();
+      _getCMCRates();
     }, RATES_UPDATE_INTERVAL);
   }
+
+  // fetch prices
+  api.get('/mm/prices/v2', (req, res, next) => {
+    let _currency = req.query.currency || 'USD';
+    const coins = req.query.coins || 'kmd';
+    let _resp = {};
+
+    if (fiat.indexOf(_currency.toUpperCase()) === -1 &&
+        _currency !== 'all') {
+      _currency = 'USD';
+    }
+
+    if (coins.indexOf(',') > -1) {
+      const _coins = coins.split(',');
+      
+      for (let i = 0; i < _coins.length; i++) {
+        if (_coins[i].length) {
+          if (api.mm.extRates.parsed[_coins[i].toUpperCase()]) {
+            _resp[_coins[i].toUpperCase()] = api.mm.extRates.parsed[_coins[i].toUpperCase()][_currency.toUpperCase()];
+
+            if (_currency.toLowerCase() === 'all') {
+              _resp[_coins[i].toUpperCase()] = api.mm.extRates.parsed[_coins[i].toUpperCase()];
+            }
+          } else if (
+            api.mm.prices[`${_coins[i].toUpperCase()}/KMD`] &&
+            api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low
+          ) {
+            _resp[_coins[i].toUpperCase()] = Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low).toFixed(8);
+            
+            if (_currency.toLowerCase() === 'all') {
+              for (let key in api.mm.fiatRatesAll) {
+                if (key !== 'BTC') {
+                  _resp[_coins[i].toUpperCase()] = {
+                    [key.toUpperCase()]: Number(api.mm.fiatRatesAll[key.toUpperCase()] * api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low).toFixed(8),
+                  };
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      if (api.mm.extRates.parsed[coins.toUpperCase()]) {
+        _resp[coins.toUpperCase()] = Number(api.mm.extRates.parsed[coins.toUpperCase()][_currency.toUpperCase()]).toFixed(8);;
+
+        if (_currency.toLowerCase() === 'all') {
+          _resp[coins.toUpperCase()] = api.mm.extRates.parsed[coins.toUpperCase()];
+        }
+      } else if (
+        api.mm.prices[`${coins.toUpperCase()}/KMD`] &&
+        api.mm.prices[`${coins.toUpperCase()}/KMD`].low
+      ) {
+        _resp[coins.toUpperCase()] = Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${coins.toUpperCase()}/KMD`].low).toFixed(8);
+        
+        if (_currency.toLowerCase() === 'all') {
+          for (let key in api.mm.fiatRatesAll) {
+            if (key !== 'BTC') {
+              _resp[coins.toUpperCase()] = {
+                [key.toUpperCase()]: Number(api.mm.fiatRatesAll[key.toUpperCase()] * api.mm.prices[`${coins.toUpperCase()}/KMD`].low).toFixed(8),
+              };
+            }
+          }
+        }
+      }
+    }
+
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: _resp,
+    }));
+  });
 
   // get kmd rates
   api.get('/rates/kmd', (req, res, next) => {
@@ -595,7 +833,7 @@ module.exports = (api) => {
     }
 
     _getBTCFees();
-    api.mmRatesInterval = setInterval(() => {
+    api.btcFeesInterval = setInterval(() => {
       _getBTCFees();
     }, BTC_FEES_UPDATE_INTERVAL);
   }
@@ -775,6 +1013,63 @@ module.exports = (api) => {
         result: api.mm.ticker,
       }));
     }
+  });
+
+  api.getGasPrice = () => {
+    const _getGasPrice = () => {
+      return new Promise((resolve, reject) => {
+        const options = {
+          url: 'https://ethgasstation.info/json/ethgasAPI.json',
+          method: 'GET',
+        };
+
+        api.log('ethgasstation.info gas price req');
+
+        request(options, (error, response, body) => {
+          if (response &&
+              response.statusCode &&
+              response.statusCode === 200) {
+            try {
+              const _json = JSON.parse(body);
+
+              if (_json &&
+                  _json.average &&
+                  _json.fast &&
+                  _json.safeLow) {
+                api.mm.ethGasPrice = {
+                  fast: ethGasStationRateToWei(_json.fast), // 2 min
+                  average: ethGasStationRateToWei(_json.average),
+                  slow: ethGasStationRateToWei(_json.safeLow),
+                };
+
+                resolve(api.mm.ethGasPrice);
+              } else {
+                resolve(false);
+              }
+            } catch (e) {
+              api.log('ethgasstation.info gas price req parse error');
+              api.log(e);
+            }
+          } else {
+            api.log('ethgasstation.info gas price req failed');
+          }
+        });
+      });
+    };
+
+    _getGasPrice();
+    api.ethGaspriceInterval = setInterval(() => {
+      _getGasPrice();
+    }, ETH_FEES_UPDATE_INTERVAL);
+  };
+
+  // get btc fees
+  api.get('/eth/gasprice', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: api.mm.ethGasPrice,
+    }));
   });
 
   return api;

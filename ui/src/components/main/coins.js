@@ -48,7 +48,7 @@ class Coins extends React.Component {
         <div className="dex-coins">
           <h4>{ translate('COINS.TOTAL_SUPPORTED_COINS') }: { this.props.Main.coins.length }</h4>
           <div className="list-a-coin">
-            <a href="https://support.supernet.org/support/solutions/articles/29000014804-how-get-your-coin-listed-on-barterdex">{ translate('COINS.HOW_TO_GET_LISTED') }</a>
+            <a href="https://docs.komodoplatform.com/barterDEX/get-listed-barterDEX.html">{ translate('COINS.HOW_TO_GET_LISTED') }</a>
           </div>
           <div className="light-mode-desc">
             <i className="fa fa-bolt"></i> - { translate('COINS.SPV_MODE') }

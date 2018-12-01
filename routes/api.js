@@ -36,6 +36,7 @@ api.start = () => {
   api.getMMCoins();
   api.updateStats();
   api.getBTCFees();
+  api.getGasPrice();
   api.ticker();
 };
 

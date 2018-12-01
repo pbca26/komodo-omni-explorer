@@ -460,7 +460,7 @@ module.exports = (api) => {
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[0].split(':');
-          const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
+          const ecl = new electrumJSCore(_server[1], _server[0], randomServer[2]);
 
           ecl.connect();
           ecl.blockchainTransactionGet(req.query.term)
@@ -507,7 +507,7 @@ module.exports = (api) => {
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
           const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-          const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
+          const ecl = new electrumJSCore(_server[1], _server[0], randomServer[2]);
 
           setTimeout(() => {
             if (!_finishedBalanceCalls[electrumServerData.coin.toUpperCase()]) {
@@ -562,7 +562,7 @@ module.exports = (api) => {
             if (_finishedBalanceCalls[electrumServerData.coin.toUpperCase()] !== 'error') {
               return new Promise((resolve, reject) => {
                 const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
-                const ecl = new electrumJSCore(_server[1], _server[0], 'tcp');
+                const ecl = new electrumJSCore(_server[1], _server[0], randomServer[2]);
                 const MAX_TX = 20;
 
                 ecl.connect();
@@ -631,7 +631,7 @@ module.exports = (api) => {
 
   api.get('/kmd/rewards', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
-    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
 
     ecl.connect();
     ecl.blockchainAddressGetBalance(req.query.address)
@@ -797,9 +797,11 @@ module.exports = (api) => {
                       } else {
                         let interest = 0;
 
-                        if (Number(fromSats(_utxoItem.value)) >= 10 &&
-                            decodedTx.format.locktime > 0) {
-                          interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
+                        if (network === 'kmd') {
+                          if (Number(fromSats(_utxoItem.value)) >= 10 &&
+                              decodedTx.format.locktime > 0) {
+                            interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
+                          }
                         }
 
                         let _resolveObj = {
@@ -813,6 +815,11 @@ module.exports = (api) => {
                           interestSats: Math.floor(toSats(interest)),
                           confirmations: Number(_utxoItem.height) === 0 ? 0 : currentHeight - _utxoItem.height,
                         };
+
+                        if (network !== 'kmd') {
+                          delete _resolveObj.interest;
+                          delete _resolveObj.interestSats;
+                        }
 
                         resolve(_resolveObj);
                       }
@@ -851,7 +858,7 @@ module.exports = (api) => {
   api.get('/kmd/listunspent', (req, res, next) => {
     const network = 'komodo';
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
-    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
 
     api.listunspent(
       ecl,
@@ -867,6 +874,101 @@ module.exports = (api) => {
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(retObj));
     });
+  });
+
+  api.get('/coin/listunspent', (req, res, next) => {
+    const network = req.query.coin || 'kmd';
+    const randomServer = _electrumServers[network.toLowerCase()].serverList[getRandomIntInclusive(0, 1)].split(':');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
+
+    api.listunspent(
+      ecl,
+      req.query.address,
+      network.toLowerCase()
+    )
+    .then((json) => {
+      const retObj = {
+        msg: json.code ? 'error' : 'success',
+        result: json,
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    });
+  });
+
+  api.post('/coin/push', (req, res, next) => {
+    const network = req.body.coin || 'kmd';
+    const rawtx = req.body.rawtx;
+    const randomServer = _electrumServers[network.toLowerCase()].serverList[getRandomIntInclusive(0, 1)].split(':');
+    const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
+
+    if (!rawtx) {
+      const retObj = {
+        msg: 'error',
+        result: 'missing rawtx param',
+      };
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else {
+      ecl.blockchainTransactionBroadcast(rawtx)
+      .then((txid) => {
+        ecl.close();
+    
+        api.log(txid);
+    
+        if (txid &&
+            txid.indexOf('bad-txns-inputs-spent') > -1) {
+          const retObj = {
+            msg: 'error',
+            result: 'Bad transaction inputs spent',
+          };
+    
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        } else {
+          if (txid &&
+              txid.length === 64) {
+            if (txid.indexOf('bad-txns-in-belowout') > -1) {
+              const retObj = {
+                msg: 'error',
+                result: 'Bad transaction inputs spent',
+              };
+    
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(retObj));
+            } else {
+              const retObj = {
+                msg: 'success',
+                result: txid,
+              };
+    
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(retObj));
+            }
+          } else {
+            if (txid &&
+                txid.indexOf('bad-txns-in-belowout') > -1) {
+              const retObj = {
+                msg: 'error',
+                result: 'Bad transaction inputs spent',
+              };
+    
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(retObj));
+            } else {
+              const retObj = {
+                msg: 'error',
+                result: 'Can\'t broadcast transaction',
+              };
+    
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(retObj));
+            }
+          }
+        }
+      });
+    }
   });
 
   api.get('/timestamp/now', (req, res, next) => {

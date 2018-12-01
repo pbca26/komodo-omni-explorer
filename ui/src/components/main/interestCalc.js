@@ -17,7 +17,7 @@ const months = [
   'Sep',
   'Oct',
   'Nov',
-  'Dec'
+  'Dec',
 ];
 
 class InterestCalc extends React.Component {
@@ -74,11 +74,11 @@ class InterestCalc extends React.Component {
       setTimeout(() => {
         if (this.state.interestBreakdownThreshold !== 'year' &&
             this.state.interestBreakdownThreshold !== 'months') {
-          interestBreakdownFrequency = 'yearly';
+          interestBreakdownFrequency = 'monthly';
         } else {
           if (this.state.interestBreakdownThreshold === 'months' &&
               (this.state.interestBreakdownFrequency === 'daily' || this.state.interestBreakdownFrequency === 'weekly')) {
-            interestBreakdownFrequency = 'yearly';
+            interestBreakdownFrequency = 'monthly';
           } else {
             interestBreakdownFrequency = this.state.interestBreakdownFrequency;
           }
@@ -399,7 +399,7 @@ class InterestCalc extends React.Component {
               ]} />
           </div>
         </div>
-        <div className="col-md-12 col-sm-12 margin-top-20">
+        <div className={ 'col-md-12 col-sm-12 margin-top-20' + (this.state.interestBreakdownThreshold !== 'year' && this.state.interestBreakdownThreshold !== 'months' ? ' hide' : '') }>
           <div className="col-md-4 col-sm-4 interest-label">
             { translate('INTEREST_CALC.I_WANT_TO_CLAIM_REWARDS') }
           </div>
@@ -422,18 +422,10 @@ class InterestCalc extends React.Component {
                   },
                 ] : this.state.interestBreakdownThreshold === 'months' ? [
                   {
-                    value: 'yearly',
-                    label: translate('INTEREST_CALC.YEARLY'),
-                  },
-                  {
                     value: 'monthly',
                     label: translate('INTEREST_CALC.MONTHLY'),
                   },
                 ] : [
-                  {
-                    value: 'yearly',
-                    label: translate('INTEREST_CALC.YEARLY'),
-                  },
                   {
                     value: 'monthly',
                     label: translate('INTEREST_CALC.MONTHLY'),
