@@ -170,8 +170,6 @@ module.exports = (api) => {
     api.mm.extRates.parsed = _fiatRates;
   };
 
-  //api.parseExtRates();
-
   api.getRates = () => {
     const TIMEOUT = 2000;
 
@@ -189,14 +187,16 @@ module.exports = (api) => {
             if (response &&
                 response.statusCode &&
                 response.statusCode === 200) {
-              const _parsedBody = JSON.parse(body);
+              try {
+                const _parsedBody = JSON.parse(body);
 
-              for (let i = 0; i < _parsedBody.data.length; i++) {
-                api.mm.extRates.cmc[_parsedBody.data[i].symbol.toUpperCase()] = _parsedBody.data[i].quotes.USD.price;
+                for (let i = 0; i < _parsedBody.data.length; i++) {
+                  api.mm.extRates.cmc[_parsedBody.data[i].symbol.toUpperCase()] = _parsedBody.data[i].quotes.USD.price;
+                }
+                api.parseExtRates();
+              } catch (e) {
+                api.log('unable to retrieve cmc rate ' + _cmcRatesList[i]);
               }
-              api.parseExtRates();
-              
-              // api.log(`cmc rates ${body}`);
             } else {
               api.log('unable to retrieve cmc rate ' + _cmcRatesList[i]);
             }
@@ -204,9 +204,40 @@ module.exports = (api) => {
         }, i * TIMEOUT);
       }
     }
-    _getCMCRates();
 
-    //       'https://digitalprice.io/api/markets?baseMarket=BTC',
+    const _getDPRates = () => {
+      const _urls = ['https://digitalprice.io/api/markets?baseMarket=BTC'];
+
+      for (let i = 0; i < _urls.length; i++) {
+        setTimeout(() => {
+          api.log(`ext rates req ${i + 1} url ${_urls[i]}`);
+
+          const options = {
+            url: _urls[i],
+            method: 'GET',
+          };
+
+          request(options, (error, response, body) => {
+            if (response &&
+                response.statusCode &&
+                response.statusCode === 200) {
+              try {
+                const _parsedBody = JSON.parse(body);
+
+                const _prop = _urls[i].split('https://digitalprice.io/api/markets?baseMarket=');
+                api.mm.extRates.digitalprice[_prop[1].toLowerCase()] = _parsedBody;
+                api.parseExtRates();
+              } catch (e) {
+                api.log('unable to retrieve digitalprice rate ' + _urls[i]);
+              }
+            } else {
+              api.log('unable to retrieve digitalprice rate ' + _urls[i]);
+            }
+          });
+        }, i * TIMEOUT);
+      }
+    }
+
     const _getKMDRates = () => {
       const options = {
         url: `https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,${fiat.join(',')}`,
@@ -219,24 +250,31 @@ module.exports = (api) => {
         if (response &&
             response.statusCode &&
             response.statusCode === 200) {
-          const _parsedBody = JSON.parse(body);
-          api.log(`rates ${body}`);
-          api.mm.fiatRates = {
-            BTC: _parsedBody.BTC,
-            USD: _parsedBody.USD,
-          };
-          api.mm.fiatRatesAll = _parsedBody;
-          api.parseExtRates();
+          try {
+            const _parsedBody = JSON.parse(body);
+            api.mm.fiatRates = {
+              BTC: _parsedBody.BTC,
+              USD: _parsedBody.USD,
+            };
+            api.mm.fiatRatesAll = _parsedBody;
+            api.parseExtRates();
+          } catch (e) {
+            api.log('unable to retrieve cryptocompare KMD/BTC,USD rate');
+          }
         } else {
-          api.log('unable to retrieve KMD/BTC,USD rate');
+          api.log('unable to retrieve cryptocompare KMD/BTC,USD rate');
         }
       });
     }
 
     _getKMDRates();
-    /*api.mmRatesInterval = setInterval(() => {
-      _getRates();
-    }, RATES_UPDATE_INTERVAL);*/
+    _getDPRates();
+    _getCMCRates();
+    api.mmRatesInterval = setInterval(() => {
+      _getKMDRates();
+      _getDPRates();
+      _getCMCRates();
+    }, RATES_UPDATE_INTERVAL);
   }
 
   // fetch prices
