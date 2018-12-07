@@ -423,7 +423,7 @@ module.exports = (api) => {
                           blockhash: _parseData[j].blockhash,
                           blockindex: _parseData[j].blockindex,
                           timestamp: _parseData[j].timestamp,
-                          total: overviewFile.result[i].coin.toLowerCase() === 'chips' ? fromSats(_parseData[j].total) : _parseData[j].total,
+                          total: overviewFile.result[i].coin.toLowerCase() === 'chips' || overviewFile.result[i].coin.toLowerCase() === 'ptx' ? fromSats(_parseData[j].total) : _parseData[j].total,
                         });
                       }
                     } catch (e) {}
