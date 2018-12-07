@@ -10,8 +10,9 @@ const _config = {
   https: false,
   ip: 'localhost',
   port: 8115,
-  explorers: [
+  explorers: [ // iquidus
     'CHIPS',
+    'PTX',
   ],
   insight: {
     maxTxLength: 50,
@@ -104,6 +105,18 @@ const _config = {
     },
     CCL: {
       url: 'http://ccl.explorer.dexstats.info/insight-api-komodo',
+    },
+    DION: {
+      url: 'https://explorer.dionpay.com/insight-api-komodo',
+    },
+    DION: {
+      url: 'https://explorer.dionpay.com/insight-api-komodo',
+    },
+    KMDICE: {
+      url: 'http://kmdice.explorer.dexstats.info/insight-api-komodo',
+    },
+    ZEX: {
+      url: 'http://zex.explorer.dexstats.info/insight-api-komodo',
     },
   },
   faucet: {
@@ -201,6 +214,9 @@ const _config = {
     'ninja',
     'ccl',
     'call',
+    'dion',
+    'kmdice',
+    'ptx',
   ],
   electrumServersExtend: [
     'btc',
