@@ -117,12 +117,16 @@ coins string can contain one or more coin tickers
 
 if no params are provided a current KMD price in USD equivalent is returned
 
+pricechange=true include price changes
+
 examples:
 https://www.atomicexplorer.com/api/mm/prices/v2
 
 https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=eur
 
 https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all
+
+https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all&pricechange=true
 
 list of available fiat currencies:
 https://raw.githubusercontent.com/pbca26/komodo-omni-explorer/dev/routes/fiat.js
