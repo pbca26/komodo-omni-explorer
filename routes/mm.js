@@ -149,12 +149,15 @@ module.exports = (api) => {
             _fiatRates[key][_key] = Number(btcFiatRates[_key] * Number(_rates[i].priceLast)).toFixed(8);
           }
 
-          api.mm.extRates.priceChange[key.toUpperCase()] = {
-            src: 'digitalprice',
-            data: {
-              percent_change_1h: Number(_rates[i].priceChange.replace('%', '')),
-            },
-          };
+          if (!api.mm.extRates.priceChange[key.toUpperCase()] ||
+              (api.mm.extRates.priceChange[key.toUpperCase()] && api.mm.extRates.priceChange[key.toUpperCase()].src !== 'coinmarketcap')) {
+            api.mm.extRates.priceChange[key.toUpperCase()] = {
+              src: 'digitalprice',
+              data: {
+                percent_change_1h: Number(_rates[i].priceChange.replace('%', '')),
+              },
+            };
+          }
         }
       }
     } catch (e) {
