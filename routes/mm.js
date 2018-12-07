@@ -191,7 +191,7 @@ module.exports = (api) => {
     const CMC_TIMEOUT = 10000;
 
     const _getCMCRates = () => {
-      for (let i = 0; i < 1/*_cmcRatesList.length*/; i++) {
+      for (let i = 0; i < _cmcRatesList.length; i++) {
         setTimeout(() => {
           api.log(`ext rates req ${i + 1} url ${_cmcRatesList[i]}`);
 
