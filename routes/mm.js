@@ -124,7 +124,7 @@ module.exports = (api) => {
       if (api.mm.fiatRatesAll) {
         const _rates = api.mm.fiatRatesAll;
         const btcKmdRate = 1 / _rates.BTC;
-              
+
         for (let key in _rates) {
           if (key !== 'BTC') {
             btcFiatRates[key] = Number(_rates[key] * btcKmdRate).toFixed(8);
@@ -191,7 +191,7 @@ module.exports = (api) => {
     const CMC_TIMEOUT = 10000;
 
     const _getCMCRates = () => {
-      for (let i = 0; i < _cmcRatesList.length; i++) {
+      for (let i = 0; i < 1/*_cmcRatesList.length*/; i++) {
         setTimeout(() => {
           api.log(`ext rates req ${i + 1} url ${_cmcRatesList[i]}`);
 
@@ -313,7 +313,7 @@ module.exports = (api) => {
     if (_currency.indexOf(',') > -1) {
       const _fiat = _currency.split(',');
       _currency = [];
-      
+
       for (let i = 0; i < _fiat.length; i++) {
         if (_fiat[i].length &&
             fiat.indexOf(_fiat[i].toUpperCase()) > -1) {
@@ -333,27 +333,28 @@ module.exports = (api) => {
 
     if (coins.indexOf(',') > -1) {
       const _coins = coins.split(',');
-      
+
       for (let i = 0; i < _coins.length; i++) {
         if (_coins[i].length) {
           if (api.mm.extRates.parsed[_coins[i].toUpperCase()]) {
-            if (typeof _currency === 'object') {
-              _resp[_coins[i].toUpperCase()] = {};
+            _resp[_coins[i].toUpperCase()] = {};
 
+            if (typeof _currency === 'object') {
               for (let j = 0; j < _currency.length; j++) {
                 _resp[_coins[i].toUpperCase()][_currency[j].toUpperCase()] = api.mm.extRates.parsed[_coins[i].toUpperCase()][_currency[j].toUpperCase()];
               }
             } else if (_currency.toLowerCase() === 'all') {
               _resp[_coins[i].toUpperCase()] = api.mm.extRates.parsed[_coins[i].toUpperCase()];
             } else {
-              _resp[_coins[i].toUpperCase()] = api.mm.extRates.parsed[_coins[i].toUpperCase()][_currency.toUpperCase()];
+              _resp[_coins[i].toUpperCase()][_currency.toUpperCase()] = api.mm.extRates.parsed[_coins[i].toUpperCase()][_currency.toUpperCase()];
             }
           } else if (
             api.mm.prices[`${_coins[i].toUpperCase()}/KMD`] &&
             api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low
           ) {
-            _resp[_coins[i].toUpperCase()] = Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low).toFixed(8);
-            
+            _resp[_coins[i].toUpperCase()] = {};
+            _resp[_coins[i].toUpperCase()][_currency[j].toUpperCase()] = Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low).toFixed(8);
+
             if (_currency.toLowerCase() === 'all') {
               if (typeof _currency === 'object') {
                 _resp[_coins[i].toUpperCase()] = {};
@@ -372,32 +373,32 @@ module.exports = (api) => {
               }
             }
           }
+        }
 
-          if (priceChange &&
-              api.mm.extRates.priceChange[_coins[i].toUpperCase()]) {
-            _resp[_coins[i].toUpperCase()].priceChange = api.mm.extRates.priceChange[_coins[i].toUpperCase()];
-          }
+        if (priceChange &&
+            api.mm.extRates.priceChange[_coins[i].toUpperCase()]) {
+          _resp[_coins[i].toUpperCase()].priceChange = api.mm.extRates.priceChange[_coins[i].toUpperCase()];
         }
       }
     } else {
+      _resp[coins.toUpperCase()] = {};
+
       if (api.mm.extRates.parsed[coins.toUpperCase()]) {
         if (typeof _currency === 'object') {
-          _resp[coins.toUpperCase()] = {};
-
           for (let i = 0; i < _currency.length; i++) {
             _resp[coins.toUpperCase()][_currency[i].toUpperCase()] = api.mm.extRates.parsed[coins.toUpperCase()][_currency[i].toUpperCase()];
           }
         } else if (_currency.toLowerCase() === 'all') {
           _resp[coins.toUpperCase()] = api.mm.extRates.parsed[coins.toUpperCase()];
         } else {
-          _resp[coins.toUpperCase()] = api.mm.extRates.parsed[coins.toUpperCase()][_currency.toUpperCase()];
+          _resp[coins.toUpperCase()][_currency.toUpperCase()] = api.mm.extRates.parsed[coins.toUpperCase()][_currency.toUpperCase()];
         }
       } else if (
         api.mm.prices[`${coins.toUpperCase()}/KMD`] &&
         api.mm.prices[`${coins.toUpperCase()}/KMD`].low
       ) {
-        _resp[coins.toUpperCase()] = Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${coins.toUpperCase()}/KMD`].low).toFixed(8);
-        
+        _resp[coins.toUpperCase()][_currency.toUpperCase()] = Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${coins.toUpperCase()}/KMD`].low).toFixed(8);
+
         if (_currency.toLowerCase() === 'all') {
           for (let key in api.mm.fiatRatesAll) {
             if (key !== 'BTC') {
