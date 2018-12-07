@@ -24,13 +24,13 @@ const assetChainParams = sortObject({
   BEER: '-ac_supply=100000000 -addnode=78.47.196.146',
   PIZZA: '-ac_supply=100000000 -addnode=78.47.196.146',
   NINJA: '-ac_supply=100000000 -addnode=78.47.196.146',
-  OOT: '-ac_supply=216000000 -addnode=174.138.107.226',
+  OOT: '-ac_supply=216000000 -addnode=174.138.107.226 -ac_sapling=5000000',
   BNTN: '-ac_supply=500000000 -addnode=94.130.169.205',
   CHAIN: '-ac_supply=999999 -addnode=78.47.146.222',
   PRLPAY: '-ac_supply=500000000 -addnode=13.250.226.125',
   DSEC: '-ac_supply=7000000 -addnode=185.148.147.30',
   GLXT: '-ac_supply=10000000000 -addnode=13.230.224.15',
-  EQL: '-ac_supply=500000000 -addnode=46.101.124.153',
+  EQL: '-ac_supply=500000000 -addnode=46.101.124.153 -ac_ccactivate=205000',
   ZILLA: '-ac_supply=11000000 -addnode=54.39.23.248',
   RFOX: '-ac_supply=1000000000 -ac_reward=100000000 -addnode=78.47.196.146',
   SEC: '-ac_cc=333 -ac_supply=1000000000 -addnode=185.148.145.43',
@@ -43,6 +43,8 @@ const assetChainParams = sortObject({
   KOIN: '-ac_supply=125000000 -addnode=3.0.32.10',
   KMDICE: '-ac_name=KMDICE -ac_supply=10500000 -ac_reward=2500000000 -ac_halving=210000 -ac_cc=2 -addressindex=1 -spentindex=1 -addnode=144.76.217.232',
   VRSC: '-ac_algo=verushash -ac_cc=1 -ac_veruspos=50 -ac_supply=0 -ac_eras=3 -ac_reward=0,38400000000,2400000000 -ac_halving=1,43200,1051920 -ac_decay=100000000,0,0 -ac_end=10080,226080,0 -ac_timelockgte=19200000000 -ac_timeunlockfrom=129600 -ac_timeunlockto=1180800 -addnode=185.25.48.236 -addnode=185.64.105.111',
+  PTX: '-ac_supply=12000000 ac_reward=1500000000 ac_staked=50 -ac_end=12000000 -addnode=142.11.199.63',
+  ZEX: '-ac_reward=13000000000 -ac_halving=525600 -ac_pubkey=039d4a50cc70d1184e462a22edb3b66385da97cc8059196f8305c184a3e21440af -ac_cc=2 -ac_founders=1 -addnode=5.9.102.210',
 });
 
 export default assetChainParams;
