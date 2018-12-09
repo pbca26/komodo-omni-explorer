@@ -416,6 +416,12 @@ module.exports = (api) => {
       }
     }
 
+    for (let key in _resp) {
+      if (!Object.keys(_resp[key]).length) {
+        delete _resp[key];
+      }
+    }
+
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
