@@ -353,7 +353,6 @@ module.exports = (api) => {
             api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low
           ) {
             _resp[_coins[i].toUpperCase()] = {};
-            _resp[_coins[i].toUpperCase()][_currency[j].toUpperCase()] = Number(api.mm.fiatRatesAll[_currency.toUpperCase()] * api.mm.prices[`${_coins[i].toUpperCase()}/KMD`].low).toFixed(8);
 
             if (_currency.toLowerCase() === 'all') {
               if (typeof _currency === 'object') {
