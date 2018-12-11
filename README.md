@@ -30,6 +30,7 @@ built ui version will be copied to /public folder
 
 #### KMD rewards
 http://atomicexplorer.com/#/rewards
+
 http://atomicexplorer.com/#/rewards/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
 
 #### KMD rewards calc
@@ -104,6 +105,34 @@ params (optional): coin e.g. DEX
 
 params (optional): currency e.g. All or USD, coin e.g. BTC
 
+#### GET /api/mm/prices/v2
+
+params (optional):
+
+currency, all or one of the currencies listed below e.g. USD
+
+coins is a string containing comma separated coin tickers e.g. btc,kmd,dex
+
+coins string can contain one or more coin tickers
+
+if no params are provided a current KMD price in USD equivalent is returned
+
+pricechange=true include price changes
+
+examples:
+https://www.atomicexplorer.com/api/mm/prices/v2
+
+https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=eur
+
+https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all
+
+https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all&pricechange=true
+
+list of available fiat currencies:
+https://raw.githubusercontent.com/pbca26/komodo-omni-explorer/dev/routes/fiat.js
+
+prices are updated every 300s
+
 #### GET /api/mm/orderbook
 
 params: none required
@@ -115,6 +144,12 @@ params: none required
 #### GET /api/btc/fees
 
 BTC fees, combined result from Electrum servers and bitcoinfees.earn.com
+
+params: none required
+
+#### GET /api/eth/gasprice
+
+Current ETH gas prices
 
 params: none required
 

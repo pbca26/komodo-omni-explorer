@@ -1,5 +1,7 @@
 import { sortObject } from 'agama-wallet-lib/src/utils';
 
+// TODO: use agama-wallet-lib for single explorer coins
+
 const explorers = sortObject({
   KMD: [
     'http://www.kmdexplorer.ru',
@@ -164,6 +166,9 @@ const explorers = sortObject({
   PIRATE: 'http://pirate.explorer.dexstats.info',
   DION: 'https://explorer.dionpay.com',
   KOIN: 'http://3.0.32.41:3001',
+  KMDICE: 'https://kmdice.explorer.dexstats.info',
+  PTX: 'http://explorer1.patenttx.com',
+  ZEX: 'http://explorer.zaddex.com',
 });
 
 export default explorers;
