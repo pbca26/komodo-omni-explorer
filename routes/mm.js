@@ -15,7 +15,7 @@ const fiat = require('./fiat');
 const electrumJSCore = require('./electrumjs.core.js');
 const { ethGasStationRateToWei } = require('agama-wallet-lib/src/eth');
 
-const PRICES_UPDATE_INTERVAL = 60000; // every 60s
+const PRICES_UPDATE_INTERVAL = 300000; // every 300s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
 const RATES_UPDATE_INTERVAL = 60000; // every 60s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
