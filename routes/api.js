@@ -26,6 +26,7 @@ api = require('./explorer.js')(api);
 api = require('./mm.js')(api);
 api = require('./faucet.js')(api);
 api = require('./kv.js')(api);
+api = require('./exchanges.js')(api);
 
 api.start = () => {
   api.kvLoop();
