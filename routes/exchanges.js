@@ -1,6 +1,12 @@
 const config = require('../config');
 const request = require('request');
 const Promise = require('bluebird');
+const crypto = require('crypto');
+const changellyLib = require('api-changelly/lib');
+const changelly = new changellyLib(
+  config.exchanges.changelly.apiKey,
+  config.exchanges.changelly.secretKey
+);
 
 // TODO: - config encrypt/decrypt
 //       - coinswitch fixed api(?)
@@ -10,6 +16,14 @@ const coinswitchMethods = [
   'placeOrder',
   'getCoins', // cache to speed up responses
   'getRate',
+];
+
+const changellyMethods = [
+  'getOrder',
+  'placeOrder',
+  'getCoins', // cache to speed up responses
+  'getRate',
+  'getMinAmount',
 ];
 
 const checkParams = (paramsList, obj) => {
@@ -136,6 +150,115 @@ module.exports = (api) => {
           request(_options, (error, response, body) => {
             res.set({ 'Content-Type': 'application/json' });
             res.end(JSON.stringify(error ? error : body));
+          });
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: `missing param${_queryParamsCheck.length > 1 ? 's' : ''} ${_queryParamsCheck.join(', ')}`,
+          };
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      }
+    } else {
+      const retObj = {
+        msg: 'error',
+        result: 'wrong method name',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
+  });
+
+  api.get('/exchanges/changelly', (req, res, next) => {
+    const _method = req.query.method;
+
+    if (changellyMethods.indexOf(_method) > -1) {
+      if (_method === 'getCoins') {
+        changelly.getCurrencies((error, data) => {
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(error ? data : data));
+        });
+      } else if (_method === 'getMinAmount') {
+        const _paramsList = [
+          'src',
+          'dest',
+        ];
+        const _queryParamsCheck = checkParams(_paramsList, req.query);
+
+        if (!_queryParamsCheck.length) {
+          changelly.getMinAmount(req.query.src, req.query.dest, (error, data) => {
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(error ? data : data));
+          });
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: `missing param${_queryParamsCheck.length > 1 ? 's' : ''} ${_queryParamsCheck.join(', ')}`,
+          };
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      } else if (_method === 'getRate') {
+        const _paramsList = [
+          'src',
+          'dest',
+        ];
+        const _queryParamsCheck = checkParams(_paramsList, req.query);
+
+        if (!_queryParamsCheck.length) {
+          changelly.getExchangeAmount(req.query.src, req.query.dest, 1, (error, data) => {
+            // note to app devs: round decimals to precision 8
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(error ? data : data));
+          });
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: `missing param${_queryParamsCheck.length > 1 ? 's' : ''} ${_queryParamsCheck.join(', ')}`,
+          };
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      } else if (_method === 'getOrder') {
+        const _paramsList = [
+          'orderId',
+        ];
+        const _queryParamsCheck = checkParams(_paramsList, req.query);
+
+        if (!_queryParamsCheck.length) {
+          changelly.getStatus(req.query.orderId, (error, data) => {
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(error ? data : data));
+          });
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: `missing param${_queryParamsCheck.length > 1 ? 's' : ''} ${_queryParamsCheck.join(', ')}`,
+          };
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      } else if (_method === 'placeOrder') {
+        const _paramsList = [
+          'src',
+          'dest',
+          'srcAmount',
+          'destPub',
+        ];
+        const _queryParamsCheck = checkParams(_paramsList, req.query);
+  
+        if (!_queryParamsCheck.length) {
+          changelly.createTransaction(
+            req.query.src,
+            req.query.dest,
+            req.query.destPub,
+            req.query.srcAmount,
+            null,
+            (error, data) => {
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(error ? data : data));
           });
         } else {
           const retObj = {
