@@ -14,7 +14,7 @@ const electrumJSCore = require('./electrumjs.core.js');
 const transactionBuilder = require('agama-wallet-lib/src/transaction-builder');
 const transactionDecoder = require('agama-wallet-lib/src/transaction-decoder');
 
-const KV_HISTORY_UPDATE_INTERVAL = 10000; // every 10s
+const KV_HISTORY_UPDATE_INTERVAL = 60000; // every 60s
 
 const KV_OPRETURN_MAX_SIZE_BYTES = 8192;
 

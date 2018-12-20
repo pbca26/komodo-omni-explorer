@@ -244,6 +244,13 @@ const _config = {
     'btcz',
     'qtum',
   ],
+  exchanges: {
+    coinswitch: '',
+    changelly: {
+      secretKey: '',
+      apiKey: '',
+    },
+  },
 };
 
 let config = JSON.parse(JSON.stringify(_config));
