@@ -119,6 +119,10 @@ const _config = {
       url: 'http://zex.explorer.dexstats.info/insight-api-komodo',
     },
   },
+  kv: {
+    contentLimit: 300, // chars
+    wif: '',
+  },
   faucet: {
     beer: {
       wif: '',
