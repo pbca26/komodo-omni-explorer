@@ -20,7 +20,7 @@
     "rpcport":13109
   },
   {
-    "coin": "CC",
+    "coin": "CCL",
     "asset": "CCL",
     "fname": "CoinCollect",
     "rpcport": 20849
