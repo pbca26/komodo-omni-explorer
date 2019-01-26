@@ -91,6 +91,23 @@ module.exports = (api) => {
         const _queryParamsCheck = checkParams(_paramsList, req.query);
 
         if (!_queryParamsCheck.length) {
+          let _body = {
+            depositCoin: req.query.src,
+            destinationCoin: req.query.dest,
+            depositCoinAmount: req.query.srcAmount,
+            destinationCoinAmount: req.query.destAmount,
+            destinationAddress: {
+              address: req.query.destPub,
+            },
+            refundAddress: {
+              address: req.query.refundPub,
+            },
+          };
+
+          if (!Number(_body.destinationCoinAmount)) {
+            delete _body.destinationCoinAmount;
+          }
+
           const _options = {
             method: 'POST',
             url: 'https://api.coinswitch.co/v2/order',
@@ -99,18 +116,7 @@ module.exports = (api) => {
               'x-api-key': config.exchanges.coinswitch,
               'content-type': 'application/json',
             },
-            body: JSON.stringify({
-              depositCoin: req.query.src,
-              destinationCoin: req.query.dest,
-              depositCoinAmount: req.query.srcAmount,
-              destinationCoinAmount: req.query.destAmount,
-              destinationAddress: {
-                address: req.query.destPub,
-              },
-              refundAddress: {
-                address: req.query.refundPub,
-              },
-            }),
+            body: JSON.stringify(_body),
           };
 
           request(_options, (error, response, body) => {
