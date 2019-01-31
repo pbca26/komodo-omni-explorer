@@ -1,5 +1,7 @@
 const config = require('../config');
 const request = require('request');
+const fs = require('fs-extra');
+const path = require('path');
 const Promise = require('bluebird');
 const crypto = require('crypto');
 const changellyLib = require('api-changelly/lib');
@@ -12,7 +14,7 @@ const changelly = new changellyLib(
 //       - coinswitch fixed api(?)
 
 const COINSWITCH_COINS_UPDATE_INTERVAL = 60 * 1000; // 1 min
-const COINSWITCH_ORDERS_UPDATE_INTERVAL = 300 * 1000; // 5 mins
+const COINSWITCH_ORDERS_UPDATE_INTERVAL = 1800 * 1000; // 30 mins
 const COINSWITCH_TIMEOUT = 2000; // 2s
 
 const coinswitchMethods = [
@@ -104,6 +106,9 @@ module.exports = (api) => {
   };
 
   api.coinswitchOrdersSync = () => {
+    const coinswitchOrdersFile = fs.readJsonSync(path.join(__dirname, '../coinswitch-orders.json'), { throws: false });
+    api.exchanges.coinswitch.orders = coinswitchOrdersFile;
+  
     const _coinswitchOrdersSync = () => {
       let _items = [];
 
@@ -127,12 +132,17 @@ module.exports = (api) => {
               if (_body.data.totalCount > 25) {
                 const _chunks = Math.ceil(_body.data.totalCount / 25) - 1;
                 api.log(`coinswitch orders list is too big, need to split in ${_chunks} chunks`);
-                
-                api.exchanges.coinswitch.orders = _body.data.items;
                 _items = _body.data.items;
-
+                
+                if ((!coinswitchOrdersFile) || 
+                    (coinswitchOrdersFile && coinswitchOrdersFile.length && coinswitchOrdersFile.length < _items.length)) {
+                  api.log(`coinswitch save new orders to file`);
+                  fs.writeFileSync(path.join(__dirname, '../coinswitch-orders.json'), JSON.stringify(_items));
+                  api.exchanges.coinswitch.orders = _items;
+                }
+                
                 for (let i = 0; i < _chunks; i++) {
-                  api.log(`coinswitch chuchk url https://api.coinswitch.co/v2/orders?start=${((i + 1) * 25) + 1}`);
+                  api.log(`coinswitch chunk url https://api.coinswitch.co/v2/orders?start=${((i + 1) * 25) + 1}`);
                   
                   setTimeout(() => {
                     const _options = {
@@ -153,7 +163,13 @@ module.exports = (api) => {
                               _body.data &&
                               _body.data.items) {
                             _items = _items.concat(_body.data.items);
-                            api.exchanges.coinswitch.orders = _items;
+
+                            if ((!coinswitchOrdersFile) || 
+                                (coinswitchOrdersFile && coinswitchOrdersFile.length && coinswitchOrdersFile.length < _items.length)) {
+                              api.log(`coinswitch save new orders to file`);
+                              fs.writeFileSync(path.join(__dirname, '../coinswitch-orders.json'), JSON.stringify(_items));
+                              api.exchanges.coinswitch.orders = _items;
+                            }
                           }
                         } catch (e) {}
                       }
@@ -162,6 +178,7 @@ module.exports = (api) => {
                 }
               } else {
                 api.exchanges.coinswitch.orders = _body.data;
+                fs.writeFileSync(path.join(__dirname, '../coinswitch-orders.json'), api.exchanges.coinswitch.orders);
               }
             }
           } catch (e) {}
