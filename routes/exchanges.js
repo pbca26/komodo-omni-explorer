@@ -11,8 +11,9 @@ const changelly = new changellyLib(
 // TODO: - config encrypt/decrypt
 //       - coinswitch fixed api(?)
 
-const COINSWITCH_COINS_UPDATE_INTERVAL = 60000;
-
+const COINSWITCH_COINS_UPDATE_INTERVAL = 60 * 1000; // 1 min
+const COINSWITCH_ORDERS_UPDATE_INTERVAL = 300 * 1000; // 5 mins
+const COINSWITCH_TIMEOUT = 2000; // 2s
 
 const coinswitchMethods = [
   'getOrder',
@@ -46,6 +47,7 @@ module.exports = (api) => {
         data: {},
         timestamp: null,
       },
+      orders: {},
     },
   };
 
@@ -55,6 +57,14 @@ module.exports = (api) => {
       msg: 'success',
       result: api.exchanges.coinswitch.coins.data,
       timestamp: api.exchanges.coinswitch.coins.timestamp,
+    }));
+  });
+
+  api.get('/exchanges/coinswitch/orders/cached', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: api.exchanges.coinswitch.orders,
     }));
   });
 
@@ -92,6 +102,82 @@ module.exports = (api) => {
       _coinswitchCoinsSync();
     }, COINSWITCH_COINS_UPDATE_INTERVAL);
   };
+
+  api.coinswitchOrdersSync = () => {
+    const _coinswitchOrdersSync = () => {
+      let _items = [];
+
+      const _options = {
+        method: 'GET',
+        url: 'https://api.coinswitch.co/v2/orders',
+        headers: {
+          'x-user-ip': '127.0.0.1',
+          'x-api-key': config.exchanges.coinswitch,
+        },
+      };
+
+      request(_options, (error, response, body) => {
+        if (!error) {
+          try {
+            let _body = JSON.parse(body);
+
+            if (_body.success &&
+                _body.data &&
+                _body.data.items) {
+              if (_body.data.totalCount > 25) {
+                const _chunks = Math.ceil(_body.data.totalCount / 25) - 1;
+                api.log(`coinswitch orders list is too big, need to split in ${_chunks} chunks`);
+                
+                api.exchanges.coinswitch.orders = _body.data.items;
+                _items = _body.data.items;
+
+                for (let i = 0; i < _chunks; i++) {
+                  api.log(`coinswitch chuchk url https://api.coinswitch.co/v2/orders?start=${((i + 1) * 25) + 1}`);
+                  
+                  setTimeout(() => {
+                    const _options = {
+                      method: 'GET',
+                      url: `https://api.coinswitch.co/v2/orders?start=${(i + 1) * 25}`,
+                      headers: {
+                        'x-user-ip': '127.0.0.1',
+                        'x-api-key': config.exchanges.coinswitch,
+                      },
+                    };
+
+                    request(_options, (error, response, body) => {
+                      if (!error) {
+                        try {
+                          let _body = JSON.parse(body);
+              
+                          if (_body.success &&
+                              _body.data &&
+                              _body.data.items) {
+                            _items = _items.concat(_body.data.items);
+                            api.exchanges.coinswitch.orders = _items;
+                          }
+                        } catch (e) {}
+                      }
+                    });
+                  }, i * COINSWITCH_TIMEOUT);
+                }
+              } else {
+                api.exchanges.coinswitch.orders = _body.data;
+              }
+            }
+          } catch (e) {}
+        }
+      });
+    };
+
+    _coinswitchOrdersSync();
+    setInterval(() => {
+      _coinswitchOrdersSync();
+    }, COINSWITCH_ORDERS_UPDATE_INTERVAL);
+  };
+
+  api.get('/exchanges/coinswitch/history', (req, res, next) => {
+    
+  });
 
   api.get('/exchanges/coinswitch', (req, res, next) => {
     const _method = req.query.method;
