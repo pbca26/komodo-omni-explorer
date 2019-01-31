@@ -11,6 +11,9 @@ const changelly = new changellyLib(
 // TODO: - config encrypt/decrypt
 //       - coinswitch fixed api(?)
 
+const COINSWITCH_COINS_UPDATE_INTERVAL = 60000;
+
+
 const coinswitchMethods = [
   'getOrder',
   'placeOrder',
@@ -37,6 +40,59 @@ const checkParams = (paramsList, obj) => {
 }; 
 
 module.exports = (api) => {
+  api.exchanges = {
+    coinswitch: {
+      coins: {
+        data: {},
+        timestamp: null,
+      },
+    },
+  };
+
+  api.get('/exchanges/coinswitch/coins/cached', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: api.exchanges.coinswitch.coins.data,
+      timestamp: api.exchanges.coinswitch.coins.timestamp,
+    }));
+  });
+
+  api.coinswitchCoinsSync = () => {
+    const _coinswitchCoinsSync = () => {
+      const _options = {
+        method: 'GET',
+        url: 'https://api.coinswitch.co/v2/coins',
+        headers: {
+          'x-user-ip': '127.0.0.1',
+          'x-api-key': config.exchanges.coinswitch,
+        },
+      };
+
+      request(_options, (error, response, body) => {
+        if (!error) {
+          try {
+            let _body = JSON.parse(body);
+
+            if (_body.success &&
+                _body.data) {
+              for (let i = 0; i < _body.data.length; i++) {
+                delete _body.data[i].logoUrl;
+              }
+              api.exchanges.coinswitch.coins.data = _body.data;
+              api.exchanges.coinswitch.coins.timestamp = Math.floor(Date.now() / 1000);
+            }
+          } catch (e) {}
+        }
+      });
+    };
+
+    _coinswitchCoinsSync();
+    setInterval(() => {
+      _coinswitchCoinsSync();
+    }, COINSWITCH_COINS_UPDATE_INTERVAL);
+  };
+
   api.get('/exchanges/coinswitch', (req, res, next) => {
     const _method = req.query.method;
 
