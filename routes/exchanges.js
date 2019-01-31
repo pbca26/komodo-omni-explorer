@@ -129,7 +129,7 @@ module.exports = (api) => {
             if (_body.success &&
                 _body.data &&
                 _body.data.items) {
-              if (_body.data.totalCount > 25) {
+              if (_body.data.totalCount > _body.data.count) {
                 const _chunks = Math.ceil(_body.data.totalCount / 25) - 1;
                 api.log(`coinswitch orders list is too big, need to split in ${_chunks} chunks`);
                 _items = _body.data.items;
@@ -192,8 +192,36 @@ module.exports = (api) => {
     }, COINSWITCH_ORDERS_UPDATE_INTERVAL);
   };
 
-  api.get('/exchanges/coinswitch/history', (req, res, next) => {
-    
+  api.post('/exchanges/coinswitch/history', (req, res, next) => {
+    // TODO: add sig verification
+    const _orders = api.exchanges.coinswitch.orders;
+    const _address = req.body.address;
+    let _items = [];
+
+    if (_orders &&
+        _orders.length) {
+      for (let i = 0; i < _orders.length; i++) {
+        if (_address.indexOf(_orders[i].destinationAddress.address) > -1) {
+          _items.push(_orders[i]);
+        }
+      }
+
+      const retObj = {
+        msg: 'success',
+        result: _items,
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else {
+      const retObj = {
+        msg: 'error',
+        result: 'orders list is empty',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
   });
 
   api.get('/exchanges/coinswitch', (req, res, next) => {
