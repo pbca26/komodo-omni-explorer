@@ -9,6 +9,7 @@ const changelly = new changellyLib(
   config.exchanges.changelly.apiKey,
   config.exchanges.changelly.secretKey
 );
+const signature = require('agama-wallet-lib/src/message');
 
 // TODO: - config encrypt/decrypt
 //       - coinswitch fixed api(?)
@@ -193,34 +194,74 @@ module.exports = (api) => {
   };
 
   api.post('/exchanges/coinswitch/history', (req, res, next) => {
-    // TODO: add sig verification
     const _orders = api.exchanges.coinswitch.orders;
     const _address = req.body.address;
-    let _items = [];
 
-    if (_orders &&
-        _orders.length) {
-      for (let i = 0; i < _orders.length; i++) {
-        if (_address.indexOf(_orders[i].destinationAddress.address) > -1) {
-          _items.push(_orders[i]);
-        }
-      }
-
+    if (!_address ||
+        typeof _address !== 'object') {
       const retObj = {
-        msg: 'success',
-        result: _items,
+        msg: 'error',
+        result: 'addresses payload is missing',
       };
 
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(retObj));
     } else {
-      const retObj = {
-        msg: 'error',
-        result: 'orders list is empty',
-      };
+      let _items = [];
+      let _addressFlat = [];
 
-      res.set({ 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(retObj));
+      for (let i = 0; i < _address.length; i++) {
+        if (_address[i] &&
+            _address[i].hasOwnProperty('pub') &&
+            _address[i].hasOwnProperty('sig') &&
+            _address[i].hasOwnProperty('message')) {
+          const _signature = signature.btc.verify(
+            _address[i].pub,
+            _address[i].message,
+            _address[i].sig
+          );
+
+          if (_signature) {
+            _addressFlat.push(_address[i].pub);
+          }
+        }
+      }
+
+      if (_addressFlat &&
+          _addressFlat.length) {
+        if (_orders &&
+            _orders.length) {
+          for (let i = 0; i < _orders.length; i++) {
+            if (_addressFlat.indexOf(_orders[i].destinationAddress.address) > -1) {
+              _items.push(_orders[i]);
+            }
+          }
+
+          const retObj = {
+            msg: 'success',
+            result: _items,
+          };
+
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: 'orders list is empty',
+          };
+
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      } else {
+        const retObj = {
+          msg: 'error',
+          result: 'malformatted addresses payload',
+        };
+
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(retObj));
+      }
     }
   });
 

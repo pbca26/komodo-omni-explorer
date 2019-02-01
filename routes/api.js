@@ -39,6 +39,8 @@ api.start = () => {
   api.getBTCFees();
   api.getGasPrice();
   api.ticker();
+  api.coinswitchCoinsSync();
+  api.coinswitchOrdersSync();
 };
 
 module.exports = api;
