@@ -218,7 +218,8 @@ module.exports = (api) => {
           const _signature = signature.btc.verify(
             _address[i].pub,
             _address[i].message,
-            _address[i].sig
+            _address[i].sig,
+            _address[i].isZcash ? true : false
           );
 
           if (_signature) {
