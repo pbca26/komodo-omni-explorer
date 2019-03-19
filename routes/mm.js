@@ -14,6 +14,7 @@ const {
 const fiat = require('./fiat');
 const electrumJSCore = require('./electrumjs.core.js');
 const { ethGasStationRateToWei } = require('agama-wallet-lib/src/eth');
+const cmcCoinDetailsList = require('./cmcCoinDetailsList');
 
 const PRICES_UPDATE_INTERVAL = 300000; // every 300s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
@@ -420,6 +421,12 @@ module.exports = (api) => {
     for (let key in _resp) {
       if (!Object.keys(_resp[key]).length) {
         delete _resp[key];
+      } else {
+        if (cmcCoinDetailsList.NON_KMD_ASSETS.indexOf(key) > -1 &&
+            api.mm.extRates.priceChange[coins.toUpperCase()] &&
+            api.mm.extRates.priceChange[coins.toUpperCase()].src === 'coinmarketcap') {
+          _resp[key].KIC = false;
+        }
       }
     }
 
