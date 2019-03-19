@@ -14,7 +14,7 @@ const electrumJSCore = require('./electrumjs.core.js');
 const transactionBuilder = require('agama-wallet-lib/src/transaction-builder');
 const transactionDecoder = require('agama-wallet-lib/src/transaction-decoder');
 
-const KV_HISTORY_UPDATE_INTERVAL = 60000; // every 60s
+const KV_HISTORY_UPDATE_INTERVAL = 240000; // every 4 min
 
 const KV_OPRETURN_MAX_SIZE_BYTES = 8192;
 
@@ -201,10 +201,10 @@ module.exports = (api) => {
                 });
               }
 
-              const _data = transactionBuilder.data(
+              let _data = transactionBuilder.data(
                 config.komodoParams,
                 toSats(0.0001),
-                toSats(0.0001),
+                toSats(0.00008), // account for 1000 sats opreturn + a 1000 sats margin
                 keys.pub,
                 keys.pub,
                 _formattedUtxoList
@@ -214,7 +214,7 @@ module.exports = (api) => {
               api.log('buildSignedTx signed tx hex');
 
               api.log('send data', _data);
-
+              
               const _tx = transactionBuilder.transaction(
                 keys.pub,
                 keys.pub,
@@ -223,7 +223,7 @@ module.exports = (api) => {
                 _data.inputs,
                 _data.change,
                 _data.value,
-                _encodedContent
+                { opreturn: _encodedContent }
               );
 
               api.log('send data rawtx', _tx);
@@ -232,7 +232,7 @@ module.exports = (api) => {
               .then((txid) => {
                 ecl.close();
 
-                api.log(`txid ${txid}`);
+                api.log(`txid ${JSON.stringify(txid)}`);
 
                 if (txid &&
                     txid.indexOf('bad-txns-inputs-spent') > -1) {
@@ -262,6 +262,13 @@ module.exports = (api) => {
 
                       res.set({ 'Content-Type': 'application/json' });
                       res.end(JSON.stringify(retObj));
+
+                      setTimeout(() => {
+                        api.kvLoop();
+                      }, 1000 * 3);
+                      setTimeout(() => {
+                        api.kvLoop();
+                      }, 1000 * 10);
                     }
                   } else {
                     if (txid &&
@@ -310,7 +317,7 @@ module.exports = (api) => {
     }
   });
 
-  api.kvLoop = () => {
+  api.kvLoop = (skipInterval) => {
     const network = 'kv';
     const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);
     const keys = {
@@ -404,7 +411,9 @@ module.exports = (api) => {
                       if (ind === json.length - 1) {
                         ecl.close();
 
-                        api.kv.cache.txs = _rawtx;
+                        if (_rawtx) {
+                          api.kv.cache.txs = _rawtx;
+                        }
                       } else {
                         callback();
                       }
@@ -426,9 +435,12 @@ module.exports = (api) => {
     };
 
     _kvLoop();
-    setInterval(() => {
-      _kvLoop();
-    }, KV_HISTORY_UPDATE_INTERVAL);
+
+    if (!skipInterval) {
+      setInterval(() => {
+        _kvLoop();
+      }, KV_HISTORY_UPDATE_INTERVAL);
+    }
   };
 
   api.get('/kv/history', (req, res, next) => {
