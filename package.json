@@ -1,7 +1,7 @@
 {
   "name": "komodo-omni-explorer",
   "productName": "Komodo Omni Explorer",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Komodo Omni Explorer",
   "main": "main.js",
   "scripts": {
@@ -23,6 +23,7 @@
     "api-changelly": "git://github.com/pbca26/api-changelly",
     "async": "^2.6.0",
     "bitcoinjs-lib": "^3.2.0",
+    "bitgo-utxo-lib": "git://github.com/pbca26/bitgo-utxo-lib",
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
     "changelly_api": "git://github.com/pbca26/api-changelly.git",

@@ -13,6 +13,7 @@ const {
 } = require('agama-wallet-lib/src/utils');
 const fiat = require('./fiat');
 const electrumJSCore = require('./electrumjs.core.js');
+const defaultElectrumServers = require('agama-wallet-lib/src/electrum-servers');
 const { ethGasStationRateToWei } = require('agama-wallet-lib/src/eth');
 const cmcCoinDetailsList = require('./cmcCoinDetailsList');
 
@@ -735,8 +736,8 @@ module.exports = (api) => {
     let coinsFile = fs.readJsonSync(coinsFileLocation, { throws: false });
 
     for (let i = 0; i < coinsFile.length; i++) {
-      if (config.electrumServers[coinsFile[i].coin.toLowerCase()] ||
-          config.electrumServersExtend[coinsFile[i].coin.toLowerCase()]) {
+      if (defaultElectrumServers[coinsFile[i].coin.toLowerCase()] &&
+          !coinsFile.hasOwnProperty('etomic')) {
         coinsFile[i].spv = true;
       }
     }
