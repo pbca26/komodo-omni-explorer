@@ -73,9 +73,6 @@ const _config = {
     COQUI: {
       url: 'https://coqui.kmdexplorer.io/insight-api-komodo',
     },
-    MNZ: {
-      url: 'https://mnz.kmdexplorer.io/insight-api-komodo',
-    },
     BTCH: {
       url: 'https://btch.kmdexplorer.io/insight-api-komodo',
     },
@@ -118,6 +115,21 @@ const _config = {
     ZEX: {
       url: 'http://zex.explorer.dexstats.info/insight-api-komodo',
     },
+    KSB: {
+      url: 'http://ksb.explorer.dexstats.info/insight-api-komodo',
+    },
+    OUR: {
+      url: 'http://our.explorer.dexstats.info/insight-api-komodo',
+    },
+    LUMBER: {
+      url: 'https://explorer.lumberscout.io/insight-api-komodo',
+    },
+    ILN: {
+      url: 'https://explorer.ilien.io/insight-api-komodo',
+    },
+    PGT: {
+      url: 'https://explorer.pungotoken.com/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
@@ -132,7 +144,7 @@ const _config = {
     pizza: {
       wif: '',
       fee: 0.0001,
-      outSize: 10000,
+      outSize: 0.777,
     },
     coqui: {
       wif: '',
@@ -145,7 +157,7 @@ const _config = {
       outSize: 0.1,
     },
   },
-  recaptchaKey: '6Lf7bmUUAAAAAK6QJnK7Iy5SnxfIEzpwdc7S4S2l',
+  recaptchaKey: '',
   ticker: [
     'kmd',
     'coqui',
@@ -158,7 +170,6 @@ const _config = {
     'pangea',
     'bet',
     'mshark',
-    'mnz',
     'wlc',
     'jumblr',
     'mgw',
@@ -198,7 +209,6 @@ const _config = {
     'pangea',
     'bet',
     'mshark',
-    'mnz',
     'wlc',
     'jumblr',
     'mgw',
@@ -221,6 +231,11 @@ const _config = {
     'dion',
     'kmdice',
     'ptx',
+    'lumber',
+    'iln',
+    'ksb',
+    'our',
+    'pgt',
   ],
   electrumServersExtend: [
     'btc',
@@ -282,9 +297,13 @@ const electrumServers = () => {
   }
 
   for (let i = 0; i < _config.electrumServersExtend.length; i++) {
-    config.electrumServersExtend[_config.electrumServersExtend[i]] = {
-      serverList: eservers[_config.electrumServersExtend[i]].serverList,
-    };
+    if (eservers &&
+        eservers[_config.electrumServersExtend[i]] &&
+        eservers[_config.electrumServersExtend[i]].serverList) {
+      config.electrumServersExtend[_config.electrumServersExtend[i]] = {
+        serverList: eservers[_config.electrumServersExtend[i]].serverList,
+      };
+    }
   }
 };
 
