@@ -45,6 +45,10 @@ const assetChainParams = sortObject({
   VRSC: '-ac_algo=verushash -ac_cc=1 -ac_veruspos=50 -ac_supply=0 -ac_eras=3 -ac_reward=0,38400000000,2400000000 -ac_halving=1,43200,1051920 -ac_decay=100000000,0,0 -ac_end=10080,226080,0 -ac_timelockgte=19200000000 -ac_timeunlockfrom=129600 -ac_timeunlockto=1180800 -addnode=185.25.48.236 -addnode=185.64.105.111',
   PTX: '-ac_supply=12000000 ac_reward=1500000000 ac_staked=50 -ac_end=12000000 -addnode=142.11.199.63',
   ZEX: '-ac_reward=13000000000 -ac_halving=525600 -ac_pubkey=039d4a50cc70d1184e462a22edb3b66385da97cc8059196f8305c184a3e21440af -ac_cc=2 -ac_founders=1 -addnode=5.9.102.210',
+  LUMBER: '-ac_algo=verushash -ac_veruspos=80 -ac_cc=2 -ac_supply=1260000 -ac_reward=470000000 -ac_halving=2100000 -addnode=149.202.84.141',
+  ILN: '-ac_supply=10000000000 -ac_cc=2 -addnode=51.75.122.83',
+  KSB: '-ac_supply=1000000000 -ac_end=1 -ac_public=1 -addnode=37.187.225.231 -addnode=217.182.129.38',
+  OUR: '-ac_reward=1478310502 -ac_halving=525600 -ac_cc=42 -ac_supply=100000000 -ac_perc=7700 -ac_staked=93 -ac_pubkey=02652a3f3e00b3a1875a918314f0bac838d6dd189a346fa623f5efe9541ac0b98c -ac_public=1 -addnode=37.187.225.231 -addnode=217.182.129.38',
 });
 
 export default assetChainParams;
