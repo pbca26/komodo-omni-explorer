@@ -175,7 +175,7 @@ module.exports = (api) => {
 
         if (_encodedContent) {
           const coin = 'kv';
-          const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
+          const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
           const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
           const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);

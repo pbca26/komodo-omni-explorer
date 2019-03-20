@@ -506,7 +506,7 @@ module.exports = (api) => {
 
       Promise.all(electrumServers.map((electrumServerData, index) => {
         return new Promise((resolve, reject) => {
-          const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
+          const _server = electrumServerData.serverList.length > 1 ? electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':') : electrumServerData.serverList[0].split(':');
           const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
 
           setTimeout(() => {
@@ -561,7 +561,7 @@ module.exports = (api) => {
           Promise.all(electrumServers.map((electrumServerData, index) => {
             if (_finishedBalanceCalls[electrumServerData.coin.toUpperCase()] !== 'error') {
               return new Promise((resolve, reject) => {
-                const _server = electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':');
+                const _server = electrumServerData.serverList.length > 1 ? electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':') : electrumServerData.serverList[0].split(':');
                 const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
                 const MAX_TX = 20;
 
