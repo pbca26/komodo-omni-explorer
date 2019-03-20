@@ -158,7 +158,6 @@ const explorers = sortObject({
     'http://zilla.explorer.dexstats.info',
   ],
   MGNX: 'http://mgnx.explorer.dexstats.info',
-  CALL: 'https://call.explorer.mycapitalco.in',
   CCL: [
     'http://ccl.explorer.dexstats.info',
     'https://ccl.kmdexplorer.io',
@@ -169,6 +168,11 @@ const explorers = sortObject({
   KMDICE: 'https://kmdice.explorer.dexstats.info',
   PTX: 'http://explorer1.patenttx.com',
   ZEX: 'http://explorer.zaddex.com',
+  LUMBER: 'https://explorer.lumberscout.io',
+  PGT: 'https://explorer.pungotoken.com',
+  ILN: 'https://explorer.ilien.io',
+  OUR: 'http://our.explorer.dexstats.info',
+  KSB: 'http://ksb.explorer.dexstats.info',
 });
 
 export default explorers;
