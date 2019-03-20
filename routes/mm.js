@@ -321,17 +321,6 @@ module.exports = (api) => {
     }, RATES_UPDATE_INTERVAL);
   }
 
-  api.get('/mm/prices/test', (req, res, next) => {
-    res.set({ 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({
-      msg: 'success',
-      result: {
-        rates: api.mm.extRates.parsedAll,
-        priceChange: api.mm.extRates.priceChangeAll,
-      },
-    }));
-  });
-
   // fetch prices
   api.get('/mm/prices/v2', (req, res, next) => {
     const coins = req.query.coins || 'kmd';
