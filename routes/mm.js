@@ -325,20 +325,20 @@ module.exports = (api) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
-      result: api.mm.extRates.parsedAll,
+      result: {
+        rates: api.mm.extRates.parsedAll,
+        priceChange: api.mm.extRates.priceChangeAll,
+      },
     }));
   });
 
   // fetch prices
   api.get('/mm/prices/v2', (req, res, next) => {
-    let _currency = req.query.currency || 'USD';
     const coins = req.query.coins || 'kmd';
     const priceChange = req.query.pricechange;
     const pricesSource = req.query.src && (req.query.src.toLowerCase() === 'coinmarketcap' || req.query.src.toLowerCase() === 'digitalprice') ? 'parsedAll' : null;
+    let _currency = req.query.currency || 'USD';
     let _resp = {};
-
-    if (pricesSource)
-    console.log('prices source ' + req.query.src.toLowerCase());
 
     if (_currency.indexOf(',') > -1) {
       const _fiat = _currency.split(',');
@@ -376,11 +376,48 @@ module.exports = (api) => {
             if (typeof _currency === 'object') {
               for (let j = 0; j < _currency.length; j++) {
                 _resp[_coins[i].toUpperCase()][_currency[j].toUpperCase()] = _priceSource[_coins[i].toUpperCase()][_currency[j].toUpperCase()];
+
+                if (!pricesSource &&
+                    api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()] &&
+                    api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()] &&
+                    api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency[j].toUpperCase()] &&
+                    api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency[j].toUpperCase()]) {
+                  if (!_resp[_coins[i].toUpperCase()].AVG) {
+                    _resp[_coins[i].toUpperCase()].AVG = {};
+                  }
+                  _resp[_coins[i].toUpperCase()].AVG[_currency[j].toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency[j].toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency[j].toUpperCase()])) / 2;
+                }
               }
             } else if (_currency.toLowerCase() === 'all') {
               _resp[_coins[i].toUpperCase()] = _priceSource[_coins[i].toUpperCase()];
+
+              if (!pricesSource &&
+                  api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()] &&
+                  api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()]) {
+                for (let key in api.mm.fiatRatesAll) {
+                  if (key !== 'BTC' &&
+                      api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][key.toUpperCase()] &&
+                      api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][key.toUpperCase()]) {
+                    if (!_resp[_coins[i].toUpperCase()].AVG) {
+                      _resp[_coins[i].toUpperCase()].AVG = {};
+                    }
+                    _resp[_coins[i].toUpperCase()].AVG[key.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][key.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][key.toUpperCase()])) / 2;
+                  }
+                }
+              }
             } else {
               _resp[_coins[i].toUpperCase()][_currency.toUpperCase()] = _priceSource[_coins[i].toUpperCase()][_currency.toUpperCase()];
+              
+              if (!pricesSource &&
+                  api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()] &&
+                  api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()] &&
+                  api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency.toUpperCase()] &&
+                  api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency.toUpperCase()]) {
+                if (!_resp[_coins[i].toUpperCase()].AVG) {
+                  _resp[_coins[i].toUpperCase()].AVG = {};
+                }
+                _resp[_coins[i].toUpperCase()].AVG[_currency.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency.toUpperCase()])) / 2;
+              }
             }
           } else if (
             api.mm.prices[`${_coins[i].toUpperCase()}/KMD`] &&
@@ -403,12 +440,6 @@ module.exports = (api) => {
             }
           }
         }
-
-        /*if (priceChange &&
-            api.mm.extRates.priceChange[_coins[i].toUpperCase()] &&
-            (!pricesSource || (pricesSource && req.query.src.toLowerCase() === 'coinmarketcap' && api.mm.extRates.priceChange[_coins[i].toUpperCase()].src === 'coinmarketcap') || (pricesSource && req.query.src.toLowerCase() === 'digitalprice' && api.mm.extRates.priceChange[_coins[i].toUpperCase()].src === 'digitalprice'))) {
-          _resp[_coins[i].toUpperCase()].priceChange = api.mm.extRates.priceChange[_coins[i].toUpperCase()];
-        }*/
 
         if (priceChange) {
           if (pricesSource &&
@@ -440,11 +471,48 @@ module.exports = (api) => {
         if (typeof _currency === 'object') {
           for (let i = 0; i < _currency.length; i++) {
             _resp[coins.toUpperCase()][_currency[i].toUpperCase()] = _priceSource[coins.toUpperCase()][_currency[i].toUpperCase()];
+          
+            if (!pricesSource &&
+                api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()] &&
+                api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()] &&
+                api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency[i].toUpperCase()] &&
+                api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency[i].toUpperCase()]) {
+              if (!_resp[coins.toUpperCase()].AVG) {
+                _resp[coins.toUpperCase()].AVG = {};
+              }
+              _resp[coins.toUpperCase()].AVG[_currency[i].toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency[i].toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency[i].toUpperCase()])) / 2;
+            }          
           }
         } else if (_currency.toLowerCase() === 'all') {
           _resp[coins.toUpperCase()] = _priceSource[coins.toUpperCase()];
+
+          if (!pricesSource &&
+              api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()] &&
+              api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()]) {
+            for (let key in api.mm.fiatRatesAll) {
+              if (key !== 'BTC' &&
+                  api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][key.toUpperCase()] &&
+                  api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][key.toUpperCase()]) {
+                if (!_resp[coins.toUpperCase()].AVG) {
+                  _resp[coins.toUpperCase()].AVG = {};
+                }
+                _resp[coins.toUpperCase()].AVG[key.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][key.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][key.toUpperCase()])) / 2;
+              }
+            }
+          }
         } else {
           _resp[coins.toUpperCase()][_currency.toUpperCase()] = _priceSource[coins.toUpperCase()][_currency.toUpperCase()];
+        
+          if (!pricesSource &&
+              api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()] &&
+              api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()] &&
+              api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency.toUpperCase()] &&
+              api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency.toUpperCase()]) {
+            if (!_resp[coins.toUpperCase()].AVG) {
+              _resp[coins.toUpperCase()].AVG = {};
+            }
+            _resp[coins.toUpperCase()].AVG[_currency.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency.toUpperCase()])) / 2;
+          }
         }
       } else if (
         api.mm.prices[`${coins.toUpperCase()}/KMD`] &&
@@ -492,13 +560,14 @@ module.exports = (api) => {
     }
 
     for (let key in _resp) {
-      if (!Object.keys(_resp[key]).length) {
+      if (!Object.keys(_resp[key]).length ||
+          (Object.keys(_resp[key]).length === 1 && Object.keys(_resp[key])[0] === 'AVG')) {
         delete _resp[key];
       } else {
         if (!pricesSource &&
             cmcCoinDetailsList.NON_KMD_ASSETS.indexOf(key.toUpperCase()) > -1 &&
-            api.mm.extRates.priceChange[coins.toUpperCase()] &&
-            api.mm.extRates.priceChange[coins.toUpperCase()].src === 'coinmarketcap') {
+            api.mm.extRates.priceChange[key.toUpperCase()] &&
+            api.mm.extRates.priceChange[key.toUpperCase()].src === 'coinmarketcap') {
           _resp[key].KIC = false;
         }
       }
