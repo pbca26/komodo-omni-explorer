@@ -374,7 +374,7 @@ module.exports = (api) => {
                   if (!_resp[_coins[i].toUpperCase()].AVG) {
                     _resp[_coins[i].toUpperCase()].AVG = {};
                   }
-                  _resp[_coins[i].toUpperCase()].AVG[_currency[j].toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency[j].toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency[j].toUpperCase()])) / 2;
+                  _resp[_coins[i].toUpperCase()].AVG[_currency[j].toUpperCase()] = Number((Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency[j].toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency[j].toUpperCase()])) / 2).toFixed(8);
                 }
               }
             } else if (_currency.toLowerCase() === 'all') {
@@ -390,7 +390,7 @@ module.exports = (api) => {
                     if (!_resp[_coins[i].toUpperCase()].AVG) {
                       _resp[_coins[i].toUpperCase()].AVG = {};
                     }
-                    _resp[_coins[i].toUpperCase()].AVG[key.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][key.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][key.toUpperCase()])) / 2;
+                    _resp[_coins[i].toUpperCase()].AVG[key.toUpperCase()] = Number((Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][key.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][key.toUpperCase()])) / 2).toFixed(8);
                   }
                 }
               }
@@ -405,7 +405,7 @@ module.exports = (api) => {
                 if (!_resp[_coins[i].toUpperCase()].AVG) {
                   _resp[_coins[i].toUpperCase()].AVG = {};
                 }
-                _resp[_coins[i].toUpperCase()].AVG[_currency.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency.toUpperCase()])) / 2;
+                _resp[_coins[i].toUpperCase()].AVG[_currency.toUpperCase()] = Number((Number(api.mm.extRates.parsedAll.coinmarketcap[_coins[i].toUpperCase()][_currency.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[_coins[i].toUpperCase()][_currency.toUpperCase()])) / 2).toFixed(8);
               }
             }
           } else if (
@@ -469,7 +469,7 @@ module.exports = (api) => {
               if (!_resp[coins.toUpperCase()].AVG) {
                 _resp[coins.toUpperCase()].AVG = {};
               }
-              _resp[coins.toUpperCase()].AVG[_currency[i].toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency[i].toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency[i].toUpperCase()])) / 2;
+              _resp[coins.toUpperCase()].AVG[_currency[i].toUpperCase()] = Number((Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency[i].toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency[i].toUpperCase()])) / 2).toFixed(8);
             }          
           }
         } else if (_currency.toLowerCase() === 'all') {
@@ -485,7 +485,7 @@ module.exports = (api) => {
                 if (!_resp[coins.toUpperCase()].AVG) {
                   _resp[coins.toUpperCase()].AVG = {};
                 }
-                _resp[coins.toUpperCase()].AVG[key.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][key.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][key.toUpperCase()])) / 2;
+                _resp[coins.toUpperCase()].AVG[key.toUpperCase()] = Number((Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][key.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][key.toUpperCase()])) / 2).toFixed(8);
               }
             }
           }
@@ -500,7 +500,7 @@ module.exports = (api) => {
             if (!_resp[coins.toUpperCase()].AVG) {
               _resp[coins.toUpperCase()].AVG = {};
             }
-            _resp[coins.toUpperCase()].AVG[_currency.toUpperCase()] = (Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency.toUpperCase()])) / 2;
+            _resp[coins.toUpperCase()].AVG[_currency.toUpperCase()] = Number((Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency.toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency.toUpperCase()])) / 2).toFixed(8);
           }
         }
       } else if (
