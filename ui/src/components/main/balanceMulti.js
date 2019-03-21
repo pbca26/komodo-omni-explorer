@@ -5,6 +5,8 @@ import config from '../../config';
 import { multiAddressBalance } from '../../actions/actionCreators';
 import translate from '../../util/translate/translate';
 
+// TODO: add asset chains
+
 class BalanceMulti extends React.Component {
   constructor(props) {
     super(props);

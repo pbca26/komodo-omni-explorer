@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 const async = require('async');
-const bitcoin = require('bitcoinjs-lib');
+const bitcoin = require('bitgo-utxo-lib');
 const coinSelect = require('coinselect');
 const { checkTimestamp } = require('agama-wallet-lib/src/time');
 const {
@@ -121,7 +121,7 @@ module.exports = (api) => {
         if (addressCheck === true) {
           const network = 'komodo';
           const outputAddress = req.query.address;
-          const randomServer = config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':');
+          const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
           const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
 
           const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
@@ -230,8 +230,10 @@ module.exports = (api) => {
                   }
                 }
 
+                tx.setVersion(4);
+                
                 for (let i = 0; i < inputs.length; i++) {
-                  tx.sign(i, keyPair);
+                  tx.sign(i, keyPair, '', null, inputs[i].value);
                 }
 
                 const rawtx = tx.build().toHex();
@@ -246,8 +248,8 @@ module.exports = (api) => {
 
                   api.log(txid);
 
-                  if (txid &&
-                      txid.indexOf('bad-txns-inputs-spent') > -1) {
+                  if (JSON.stringify(txid) &&
+                      JSON.stringify(txid).indexOf('bad-txns-inputs-spent') > -1) {
                     const retObj = {
                       msg: 'error',
                       result: 'Bad transaction inputs spent',
@@ -288,8 +290,8 @@ module.exports = (api) => {
                         }
                       }
                     } else {
-                      if (txid &&
-                          txid.indexOf('bad-txns-in-belowout') > -1) {
+                      if (JSON.stringify(txid) &&
+                          JSON.stringify(txid).indexOf('bad-txns-in-belowout') > -1) {
                         const retObj = {
                           msg: 'error',
                           result: 'Bad transaction inputs spent',

@@ -40,7 +40,7 @@ const LANG_EN = {
     HOURS_SM: 'hour(s)',
     GAP_PERIOD: 'gap period when no rewards are accrued',
     YOUR_ACTUAL_AMOUNT: 'Your actual amounts will be less than what is presented in the table.',
-    Q1: 'What will happen to my KMD rewards after 1 year period is passed.',
+    Q1: 'What will happen to my KMD rewards after 1 month period is passed.',
     A1: 'It will stop accruing and remain fixed until it is claimed.',
     CHANGES_TO_REWARDS: 'Changes to KMD rewards past block height',
     CHANGES_TO_REWARDS_DESC1: 'new KMD coins are rewarded to users when they make transactions',
