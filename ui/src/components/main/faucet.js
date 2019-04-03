@@ -177,6 +177,7 @@ class Faucet extends React.Component {
           <div className="row text-center margin-top-md margin-bottom-xlg">
             <div className="col-md-12">
               { this.state.error &&
+                !this.state.processing &&
                 <div className="alert alert-danger alert-dismissable">
                   <strong>{ this.state.result }</strong>
                 </div>
