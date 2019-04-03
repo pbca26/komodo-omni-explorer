@@ -173,6 +173,9 @@ const explorers = sortObject({
   ILN: 'https://explorer.ilien.io',
   OUR: 'http://our.explorer.dexstats.info',
   KSB: 'http://ksb.explorer.dexstats.info',
+  MORTY: 'https://morty.kmd.dev',
+  VOTE2019: 'https://vote2019.world',
+  RICK: 'https://rick.kmd.dev',
 });
 
 export default explorers;

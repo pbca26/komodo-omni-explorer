@@ -45,10 +45,12 @@ const _config = {
     'OUR',
     'LUMBER',
     'ILN',
-  ],
-  extendExplorers: [
     'BEER',
     'PIZZA',
+    'RICK',
+    'MORTY',
+  ],
+  extendExplorers: [
   ],
   charts: {
     urlPrefix: 'https://www.atomicexplorer.com/public/charts',
@@ -64,6 +66,14 @@ const _config = {
     pizza: {
       outSize: 0.777,
       explorer: explorerList.PIZZA,
+    },
+    rick: {
+      outSize: 7.777,
+      explorer: explorerList.RICK,
+    },
+    morty: {
+      outSize: 7.777,
+      explorer: explorerList.MORTY,
     },
     coqui: {
       outSize: 0.1,
