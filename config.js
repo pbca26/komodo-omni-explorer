@@ -130,6 +130,15 @@ const _config = {
     PGT: {
       url: 'https://explorer.pungotoken.com/insight-api-komodo',
     },
+    RICK: {
+      url: 'https://rick.kmd.dev/api',
+    },
+    MORTY: {
+      url: 'https://morty.kmd.dev/api',
+    },
+    VOTE2019: {
+      url: 'https://vote2019.world/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
@@ -140,6 +149,16 @@ const _config = {
       wif: '',
       fee: 0.0001,
       outSize: [1,1,1],
+    },
+    rick: {
+      wif: '',
+      fee: 0.0001,
+      outSize: [1,2,4.777],
+    },
+    morty: {
+      wif: '',
+      fee: 0.0001,
+      outSize: [1,2,4.777],
     },
     pizza: {
       wif: '',
@@ -227,15 +246,18 @@ const _config = {
     'glxt',
     'ninja',
     'ccl',
-    'call',
+    'vrsc',
     'dion',
     'kmdice',
     'ptx',
+    'pgt',
     'lumber',
     'iln',
     'ksb',
     'our',
-    'pgt',
+    'rick',
+    'morty',
+    'vote2019',
   ],
   electrumServersExtend: [
     'btc',
