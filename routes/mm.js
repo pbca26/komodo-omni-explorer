@@ -16,6 +16,7 @@ const electrumJSCore = require('./electrumjs.core.js');
 const defaultElectrumServers = require('agama-wallet-lib/src/electrum-servers');
 const { ethGasStationRateToWei } = require('agama-wallet-lib/src/eth');
 const cmcCoinDetailsList = require('./cmcCoinDetailsList');
+const pricesStopList = require('./pricesStopList');
 
 const PRICES_UPDATE_INTERVAL = 300000; // every 300s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
@@ -358,7 +359,8 @@ module.exports = (api) => {
       const _coins = coins.split(',');
 
       for (let i = 0; i < _coins.length; i++) {
-        if (_coins[i].length) {
+        if (_coins[i].length &&
+            pricesStopList.indexOf(_coins[i].toUpperCase()) === -1) {
           if (_priceSource[_coins[i].toUpperCase()]) {
             _resp[_coins[i].toUpperCase()] = {};
 
@@ -453,7 +455,7 @@ module.exports = (api) => {
           }
         }
       }
-    } else {
+    } else if (pricesStopList.indexOf(coins.toUpperCase()) === -1) {
       _resp[coins.toUpperCase()] = {};
 
       if (_priceSource[coins.toUpperCase()]) {
