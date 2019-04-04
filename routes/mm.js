@@ -361,6 +361,7 @@ module.exports = (api) => {
       let _coins = coins.split(',');
 
       for (let i = 0; i < _coins.length; i++) {
+        tickerName = null;
 
         if (_coins[i].length &&
             pricesStopList.indexOf(_coins[i].toUpperCase()) === -1) {
