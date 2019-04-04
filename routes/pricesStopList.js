@@ -3,6 +3,7 @@ const pricesStopList = [
   'PIZZA',
   'MORTY',
   'RICK',
+  'VOTE2019',
 ];
 
 module.exports = pricesStopList;

@@ -7,6 +7,7 @@ const cmcCoinDetailsList = {
     'MVP',
     'EQL',
     'CCL',
+    'OUR',
   ],
 };
 
