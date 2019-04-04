@@ -2,7 +2,7 @@
 MIT License
 
 Copyright (c) 2017 Yuki Akiyama
-Copyright (c) 2017 - 2018 SuperNET
+Copyright (c) 2017 - 2019 SuperNET
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -289,7 +289,7 @@ class ElectrumJSCore extends Client {
       'server.peers.subscribe',
       'blockchain.numblocks.subscribe',
       'blockchain.headers.subscribe',
-      'blockchain.address.subscribe'
+      'blockchain.address.subscribe',
     ];
 
     list.forEach(event => this.subscribe.removeAllListeners(event));
