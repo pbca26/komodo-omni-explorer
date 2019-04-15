@@ -3,10 +3,10 @@ import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 const _config = {
   lang: 'EN',
   dev: false,
-  //https: true,
-  //apiUrl: 'www.atomicexplorer.com',
-  https: false,
-  apiUrl: 'localhost:8115',
+  https: true,
+  apiUrl: 'www.atomicexplorer.com',
+  //https: false,
+  //apiUrl: 'localhost:8115',
   recaptchaKey: '6LdiinAUAAAAAAwLJjCrOVh-Ocj54Z3m3oX8mN9X',
   explorers: [
     'KMD',
@@ -53,6 +53,7 @@ const _config = {
     'K64',
   ],
   extendExplorers: [
+    'VOTE2019',
   ],
   charts: {
     urlPrefix: 'https://www.atomicexplorer.com/public/charts',
@@ -102,7 +103,7 @@ const explorers = () => {
   }
 
   for (let i = 0; i < _config.extendExplorers.length; i++) {
-    config.extendExplorers[_config.extendExplorers[i]] = explorerList[_config.extendExplorers[i]];
+    config.explorers[_config.extendExplorers[i]] = explorerList[_config.extendExplorers[i]];
   }
 };
 
