@@ -139,6 +139,18 @@ const _config = {
     VOTE2019: {
       url: 'https://vote2019.world/insight-api-komodo',
     },
+    BEER: {
+      url: 'https://beer.kmdexplorer.io/insight-api-komodo',
+    },
+    PIZZA: {
+      url: 'https://pizza.kmdexplorer.io/insight-api-komodo',
+    },
+    K64: {
+      url: 'http://explorer.komodore64.com/insight-api-komodo',
+    },
+    RFOX: {
+      url: 'https://rfox.kmdexplorer.io/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
@@ -258,6 +270,8 @@ const _config = {
     'rick',
     'morty',
     'vote2019',
+    'rfox',
+    'k64',
   ],
   electrumServersExtend: [
     'btc',

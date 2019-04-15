@@ -2,7 +2,7 @@ import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 
 const _config = {
   lang: 'EN',
-  dev: true,
+  dev: false,
   //https: true,
   //apiUrl: 'www.atomicexplorer.com',
   https: false,
@@ -49,6 +49,8 @@ const _config = {
     'PIZZA',
     'RICK',
     'MORTY',
+    'RFOX',
+    'K64',
   ],
   extendExplorers: [
   ],
