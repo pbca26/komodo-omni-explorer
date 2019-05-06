@@ -2,7 +2,6 @@ const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
-const Promise = require('bluebird');
 const async = require('async');
 const bitcoin = require('bitcoinjs-lib');
 const {

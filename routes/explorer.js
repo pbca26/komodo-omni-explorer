@@ -7,7 +7,6 @@ const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
-const Promise = require('bluebird');
 const { komodoInterest } = require('agama-wallet-lib');
 const {
   toSats,

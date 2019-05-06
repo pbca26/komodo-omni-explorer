@@ -2,7 +2,6 @@ const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
-const Promise = require('bluebird');
 const crypto = require('crypto');
 const changellyLib = require('api-changelly/lib');
 const changelly = new changellyLib(
