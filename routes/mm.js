@@ -4,7 +4,6 @@ const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
-const Promise = require('bluebird');
 const async = require('async');
 const exec = require('child_process').exec;
 const {
@@ -189,6 +188,9 @@ module.exports = (api) => {
                 percent_change_1h: Number(_rates[i].priceChange.replace('%', '')),
               },
             };
+            if (api.mm.extRates.priceChangeAll.coinmarketcap[key.toUpperCase()]) {
+              api.mm.extRates.priceChange[key.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[key.toUpperCase()];
+            }
             api.mm.extRates.priceChangeAll.digitalprice[key.toUpperCase()] = api.mm.extRates.priceChange[key.toUpperCase()];
           }
         }
@@ -319,6 +321,9 @@ module.exports = (api) => {
                       percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
                     },
                   };
+                  if (api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()]) {
+                    api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()];
+                  }
                   api.mm.extRates.priceChangeAll.coingecko[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()];
                 }
                 api.parseExtRates();
