@@ -193,25 +193,27 @@ module.exports = (api) => {
             }
           }
 
+          const newProposalTemplate = {
+            id: 0,
+            coin,
+            redeemscript,
+            content,
+            contentBackup: content,
+            comments: comment ? [comment] : [],
+            history: [{
+              timestamp: Math.floor(Date.now() / 1000),
+              pubkey,
+              type: 0,
+            }, {
+              timestamp: Math.floor(Date.now() / 1000),
+              pubkey,
+              type: 1,
+            }],
+            archived: false,
+          };
+
           if (files.indexOf(md5(redeemscript)) === -1) {
-            const fileData = JSON.stringify([{
-              id: 0,
-              coin,
-              redeemscript,
-              content,
-              contentBackup: content,
-              comments: comment ? [comment] : [],
-              history: [{
-                timestamp: Math.floor(Date.now() / 1000),
-                pubkey,
-                type: 0,
-              }, {
-                timestamp: Math.floor(Date.now() / 1000),
-                pubkey,
-                type: 1,
-              }],
-              archived: false,
-            }]);
+            const fileData = JSON.stringify([newProposalTemplate]);
             fs.writeFileSync(`./multisigDB/${md5(redeemscript)}.msig`, fileData);
 
             const retObj = {
@@ -221,7 +223,31 @@ module.exports = (api) => {
             res.set({ 'Content-Type': 'application/json' });
             res.end(JSON.stringify(retObj));
           } else {
-            // modify old file
+            if (fs.existsSync(`./multisigDB/${md5(redeemscript)}.msig`)) {
+              fs.readFile(`./multisigDB/${md5(redeemscript)}.msig`, 'utf8', (err, data) => {
+                if (err) {
+                  const retObj = {
+                    msg: 'error',
+                    result: 'unable to read file',
+                  };
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                } else {
+                  data = JSON.parse(data);
+                  data.push(newProposalTemplate);
+
+                  // update proposal file
+                  fs.writeFileSync(`./multisigDB/${md5(redeemscript)}.msig`, JSON.stringify(data));
+                  
+                  const retObj = {
+                    msg: 'success',
+                    result: 'proposal updated',
+                  };
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                }
+              });
+            }
           }
         });
       } else {
