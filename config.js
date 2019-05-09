@@ -14,6 +14,18 @@ const _config = {
     'CHIPS',
     'PTX',
   ],
+  modules: {
+    mm: true, // price api methods included
+    kv: true,
+    faucet: true,
+    explorer: true,
+    mm: true,
+    multisig: true,
+    exchanges: true,
+    ticker: true,
+    wallet: true,
+    fees: true,
+  },
   insight: {
     maxTxLength: 50,
     KMD: {

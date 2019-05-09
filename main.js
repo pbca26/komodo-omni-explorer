@@ -4,7 +4,7 @@ const config = require('./config');
 const path = require('path');
 const fs = require('fs');
 const compression = require('compression');
-const datafeed = require('./routes/charts/datafeed');
+//const datafeed = require('./routes/charts/datafeed');
 
 let api = require('./routes/api');
 let app = express();
@@ -18,9 +18,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(bodyParser.json({ limit: '1mb' })); // support json encoded bodies
+app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({
-  limit: '1mb',
+  limit: '5mb',
   extended: true,
 })); // support encoded bodies
 
@@ -37,15 +37,19 @@ app.use(compression({
 app.use('/api', api);
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// web wallet
-app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
-app.use('/wallet.zip', express.static(path.join(__dirname, 'wallet.zip')));
+if (config.modules.wallet) {
+  // web wallet
+  app.use('/wallet', express.static(path.join(__dirname, 'wallet')));
+  app.use('/wallet.zip', express.static(path.join(__dirname, 'wallet.zip')));
+}
 
-// ticker
-app.get('/ticker', (req, res) => {
-  res.sendFile(path.join(__dirname + '/ticker/index.html'));
-});
-app.use('/ticker', express.static(path.join(__dirname, 'ticker')));
+if (config.modules.ticker) {
+  // ticker
+  app.get('/ticker', (req, res) => {
+    res.sendFile(path.join(__dirname + '/ticker/index.html'));
+  });
+  app.use('/ticker', express.static(path.join(__dirname, 'ticker')));
+}
 
 let server;
 
@@ -65,4 +69,7 @@ if (config.https) {
 
 console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);
 
-api.start();
+//api.start();
+//api.coinswitchCoinsSync();
+//api.getOverview(true);
+//api.getRates();

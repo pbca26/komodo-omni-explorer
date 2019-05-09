@@ -22,25 +22,50 @@ api.log = (msg, data) => {
   }
 }
 
-api = require('./explorer.js')(api);
-api = require('./mm.js')(api);
-api = require('./faucet.js')(api);
-api = require('./kv.js')(api);
-api = require('./exchanges.js')(api);
+if (config.modules.explorer) {
+  api = require('./explorer.js')(api);
+}
+if (config.modules.mm) {
+  api = require('./mm.js')(api);
+}
+if (config.modules.faucet) {
+  api = require('./faucet.js')(api);
+}
+if (config.modules.kv) {
+  api = require('./kv.js')(api);
+}
+if (config.modules.exchanges) {
+  api = require('./exchanges.js')(api);
+}
+if (config.modules.multisig) {
+  api = require('./multisigDB.js')(api);
+}
 
 api.start = () => {
-  api.kvLoop();
-  api.mmloop();
-  api.getOverview(true);
-  api.getSummary(true);
-  api.getRates();
-  api.getMMCoins();
-  api.updateStats();
-  api.getBTCFees();
-  api.getGasPrice();
-  api.ticker();
-  api.coinswitchCoinsSync();
-  api.coinswitchOrdersSync();
+  if (config.modules.explorer) {
+    api.getOverview(true);
+    api.getSummary(true);
+  }
+  if (config.modules.kv) {
+    api.kvLoop();
+  }
+  if (config.modules.mm) {
+    api.mmloop();
+    api.getRates();
+    api.getMMCoins();
+    api.updateStats();
+  }
+  if (config.modules.ticker) {
+    api.ticker();
+  }
+  if (config.modules.explorer) {
+    api.coinswitchCoinsSync();
+    api.coinswitchOrdersSync();
+  }
+  if (config.modules.fees) {
+    api.getBTCFees();
+    api.getGasPrice();
+  }
 };
 
 module.exports = api;
