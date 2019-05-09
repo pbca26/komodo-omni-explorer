@@ -1,9 +1,9 @@
 /* 
  *  Purpose: multisig proposal storage
- *  Proposal format: JSON object { id: int, coin: string, pubkey, redeemscript: string, content: object, comments: array, history, archived: boolean }
+ *  Proposal format: JSON object { id: int, coin: string, pubkey, redeemscript: string, content: object, contentBackup: initial content copy, comments: array, history, archived: boolean }
  *  Content format: encrypted JSON object { timestamp, type, pubkey }
  *    type: 0 - created, 1 - sig added, 2 - comment added, 4 - archived, 5 - restored, 6 - published (locked)
- *  Content format: encrypted JSON object { timestamp, title: string, pubkey hash: string, raw tx{init,current} }
+ *  Content format: encrypted JSON object { timestamp, title: string, pubkey hash: string, raw tx }
  *  Comment format: encrypted JSON object { id: int, pubkey hash: string, text: string, edited: false }
  */
 
@@ -131,6 +131,97 @@ module.exports = (api) => {
               res.set({ 'Content-Type': 'application/json' });
               res.end(JSON.stringify(retObj));
             }
+          }
+        });
+      } else {
+        const retObj = {
+          msg: 'error',
+          result: 'signature mismatch',
+        };
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(retObj));
+      }
+    } else {
+      const retObj = {
+        msg: 'error',
+        result: `missing param${queryParamsCheck.length > 1 ? 's' : ''} ${queryParamsCheck.join(', ')}`,
+      };
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
+  });
+
+  api.get('/multisig/storage/new', (req, res, next) => {
+    const paramsList = [
+      'coin',
+      'pubkey',
+      'message',
+      'sig',
+      'redeemscript',
+      'content',
+      'iszcash',
+    ];
+    const {
+      coin,
+      pubkey,
+      message,
+      sig,
+      redeemscript,
+      content,
+      iszcash,
+      comment,
+    } = req.query;
+
+    const queryParamsCheck = checkParams(paramsList, req.query);
+    
+    if (!queryParamsCheck.length) {
+      // TODO: wrong network
+      const signature = true || signature.btc.verify(
+        pubkeyToAddress(pubkey, networks[coin] || networks.btc),
+        message,
+        sig,
+        iszcash ? true : false
+      );
+
+      if (signature) {
+        fs.readdir('./multisigDB', (err, items) => {
+          let files = [];
+
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].substr(items[i].length - 5, 5) === '.msig') {
+              files.push(items[i].substr(0, items[i].length - 5));
+            }
+          }
+
+          if (files.indexOf(md5(redeemscript)) === -1) {
+            const fileData = JSON.stringify([{
+              id: 0,
+              coin,
+              redeemscript,
+              content,
+              contentBackup: content,
+              comments: comment ? [comment] : [],
+              history: [{
+                timestamp: Math.floor(Date.now() / 1000),
+                pubkey,
+                type: 0,
+              }, {
+                timestamp: Math.floor(Date.now() / 1000),
+                pubkey,
+                type: 1,
+              }],
+              archived: false,
+            }]);
+            fs.writeFileSync(`./multisigDB/${md5(redeemscript)}.msig`, fileData);
+
+            const retObj = {
+              msg: 'success',
+              result: 'file created',
+            };
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(retObj));
+          } else {
+            // modify old file
           }
         });
       } else {
