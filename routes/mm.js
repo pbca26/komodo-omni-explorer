@@ -182,12 +182,14 @@ module.exports = (api) => {
 
           if (!api.mm.extRates.priceChange[key.toUpperCase()] ||
               (api.mm.extRates.priceChange[key.toUpperCase()] && api.mm.extRates.priceChange[key.toUpperCase()].src !== 'coinmarketcap')) {
-            api.mm.extRates.priceChange[key.toUpperCase()] = {
-              src: 'digitalprice',
-              data: {
-                percent_change_1h: Number(_rates[i].priceChange.replace('%', '')),
-              },
-            };
+            if (!api.mm.extRates.parsedAll.coinmarketcap[key.toUpperCase()]) {
+              api.mm.extRates.priceChange[key.toUpperCase()] = {
+                src: 'digitalprice',
+                data: {
+                  percent_change_1h: Number(_rates[i].priceChange.replace('%', '')),
+                },
+              };
+            }
             if (api.mm.extRates.priceChangeAll.coinmarketcap[key.toUpperCase()]) {
               api.mm.extRates.priceChange[key.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[key.toUpperCase()];
             }
@@ -216,7 +218,9 @@ module.exports = (api) => {
             }
           }
 
-          _fiatRates[key].USD = Number(api.mm.extRates.coingecko[key]).toFixed(8);
+          if (!api.mm.extRates.parsedAll.coinmarketcap[key.toUpperCase()]) {
+            _fiatRates[key].USD = Number(api.mm.extRates.coingecko[key]).toFixed(8);
+          }
         }
       }
     } catch (e) {
