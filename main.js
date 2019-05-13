@@ -69,7 +69,4 @@ if (config.https) {
 
 console.log(`Komodo Atomic Explorer Server is running at ${config.isDev ? 'localhost' : config.ip}:${config.port}`);
 
-//api.start();
-//api.coinswitchCoinsSync();
-//api.getOverview(true);
-//api.getRates();
+api.start();
