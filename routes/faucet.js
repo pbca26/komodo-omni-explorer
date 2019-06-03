@@ -12,6 +12,7 @@ const {
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 const electrumJSCore = require('./electrumjs.core.js');
+const { pubToElectrumScriptHashHex } = require('agama-wallet-lib/src/keys');
 
 let minRemaining = 0;
 
@@ -130,209 +131,215 @@ module.exports = (api) => {
           };
 
           ecl.connect();
-          ecl.blockchainAddressListunspent(keys.pub)
-          .then((json) => {
-            if (json &&
-                json.length) {
-              const _utxo = json;
-              let _formattedUtxoList = [];
 
-              for (let i = 0; i < _utxo.length; i++) {
-                _formattedUtxoList.push({
-                  txid: _utxo[i].tx_hash,
-                  vout: _utxo[i].tx_pos,
-                  value: _utxo[i].value,
-                });
-              }
+          (async function() {
+            const serverProtocolVersion = await api.getServerVersion(ecl);
+            const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(keys.pub, config.komodoParams) : keys.pub;
+                      
+            ecl.blockchainAddressListunspent(_address)
+            .then((json) => {
+              if (json &&
+                  json.length) {
+                const _utxo = json;
+                let _formattedUtxoList = [];
 
-              let targets = [];
-
-              if (typeof config.faucet[coin].outSize === 'object') {
-                const _outSizes = config.faucet[coin].outSize;
-
-                for (let i = 0; i < _outSizes.length; i++) {
-                  if (i === _outSizes.length - 1) {
-                    targets.push({
-                      address: outputAddress,
-                      value: Math.floor(toSats(_outSizes[i]) + toSats(config.faucet[coin].fee)),
-                    });
-                  } else {
-                    targets.push({
-                      address: outputAddress,
-                      value: Math.floor(toSats(_outSizes[i])),
-                    });
-                  }
+                for (let i = 0; i < _utxo.length; i++) {
+                  _formattedUtxoList.push({
+                    txid: _utxo[i].tx_hash,
+                    vout: _utxo[i].tx_pos,
+                    value: _utxo[i].value,
+                  });
                 }
-              } else {
-                targets = [{
-                  address: outputAddress,
-                  value: Math.floor(toSats(config.faucet[coin].outSize) + toSats(config.faucet[coin].fee)),
-                }];
-              }
 
-              api.log('targets');
-              api.log(targets);
-
-              let {
-                fee,
-                inputs,
-                outputs,
-              } = coinSelect(_formattedUtxoList, targets, 0);
-
-              api.log('coinselect');
-              api.log('fee');
-              api.log(fee);
-              api.log('inputs');
-              api.log(inputs);
-              api.log('outputs');
-              api.log(outputs);
-
-              let _vinSum = 0;
-              let _voutSum = 0;
-
-              for (let i = 0; i < inputs.length; i++) {
-                _vinSum += inputs[i].value;
-              }
-
-              for (let i = 0; i < outputs.length; i++) {
-                _voutSum += outputs[i].value;
-              }
-
-              api.log(`vin sum ${_vinSum}`);
-              api.log(`vout sum ${_voutSum}`);
-              api.log(`fee ${_vinSum - _voutSum}`);
-
-              if ((_vinSum - _voutSum) === 0) {
-                const tx = new bitcoin.TransactionBuilder(config.komodoParams);
-
-                for (let i = 0; i < inputs.length; i++) {
-                  tx.addInput(inputs[i].txid, inputs[i].vout);
-                }
+                let targets = [];
 
                 if (typeof config.faucet[coin].outSize === 'object') {
-                  for (i = 0; i < outputs.length - 1; i++) {
-                    if (i === outputs.length - 2) {
-                      tx.addOutput(outputAddress, Number(outputs[i].value - toSats(config.faucet[coin].fee)));
+                  const _outSizes = config.faucet[coin].outSize;
+
+                  for (let i = 0; i < _outSizes.length; i++) {
+                    if (i === _outSizes.length - 1) {
+                      targets.push({
+                        address: outputAddress,
+                        value: Math.floor(toSats(_outSizes[i]) + toSats(config.faucet[coin].fee)),
+                      });
                     } else {
-                      tx.addOutput(outputAddress, Number(outputs[i].value));
+                      targets.push({
+                        address: outputAddress,
+                        value: Math.floor(toSats(_outSizes[i])),
+                      });
+                    }
+                  }
+                } else {
+                  targets = [{
+                    address: outputAddress,
+                    value: Math.floor(toSats(config.faucet[coin].outSize) + toSats(config.faucet[coin].fee)),
+                  }];
+                }
+
+                api.log('targets');
+                api.log(targets);
+
+                let {
+                  fee,
+                  inputs,
+                  outputs,
+                } = coinSelect(_formattedUtxoList, targets, 0);
+
+                api.log('coinselect');
+                api.log('fee');
+                api.log(fee);
+                api.log('inputs');
+                api.log(inputs);
+                api.log('outputs');
+                api.log(outputs);
+
+                let _vinSum = 0;
+                let _voutSum = 0;
+
+                for (let i = 0; i < inputs.length; i++) {
+                  _vinSum += inputs[i].value;
+                }
+
+                for (let i = 0; i < outputs.length; i++) {
+                  _voutSum += outputs[i].value;
+                }
+
+                api.log(`vin sum ${_vinSum}`);
+                api.log(`vout sum ${_voutSum}`);
+                api.log(`fee ${_vinSum - _voutSum}`);
+
+                if ((_vinSum - _voutSum) === 0) {
+                  const tx = new bitcoin.TransactionBuilder(config.komodoParams);
+
+                  for (let i = 0; i < inputs.length; i++) {
+                    tx.addInput(inputs[i].txid, inputs[i].vout);
+                  }
+
+                  if (typeof config.faucet[coin].outSize === 'object') {
+                    for (i = 0; i < outputs.length - 1; i++) {
+                      if (i === outputs.length - 2) {
+                        tx.addOutput(outputAddress, Number(outputs[i].value - toSats(config.faucet[coin].fee)));
+                      } else {
+                        tx.addOutput(outputAddress, Number(outputs[i].value));
+                      }
+                    }
+
+                    if (outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value > 1000) {
+                      tx.addOutput(keys.pub, Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value));
+                    }
+                  } else {
+                    tx.addOutput(outputAddress, Number(outputs[0].value - toSats(config.faucet[coin].fee)));
+
+                    if (outputs[1].value > 1000) {
+                      tx.addOutput(keys.pub, Number(outputs[1].value));
                     }
                   }
 
-                  if (outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value > 1000) {
-                    tx.addOutput(keys.pub, Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value));
+                  tx.setVersion(4);
+                  
+                  for (let i = 0; i < inputs.length; i++) {
+                    tx.sign(i, keyPair, '', null, inputs[i].value);
                   }
-                } else {
-                  tx.addOutput(outputAddress, Number(outputs[0].value - toSats(config.faucet[coin].fee)));
 
-                  if (outputs[1].value > 1000) {
-                    tx.addOutput(keys.pub, Number(outputs[1].value));
-                  }
-                }
+                  const rawtx = tx.build().toHex();
 
-                tx.setVersion(4);
-                
-                for (let i = 0; i < inputs.length; i++) {
-                  tx.sign(i, keyPair, '', null, inputs[i].value);
-                }
+                  api.log(tx.build());
+                  api.log('buildSignedTx signed tx hex');
+                  api.log(rawtx);
 
-                const rawtx = tx.build().toHex();
+                  ecl.blockchainTransactionBroadcast(rawtx)
+                  .then((txid) => {
+                    ecl.close();
 
-                api.log(tx.build());
-                api.log('buildSignedTx signed tx hex');
-                api.log(rawtx);
+                    api.log(txid);
 
-                ecl.blockchainTransactionBroadcast(rawtx)
-                .then((txid) => {
-                  ecl.close();
+                    if (JSON.stringify(txid) &&
+                        JSON.stringify(txid).indexOf('bad-txns-inputs-spent') > -1) {
+                      const retObj = {
+                        msg: 'error',
+                        result: 'Bad transaction inputs spent',
+                      };
 
-                  api.log(txid);
+                      res.set({ 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify(retObj));
+                    } else {
+                      if (txid &&
+                          txid.length === 64) {
+                        if (txid.indexOf('bad-txns-in-belowout') > -1) {
+                          const retObj = {
+                            msg: 'error',
+                            result: 'Bad transaction inputs spent',
+                          };
 
-                  if (JSON.stringify(txid) &&
-                      JSON.stringify(txid).indexOf('bad-txns-inputs-spent') > -1) {
-                    const retObj = {
-                      msg: 'error',
-                      result: 'Bad transaction inputs spent',
-                    };
+                          res.set({ 'Content-Type': 'application/json' });
+                          res.end(JSON.stringify(retObj));
+                        } else {
+                          const retObj = {
+                            msg: 'success',
+                            result: txid,
+                          };
 
-                    res.set({ 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(retObj));
-                  } else {
-                    if (txid &&
-                        txid.length === 64) {
-                      if (txid.indexOf('bad-txns-in-belowout') > -1) {
-                        const retObj = {
-                          msg: 'error',
-                          result: 'Bad transaction inputs spent',
-                        };
+                          res.set({ 'Content-Type': 'application/json' });
+                          res.end(JSON.stringify(retObj));
 
-                        res.set({ 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(retObj));
-                      } else {
-                        const retObj = {
-                          msg: 'success',
-                          result: txid,
-                        };
-
-                        res.set({ 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(retObj));
-
-                        try {
-                          fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
-                          api.log(`new faucet address added ${outputAddress}`);
-                        } catch (err) {
                           try {
                             fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
                             api.log(`new faucet address added ${outputAddress}`);
                           } catch (err) {
-                            api.log('fubar!');
+                            try {
+                              fs.appendFileSync(`faucetFundedList-${coin}.log`, `${outputAddress + (config.faucet[coin].resetTimeout ? (':' + Date.now()) : '')}\n`);
+                              api.log(`new faucet address added ${outputAddress}`);
+                            } catch (err) {
+                              api.log('fubar!');
+                            }
                           }
                         }
-                      }
-                    } else {
-                      if (JSON.stringify(txid) &&
-                          JSON.stringify(txid).indexOf('bad-txns-in-belowout') > -1) {
-                        const retObj = {
-                          msg: 'error',
-                          result: 'Bad transaction inputs spent',
-                        };
-
-                        res.set({ 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(retObj));
                       } else {
-                        const retObj = {
-                          msg: 'error',
-                          result: 'Can\'t broadcast transaction',
-                        };
+                        if (JSON.stringify(txid) &&
+                            JSON.stringify(txid).indexOf('bad-txns-in-belowout') > -1) {
+                          const retObj = {
+                            msg: 'error',
+                            result: 'Bad transaction inputs spent',
+                          };
 
-                        res.set({ 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(retObj));
+                          res.set({ 'Content-Type': 'application/json' });
+                          res.end(JSON.stringify(retObj));
+                        } else {
+                          const retObj = {
+                            msg: 'error',
+                            result: 'Can\'t broadcast transaction',
+                          };
+
+                          res.set({ 'Content-Type': 'application/json' });
+                          res.end(JSON.stringify(retObj));
+                        }
                       }
                     }
-                  }
-                });
+                  });
+                } else {
+                  ecl.close();
+
+                  const retObj = {
+                    msg: 'error',
+                    result: 'tx error',
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                }
               } else {
                 ecl.close();
 
                 const retObj = {
                   msg: 'error',
-                  result: 'tx error',
+                  result: 'no valid utxo',
                 };
 
                 res.set({ 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(retObj));
               }
-            } else {
-              ecl.close();
-
-              const retObj = {
-                msg: 'error',
-                result: 'no valid utxo',
-              };
-
-              res.set({ 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(retObj));
-            }
-          });
+            });
+          })();
         } else if (!addressCheck || addressCheck === -777) {
           const retObj = {
             msg: 'error',
