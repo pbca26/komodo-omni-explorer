@@ -22,6 +22,12 @@ api.log = (msg, data) => {
   }
 }
 
+if (config.modules.explorer ||
+    config.modules.faucet ||
+    config.modules.kv) {
+  api = require('./electrumGetServerVersion.js')(api);
+}
+
 if (config.modules.explorer) {
   api = require('./explorer.js')(api);
 }
