@@ -13,6 +13,7 @@ const _config = {
   explorers: [ // iquidus
     'CHIPS',
     'PTX',
+    'KOIN',
   ],
   modules: {
     mm: true, // price api methods included
@@ -29,7 +30,7 @@ const _config = {
   insight: {
     maxTxLength: 50,
     KMD: {
-      url: 'https://www.kmdexplorer.ru/insight-api-komodo',
+      url: 'https://www.kmdexplorer.io/insight-api-komodo',
     },
     MSHARK: {
       url: 'https://mshark.kmdexplorer.io/insight-api-komodo',
@@ -124,8 +125,8 @@ const _config = {
     KMDICE: {
       url: 'http://kmdice.explorer.dexstats.info/insight-api-komodo',
     },
-    ZEX: {
-      url: 'http://zex.explorer.dexstats.info/insight-api-komodo',
+    ZEXO: {
+      url: 'http://zexo.explorer.dexstats.info/insight-api-komodo',
     },
     KSB: {
       url: 'http://ksb.explorer.dexstats.info/insight-api-komodo',
@@ -162,6 +163,9 @@ const _config = {
     },
     RFOX: {
       url: 'https://rfox.kmdexplorer.io/insight-api-komodo',
+    },
+    LABS: {
+      url: 'https://labs.explorer.dexstats.info/insight-api-komodo',
     },
   },
   kv: {
@@ -266,7 +270,7 @@ const _config = {
     'kv',
     'prlpay',
     'zilla',
-    'eql',
+    //'eql',
     'glxt',
     'ninja',
     'ccl',
@@ -284,6 +288,8 @@ const _config = {
     'vote2019',
     'rfox',
     'k64',
+    'zexo',
+    'labs',
   ],
   electrumServersExtend: [
     'btc',

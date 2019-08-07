@@ -340,7 +340,10 @@ module.exports = (api) => {
               }
             });
           })();
-        } else if (!addressCheck || addressCheck === -777) {
+        } else if (
+          !addressCheck ||
+          addressCheck === -777
+        ) {
           const retObj = {
             msg: 'error',
             result: 'Invalid pub address',
