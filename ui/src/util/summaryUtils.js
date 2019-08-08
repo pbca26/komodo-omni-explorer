@@ -168,6 +168,7 @@ const explorers = sortObject({
   KMDICE: 'https://kmdice.explorer.dexstats.info',
   PTX: 'http://explorer1.patenttx.com',
   ZEX: 'http://explorer.zaddex.com',
+  ZEXO: 'http://explorer.zaddex.com',
   LUMBER: 'https://explorer.lumberscout.io',
   PGT: 'https://explorer.pungotoken.com',
   ILN: 'https://explorer.ilien.io',
@@ -176,6 +177,11 @@ const explorers = sortObject({
   MORTY: 'https://morty.kmd.dev',
   VOTE2019: 'https://vote2019.world',
   RICK: 'https://rick.kmd.dev',
+  K64: 'http://explorer.komodore64.com',
+  LABS: 'http://labs.explorer.dexstats.info',
+  MTST3:  'http://explorer.marmara.io',
+  RFOX: 'https://rfox.kmdexplorer.io',
+  HUSH3: 'https://explorer.myhush.org',
 });
 
 export default explorers;
