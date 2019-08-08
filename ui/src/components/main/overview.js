@@ -53,7 +53,7 @@ class Overview extends React.Component {
 
   renderTotal(coin, total) {
     return (
-      <span>{ total } { total === 0 ? `${coin} (Z)` : coin }</span>
+      <span>{ Number(total.toFixed(8)) } { total === 0 ? `${coin} (Z / ${translate('OVERVIEW.MINED')})` : coin }</span>
     );
   }
 
