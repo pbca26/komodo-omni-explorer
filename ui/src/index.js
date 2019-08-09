@@ -24,6 +24,7 @@ import Faucet from './components/main/faucet';
 import BalanceMulti from './components/main/balanceMulti';
 import Trollbox from './components/main/trollbox';
 import ACParams from './components/main/acParams';
+import TransactionDecoder from './components/main/txDecoder';
 import './styles/index.scss';
 
 const router = (
@@ -101,6 +102,9 @@ const router = (
         <Route
           path="/ac-params"
           component={ ACParams } />
+        <Route
+          path="/transaction-decoder"
+          component={ TransactionDecoder } />
       </Route>
     </Router>
   </Provider>

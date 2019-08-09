@@ -4,6 +4,9 @@
 .margin-top-lg {
   margin-top: 2em !important;
 }
+.margin-top-xlg {
+  margin-top: 3em !important;
+}
 .margin-bottom-sm {
   margin-bottom: 0.5em !important;
 }
@@ -15,6 +18,9 @@
 }
 .margin-bottom-xlg {
   margin-bottom: 3em !important;
+}
+.margin-bottom-2xlg {
+  margin-bottom: 6em !important;
 }
 .margin-top-60 {
   margin-top: 60px;

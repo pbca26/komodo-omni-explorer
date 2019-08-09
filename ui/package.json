@@ -1,6 +1,6 @@
 {
   "name": "KomodoOmniExplorerUI",
-  "version": "0.1.2",
+  "version": "0.1.7",
   "description": "Komodo Omni Explorer UI",
   "main": "src/index.js",
   "scripts": {

@@ -332,8 +332,17 @@ class Navigation extends React.Component {
                       to="/ac-params"
                       className="navbar-link pointer"
                       activeClassName="active">
-                      <span className="fa fa-code"></span>
+                      <span className="fa fa-terminal"></span>
                       <span className="menu-text">{ translate('NAVIGATION.AC_PARAMS') }</span>
+                    </Link>
+                  </li>
+                  <li onClick={ () => this.disableActiveParentMenu('misc') }>
+                    <Link
+                      to="/transaction-decoder"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-code"></span>
+                      <span className="menu-text">{ translate('NAVIGATION.TRANSACTION_DECODER') }</span>
                     </Link>
                   </li>
                   <li onClick={ () => this.disableActiveParentMenu('misc') }>

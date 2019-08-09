@@ -119,6 +119,7 @@ const LANG_EN = {
     WEB_WALLET: 'Web wallet',
     TROLLBOX: 'Trollbox',
     AC_PARAMS: 'AC Params',
+    TRANSACTION_DECODER: 'Tx Decoder',
   },
   OVERVIEW: {
     COIN: 'Coin',
@@ -126,6 +127,7 @@ const LANG_EN = {
     TIME: 'Time',
     TOTAL: 'Total',
     LATEST_TXS: 'Latest Transactions',
+    MINED: 'Mined',
   },
   PRICES: {
     PRICES: 'Prices',
@@ -180,6 +182,13 @@ const LANG_EN = {
     PARAMS: 'Params',
     VERUS_INFO: 'Requires a separate daemon that\'s a fork of komodo',
     WINDOWS: 'Windows',
+  },
+  TRANSACTION_DECODER: {
+    PROVIDE_RAW_TX: 'Provide raw transaction here',
+    DECODE_TX: 'Decode transaction',
+    DECODE_TX_ERROR: 'Unable to decode @template@ transaction',
+    DECODED_TX: 'Decoded transaction',
+    NETWORK: 'Network',
   },
 };
 
