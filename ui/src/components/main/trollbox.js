@@ -82,7 +82,7 @@ class Trollbox extends React.Component {
 
     if (_history &&
         _history.length) {
-      _history = sort(_history, 'timestamp');
+      _history = sort(_history, 'timestamp', true);
 
       for (let i = 0; i < _history.length; i++) {
         _items.push(
