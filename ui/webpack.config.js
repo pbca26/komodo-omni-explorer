@@ -76,11 +76,11 @@ const rules = [
   },
   {
     test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-    loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+    loader: 'url-loader?limit=10000&mimetype=application/font-woff',
   },
   {
     test: /\.(ttf|eot|svg|png)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-    loader: 'file-loader'
+    loader: 'file-loader',
   },
   {
     test: /\.(png|gif|jpg|svg)$/,
@@ -93,24 +93,24 @@ if (isProduction) {
   // Production plugins
   plugins.push(
     new SpritesmithPlugin({
-        src: {
-            cwd: path.resolve(__dirname, 'src/images'),
-            glob: '*.png'
-        },
-        target: {
-            image: path.resolve(__dirname, 'src/styles/sprite.png'),
-            css: path.resolve(__dirname, 'src/styles/sprite.scss')
-        },
-        apiOptions: {
-            cssImageRef: "./sprite.png",
-            generateSpriteName: fullPathToSourceFile => {
-              const {name} = path.parse(fullPathToSourceFile);
-              return `coin_${name}`;
-            }
-        },
-        exportOpts: {
-            quality: 50
+      src: {
+        cwd: path.resolve(__dirname, 'src/images_ac'),
+        glob: '*.png',
+      },
+      target: {
+        image: path.resolve(__dirname, 'src/styles/sprite.png'),
+        css: path.resolve(__dirname, 'src/styles/sprite.scss'),
+      },
+      apiOptions: {
+        cssImageRef: './sprite.png',
+        generateSpriteName: fullPathToSourceFile => {
+          const {name} = path.parse(fullPathToSourceFile);
+          return `coin_${name}`;
         }
+      },
+      exportOpts: {
+        quality: 70,
+      },
     })
   );
 
@@ -137,7 +137,7 @@ if (isProduction) {
         comments: false,
       },
     }),
-    new ExtractTextPlugin('style.css')
+    new ExtractTextPlugin('style.css'),
   );
 
   // Production rules
@@ -149,10 +149,8 @@ if (isProduction) {
         use: [
           'css-loader',
           'postcss-loader',
-          'sass-loader'
-          //'file-loader',
-          //'url-loader'
-        ]
+          'sass-loader',
+        ],
       }),
     }
   );
@@ -160,21 +158,21 @@ if (isProduction) {
   // Development plugins
   plugins.push(
     new SpritesmithPlugin({
-        src: {
-            cwd: path.resolve(__dirname, 'src/images'),
-            glob: '*.png'
-        },
-        target: {
-            image: path.resolve(__dirname, 'src/styles/sprite.png'),
-            css: path.resolve(__dirname, 'src/styles/sprite.scss')
-        },
-        apiOptions: {
-            cssImageRef: "./sprite.png",
-            generateSpriteName: fullPathToSourceFile => {
-              const {name} = path.parse(fullPathToSourceFile);
-              return `coin_${name}`;
-            }
+      src: {
+        cwd: path.resolve(__dirname, 'src/images_ac'),
+        glob: '*.png',
+      },
+      target: {
+        image: path.resolve(__dirname, 'src/styles/sprite.png'),
+        css: path.resolve(__dirname, 'src/styles/sprite.scss'),
+      },
+      apiOptions: {
+        cssImageRef: './sprite.png',
+        generateSpriteName: fullPathToSourceFile => {
+          const {name} = path.parse(fullPathToSourceFile);
+          return `coin_${name}`;
         }
+      },
     })
   );
 
@@ -218,7 +216,13 @@ module.exports = {
     rules,
   },
   resolve: {
-    extensions: ['.webpack-loader.js', '.web-loader.js', '.loader.js', '.js', '.jsx'],
+    extensions: [
+      '.webpack-loader.js',
+      '.web-loader.js',
+      '.loader.js',
+      '.js',
+      '.jsx',
+    ],
     modules: [
       path.resolve(__dirname, 'node_modules'),
       path.resolve(__dirname, 'spritesmith-generated'),
@@ -249,4 +253,3 @@ module.exports = {
     },
   },
 };
-
