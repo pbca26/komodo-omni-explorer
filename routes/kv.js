@@ -195,7 +195,7 @@ module.exports = (api) => {
             const serverProtocolVersion = await api.getServerVersion(ecl);
             const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(keys.pub, config.komodoParams) : keys.pub;
             
-            ecl.blockchainAddressListunspent(keys.pub)
+            ecl.blockchainAddressListunspent(_address)
             .then((json) => {
               if (json &&
                   json.length) {
