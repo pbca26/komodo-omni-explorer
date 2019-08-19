@@ -59,6 +59,7 @@ class InterestCalc extends React.Component {
   toggleInterestFiatAutoRate() {
     this.setState({
       toggleInterestFiatAutoRate: !this.state.toggleInterestFiatAutoRate,
+      interestKMDFiatPrice: this.props.Main.fiatRates && this.props.Main.fiatRates.USD || 0,
     });
     Store.dispatch(fiatRates());
   }
@@ -66,10 +67,10 @@ class InterestCalc extends React.Component {
   updateInput(e, name) {
     if (e &&
         (e.target || name)) {
+      let interestBreakdownFrequency;
       this.setState({
         [e.target ? e.target.name : name]: e.target ? e.target.value : e.value,
       });
-      let interestBreakdownFrequency;
 
       setTimeout(() => {
         if (this.state.interestBreakdownThreshold !== 'year' &&
@@ -95,7 +96,7 @@ class InterestCalc extends React.Component {
     this.setState({
       interestAmount: 100,
       interestBreakdownThreshold: 'year',
-      interestBreakdownFrequency: 'yearly',
+      interestBreakdownFrequency: 'monthly',
     });
   }
 
@@ -269,7 +270,7 @@ class InterestCalc extends React.Component {
     return (
       <div>
         <div className="table-responsive">
-          <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table">
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest-calc-table talign-center">
             <thead>
               <tr>
                 <th>{ translate('INTEREST_CALC.PERIOD') }</th>
@@ -462,12 +463,12 @@ class InterestCalc extends React.Component {
           <div className="col-md-3 col-sm-3">
             <input
               onChange={ (event) => this.updateInput(event) }
-              type="text"
+              type="number"
               name="interestKMDFiatPrice"
               disabled={ this.state.toggleInterestFiatAutoRate }
               value={ this.state.interestKMDFiatPrice }
               placeholder={ `KMD / USD ${translate('INTEREST_CALC.RATE_SM')}` }
-              className="form-control" />
+              className="form-control noeffects" />
           </div>
           <div className="col-md-3 col-sm-3">
             <span className="pointer toggle">
