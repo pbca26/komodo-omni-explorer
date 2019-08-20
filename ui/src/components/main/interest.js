@@ -13,6 +13,7 @@ import {
   getInterest,
   getUnspents,
   resetInterestState,
+  unspentsState,
 } from '../../actions/actionCreators';
 import translate from '../../util/translate/translate';
 import config from '../../config';
@@ -41,6 +42,11 @@ class Interest extends React.Component {
   }
 
   fetchUnspents() {
+    if (!this.props.Main.unspents) {
+      Store.dispatch(unspentsState('', {
+        msg: 'progress',
+      }));
+    }
     Store.dispatch(getUnspents(this.props.Main.interestAddress));
   }
 
@@ -182,9 +188,9 @@ class Interest extends React.Component {
         <table className="table table-bordered table-striped dataTable no-footer dtr-inline interest">
           <thead>
             <tr>
-              <th>{ translate('INTEREST.BALANCE') }</th>
-              <th>{ translate('INTEREST.REWARDS') }</th>
-              <th>{ translate('INTEREST.TOTAL') }</th>
+              <th className="text-center">{ translate('INTEREST.BALANCE') }</th>
+              <th className="text-center">{ translate('INTEREST.REWARDS') }</th>
+              <th className="text-center">{ translate('INTEREST.TOTAL') }</th>
             </tr>
           </thead>
           <tbody>
@@ -253,9 +259,10 @@ class Interest extends React.Component {
 
   render() {
     if (this.props.Main &&
-        this.props.Main.interest) {
+        this.props.Main.interest &&
+        !this.props.Main.interest.hasOwnProperty('msg')) {
       return (
-        <div className="col-md-12">
+        <div className="col-md-12 margin-bottom-xlg">
           { this.renderBalance() }
           { this.props.Main.interest &&
             this.props.Main.interest.balance > 0 &&
@@ -265,10 +272,35 @@ class Interest extends React.Component {
               className="btn btn-success">{ translate('INTEREST.CHECK_UTXO') }</button>
           }
           { this.props.Main.unspents &&
+            !this.props.Main.unspents.hasOwnProperty('msg') &&
             this.props.Main.unspents.length &&
             this.renderUnspents()
           }
+          { this.props.Main.unspents &&
+            this.props.Main.unspents.hasOwnProperty('msg')&&
+            <div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>
+          }
         </div>
+      );
+    } else if (
+      this.props.Main &&
+      this.props.Main.interest &&
+      this.props.Main.interest.hasOwnProperty('msg') &&
+      this.props.Main.interest.msg === 'error') {
+      return(
+        <div className="col-md-12">
+          <div className="alert alert-warning alert-dismissable">
+            <strong>{ translate('INTEREST.ERROR') }: { this.props.Main.interest.result.message }</strong>
+          </div>
+        </div>
+      );
+    } else if (
+      this.props.Main &&
+      this.props.Main.interest &&
+      this.props.Main.interest.hasOwnProperty('msg') &&
+      this.props.Main.interest.msg === 'progress') {
+      return(
+        <div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>
       );
     } else {
       return null;

@@ -28,7 +28,6 @@ class Search extends React.Component {
       pageSize: 20,
       showPagination: true,
       searchTerm: null,
-      loading: true,
     };
   }
 
