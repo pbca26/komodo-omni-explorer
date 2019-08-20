@@ -81,3 +81,31 @@ span[class*=' coin_'] {
 td {
   white-space: nowrap;
 }
+
+.summary-table {
+  .coin-label {
+    position: relative;
+    top: 3px;
+  }
+}
+
+.table-responsive {
+  border-radius: 4px;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.logo-img {
+  margin-bottom: 20px;
+}
+
+.block-center {
+  margin: 0 auto;
+  float: none;
+}
+
+.loading-img {
+  padding-left: 5px;
+}

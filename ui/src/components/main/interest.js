@@ -178,7 +178,7 @@ class Interest extends React.Component {
   contains(value, property) {
     return (value + '').indexOf(property) !== -1;
   }
-
+//translate('SEARCH.INVALID_PUB', this.state.searchTerm)
   renderBalance() {
     const _balance = this.props.Main.interest;
 
@@ -278,7 +278,14 @@ class Interest extends React.Component {
           }
           { this.props.Main.unspents &&
             this.props.Main.unspents.hasOwnProperty('msg')&&
-            <div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>
+            <div className="text-center">
+              { translate('SEARCH.SEARCHING') }
+              <img
+                src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/loading.gif` }
+                alt="Loading"
+                height="10px"
+                className="loading-img" />
+            </div>
           }
         </div>
       );
@@ -288,9 +295,11 @@ class Interest extends React.Component {
       this.props.Main.interest.hasOwnProperty('msg') &&
       this.props.Main.interest.msg === 'error') {
       return(
-        <div className="col-md-12">
-          <div className="alert alert-warning alert-dismissable">
-            <strong>{ translate('INTEREST.ERROR') }: { this.props.Main.interest.result.message }</strong>
+        <div className="row text-center">
+          <div className="col-md-8 block-center">
+            <div className="alert alert-warning alert-dismissable text-center">
+              <strong>{ translate('INTEREST.ERROR') }: { this.props.Main.interest.result.message }</strong>
+            </div>
           </div>
         </div>
       );
@@ -300,7 +309,14 @@ class Interest extends React.Component {
       this.props.Main.interest.hasOwnProperty('msg') &&
       this.props.Main.interest.msg === 'progress') {
       return(
-        <div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>
+        <div className="text-center">
+          { translate('SEARCH.SEARCHING') }
+          <img
+            src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/loading.gif` }
+            alt="Loading"
+            height="10px"
+            className="loading-img" />
+        </div>
       );
     } else {
       return null;

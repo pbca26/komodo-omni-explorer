@@ -280,9 +280,11 @@ class Search extends React.Component {
         } else {
           if (!this.props.Main.search.transactions.length) {
             return(
-              <div className="col-md-12">
-                <div className="alert alert-warning">
-                  <strong>{ translate('SEARCH.NO_TX') } { this.props.Main.searchTerm }</strong>
+              <div className="row">
+                <div className="col-md-8 block-center">
+                  <div className="alert alert-warning">
+                    <strong>{ translate('SEARCH.NO_TX') } { this.props.Main.searchTerm }</strong>
+                  </div>
                 </div>
               </div>
             );
@@ -297,16 +299,25 @@ class Search extends React.Component {
         }
       } else {
         return(
-          <div className="col-md-12">
-            <div className="alert alert-danger alert-dismissable">
-              <strong>{ translate('SEARCH.ERR_SEARCHING') } { this.props.Main.searchTerm }</strong>
+          <div className="row">
+            <div className="col-md-8 block-center">
+              <div className="alert alert-danger alert-dismissable">
+                <strong>{ translate('SEARCH.ERR_SEARCHING_ALT', this.props.Main.searchTerm) }</strong>
+              </div>
             </div>
           </div>
         );
       }
     } else {
       return(
-        <div className="text-center">{ translate('SEARCH.SEARCHING') }...</div>
+        <div className="text-center">
+          { translate('SEARCH.SEARCHING') }
+          <img
+            src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/loading.gif` }
+            alt="Loading"
+            height="10px"
+            className="loading-img" />
+        </div>
       );
     }
   }
