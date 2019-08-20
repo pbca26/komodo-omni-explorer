@@ -178,7 +178,7 @@ class Interest extends React.Component {
   contains(value, property) {
     return (value + '').indexOf(property) !== -1;
   }
-//translate('SEARCH.INVALID_PUB', this.state.searchTerm)
+
   renderBalance() {
     const _balance = this.props.Main.interest;
 
@@ -227,7 +227,7 @@ class Interest extends React.Component {
           <div className="panel-heading">
             <strong>{ translate('INTEREST.UTXO_LIST') }</strong>
           </div>
-          <div className="utxo-table">
+          <div className="utxo-table margin-bottom-2xlg">
             { this.props.Main.unspents.length > 1 &&
               <input
                 className="form-control search-field"
@@ -239,7 +239,7 @@ class Interest extends React.Component {
               columns={ this.state.itemsListColumns }
               minRows="0"
               sortable={ true }
-              className="-striped -highlight"
+              className={ '-striped -highlight' + (this.props.Main.unspents.length === 1 ? ' single-row' : '')}
               PaginationComponent={ TablePaginationRenderer }
               nextText={ translate('INDEX.NEXT_PAGE') }
               previousText={ translate('INDEX.PREVIOUS_PAGE') }
@@ -260,7 +260,8 @@ class Interest extends React.Component {
   render() {
     if (this.props.Main &&
         this.props.Main.interest &&
-        !this.props.Main.interest.hasOwnProperty('msg')) {
+        !this.props.Main.interest.hasOwnProperty('msg') &&
+        this.props.Main.interest !== 'wrong address') {
       return (
         <div className="col-md-12 margin-bottom-xlg">
           { this.renderBalance() }
@@ -269,7 +270,9 @@ class Interest extends React.Component {
             <button
               onClick={ this.fetchUnspents }
               type="submit"
-              className="btn btn-success">{ translate('INTEREST.CHECK_UTXO') }</button>
+              className="btn btn-success">
+              { translate('INTEREST.CHECK_UTXO') }
+            </button>
           }
           { this.props.Main.unspents &&
             !this.props.Main.unspents.hasOwnProperty('msg') &&
@@ -292,13 +295,12 @@ class Interest extends React.Component {
     } else if (
       this.props.Main &&
       this.props.Main.interest &&
-      this.props.Main.interest.hasOwnProperty('msg') &&
-      this.props.Main.interest.msg === 'error') {
+      ((this.props.Main.interest.hasOwnProperty('msg') && this.props.Main.interest.msg === 'error') || this.props.Main.interest === 'wrong address')) {
       return(
         <div className="row text-center">
           <div className="col-md-8 block-center">
             <div className="alert alert-warning alert-dismissable text-center">
-              <strong>{ translate('INTEREST.ERROR') }: { this.props.Main.interest.result.message }</strong>
+              <strong>{ translate('INTEREST.ERROR') }: { this.props.Main.interest === 'wrong address' ? translate('SEARCH.INVALID_PUB', this.props.Main.interestAddress) : this.props.Main.interest.result.message }</strong>
             </div>
           </div>
         </div>
