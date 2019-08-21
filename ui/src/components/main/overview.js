@@ -196,37 +196,49 @@ class Overview extends React.Component {
   render() {
     return (
       <div className="row">
-        <div className="col-md-12">
-          <div className="panel panel-default">
-            <div className="panel-heading">
-              <strong>{ translate('OVERVIEW.LATEST_TXS') }</strong>
-            </div>
-            <div className="dex-table">
-              <input
-                className="form-control search-field"
-                onChange={ e => this.onSearchTermChange(e.target.value) }
-                placeholder={ translate('INDEX.FILTER') } />
-              <ReactTable
-                data={ this.state.filteredItemsList }
-                columns={ this.state.itemsListColumns }
-                minRows="0"
-                sortable={ true }
-                className="-striped -highlight"
-                PaginationComponent={ TablePaginationRenderer }
-                nextText={ translate('INDEX.NEXT_PAGE') }
-                previousText={ translate('INDEX.PREVIOUS_PAGE') }
-                showPaginationBottom={ this.state.showPagination }
-                pageSize={ this.state.pageSize }
-                defaultSortMethod={ tableSorting }
-                defaultSorted={[{ // default sort
-                  id: 'timestamp',
-                  desc: true,
-                }]}
-                onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
-            </div>
+        { !this.props.Main.overview &&
+          <div className="text-center">
+            { translate('OVERVIEW.FETCHING_DATA') }
+            <img
+              src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/loading.gif` }
+              alt="Loading"
+              height="10px"
+              className="loading-img" />
           </div>
-          <div className="footer-padding"></div>
-        </div>
+        }
+        { this.props.Main.overview &&
+          <div className="col-md-12">
+            <div className="panel panel-default">
+              <div className="panel-heading">
+                <strong>{ translate('OVERVIEW.LATEST_TXS') }</strong>
+              </div>
+              <div className="dex-table">
+                <input
+                  className="form-control search-field"
+                  onChange={ e => this.onSearchTermChange(e.target.value) }
+                  placeholder={ translate('INDEX.FILTER') } />
+                <ReactTable
+                  data={ this.state.filteredItemsList }
+                  columns={ this.state.itemsListColumns }
+                  minRows="0"
+                  sortable={ true }
+                  className="-striped -highlight"
+                  PaginationComponent={ TablePaginationRenderer }
+                  nextText={ translate('INDEX.NEXT_PAGE') }
+                  previousText={ translate('INDEX.PREVIOUS_PAGE') }
+                  showPaginationBottom={ this.state.showPagination }
+                  pageSize={ this.state.pageSize }
+                  defaultSortMethod={ tableSorting }
+                  defaultSorted={[{ // default sort
+                    id: 'timestamp',
+                    desc: true,
+                  }]}
+                  onPageSizeChange={ (pageSize, pageIndex) => this.onPageSizeChange(pageSize, pageIndex) } />
+              </div>
+            </div>
+            <div className="footer-padding"></div>
+          </div>
+        }
       </div>
     );
   }
