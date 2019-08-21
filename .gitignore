@@ -8,5 +8,5 @@ summary.json
 # Ignore node.js modules folder
 node_modules
 ui/build
-public
+public/charts
 DB

@@ -1,8 +1,8 @@
 {
   "name": "komodo-omni-explorer",
-  "productName": "Komodo Omni Explorer",
-  "version": "0.1.7",
-  "description": "Komodo Omni Explorer",
+  "productName": "Atomic Explorer",
+  "version": "0.1.8",
+  "description": "Atomic Explorer",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"
@@ -14,7 +14,8 @@
     "SuperNET",
     "komodo",
     "BarterDEX",
-    "assetchain"
+    "assetchain",
+    "Atomic Explorer"
   ],
   "author": "Komodo Platform",
   "license": "MIT",
