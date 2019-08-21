@@ -1,27 +1,29 @@
-const config = require('../config');
-const remoteExplorers = require('../config').explorers;
-const remoteExplorersInsight = require('../config').insight;
-const _electrumServers = require('../config').electrumServers;
-const { komodoParams } = require('../config');
-const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
-const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
-const { komodoInterest } = require('agama-wallet-lib');
+const bitcoin = require('bitgo-utxo-lib');
+const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
+const komodoInterest = require('agama-wallet-lib/src/komodo-interest');
 const {
   toSats,
   fromSats,
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
-const acSupply = require('./acSupply');
-const electrumJSCore = require('./electrumjs.core.js');
 const { pubToElectrumScriptHashHex } = require('agama-wallet-lib/src/keys');
 const btcnetworks = require('agama-wallet-lib/src/bitcoinjs-networks');
 const {
   parseBlock,
   electrumMerkleRoot,
 } = require('agama-wallet-lib/src/block');
-const bitcoin = require('bitgo-utxo-lib');
+const { kmdAssetChains } = require('agama-wallet-lib/src/coin-helpers');
+
+const config = require('../config');
+const remoteExplorers = require('../config').explorers;
+const remoteExplorersInsight = require('../config').insight;
+const _electrumServers = require('../config').electrumServers;
+const { komodoParams } = require('../config');
+const request = require('request');
+const acSupply = require('./acSupply');
+const electrumJSCore = require('./electrumjs.core.js');
 
 const OVERVIEW_UPDATE_INTERVAL = 180000; // every 3 min
 const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
@@ -1122,6 +1124,70 @@ module.exports = (api) => {
 
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify(retObj));
+  });
+
+  api.post('/decode-transaction', (req, res, next) => {
+    const _coin = req.body.coin;
+
+    if (!_coin) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing coin param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
+
+    if (!req.body.rawtx) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing rawtx param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
+
+    let decodedTx;
+    
+    try {
+      decodedTx = txDecoder(req.body.rawtx, kmdAssetChains.indexOf(_coin.toUpperCase()) > -1 ? btcnetworks.kmd : btcnetworks[_coin.toLowerCase()]);
+    } catch (e) {}
+
+    if (!decodedTx) {
+      const retObj = {
+        msg: 'error',
+        result: 'Unable to decode transaction',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else {
+      let formattedTx = {
+        txid: decodedTx.format.txid,
+        locktime: decodedTx.format.locktime,
+        version: decodedTx.format.version,
+        outputs: decodedTx.outputs,
+        inputs: decodedTx.inputs,
+      };
+
+      if (decodedTx.tx.hasOwnProperty('versionGroupId')) {
+        formattedTx.versionGroupId = decodedTx.tx.versionGroupId;
+      }
+
+      if (decodedTx.tx.hasOwnProperty('overwintered')) {
+        formattedTx.overwintered = decodedTx.tx.overwintered;
+      }
+
+      const retObj = {
+        msg: 'success',
+        result: formattedTx,
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
   });
 
   return api;

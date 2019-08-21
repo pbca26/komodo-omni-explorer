@@ -2,8 +2,7 @@ import React from 'react';
 import config from '../../config';
 import Select from 'react-select';
 import translate from '../../util/translate/translate';
-import txDecoder from 'agama-wallet-lib/src/transaction-decoder';
-import btcNetworks from 'agama-wallet-lib/src/bitcoinjs-networks';
+import { decodeTx } from '../../actions/actionCreators';
 import {
   explorerList,
   kmdAssetChains,
@@ -30,6 +29,7 @@ class TransactionDecoder extends React.Component {
       rawtx: '',
       decodedTx: null,
       coin: 'KMD',
+      loading: true,
     };
     this.decodeTx = this.decodeTx.bind(this);
     this.updateInput = this.updateInput.bind(this);
@@ -40,44 +40,26 @@ class TransactionDecoder extends React.Component {
       rawtx: '',
       decodedTx: null,
       coin: 'KMD',
+      loading: false,
+      error: false,
     });
   }
 
   decodeTx() {
-    let decodedTx;
-    
-    try {
-      decodedTx = txDecoder(this.state.rawtx, kmdAssetChains.indexOf(this.state.coin.toUpperCase()) > -1 ? btcNetworks.kmd : btcNetworks[this.state.coin.toLowerCase()]);
-    } catch (e) {
-      console.warn('tx decode error');
-      console.warn(e);
-    }
+    this.setState({
+      loading: true,
+      error: false,
+      decodedTx: null,
+    });
 
-    if (!decodedTx) {
+    decodeTx(this.state.coin, this.state.rawtx)
+    .then((res) => {
       this.setState({
-        decodedTx: 'error',
+        error: res.msg === 'success' ? false : true,
+        decodedTx: res.result,
+        loading: false,
       });
-    } else {
-      let decodedTxState = {
-        txid: decodedTx.format.txid,
-        locktime: decodedTx.format.locktime,
-        version: decodedTx.format.version,
-        outputs: decodedTx.outputs,
-        inputs: decodedTx.inputs,
-      };
-
-      if (decodedTx.tx.hasOwnProperty('versionGroupId')) {
-        decodedTxState.versionGroupId = decodedTx.tx.versionGroupId;
-      }
-
-      if (decodedTx.tx.hasOwnProperty('overwintered')) {
-        decodedTxState.overwintered = decodedTx.tx.overwintered;
-      }
-
-      this.setState({
-        decodedTx: decodedTxState,
-      });
-    }
+    });
   }
 
   updateInput(e, name) {
@@ -97,9 +79,6 @@ class TransactionDecoder extends React.Component {
           <div className="row text-center margin-top-md margin-bottom-md">
             <div className="col-md-6 col-sm-6 col-fix">
               <div className="form-group">
-                {/*<span className="table-coin-icon-wrapper">
-                  <span className={ `table-coin-icon coin_${_coin.toLowerCase()}` }></span>
-                </span>*/}
                 <textarea
                   onChange={ (event) => this.updateInput(event) }
                   type="text"
@@ -140,23 +119,35 @@ class TransactionDecoder extends React.Component {
             </div>
           </div>
           <div className="row text-center margin-top-xlg margin-bottom-2xlg">
-            <div className="col-md-12">
-              { this.state.decodedTx &&
-                this.state.decodedTx === 'error' &&
+            { this.state.loading &&
+              <div className="text-center">
+                { translate('TRANSACTION_DECODER.DECODING') }
+                <img
+                  src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/loading.gif` }
+                  alt="Loading"
+                  height="10px"
+                  className="loading-img" />
+              </div>
+            }
+            { this.state.error &&
+              this.state.decodedTx &&
+              <div className="col-md-8 block-center">
                 <div className="alert alert-danger alert-dismissable">
                   <strong>{ translate('TRANSACTION_DECODER.DECODE_TX_ERROR', this.state.coin) }</strong>
                 </div>
-              }
-              { this.state.decodedTx &&
-                this.state.decodedTx !== 'error' &&
+              </div>
+            }
+            { !this.state.error &&
+              this.state.decodedTx &&
+              <div className="col-md-12">                
                 <div>
                   <strong>{ translate('TRANSACTION_DECODER.DECODED_TX') }</strong>
                   <pre className="margin-top-md text-left">
                     { JSON.stringify(this.state.decodedTx, undefined, 2) }
                   </pre>
                 </div>
-              }
-            </div>
+              </div>
+            }
           </div>
         </div>
       </div>

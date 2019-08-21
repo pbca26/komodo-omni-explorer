@@ -17,6 +17,7 @@ import {
   STATS,
   MULTI_ADDRESS_BALANCE,
   TROLLBOX,
+  DECODE_TX,
 } from './storeType';
 
 const apiUrl = `${config.https ? 'https' : 'http'}://${config.apiUrl}/api`;
@@ -416,6 +417,28 @@ export const trollboxSend = (title, content) => {
         }),
       }
     )
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      resolve(json);
+    });
+  });
+}
+
+export const decodeTx = (coin, rawtx) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${apiUrl}/decode-transaction`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        coin,
+        rawtx,
+      }),
+    })
     .catch((error) => {
       console.warn(error);
     })
