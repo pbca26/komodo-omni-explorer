@@ -1,0 +1,29 @@
+{
+  "name": "css-minify-scripts",
+  "private": true,
+  "dependencies": {
+    "css": "^2.2.4",
+    "cssnano": "^4.0.0",
+    "postcss-cli": "^5.0.0"
+  },
+  "scripts": {
+    "minify-cssnano": "postcss input.css > output.css",
+    "minify-css": "node minify output.css >> output-final.css"
+  },
+  "repository": "cssnano/cssnano",
+  "homepage": "https://github.com/pbca26/komodo-omni-explorer",
+  "bugs": {
+    "url": "https://github.com/pbca26/komodo-omni-explorer/issues"
+  },
+  "engines": {
+    "node": ">=6.9.0"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Ben Briggs, KomofoPlatform"
+  },
+  "version": "4.0.0",
+  "devDependencies": {
+    "cssnano-preset-advanced": "^4.0.7"
+  }
+}
