@@ -10,13 +10,13 @@
     height: 40px;
 
     .table-coin-icon {
-      transform: scale(0.8) !important;
+      transform: scale(0.7) !important;
     }
   }
-  .google-recaptcha {
-    padding: 40px 0 30px 0;
-
+  #g-recaptcha {
     > div {
+      padding: 30px 0 20px 0;
+
       > div {
         margin: 0 auto;
       }

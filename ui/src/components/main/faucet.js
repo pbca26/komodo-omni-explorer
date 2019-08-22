@@ -144,24 +144,22 @@ class Faucet extends React.Component {
                   value={ this.state.address }
                   placeholder={ translate('FAUCET.ENTER_ADDRESS', _coin.toUpperCase()) }
                   className="form-control" />
+                <button
+                  onClick={ this.triggerFaucet }
+                  disabled={ this.state.address.length !== 34 }
+                  type="submit"
+                  className="btn btn-success margin-left-10">
+                  OK
+                </button>
               </div>
-              <div className="google-recaptcha">
-                <ReCaptcha
-                  ref={ (el) => { this.captcha = el }}
-                  size="normal"
-                  data-theme="dark"
-                  render="explicit"
-                  sitekey={ config.recaptchaKey }
-                  onloadCallback={ this.onLoadRecaptcha }
-                  verifyCallback={ this.verifyCallback } />
-              </div>
-              <button
-                onClick={ this.triggerFaucet }
-                disabled={ this.state.address.length !== 34 }
-                type="submit"
-                className="btn btn-success margin-left-10">
-                OK
-              </button>
+              <ReCaptcha
+                ref={ (el) => { this.captcha = el }}
+                size="normal"
+                data-theme="dark"
+                render="explicit"
+                sitekey={ config.recaptchaKey }
+                onloadCallback={ this.onLoadRecaptcha }
+                verifyCallback={ this.verifyCallback } />
             </div>
           </div>
           <div className="row text-center margin-top-md margin-bottom-xlg">
