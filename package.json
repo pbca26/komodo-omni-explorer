@@ -1,5 +1,5 @@
 {
-  "name": "komodo-omni-explorer",
+  "name": "atomic-explorer",
   "productName": "Atomic Explorer",
   "version": "0.1.8",
   "description": "Atomic Explorer",
@@ -17,7 +17,7 @@
     "assetchain",
     "Atomic Explorer"
   ],
-  "author": "Komodo Platform",
+  "author": "Komodo Platform Team",
   "license": "MIT",
   "dependencies": {
     "agama-wallet-lib": "git://github.com/pbca26/agama-wallet-lib#dev",
