@@ -28,9 +28,44 @@ const wwwPath = path.join(__dirname, './www');
 */
 const plugins = [
   new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: Infinity,
+    name: ['vendor'],
     filename: 'vendor.js',
+    minChunks: module => module.context.includes('node_modules') && !module.request.includes('scss')
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'fetch',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/whatwg-fetch/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'bluebird',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/bluebird/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-table',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react-table/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-select',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react-select/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-dom',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react-dom/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-redux',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/redux/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react/).test(resource)
   }),
   /*
   * The DefinePlugin allows you to create global constants which can be configured at compile time.
@@ -120,7 +155,15 @@ if (isProduction) {
       debug: false,
     }),
     new webpack.optimize.UglifyJsPlugin({
+      extractComments: false,
+      parallel: true,
       sourceMap: false,
+      warnings: false,
+      mangle: true,
+      toplevel: false,
+      nameCache: null,
+      ie8: false,
+      keep_fnames: false,
       compress: {
         warnings: false,
         screw_ie8: true,
@@ -137,7 +180,7 @@ if (isProduction) {
         comments: false,
       },
     }),
-    new ExtractTextPlugin('style.css'),
+    new ExtractTextPlugin('[name].css')
   );
 
   // Production rules
@@ -204,13 +247,23 @@ if (isProduction) {
 module.exports = {
   devtool: isProduction ? 'eval' : 'source-map',
   context: jsSourcePath,
-  entry: {
-    js: './index.js'
+  entry: !isProduction ? {
+    js: './index.js',
+    style: [
+      './styles/bootstrap.scss',
+      './styles/united.scss',
+      './styles/index.scss',
+    ],
+  } : {
+    app: './index.js',
+    bootstrap: './styles/bootstrap.scss',
+    united: './styles/united.scss',
+    custom: './styles/index.scss',
   },
   output: {
     path: buildPath,
     publicPath: '',
-    filename: 'app.js',
+    filename: '[name].js',
   },
   module: {
     rules,
