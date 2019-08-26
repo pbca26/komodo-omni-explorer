@@ -167,6 +167,9 @@ const _config = {
     LABS: {
       url: 'https://labs.explorer.dexstats.info/insight-api-komodo',
     },
+    HUSH: {
+      url: 'https://explorer.myhush.org/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
@@ -290,6 +293,7 @@ const _config = {
     'k64',
     'zexo',
     'labs',
+    'hush',
   ],
   electrumServersExtend: [
     'btc',
@@ -300,7 +304,6 @@ const _config = {
     'doge',
     'emc2',
     'fair',
-    'hush',
     'ltc',
     'mona',
     'nmc',
