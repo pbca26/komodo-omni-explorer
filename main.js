@@ -51,6 +51,14 @@ if (config.modules.ticker) {
   app.use('/ticker', express.static(path.join(__dirname, 'ticker')));
 }
 
+if (config.modules.faucetMini) {
+  // faucet
+  app.get('/faucet', (req, res) => {
+    res.sendFile(path.join(__dirname + '/faucet/index.html'));
+  });
+  app.use('/faucet', express.static(path.join(__dirname, 'faucet')));
+}
+
 let server;
 
 if (config.https) {
