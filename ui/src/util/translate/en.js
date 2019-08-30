@@ -11,6 +11,7 @@ const LANG_EN = {
     LOADING: 'Loading',
     SEARCH: 'Search',
     FILTER: 'Filter',
+    THEME: 'Theme',
   },
   INTEREST: {
     AMOUNT: 'Amount',
@@ -23,6 +24,7 @@ const LANG_EN = {
     REQ_TO_ACCRUE_REWARDS_P2: 'spend transaction was made at least 1 hour ago, locktime field is set and UTXO amount is greater than 10 KMD',
     UTXO_LIST: 'UTXO list',
     CHECK_UTXO: 'Check UTXO',
+    ERROR: 'Error',
   },
   INTEREST_CALC: {
     WEEK: 'Week',
@@ -128,6 +130,7 @@ const LANG_EN = {
     TOTAL: 'Total',
     LATEST_TXS: 'Latest Transactions',
     MINED: 'Mined',
+    FETCHING_DATA: 'Fetching data',
   },
   PRICES: {
     PRICES: 'Prices',
@@ -146,6 +149,7 @@ const LANG_EN = {
     ERR_SEARCHING: 'Error: search found no results for',
     SEARCHING: 'Searching',
     INVALID_PUB: '@template@ is not a valid address',
+    ERR_SEARCHING_ALT: '@template@ doesn\'t look like a valid transaction hash or public address'
   },
   STATS: {
     PAIR: 'Pair',
@@ -189,6 +193,7 @@ const LANG_EN = {
     DECODE_TX_ERROR: 'Unable to decode @template@ transaction',
     DECODED_TX: 'Decoded transaction',
     NETWORK: 'Network',
+    DECODING: 'Decoding transaction',
   },
 };
 

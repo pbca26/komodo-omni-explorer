@@ -25,7 +25,6 @@ import BalanceMulti from './components/main/balanceMulti';
 import Trollbox from './components/main/trollbox';
 import ACParams from './components/main/acParams';
 import TransactionDecoder from './components/main/txDecoder';
-import './styles/index.scss';
 
 const router = (
   <Provider store={ store }>

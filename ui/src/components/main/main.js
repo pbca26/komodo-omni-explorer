@@ -8,6 +8,10 @@ import {
 import Store from '../../store';
 import config from '../../config';
 import {
+  setLocalStorageVar,
+  getLocalStorageVar,
+} from '../../util/util';
+import {
   searchTerm,
   getInterest,
   resetInterestState,
@@ -17,8 +21,6 @@ import {
 import Search from './search';
 import Navigation from './navigation';
 import translate from '../../util/translate/translate';
-import { addressVersionCheck } from 'agama-wallet-lib/src/keys';
-import btcNetworks from 'agama-wallet-lib/src/bitcoinjs-networks';
 
 const FIAT_UPDATE_INTERVAL = 60000;
 
@@ -28,12 +30,21 @@ class Main extends React.Component {
     this.state = {
       searchTerm: '',
       showSearch: false,
+      theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
     this.triggerSearch = this.triggerSearch.bind(this);
     this.updateInput = this.updateInput.bind(this);
+    this.setTheme = this.setTheme.bind(this);
   }
 
   componentWillMount() {
+    if (!getLocalStorageVar('settings')) {
+      setLocalStorageVar('settings', { theme: 'tdark' });
+      document.getElementById('body').className = 'tdark';
+    } else {
+      document.getElementById('body').className = getLocalStorageVar('settings').theme;
+    }
+
     const _searchTerm = this.props.input;
 
     if (!_searchTerm) {
@@ -58,6 +69,14 @@ class Main extends React.Component {
     }
   }
 
+  setTheme(name) {
+    document.getElementById('body').className = name;
+    setLocalStorageVar('settings', { theme: name });
+    this.setState({
+      theme: name,
+    });
+  }
+
   updateInput(e) {
     this.setState({
       [e.target.name]: e.target.value,
@@ -66,17 +85,10 @@ class Main extends React.Component {
 
   triggerSearch() {
     if (this.props.path === '/rewards') {
-      if (addressVersionCheck(btcNetworks.kmd, this.state.searchTerm) === true) {
-        Store.dispatch(getInterest(this.state.searchTerm));
-      } else {
-        Store.dispatch(interestState('', {
-          msg: 'error',
-          result: {
-            code: 1,
-            message: translate('SEARCH.INVALID_PUB', this.state.searchTerm),
-          },
-        }));
-      }
+      Store.dispatch(interestState('', {
+        msg: 'progress',
+      }));
+      Store.dispatch(getInterest(this.state.searchTerm));
     } else {
       hashHistory.push('/search/' + this.state.searchTerm);
     }
@@ -90,7 +102,8 @@ class Main extends React.Component {
         _items.push(
           <span
             key={ `explorer-icons-${key}` }
-            className="header-coin-wrapper">
+            className="header-coin-wrapper"
+            title={ key }>
             <span className={ `header-coin-icon coin_${key.toLowerCase()}` }></span>
           </span>
         );
@@ -107,7 +120,7 @@ class Main extends React.Component {
         <div className="container-fluid">
           <div className="row text-center">
             <div className="col-md-2 col-md-offset-3">
-              <div className="panel panel-default hidden-sm hidden-xs">
+              <div className="panel panel-default hidden-sm hidden-xs panel-index">
                 <div className="panel-heading">
                   <strong>{ translate('INDEX.COINS') }</strong>
                 </div>
@@ -118,13 +131,14 @@ class Main extends React.Component {
             </div>
             <div className="col-md-2 col-sm-12">
               <img
-                src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/kmd-logo.png` }
+                src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/kmd-logo-color.png` }
                 alt="Komodo logo"
-                height="100px" />
+                height="100px"
+                className="logo-img" />
             </div>
             { this.props.Main.fiatRates &&
               <div className="col-md-2">
-                <div className="panel panel-default hidden-sm hidden-xs">
+                <div className="panel panel-default hidden-sm hidden-xs panel-index">
                   <div className="panel-heading">
                     <strong>{ translate('INDEX.KMD_PRICE') }</strong>
                   </div>
@@ -145,8 +159,8 @@ class Main extends React.Component {
               { this.renderCoinIcons() }
             </div>
           }
-          { (this.props.path.indexOf('/rewards') > -1 &&
-              this.props.path.indexOf('/balance-multi') === -1 ||
+          { ((this.props.path.indexOf('/rewards') > -1 && this.props.path.indexOf('/rewards-calc') === -1) ||
+              this.props.path.indexOf('/search') > -1 ||
               this.props.path === '/') &&
             <div className="row text-center margin-top-md margin-bottom-xlg">
               <div className="form-inline">
@@ -211,6 +225,15 @@ class Main extends React.Component {
                   target="_blank"
                   className="navbar-link">Electrum</a>
               </p>
+              <div className="theme-selector">
+                { translate('INDEX.THEME') }
+                <div
+                  onClick={ () => this.setTheme('tdark') }
+                  className={ 'item black' + (this.state.theme === 'tdark' ? ' active' : '') }></div>
+                <div
+                  onClick={ () => this.setTheme('tgreen') }
+                  className={ 'item green' + (this.state.theme === 'tgreen' ? ' active' : '') }></div>
+              </div>
             </div>
           </div>
         </footer>

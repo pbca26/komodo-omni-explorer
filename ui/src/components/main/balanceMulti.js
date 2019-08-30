@@ -114,7 +114,7 @@ class BalanceMulti extends React.Component {
             onClick={ this.triggerSearch }
             disabled={ !this.state.balanceMultiAddrList }
             type="submit"
-            className="btn btn-success margin-left-10">
+            className="btn btn-success margin-bottom-xlg">
             { translate('INDEX.SEARCH') }
           </button>
         </div>

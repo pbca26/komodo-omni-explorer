@@ -115,7 +115,8 @@ class Navigation extends React.Component {
         break;
       case 'misc':
         if (_locationHash.indexOf('/ac-params') > -1 ||
-            _locationHash.indexOf('/trollbox') > -1) {
+            _locationHash.indexOf('/trollbox') > -1 ||
+            _locationHash.indexOf('/transaction-decoder') > -1) {
           return true;
         }
         break;
@@ -166,7 +167,7 @@ class Navigation extends React.Component {
             </button>
             <IndexLink
               to="/"
-              className="navbar-brand">
+              className="navbar-brand logo">
               Atomic Explorer
             </IndexLink>
           </div>
@@ -238,7 +239,7 @@ class Navigation extends React.Component {
                   </li>
                 </ul>
               </li>
-              <li className={ 'navbar-sub-parent dex' + (this.isActiveMenuParent('dex') ? ' active-parent' : '') }>
+              {/*<li className={ 'navbar-sub-parent dex' + (this.isActiveMenuParent('dex') ? ' active-parent' : '') }>
                 <a className="navbar-link pointer">
                   <span className="fa fa-exchange"></span>
                   <span className="menu-text">BarterDEX</span>
@@ -290,7 +291,7 @@ class Navigation extends React.Component {
                     </Link>
                   </li>
                 </ul>
-              </li>
+              </li>*/}
               <li className={ 'navbar-sub-parent tap' + (this.isActiveMenuParent('tap') ? ' active-parent' : '') }>
                 <a className="navbar-link pointer">
                   <span className="fa fa-beer"></span>
@@ -306,7 +307,7 @@ class Navigation extends React.Component {
                   <span className="menu-text">{ translate('NAVIGATION.MISC') }</span>
                 </a>
                 <ul className={ 'nav navbar-sub' + (this.state.disabledSubMenu === 'misc' ? ' disable' : '')}>
-                  <li onClick={ () => this.disableActiveParentMenu('misc') }>
+                  {/*<li onClick={ () => this.disableActiveParentMenu('misc') }>
                     <a
                       href="https://www.atomicexplorer.com/wallet"
                       className="navbar-link"
@@ -314,7 +315,7 @@ class Navigation extends React.Component {
                       <span className="fa fa-desktop"></span>
                       <span className="menu-text">{ translate('NAVIGATION.WEB_WALLET') }</span>
                     </a>
-                  </li>
+                  </li>*/}
                   <li onClick={ () => this.disableActiveParentMenu('misc') }>
                     <Link
                       to="/trollbox"
