@@ -19,6 +19,7 @@ const _config = {
     mm: true, // price api methods included
     kv: true,
     faucet: true,
+    faucetMini: true,
     explorer: true,
     mm: true,
     multisig: true,
