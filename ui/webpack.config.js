@@ -26,7 +26,7 @@ const wwwPath = path.join(__dirname, './www');
 * This results in pagespeed optimizations as the browser can quickly serve the shared code from cache,
 * rather than being forced to load a larger bundle whenever a new page is visited.
 */
-const plugins = [
+const plugins = isProduction ? [
   new webpack.optimize.CommonsChunkPlugin({
     name: ['vendor'],
     filename: 'vendor.js',
@@ -66,6 +66,43 @@ const plugins = [
     name: 'react',
     chunks: ['vendor'],
     minChunks: ({resource}) => (/node_modules\/react/).test(resource)
+  }),
+  /*
+  * The DefinePlugin allows you to create global constants which can be configured at compile time.
+  * This can be useful for allowing different behaviour between development builds and release builds.
+  * For example, you might use a global constant to determine whether logging takes place;
+  * perhaps you perform logging in your development build but not in the release build.
+  * That's the sort of scenario the DefinePlugin facilitates.
+  */
+  new webpack.DefinePlugin({
+    'process.env': {
+      NODE_ENV: JSON.stringify(nodeEnv),
+    },
+  }),
+  new webpack.NamedModulesPlugin(),
+  new HtmlWebpackPlugin({
+    template: path.join(wwwPath, 'index.html'),
+    path: buildPath,
+    filename: 'index.html',
+  }),
+  new webpack.LoaderOptionsPlugin({
+    options: {
+      postcss: [
+        autoprefixer({
+          browsers: [
+            'last 3 version',
+            'ie >= 10',
+          ],
+        }),
+      ],
+      context: __dirname,
+    },
+  })
+] : [
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'vendor',
+    minChunks: Infinity,
+    filename: 'vendor.js',
   }),
   /*
   * The DefinePlugin allows you to create global constants which can be configured at compile time.
