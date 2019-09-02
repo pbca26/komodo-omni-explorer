@@ -2,7 +2,7 @@ import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 
 const _config = {
   lang: 'EN',
-  dev: false,
+  dev: true,
   //https: true,
   //apiUrl: 'www.atomicexplorer.com',
   https: false,
@@ -56,6 +56,7 @@ const _config = {
     'ZEXO',
     'DION',
     'LABS',
+    'HUSH',
   ],
   extendExplorers: [
     'VOTE2019',

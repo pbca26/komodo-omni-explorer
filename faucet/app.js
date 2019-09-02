@@ -38,7 +38,6 @@ function verify(data) {
 };
 
 function changeActiveCoin(coin) {
-  console.warn(coin)
   activeCoin = coin;
 
   $('#faucet-selector').addClass('hide');
