@@ -13,7 +13,7 @@ const assetChainParams = sortObject({
   BOTS: '-ac_supply=999999 -addnode=78.47.196.146',
   MGW: '-ac_supply=999999 -addnode=78.47.196.146',
   COQUI: '-ac_supply=72000000 -ac_ccactivate=200000 -addnode=78.47.196.146',
-  COQUICASH:  '-ac_supply=72000000 -ac_reward=7200000000 -ac_staked=50 -ac_halving=420000 -ac_cc=2 -ac_ccenable=227,235,236,241 -addnode=78.47.108.168',
+  COQUICASH: '-ac_supply=72000000 -ac_reward=7200000000 -ac_staked=50 -ac_halving=420000 -ac_cc=2 -ac_ccenable=227,235,236,241 -addnode=78.47.108.168',
   WLC: '-ac_supply=210000000 -addnode=148.251.190.89',
   KV: '-ac_supply=1000000 -addnode=78.47.196.146',
   CEAL: '-ac_supply=366666666 -addnode=78.47.196.146',
@@ -55,6 +55,7 @@ const assetChainParams = sortObject({
   K64: '-ac_supply=64000777 -ac_reward=0 -ac_staked=10 -addnode=18.197.20.211',
   HUSH3: ' -ac_sapling=1 -ac_founders=1 -ac_reward=0,1125000000,562500000 -ac_end=128,340000,5422111 -ac_blocktime=150 -ac_supply=6178674 -ac_halving=129,340000,840000 -ac_cc=2 -ac_cclib=hush3 -ac_ccenable=228,234,235,236,241 -ac_perc=11111111 -ac_eras=3 -ac_script=76a9145eb10cf64f2bab1b457f1f25e658526155928fac88ac -clientname=GoldenSandtrout -addnode=188.165.212.101 -addnode=136.243.227.142 -addnode=5.9.224.250',
   THC: ' -ac_supply=251253103 -ac_reward=360000000,300000000,240000000,180000000,150000000,90000000,0 -ac_staked=100 -ac_eras=7 -ac_end=500001,1000001,1500001,2000001,2500001,4500001,0 -ac_perc=233333333 -ac_cc=2 -ac_ccenable=229,236,240 -ac_script=2ea22c8020987fad30df055db6fd922c3a57e55d76601229ed3da3b31340112e773df3d0d28103120c008203000401ccb8 -ac_founders=150 -ac_cbmaturity=1 -ac_sapling=1 -earlytxid=7e4a76259e99c9379551389e9f757fc5f46c33ae922a8644dc2b187af2a6adc1 -addnode=157.230.45.184 -addnode=165.22.52.123',
+  LABS: '-ac_supply=350689 -ac_reward=0,0,800000000 -ac_decay=0,100000000,100000000 -ac_halving=129,1 -ac_end=128,10080,0 -ac_notarypay=64,100000000,1000000000 -ac_eras=3 -ac_staked=51 -ac_sapling=1 -ac_cc=101 -ac_ccenable=226,236 -ac_cclib=labs -addnode=80.240.17.222 -addnode=195.201.20.230',
 });
 
 export default assetChainParams;
