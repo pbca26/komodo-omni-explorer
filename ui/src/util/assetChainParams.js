@@ -39,7 +39,7 @@ const assetChainParams = sortObject({
   MGNX: '-ac_supply=12465003 -ac_staked=90 -ac_reward=2000000000 -ac_halving=525960 -ac_cc=2 -ac_end=2629800 -addnode=142.93.27.180',
   CALL: '-ac_supply=52500000 -ac_reward=1250000000 -ac_end=4200000 -ac_halving=1400000 -addnode=185.162.65.14 -addnode=185.162.65.15',
   PIRATE: '-ac_supply=0 -ac_reward=25600000000 -ac_halving=77777 -ac_private=1 -addnode=136.243.102.225 -addnode=78.47.205.239',
-  PUNGO: '-ac_supply=10000000 -ac_end=1 -addnode=190.114.254.104',
+  PGT: '-ac_supply=10000000 -ac_end=1 -addnode=190.114.254.104',
   DION: '-ac_supply=3900000000 -ac_reward=22260000000 -ac_staked=100 -ac_cc=1 -ac_end=4300000000 -addnode=51.75.124.34',
   KOIN: '-ac_supply=125000000 -addnode=3.0.32.10',
   KMDICE: '-ac_name=KMDICE -ac_supply=10500000 -ac_reward=2500000000 -ac_halving=210000 -ac_cc=2 -addressindex=1 -spentindex=1 -addnode=144.76.217.232',
