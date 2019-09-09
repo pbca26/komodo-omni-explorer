@@ -159,9 +159,6 @@ const _config = {
     PIZZA: {
       url: 'https://pizza.kmdexplorer.io/insight-api-komodo',
     },
-    K64: {
-      url: 'http://explorer.komodore64.com/insight-api-komodo',
-    },
     RFOX: {
       url: 'https://rfox.kmdexplorer.io/insight-api-komodo',
     },
@@ -291,7 +288,6 @@ const _config = {
     'morty',
     'vote2019',
     'rfox',
-    'k64',
     'zexo',
     'labs',
     'hush',
