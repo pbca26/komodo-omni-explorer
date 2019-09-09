@@ -50,7 +50,6 @@ const _config = {
     'RICK',
     'MORTY',
     'RFOX',
-    'K64',
     'PTX',
     'KOIN',
     'ZEXO',
