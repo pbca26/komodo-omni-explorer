@@ -52,10 +52,10 @@ const assetChainParams = sortObject({
   RICK: ' -ac_supply=90000000000 -ac_reward=100000000 -ac_cc=3 -ac_staked=10 -addnode=138.201.136.145 -addnode=95.217.44.58',
   MORTY: ' -ac_supply=90000000000 -ac_reward=100000000 -ac_cc=3 -ac_staked=10 -addnode=138.201.136.145 -addnode=95.217.44.58',
   VOTE2019: '-ac_supply=123651638 -ac_public=1 -addnode=95.213.238.98',
-  K64: '-ac_supply=64000777 -ac_reward=0 -ac_staked=10 -addnode=18.197.20.211',
   HUSH3: ' -ac_sapling=1 -ac_founders=1 -ac_reward=0,1125000000,562500000 -ac_end=128,340000,5422111 -ac_blocktime=150 -ac_supply=6178674 -ac_halving=129,340000,840000 -ac_cc=2 -ac_cclib=hush3 -ac_ccenable=228,234,235,236,241 -ac_perc=11111111 -ac_eras=3 -ac_script=76a9145eb10cf64f2bab1b457f1f25e658526155928fac88ac -clientname=GoldenSandtrout -addnode=188.165.212.101 -addnode=136.243.227.142 -addnode=5.9.224.250',
   THC: ' -ac_supply=251253103 -ac_reward=360000000,300000000,240000000,180000000,150000000,90000000,0 -ac_staked=100 -ac_eras=7 -ac_end=500001,1000001,1500001,2000001,2500001,4500001,0 -ac_perc=233333333 -ac_cc=2 -ac_ccenable=229,236,240 -ac_script=2ea22c8020987fad30df055db6fd922c3a57e55d76601229ed3da3b31340112e773df3d0d28103120c008203000401ccb8 -ac_founders=150 -ac_cbmaturity=1 -ac_sapling=1 -earlytxid=7e4a76259e99c9379551389e9f757fc5f46c33ae922a8644dc2b187af2a6adc1 -addnode=157.230.45.184 -addnode=165.22.52.123',
   LABS: '-ac_supply=350689 -ac_reward=0,0,800000000 -ac_decay=0,100000000,100000000 -ac_halving=129,1 -ac_end=128,10080,0 -ac_notarypay=64,100000000,1000000000 -ac_eras=3 -ac_staked=51 -ac_sapling=1 -ac_cc=101 -ac_ccenable=226,236 -ac_cclib=labs -addnode=80.240.17.222 -addnode=195.201.20.230',
+  MTST3: '-ac_supply=100000 -ac_cc=27410 -ac_reward=300000000 -addnode=136.243.58.134',
 });
 
 export default assetChainParams;

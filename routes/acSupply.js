@@ -49,7 +49,8 @@ const acSupply = {
   DION: 3900000000,
   PGT: 10000000,
   PIRATE: 25600000000,
-  SEC: 1000000000
+  SEC: 1000000000,
+  MTST3: 100000,
 };
 
 module.exports = acSupply;
