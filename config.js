@@ -168,6 +168,9 @@ const _config = {
     HUSH: {
       url: 'https://explorer.myhush.org/insight-api-komodo',
     },
+    COMMOD: {
+      url: 'http://commod.explorer.dexstats.info/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
@@ -183,6 +186,9 @@ const _config = {
       wif: '',
       fee: 0.0001,
       outSize: [1,2,4.777],
+      resetTimeout: 300,
+      freeLeechFrom: 1572517860,
+      freeLeechTo: 1572566400,
     },
     morty: {
       wif: '',
@@ -206,6 +212,7 @@ const _config = {
     },
   },
   recaptchaKey: '',
+  faucetCaptcha: false,
   ticker: [
     'kmd',
     'coqui',
@@ -291,6 +298,7 @@ const _config = {
     'zexo',
     'labs',
     'hush',
+    'commod',
   ],
   electrumServersExtend: [
     'btc',

@@ -31,7 +31,7 @@ module.exports = (api) => {
       faucetFundedList = '';
     }
 
-    if (config.faucet[coin].resetTimeout) {
+    if (config.faucet[coin].resetTimeout && (!config.faucet[coin].hasOwnProperty('freeLeechFrom') || (config.faucet[coin].hasOwnProperty('freeLeechFrom') && Number(config.faucet[coin].freeLeechFrom) * 1000 < Date.now() && Number(config.faucet[coin].freeLeechTo) * 1000 > Date.now()))) {
       const faucetFundedListItems = faucetFundedList.split('\n');
       let addressNotFound = true;
 
@@ -102,7 +102,7 @@ module.exports = (api) => {
 
   api.get('/faucet', (req, res, next) => {
     // ref: https://codeforgeek.com/2016/03/google-recaptcha-node-js-tutorial/
-    if (config.captcha &&
+    if (config.faucetCaptcha &&
         (req.query.grecaptcha === undefined ||
         req.query.grecaptcha === '' ||
         req.query.grecaptcha === null)) {
