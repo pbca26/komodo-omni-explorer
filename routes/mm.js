@@ -1009,8 +1009,8 @@ module.exports = (api) => {
 
   api.updateStats = () => {
     const runStatsUpdate = () => {
-      const statsSource = fs.readFileSync('stats.log', 'utf-8');
-      const _lines = statsSource.split('\n');
+      const statsSource = fs.existsSync('stats.log') && fs.readFileSync('stats.log', 'utf-8');
+      const _lines = statsSource && statsSource.split('\n');
       const _numLast = 1000;
       let _outDetailed = [];
       let _outSimplified = [];

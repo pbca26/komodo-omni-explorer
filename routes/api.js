@@ -64,7 +64,7 @@ api.start = () => {
   if (config.modules.ticker) {
     api.ticker();
   }
-  if (config.modules.explorer) {
+  if (config.modules.exchanges) {
     api.coinswitchCoinsSync();
     api.coinswitchOrdersSync();
   }
