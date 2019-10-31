@@ -2,7 +2,7 @@ import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 
 const _config = {
   lang: 'EN',
-  dev: true,
+  dev: false,
   //https: true,
   //apiUrl: 'www.atomicexplorer.com',
   https: false,
@@ -56,6 +56,7 @@ const _config = {
     'DION',
     'LABS',
     'HUSH',
+    'COMMOD',
   ],
   extendExplorers: [
     'VOTE2019',
@@ -67,14 +68,6 @@ const _config = {
     interval: 60,
   },
   faucet: {
-    beer: {
-      outSize: 3,
-      explorer: explorerList.BEER,
-    },
-    pizza: {
-      outSize: 0.777,
-      explorer: explorerList.PIZZA,
-    },
     rick: {
       outSize: 7.777,
       explorer: explorerList.RICK,
