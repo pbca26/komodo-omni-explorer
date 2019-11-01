@@ -25,6 +25,7 @@ const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const ETH_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const USERPASS = '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f';
+const CACHE_FILE_NAME = 'mm_cache.json';
 
 let electrumServers = [];
 
@@ -251,12 +252,24 @@ module.exports = (api) => {
     }
 
     api.mm.extRates.parsed = _fiatRates;
+
+    fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
+      if (err) {
+        api.log(`error updating kv cache file ${err}`);
+      }
+    });
   };
 
   api.getRates = () => {
     const DP_TIMEOUT = 5000;
     const CMC_TIMEOUT = 10000;
     const CG_TIMEOUT = 5000;
+
+    const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
+    
+    if (cacheFileData) {
+      api.mm = cacheFileData;
+    }
 
     const _getCMCRates = () => {
       for (let i = 0; i < _cmcRatesList.length; i++) {
@@ -410,6 +423,11 @@ module.exports = (api) => {
     _getCMCRates();
     _getCGRates();
     api.mmRatesInterval = setInterval(() => {
+      fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
+        if (err) {
+          api.log(`error updating mm cache file ${err}`);
+        }
+      });
       _getKMDRates();
       _getDPRates();
       _getCGRates();
