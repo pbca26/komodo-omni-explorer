@@ -43,6 +43,13 @@ const KV_CONTENT_HEADER_SIZE = [
 
 const KV_MAX_CONTENT_SIZE = 4096;
 
+const sleepInterval = 10;
+const sleep = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const CACHE_FILE_NAME = 'kv_cache.json';
+
 module.exports = (api) => {
   api.kv = {
     txs: [],
@@ -336,8 +343,13 @@ module.exports = (api) => {
     };
     const randomServer = config.electrumServers[network].serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
-    const MAX_TX = 300;
-
+    const MAX_TX = 3000;
+    const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
+    
+    if (cacheFileData) {
+      api.kv.cache = cacheFileData;
+    }
+    
     const _kvLoop = () => {
       api.log('kv history');
 
@@ -467,7 +479,9 @@ module.exports = (api) => {
     res.end(JSON.stringify(retObj));
   });
 
-  api.getTransaction = (txid, network, ecl) => {
+  api.getTransaction = async (txid, network, ecl) => {
+    await sleep(sleepInterval);
+
     return new Promise((resolve, reject) => {
       if (!api.kv.cache[network]) {
         api.kv.cache[network] = {};
@@ -483,6 +497,12 @@ module.exports = (api) => {
         .then((_rawtxJSON) => {
           api.kv.cache[network].tx[txid] = _rawtxJSON;
           resolve(_rawtxJSON);
+
+          fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.kv.cache), (err) => {
+            if (err) {
+              api.log(`error updating kv cache file ${err}`);
+            }
+          });
         });
       } else {
         api.log(`kv electrum cached raw input tx ${txid}`);
@@ -508,7 +528,9 @@ module.exports = (api) => {
     }
   }
 
-  api.getBlockHeader = (height, network, ecl) => {
+  api.getBlockHeader = async (height, network, ecl) => {
+    await sleep(sleepInterval);
+    
     return new Promise((resolve, reject) => {
       if (!api.kv.cache[network]) {
         api.kv.cache[network] = {};
@@ -531,6 +553,13 @@ module.exports = (api) => {
           }
 
           api.kv.cache[network].blockHeader[height] = _rawtxJSON;
+
+          fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.kv.cache), (err) => {
+            if (err) {
+              api.log(`error updating kv cache file ${err}`);
+            }
+          });
+
           resolve(_rawtxJSON);
         });
       } else {
