@@ -1,13 +1,5 @@
 var config = {
   coins: {
-    beer: {
-      outSize: 3,
-      explorer: 'https://beer.kmdexplorer.io',
-    },
-    pizza: {
-      outSize: 0.777,
-      explorer: 'http://pizza.komodochainz.info',
-    },
     rick: {
       outSize: 7.777,
       explorer: 'https://rick.kmd.dev',
