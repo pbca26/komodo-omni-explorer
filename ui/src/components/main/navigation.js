@@ -116,7 +116,8 @@ class Navigation extends React.Component {
       case 'misc':
         if (_locationHash.indexOf('/ac-params') > -1 ||
             _locationHash.indexOf('/trollbox') > -1 ||
-            _locationHash.indexOf('/transaction-decoder') > -1) {
+            _locationHash.indexOf('/transaction-decoder') > -1 ||
+            _locationHash.indexOf('/transaction-pushf') > -1) {
           return true;
         }
         break;
@@ -344,6 +345,15 @@ class Navigation extends React.Component {
                       activeClassName="active">
                       <span className="fa fa-code"></span>
                       <span className="menu-text">{ translate('NAVIGATION.TRANSACTION_DECODER') }</span>
+                    </Link>
+                  </li>
+                  <li onClick={ () => this.disableActiveParentMenu('misc') }>
+                    <Link
+                      to="/transaction-push"
+                      className="navbar-link pointer"
+                      activeClassName="active">
+                      <span className="fa fa-upload"></span>
+                      <span className="menu-text">{ translate('NAVIGATION.TRANSACTION_PUSH') }</span>
                     </Link>
                   </li>
                   <li onClick={ () => this.disableActiveParentMenu('misc') }>

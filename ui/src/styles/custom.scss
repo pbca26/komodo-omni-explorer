@@ -140,3 +140,7 @@ td {
 .loading-img {
   padding-left: 5px;
 }
+
+.text--ucfirst::first-letter {
+  text-transform: uppercase;
+}

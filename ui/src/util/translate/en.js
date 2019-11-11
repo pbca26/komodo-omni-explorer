@@ -122,6 +122,7 @@ const LANG_EN = {
     TROLLBOX: 'Trollbox',
     AC_PARAMS: 'AC Params',
     TRANSACTION_DECODER: 'Tx Decoder',
+    TRANSACTION_PUSH: 'Push Tx',
   },
   OVERVIEW: {
     COIN: 'Coin',
@@ -194,6 +195,14 @@ const LANG_EN = {
     DECODED_TX: 'Decoded transaction',
     NETWORK: 'Network',
     DECODING: 'Decoding transaction',
+  },
+  TRANSACTION_PUSH: {
+    PROVIDE_RAW_TX: 'Provide raw transaction here',
+    PUSH_TX: 'Broadcast transaction',
+    PUSH_TX_ERROR: 'Unable to broadcast transaction',
+    PUSHED_TX: 'Transaction broadcasted',
+    NETWORK: 'Network',
+    PUSHING: 'Sending transaction to the network',
   },
 };
 

@@ -2,10 +2,8 @@ import React from 'react';
 import config from '../../config';
 import Select from 'react-select';
 import translate from '../../util/translate/translate';
-import { decodeTx } from '../../actions/actionCreators';
+import { pushTx } from '../../actions/actionCreators';
 import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
-
-// TODO: advanced decoding - fetch inputs
 
 const coins = [];
 
@@ -19,41 +17,41 @@ for (let key in explorerList) {
   }
 }
 
-class TransactionDecoder extends React.Component {
+class PushTransaction extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       rawtx: '',
-      decodedTx: null,
+      txid: null,
       coin: 'KMD',
       loading: true,
     };
-    this.decodeTx = this.decodeTx.bind(this);
+    this.pushTx = this.pushTx.bind(this);
     this.updateInput = this.updateInput.bind(this);
   }
 
   componentDidMount() {
     this.setState({
       rawtx: '',
-      decodedTx: null,
+      txid: null,
       coin: 'KMD',
       loading: false,
       error: false,
     });
   }
 
-  decodeTx() {
+  pushTx() {
     this.setState({
       loading: true,
       error: false,
-      decodedTx: null,
+      txid: null,
     });
 
-    decodeTx(this.state.coin, this.state.rawtx)
+    pushTx(this.state.coin.toLowerCase(), this.state.rawtx)
     .then((res) => {
       this.setState({
         error: res.msg === 'success' ? false : true,
-        decodedTx: res.result,
+        txid: res.result,
         loading: false,
       });
     });
@@ -64,7 +62,7 @@ class TransactionDecoder extends React.Component {
         (e.target || name)) {
       this.setState({
         [e.target ? e.target.name : name]: e.target ? e.target.value : e.value,
-        decodedTx: null,
+        txid: null,
       });
     }
   }
@@ -81,7 +79,7 @@ class TransactionDecoder extends React.Component {
                   type="text"
                   name="rawtx"
                   value={ this.state.rawtx }
-                  placeholder={ translate('TRANSACTION_DECODER.PROVIDE_RAW_TX') }
+                  placeholder={ translate('TRANSACTION_PUSH.PROVIDE_RAW_TX') }
                   rows="5"
                   className="form-control">
                 </textarea>
@@ -91,7 +89,7 @@ class TransactionDecoder extends React.Component {
           <div className="row text-center margin-bottom-xlg">
             <div className="col-md-6 col-sm-6 col-fix">
               <div className="col-md-3 col-sm-3 no-padding-left text-left">
-                <label>{ translate('TRANSACTION_DECODER.NETWORK') }</label>
+                <label>{ translate('TRANSACTION_PUSH.NETWORK') }</label>
               </div>
               <div className="col-md-5 col-sm-5">
                 <Select
@@ -107,18 +105,18 @@ class TransactionDecoder extends React.Component {
           <div className="row text-center margin-top-md margin-bottom-lg">
             <div className="col-md-4 col-sm-4 col-fix">
               <button
-                onClick={ this.decodeTx }
+                onClick={ this.pushTx }
                 disabled={ !this.state.rawtx }
                 type="submit"
                 className="btn btn-success margin-left-10">
-                { translate('TRANSACTION_DECODER.DECODE_TX') }
+                { translate('TRANSACTION_PUSH.PUSH_TX') }
               </button>
             </div>
           </div>
           <div className="row text-center margin-top-xlg margin-bottom-2xlg">
             { this.state.loading &&
               <div className="text-center">
-                { translate('TRANSACTION_DECODER.DECODING') }
+                { translate('TRANSACTION_PUSH.PUSHING') }
                 <img
                   src={ `${config.https ? 'https' : 'http'}://${config.apiUrl}/public/images/loading.gif` }
                   alt="Loading"
@@ -127,21 +125,24 @@ class TransactionDecoder extends React.Component {
               </div>
             }
             { this.state.error &&
-              this.state.decodedTx &&
+              this.state.txid &&
               <div className="col-md-8 block-center">
                 <div className="alert alert-danger alert-dismissable">
-                  <strong>{ translate('TRANSACTION_DECODER.DECODE_TX_ERROR', this.state.coin) }</strong>
+                  <strong>{ translate('TRANSACTION_PUSH.PUSH_TX_ERROR') }</strong>
+                  <div className="margin-top-md text--ucfirst">{ this.state.txid }</div>
                 </div>
               </div>
             }
             { !this.state.error &&
-              this.state.decodedTx &&
+              this.state.txid &&
               <div className="col-md-12">
                 <div>
-                  <strong>{ translate('TRANSACTION_DECODER.DECODED_TX') }</strong>
-                  <pre className="margin-top-md text-left">
-                    { JSON.stringify(this.state.decodedTx, undefined, 2) }
-                  </pre>
+                  <strong>{ translate('TRANSACTION_PUSH.PUSHED_TX') }</strong>
+                  <div className="margin-top-md">
+                    <a
+                      target="_blank"
+                      href={ `${explorerList[this.state.coin.toUpperCase()]}/tx/${this.state.txid}` }>{ translate('FAUCET.OPEN_IN_EXPLORER') }</a>
+                  </div>
                 </div>
               </div>
             }
@@ -152,4 +153,4 @@ class TransactionDecoder extends React.Component {
   }
 }
 
-export default TransactionDecoder;
+export default PushTransaction;

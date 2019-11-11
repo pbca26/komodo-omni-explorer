@@ -25,6 +25,7 @@ import BalanceMulti from './components/main/balanceMulti';
 import Trollbox from './components/main/trollbox';
 import ACParams from './components/main/acParams';
 import TransactionDecoder from './components/main/txDecoder';
+import PushTransaction from './components/main/pushTx';
 
 const router = (
   <Provider store={ store }>
@@ -104,6 +105,9 @@ const router = (
         <Route
           path="/transaction-decoder"
           component={ TransactionDecoder } />
+        <Route
+          path="/transaction-push"
+          component={ PushTransaction } />
       </Route>
     </Router>
   </Provider>

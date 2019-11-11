@@ -1,7 +1,7 @@
 {
   "name": "atomic-explorer",
   "productName": "Atomic Explorer",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Atomic Explorer",
   "main": "main.js",
   "scripts": {
