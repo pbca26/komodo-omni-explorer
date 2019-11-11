@@ -8,7 +8,10 @@ const {
   fromSats,
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
-const { pubToElectrumScriptHashHex } = require('agama-wallet-lib/src/keys');
+const {
+  pubToElectrumScriptHashHex,
+  addressVersionCheck,
+} = require('agama-wallet-lib/src/keys');
 const btcnetworks = require('agama-wallet-lib/src/bitcoinjs-networks');
 const {
   parseBlock,
@@ -1004,6 +1007,17 @@ module.exports = (api) => {
     const network = 'komodo';
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
+    const addressCheck = addressVersionCheck(kmdAssetChains.indexOf(network.toUpperCase()) > -1 ? btcnetworks.kmd : btcnetworks[network.toLowerCase()], req.query.address);
+    
+    if (addressCheck !== true) {
+      const retObj = {
+        msg: 'error',
+        result: 'Invalid address',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
 
     api.listunspent(
       ecl,
@@ -1025,6 +1039,17 @@ module.exports = (api) => {
     const network = req.query.coin || 'kmd';
     const randomServer = _electrumServers[network.toLowerCase()].serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
+    const addressCheck = addressVersionCheck(kmdAssetChains.indexOf(network.toUpperCase()) > -1 ? btcnetworks.kmd : btcnetworks[network.toLowerCase()], req.query.address);
+
+    if (addressCheck !== true) {
+      const retObj = {
+        msg: 'error',
+        result: 'Invalid address',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
 
     api.listunspent(
       ecl,
