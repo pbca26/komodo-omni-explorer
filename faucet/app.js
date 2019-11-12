@@ -23,13 +23,29 @@ var config = {
 var recaptchaResponse;
 var activeCoin = 'rick';
 
+function parseRef() {
+  var ref = window.location.href;
+  
+  for (var key in config.coins) {
+    if (ref.indexOf('/' + key + '/') > -1) {
+      changeActiveCoin(key, true);
+    }
+
+    var address = ref.substring(ref.indexOf('/' + key + '/') + ('/' + key + '/').length, ref.length - 1);
+
+    if (address.length === 34) {
+      $('#address').val(address);
+    }
+  }
+}
+
 function verify(data) {
   if (data) {
     recaptchaResponse = data;
   }
 };
 
-function changeActiveCoin(coin) {
+function changeActiveCoin(coin, isInit) {
   activeCoin = coin;
 
   $('#faucet-selector').addClass('hide');
@@ -44,7 +60,8 @@ function changeActiveCoin(coin) {
   $('#success').addClass('hide');
   $('#success').html('');
   $('#error').html('');
-  grecaptcha.reset();
+  
+  if (!isInit) grecaptcha.reset();
 };
 
 function setTheme(name) {
@@ -62,6 +79,8 @@ function setTheme(name) {
 
 function init() {
   var themeLocalStorageVar = localStorage.getItem('settings');
+
+  parseRef();
 
   if (!themeLocalStorageVar) {
     $('.theme-selector .black').addClass('active');
