@@ -29,50 +29,56 @@ class Faucet extends React.Component {
   }
 
   componentWillReceiveProps(props) {
-    if (props.input &&
-        config.faucet[props.input.toLowerCase()]) {
-      if (this.state.coin != props.input.toLowerCase()) {
+    if (props.coin &&
+        config.faucet[props.coin.toLowerCase()]) {
+      if (this.state.coin != props.coin.toLowerCase()) {
         this.captcha.reset();
 
         this.setState({
-          coin: props.input.toLowerCase(),
+          coin: props.coin.toLowerCase(),
+          address: props.address && props.address.length === 34 ? props.address : '',
           error: false,
           result: null,
         });
       } else {
         this.setState({
-          coin: props.input.toLowerCase(),
+          coin: props.coin.toLowerCase(),
+          address: props.address && props.address.length === 34 ? props.address : '',
         });
       }
     } else {
-      if (this.state.coin != props.input.toLowerCase()) {
+      if (this.state.coin != props.coin.toLowerCase()) {
         this.captcha.reset();
 
         this.setState({
-          coin: 'beer',
+          coin: 'rick',
+          address: props.address && props.address.length === 34 ? props.address : '',
           error: false,
           result: null,
         });
       } else {
         this.setState({
-          coin: 'beer',
+          coin: 'rick',
+          address: props.address && props.address.length === 34 ? props.address : '',
         });
       }
     }
   }
 
   componentDidMount() {
-    if (this.props.input &&
-        config.faucet[this.props.input.toLowerCase()]) {
+    if (this.props.coin &&
+        config.faucet[this.props.coin.toLowerCase()]) {
       this.setState({
-        coin: this.props.input.toLowerCase(),
+        coin: this.props.coin.toLowerCase(),
+        address: this.props.address && this.props.address.length === 34 ? this.props.address : '',
       });
       if (this.captcha) {
         this.captcha.reset();
       }
     } else {
       this.setState({
-        coin: 'beer',
+        coin: 'rick',
+        address: this.props.address && this.props.address.length === 34 ? this.props.address : '',
       });
       if (this.captcha) {
         this.captcha.reset();
@@ -199,7 +205,8 @@ class Faucet extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     Main: state.root.Main,
-    input: ownProps.params.input,
+    coin: ownProps.params.coin,
+    address: ownProps.params.address,
   };
 };
 
