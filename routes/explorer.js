@@ -512,14 +512,11 @@ module.exports = (api) => {
       let _finishedBalanceCalls = {};
       let incorrectAddress = true;
       
-      try {
-        const _b58check = bitcoin.address.fromBase58Check(_searchTerm);
-
-        if (_b58check.version === config.komodoParams.pubKeyHash ||
-            _b58check.version === config.komodoParams.scriptHash) {
-          incorrectAddress = false;
-        }
-      } catch(e) {}
+      const addressCheck = addressVersionCheck(btcnetworks.kmd, _searchTerm);
+      
+      if (addressCheck === true) {
+        incorrectAddress = false;
+      }
 
       if (incorrectAddress) {
         const retObj = {

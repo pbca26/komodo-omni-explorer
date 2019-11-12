@@ -12,14 +12,19 @@ const {
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
 const electrumJSCore = require('./electrumjs.core.js');
-const { pubToElectrumScriptHashHex } = require('agama-wallet-lib/src/keys');
+const {
+  pubToElectrumScriptHashHex,
+  addressVersionCheck,
+} = require('agama-wallet-lib/src/keys');
+const btcnetworks = require('agama-wallet-lib/src/bitcoinjs-networks');
 
 let minRemaining = 0;
 
 module.exports = (api) => {
   api.checkFaucetOutAddress = (coin, address) => {
     let faucetFundedList;
-
+    const addressCheck = addressVersionCheck(btcnetworks.kmd, address);
+    
     if (!config.faucet[coin]) {
       return 777;
     }
@@ -49,51 +54,18 @@ module.exports = (api) => {
           } else {
             faucetFundedListItems.splice(i, 1);
             fs.writeFileSync(`faucetFundedList-${coin}.log`, faucetFundedListItems.join('\n'));
-
-            try {
-              const _b58check = bitcoin.address.fromBase58Check(address);
-
-              if (_b58check.version === config.komodoParams.pubKeyHash ||
-                  _b58check.version === config.komodoParams.scriptHash) {
-                return true;
-              } else {
-                return false;
-              }
-            } catch(e) {
-              return -777;
-            }
+            
+            return addressCheck !== true ? false : true;
           }
         }
       }
 
       if (addressNotFound) {
-        try {
-          const _b58check = bitcoin.address.fromBase58Check(address);
-
-          if (_b58check.version === config.komodoParams.pubKeyHash ||
-              _b58check.version === config.komodoParams.scriptHash) {
-            return true;
-          } else {
-            return false;
-          }
-        } catch(e) {
-          return -777;
-        }
+        return addressCheck !== true ? false : true;
       }
     } else {
       if (faucetFundedList.indexOf(address) === -1) {
-        try {
-          const _b58check = bitcoin.address.fromBase58Check(address);
-
-          if (_b58check.version === config.komodoParams.pubKeyHash ||
-              _b58check.version === config.komodoParams.scriptHash) {
-            return true;
-          } else {
-            return false;
-          }
-        } catch(e) {
-          return -777;
-        }
+        return addressCheck !== true ? false : true;
       } else {
         return 777;
       }
@@ -363,7 +335,7 @@ module.exports = (api) => {
       };
 
       if (config.captcha) {
-        // Put your secret key here.
+        // put your secret key here
         const secretKey = config.recaptchaKey;
         const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.query['grecaptcha']}&remoteip=${req.connection.remoteAddress}`;
         request(verificationUrl, (error, response, body) => {
