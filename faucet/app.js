@@ -22,19 +22,25 @@ var config = {
 
 var recaptchaResponse;
 var activeCoin = 'rick';
+var address = '';
 
 function parseRef() {
   var ref = window.location.href;
   
   for (var key in config.coins) {
+    window.location.hash = window.location.hash.replace(key.toUpperCase(), key);
+    ref = ref.replace(key.toUpperCase(), key);
+
     if (ref.indexOf('/' + key + '/') > -1) {
       changeActiveCoin(key, true);
     }
 
-    var address = ref.substring(ref.indexOf('/' + key + '/') + ('/' + key + '/').length, ref.length - 1);
+    address = ref.substring(ref.indexOf('/' + key + '/') + ('/' + key + '/').length, ref.length);
 
     if (address.length === 34) {
       $('#address').val(address);
+    } else {
+      address = '';
     }
   }
 }
@@ -46,6 +52,9 @@ function verify(data) {
 };
 
 function changeActiveCoin(coin, isInit) {
+  if (!isInit) {
+    window.location.hash = window.location.hash.replace(activeCoin, coin);
+  }
   activeCoin = coin;
 
   $('#faucet-selector').addClass('hide');
@@ -53,9 +62,9 @@ function changeActiveCoin(coin, isInit) {
   setTimeout(function () {
     $('#faucet-selector').removeClass('hide');
   }, 10);
-  $('#faucetCoinIcon').attr('src', '/faucet/images/' + coin.toLowerCase() + '.png');
-  $('#address').attr('placeholder', 'Enter a ' + coin.toUpperCase() + ' address');
-  $('#address').val('');
+  $('#faucetCoinIcon').attr('src', '/faucet/images/' + coin + '.png');
+  $('#address').attr('placeholder', 'Enter a ' + coin + ' address');
+  $('#address').val(address ? address : '');
   $('#error').addClass('hide');
   $('#success').addClass('hide');
   $('#success').html('');
@@ -67,6 +76,7 @@ function changeActiveCoin(coin, isInit) {
 function setTheme(name) {
   document.getElementById('body').className = name;
   localStorage.setItem('settings', JSON.stringify({ theme: name }));
+  
   $('.theme-selector .black').removeClass('active');
   $('.theme-selector .green').removeClass('active');
 
@@ -127,7 +137,7 @@ $(document).ready(function() {
   });
 
   $('#faucet-get').click(function() {
-    var address = $('#address').val();
+    address = $('#address').val();
 
     $.get((config.dev ? 'http://localhost:8115' : 'https://www.atomicexplorer.com') + '/api/faucet?address=' + address + '&coin=' + activeCoin + '&grecaptcha=' + recaptchaResponse,
       function(data, status) {
