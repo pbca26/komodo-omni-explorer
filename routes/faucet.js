@@ -40,21 +40,35 @@ module.exports = (api) => {
       const faucetFundedListItems = faucetFundedList.split('\n');
       let addressNotFound = true;
 
-      for (let i = 0; i < faucetFundedListItems.length; i++) {
-        if (faucetFundedListItems[i].indexOf(address + ':') > -1) {
-          const _timestamp = faucetFundedListItems[i].substr(faucetFundedListItems[i].indexOf(':') + 1, faucetFundedListItems[i].length);
-          const seconds = checkTimestamp(_timestamp);
+      for (let i = 0; i < faucetFundedListItems.length; i++) {        
+        if (faucetFundedListItems[i].indexOf(address + ':') > -1 ||
+            faucetFundedListItems[i].indexOf(address) > -1) {
+          const _timestamp = config.faucet[coin].allowedTimesToRepeat ? faucetFundedList.substr(faucetFundedList.lastIndexOf(':') + 1, faucetFundedList.lastIndexOf(':') + 32) : faucetFundedListItems[i].substr(faucetFundedListItems[i].indexOf(':') + 1, faucetFundedListItems[i].length);
+          const seconds = checkTimestamp(_timestamp) || 77777777;
 
+          api.log('faucet allowed to repeat: ' + config.faucet[coin].allowedTimesToRepeat);
+          api.log('faucet address repeated match: ' + faucetFundedList.match(RegExp(address, 'gi')));
+          api.log('faucet address repeated: ' + (faucetFundedList.match(RegExp(address, 'gi')) && faucetFundedList.match(RegExp(address, 'gi')).length));
+          api.log('faucet seconds passed: ' + seconds);
+          
           addressNotFound = false;
+
+          if (config.faucet[coin].allowedTimesToRepeat &&
+              faucetFundedList.match(RegExp(address, 'gi')) &&
+              faucetFundedList.match(RegExp(address, 'gi')).length >= config.faucet[coin].allowedTimesToRepeat) {
+            return 777;
+          }
 
           minRemaining = Math.floor((config.faucet[coin].resetTimeout - seconds) / 60);
 
           if (seconds < config.faucet[coin].resetTimeout) {
             return 777;
           } else {
-            faucetFundedListItems.splice(i, 1);
-            fs.writeFileSync(`faucetFundedList-${coin}.log`, faucetFundedListItems.join('\n'));
-            
+            if (!config.faucet[coin].allowedTimesToRepeat) {
+              faucetFundedListItems.splice(i, 1);
+              fs.writeFileSync(`faucetFundedList-${coin}.log`, faucetFundedListItems.join('\n'));
+            }
+
             return addressCheck !== true ? false : true;
           }
         }
@@ -64,7 +78,13 @@ module.exports = (api) => {
         return addressCheck !== true ? false : true;
       }
     } else {
-      if (faucetFundedList.indexOf(address) === -1) {
+      if (config.faucet[coin].allowedTimesToRepeat) {
+        api.log(`faucet allowed to repeat: ${config.faucet[coin].allowedTimesToRepeat}`);
+        api.log(`faucet address repeated: ${faucetFundedList.match(RegExp(address, 'gi')).length}`);
+      }
+
+      if (faucetFundedList.indexOf(address) === -1 ||
+          (config.faucet[coin].allowedTimesToRepeat && faucetFundedList.match(RegExp(address, 'gi')).length < config.faucet[coin].allowedTimesToRepeat)) {
         return addressCheck !== true ? false : true;
       } else {
         return 777;
