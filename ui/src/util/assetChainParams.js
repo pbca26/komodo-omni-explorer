@@ -56,6 +56,8 @@ const assetChainParams = sortObject({
   THC: ' -ac_supply=251253103 -ac_reward=360000000,300000000,240000000,180000000,150000000,90000000,0 -ac_staked=100 -ac_eras=7 -ac_end=500001,1000001,1500001,2000001,2500001,4500001,0 -ac_perc=233333333 -ac_cc=2 -ac_ccenable=229,236,240 -ac_script=2ea22c8020987fad30df055db6fd922c3a57e55d76601229ed3da3b31340112e773df3d0d28103120c008203000401ccb8 -ac_founders=150 -ac_cbmaturity=1 -ac_sapling=1 -earlytxid=7e4a76259e99c9379551389e9f757fc5f46c33ae922a8644dc2b187af2a6adc1 -addnode=157.230.45.184 -addnode=165.22.52.123',
   LABS: '-ac_supply=350689 -ac_reward=0,0,800000000 -ac_decay=0,100000000,100000000 -ac_halving=129,1 -ac_end=128,10080,0 -ac_notarypay=64,100000000,1000000000 -ac_eras=3 -ac_staked=51 -ac_sapling=1 -ac_cc=101 -ac_ccenable=226,236 -ac_cclib=labs -addnode=80.240.17.222 -addnode=195.201.20.230',
   MTST3: '-ac_supply=100000 -ac_cc=27410 -ac_reward=300000000 -addnode=136.243.58.134',
+  WLC21: '-ac_supply=21000000 -ac_reward=190258751 -ac_staked=90 -ac_public=1 -addnode=37.187.225.231 -addnode=51.38.38.134',
+  COMMOD: '-ac_supply=0 -ac_reward=204800000000,100000000 -ac_end=482130,0 -ac_halving=43830,525960 -ac_decay=50000000,10000000 -ac_eras=2 -ac_cc=777 -ac_public=1 -addnode=34.246.186.176 -addnode=34.251.151.148',
 });
 
 export default assetChainParams;
