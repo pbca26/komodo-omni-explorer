@@ -1001,7 +1001,7 @@ module.exports = (api) => {
   }
 
   api.get('/kmd/listunspent', (req, res, next) => {
-    const network = 'komodo';
+    const network = 'kmd';
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
     const addressCheck = addressVersionCheck(kmdAssetChains.indexOf(network.toUpperCase()) > -1 ? btcnetworks.kmd : btcnetworks[network.toLowerCase()], req.query.address);
