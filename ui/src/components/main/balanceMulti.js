@@ -49,7 +49,10 @@ class BalanceMulti extends React.Component {
           </div>
         </div>
       );
-    } else if (__balances && __balances.result) {
+    } else if (
+      __balances &&
+      __balances.result
+    ) {
       const _balances = this.props.Main.balanceMulti.result;
       let balances = {};
       let _items = [];
@@ -74,7 +77,7 @@ class BalanceMulti extends React.Component {
         }
 
         return (
-          <table className="table table-hover dataTable table-striped">
+          <table className="table table-hover dataTable table-striped margin-bottom-lg">
             <thead>
               <tr>
                 <th>{ translate('BALANCE_CHECK.ADDRESS') }</th>

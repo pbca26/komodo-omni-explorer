@@ -231,6 +231,9 @@ class Main extends React.Component {
                   onClick={ () => this.setTheme('tdark') }
                   className={ 'item black' + (this.state.theme === 'tdark' ? ' active' : '') }></div>
                 <div
+                  onClick={ () => this.setTheme('tlight') }
+                  className={ 'item light' + (this.state.theme === 'tlight' ? ' active' : '') }></div>
+                <div
                   onClick={ () => this.setTheme('tgreen') }
                   className={ 'item green' + (this.state.theme === 'tgreen' ? ' active' : '') }></div>
               </div>

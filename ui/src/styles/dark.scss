@@ -18,17 +18,14 @@
   color: #fff;
 
   .navbar-default {
-    border-color: #233548;
+    border: none;
     background-color: #233548;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.20);
   }
 
   .site-footer {
     border-color: #182331;
     background-color: #182331;
-  }
-
-  .navbar-default {
-    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.20);
   }
 
   a,
@@ -87,10 +84,18 @@
     border: none;
     color: #fff;
   }
+  .balance-multi-block td {
+    text-align: left;
+  }
   .ReactTable {
     border: none;
     cursor: default;
 
+    .table-coin-icon-wrapper,
+    .table-coin-name {
+      position: relative;
+      top: 2px;
+    }
     &.single-row {
       .rt-tr.-even:hover {
         background-color: #233548 !important;
@@ -233,7 +238,7 @@
     .navbar-nav > li > a.active:hover,
     .navbar-nav > li > a.active:focus {
       color: #fff;
-      background: linear-gradient(to top, #fff 0, #fff 0.25em, transparent 0.25em, transparent 100%);
+      background: #364c65;
     }
     .navbar-nav > li > a:hover,
     .navbar-nav > li > a:focus {
@@ -252,7 +257,7 @@
       &.navbar-sub {
         background: #233548;
         border-color: #233548;
-        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.20);
+        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.20);
 
         &:hover {
           background: #233548;
@@ -311,6 +316,7 @@
   .explorer-icons {
     background: #182331;
     padding: 15px 10px;
+    border-radius: 4px;
   }
 
   .Select-control {
@@ -331,6 +337,7 @@
     border: none;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
+    width: calc(100% - 1px);
   }
   .Select-option {
     background: #233548;
@@ -422,6 +429,7 @@
 
   .trollbox {
     .trollbox-history {
+      border-radius: 4px;
       background: #233548;
     }
   }
@@ -437,5 +445,32 @@
 
   .noeffects {
     transition: none;
+  }
+
+  @media (max-width: 915px) {
+    .navbar-sub-parent > a, .navbar-sub-parent:hover > a,
+    .navbar-sub-parent.dex > a, .navbar-sub-parent.rewards > a,
+    .navbar-sub-parent.explorers > a,
+    .navbar-sub-parent.tap > a {
+      background: #233548 !important;
+    }
+    .navbar-default {
+      .navbar-nav > li > a.active,
+      .navbar-nav > li > a.active:hover,
+      .navbar-nav > li > a.active:focus {
+        background: #233548 !important;
+      }
+      .navbar-collapse,
+      .navbar-form {
+        border-color: #182331;
+        box-shadow: none;
+      }
+      .navbar-link.pointer.active {
+        background: #364C65 !important;
+      }
+    }
+    .navbar-sub-parent .nav.navbar-sub {
+      box-shadow: none;
+    }
   }
 }

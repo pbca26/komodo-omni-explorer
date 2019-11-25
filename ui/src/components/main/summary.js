@@ -72,7 +72,7 @@ class Summary extends React.Component {
 
       return (
         <div className="table-responsive margin-bottom-lg">
-          <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table">
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table margin-bottom-2xlg">
             <thead>
               <tr>
                 <th>{ translate('SUMMARY.COIN') }</th>

@@ -38,7 +38,7 @@ const router = (
           path="/faucet"
           component={ Faucet }>
           <Route
-            path="/faucet/:input"
+            path="/faucet/:coin(/:address)"
             component={ Faucet } />
         </Route>
         <Route
