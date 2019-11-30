@@ -4977,6 +4977,10 @@ td {
   background: #38b44a;
 }
 
+.theme-selector .item.light {
+  background: #cacaca;
+}
+
 .theme-selector .item:hover {
   border: solid 1px #fff;
 }
@@ -4984,6 +4988,10 @@ td {
 .theme-selector .item.active {
   border: solid 1px rgba(255, 255, 255, 0.7);
   cursor: default;
+}
+
+.theme-selector .item.light.active {
+  border: solid 1px rgba(168, 168, 168, 0.822);
 }
 
 .summary-table .coin-label {
@@ -5603,9 +5611,6 @@ td {
   padding-right: 5px;
   border-radius: 50%;
 }
-.navbar-brand.logo {
-  border-right: solid 1px rgba(255, 255, 255, 0.2);
-}
 .navbar-brand.logo:hover {
   text-decoration: underline;
 }
@@ -5620,6 +5625,250 @@ td {
   height: 35px;
   padding-right: 10px;
   border-radius: 50%;
+}
+
+.tlight {
+  font-family: Rubik;
+  background-color: #f5f5f5;
+  color: #182331
+}
+
+.tlight .navbar-default {
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .2);
+}
+
+.tlight .navbar-default .navbar-brand {
+  color: #182331;
+}
+
+.tlight .navbar-default .navbar-toggle:hover .icon-bar,
+.tlight .navbar-default .navbar-toggle:focus .icon-bar {
+  background-color: #fff;
+}
+
+.tlight .navbar-default .navbar-toggle .icon-bar {
+  background-color: #fbb73f;
+}
+
+.tlight .site-footer {
+  border-color: #fff;
+  background-color: #fff;
+  color: #182331
+}
+
+.tlight .interest-calc .link,
+.tlight a {
+  color: #536a84
+}
+
+.tlight a:hover {
+  text-decoration: underline
+}
+
+.tlight a.logo {
+  text-decoration: none
+}
+
+.tlight .site-footer a {
+  color: #182331
+}
+
+.tlight .form-control.search-field,
+.tlight input,
+.tlight select {
+  background: #fff;
+  border: 1px solid hsla(0, 0%, 66%, .2);
+  color: #182331;
+  box-shadow: none
+}
+
+.tlight input:focus {
+  border: 1px solid hsla(0, 0%, 66%, .5)
+}
+
+.tlight .form-control.search-field {
+  background: #fff;
+  border-bottom-color: rgba(0, 0, 0, .1)
+}
+
+.tlight .form-control.search-field:focus {
+  box-shadow: none;
+  border-bottom: 1px solid rgba(0, 0, 0, .5)
+}
+
+.tlight .btn-success {
+  border-radius: 4px;
+  font-size: 1em!important;
+  color: #182331;
+  background-color: #d8d8d8;
+  border-color: #c5c4c4;
+  padding: 8px 16px
+}
+
+.tlight .btn-success:active,
+.tlight .btn-success:focus,
+.tlight .btn-success:hover {
+  color: #182331;
+  background-color: #b7bbbf;
+  border-color: #c5c4c4
+}
+
+.tlight .navbar-default .btn-link,
+.tlight .navbar-default .btn-link:focus,
+.tlight .navbar-default .btn-link:hover,
+.tlight .navbar-default .navbar-link,
+.tlight .navbar-default .navbar-link:hover,
+.tlight .navbar-default .navbar-nav>li>a,
+.tlight .navbar-default .navbar-text {
+  color: #182331
+}
+
+.tlight .navbar-default .navbar-nav>li>a.active,
+.tlight .navbar-default .navbar-nav>li>a.active:focus,
+.tlight .navbar-default .navbar-nav>li>a.active:hover {
+  color: #182331;
+  background: none
+}
+
+.tlight .navbar-default .navbar-nav>li>a:focus,
+.tlight .navbar-default .navbar-nav>li>a:hover {
+  color: #182331;
+  background: #f5f5f5
+}
+
+.tlight .navbar-link.active {
+  background: #f7f7f7!important;
+  cursor: default;
+  border-color: hsla(0, 0%, 66%, .5)!important
+}
+
+.tlight .navbar-sub-parent:before {
+  color: #182331
+}
+
+.tlight .navbar-sub-parent .nav.navbar-sub {
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, .2)
+}
+
+.tlight .navbar-sub-parent .nav.navbar-sub>li {
+  border-top: 1px solid hsla(0, 0%, 66%, .15)
+}
+
+.tlight .navbar-sub-parent .nav.navbar-sub:hover {
+  background: #fff;
+  border-color: #fff
+}
+
+.tlight .navbar-sub-parent .nav.navbar-sub>li>a {
+  border-color: #fff
+}
+
+.tlight .navbar-sub-parent .nav.navbar-sub>li>a.active,
+.tlight .navbar-sub-parent .nav.navbar-sub>li>a:focus,
+.tlight .navbar-sub-parent .nav.navbar-sub>li>a:hover {
+  background: #f5f5f5;
+  border-color: #b7bbbf;
+  color: #182331
+}
+
+.tlight .navbar-sub-parent.active-parent {
+  color: #182331;
+  background: #f5f5f5
+}
+
+.tlight .navbar-sub-parent.active-parent:hover {
+  background: #f5f5f5
+}
+
+.tlight input::-webkit-input-placeholder,
+.tlight textarea::-webkit-input-placeholder {
+  color: rgba(24, 35, 39, .65);
+  font-style: normal
+}
+
+.tlight input::placeholder,
+.tlight textarea::placeholder {
+  color: rgba(24, 35, 39, .65);
+  font-style: normal
+}
+
+.tlight input:-ms-input-placeholder,
+.tlight input::-ms-input-placeholder,
+.tlight textarea:-ms-input-placeholder,
+.tlight textarea::-ms-input-placeholder {
+  color: rgba(24, 35, 39, .65);
+  font-style: normal
+}
+
+.tlight .explorer-icons {
+  background: #fff;
+  padding: 15px 10px;
+  border-radius: 4px
+}
+
+.tlight input:checked+.slider {
+  background-color: #3cc9bf
+}
+
+.tlight .form-control[disabled],
+.tlight .form-control[readonly],
+.tlight fieldset[disabled] .form-control {
+  background-color: #e6e6e6;
+  color: #182331;
+  border: none
+}
+
+.tlight .slider {
+  background-color: #b7bbbf;
+  border: 1px solid hsla(0, 0%, 100%, .1)
+}
+
+.tlight .slider:before {
+  bottom: 1px
+}
+
+.tlight .noeffects {
+  transition: none
+}
+
+.navbar-brand.logo {
+  border-right: solid 1px rgba(255, 255, 255, 0.2);
+}
+
+.tlight .navbar-brand.logo {
+  border-right: solid 1px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 915px) {
+  .tlight .navbar-default .navbar-nav>li>a.active,
+  .tlight .navbar-default .navbar-nav>li>a.active:focus,
+  .tlight .navbar-default .navbar-nav>li>a.active:hover,
+  .tlight .navbar-sub-parent.dex>a,
+  .tlight .navbar-sub-parent.explorers>a,
+  .tlight .navbar-sub-parent.rewards>a,
+  .tlight .navbar-sub-parent.tap>a,
+  .tlight .navbar-sub-parent:hover>a,
+  .tlight .navbar-sub-parent>a {
+    background: #fff!important
+  }
+  .tlight .navbar-default .navbar-collapse,
+  .tlight .navbar-default .navbar-form {
+    border-color: #fff;
+    box-shadow: none
+  }
+  .tlight .navbar-default .navbar-link.pointer.active {
+    background: #f7f7f7!important
+  }
+  .tlight .navbar-sub-parent .nav.navbar-sub {
+    box-shadow: none
+  }
+  .tlight .navbar-sub-parent .nav.navbar-sub>li {
+    border: none!important
+  }
 }
 
 @media (max-width: 916px) {

@@ -79,11 +79,14 @@ function setTheme(name) {
   
   $('.theme-selector .black').removeClass('active');
   $('.theme-selector .green').removeClass('active');
+  $('.theme-selector .light').removeClass('active');
 
   if (name === 'tdark') {
     $('.theme-selector .black').addClass('active');
   } else if (name === 'tgreen') {
     $('.theme-selector .green').addClass('active');
+  } else if (name === 'tlight') {
+    $('.theme-selector .light').addClass('active');
   }
 };
 
@@ -107,6 +110,8 @@ function init() {
         $('.theme-selector .black').addClass('active');
       } else if (json.theme === 'tgreen') {
         $('.theme-selector .green').addClass('active');
+      } else if (json.theme === 'tlight') {
+        $('.theme-selector .light').addClass('active');
       }
     }
   }
@@ -126,6 +131,9 @@ $(document).ready(function() {
   });
   $('.theme-selector .green').click(function() {
     setTheme('tgreen');
+  });
+  $('.theme-selector .light').click(function() {
+    setTheme('tlight');
   });
 
   $('.navbar-toggle').click(function() {
