@@ -17,7 +17,7 @@ var config = {
       explorer: 'http://explorer.prlpay.com',
     },
   },
-  dev: true,
+  dev: false,
 };
 
 var recaptchaResponse;
