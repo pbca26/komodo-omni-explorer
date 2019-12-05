@@ -18,7 +18,7 @@ class Faucet extends React.Component {
       address: '',
       error: false,
       result: null,
-      coin: null,
+      coin: 'rick',
       processing: false,
     };
     this.recaptchaToken = null;
@@ -47,7 +47,8 @@ class Faucet extends React.Component {
         });
       }
     } else {
-      if (this.state.coin != props.coin.toLowerCase()) {
+      if (props.coin && 
+          this.state.coin != props.coin.toLowerCase()) {
         this.captcha.reset();
 
         this.setState({
@@ -66,6 +67,11 @@ class Faucet extends React.Component {
   }
 
   componentDidMount() {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.google.com/recaptcha/api.js?render=explicit';
+    this.div.appendChild(script);
+  
     if (this.props.coin &&
         config.faucet[this.props.coin.toLowerCase()]) {
       this.setState({
@@ -158,6 +164,7 @@ class Faucet extends React.Component {
                   OK
                 </button>
               </div>
+              <div ref={el => (this.div = el)}></div>
               <ReCaptcha
                 ref={ (el) => { this.captcha = el }}
                 size="normal"
