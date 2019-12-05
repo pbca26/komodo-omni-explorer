@@ -10,7 +10,7 @@
     <link href="/faucet/favicon.ico" type="image/x-icon" rel="shortcut icon">
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,regular" rel="stylesheet">
     <link href="/faucet/style.css" rel="stylesheet">
-    <script src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onload&render=explicit" async defer></script>
     <script src="/faucet/jquery.js"></script>
     <script src="/faucet/app.js"></script>
   </head>
@@ -33,10 +33,18 @@
                 <li class="navbar-sub-parent tap">
                   <a class="navbar-link pointer"><span class="menu-text">Faucet</span></a>
                   <ul class="nav navbar-sub" id="faucet-selector">
-                    <li class="rick"><a class="navbar-link pointer"><img src="/faucet/images/rick.png" alt="rick" /><span class="table-coin-name menu-text">RICK</span></span></a></li>
-                    <li class="morty"><a class="navbar-link pointer"><img src="/faucet/images/morty.png" alt="morty" /><span class="table-coin-name menu-text">MORTY</span></span></a></li>
-                    <li class="coqui"><a class="navbar-link pointer"><img src="/faucet/images/coqui.png" alt="coqui" /><span class="table-coin-name menu-text">COQUI</span></span></a></li>
-                    <li class="prlpay"><a class="navbar-link pointer"><img src="/faucet/images/prlpay.png" alt="prlpay" /><span class="table-coin-name menu-text">PRLPAY</span></span></a></li>
+                    <li class="rick"><a class="navbar-link pointer">
+                      <img src="/faucet/images/rick.png" alt="rick" /><span class="table-coin-name menu-text">RICK</span></span></a>
+                    </li>
+                    <li class="morty">
+                      <a class="navbar-link pointer"><img src="/faucet/images/morty.png" alt="morty" /><span class="table-coin-name menu-text">MORTY</span></span></a>
+                    </li>
+                    <li class="coqui">
+                      <a class="navbar-link pointer"><img src="/faucet/images/coqui.png" alt="coqui" /><span class="table-coin-name menu-text">COQUI</span></span></a>
+                    </li>
+                    <li class="prlpay">
+                      <a class="navbar-link pointer"><img src="/faucet/images/prlpay.png" alt="prlpay" /><span class="table-coin-name menu-text">PRLPAY</span></span></a>
+                    </li>
                   </ul>
                 </li>
               </ul>
@@ -55,8 +63,8 @@
                 <div id="index-search" class="form-group">
                   <img class="faucet-coin-icon" id="faucetCoinIcon" src="/faucet/images/rick.png" />
                   <input id="address" type="text" name="address" value="" placeholder="Enter a RICK address" class="form-control">
-                  <div id="recaptcha" class="g-recaptcha" data-sitekey="6LdiinAUAAAAAAwLJjCrOVh-Ocj54Z3m3oX8mN9X" data-callback="verify"></div>
-                  <button id="faucet-get" type="submit" class="btn btn-success margin-left-10">OK</button>
+                  <div id="recaptcha" class="g-recaptcha" data-callback="verify"></div>
+                  <button id="faucet-get" type="submit" class="btn btn-success">OK</button>
                 </div>
               </div>
             </div>

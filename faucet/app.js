@@ -45,6 +45,12 @@ function parseRef() {
   }
 }
 
+function onload() {
+  grecaptcha.render('recaptcha', {
+    'sitekey' : '6LdiinAUAAAAAAwLJjCrOVh-Ocj54Z3m3oX8mN9X',
+  });
+}
+
 function verify(data) {
   if (data) {
     recaptchaResponse = data;
