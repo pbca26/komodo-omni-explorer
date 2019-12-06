@@ -30,7 +30,7 @@ const fiat = [
   'CHF',
   'THB',
   'TRY',
-  'USD'
+  'USD',
 ];
 
 module.exports = fiat;

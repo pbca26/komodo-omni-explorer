@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html class="no-js css-menubar" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta name="description" content="Atomic Explorer Faucet">
+    <meta name="author" content="Komodo Platform Team">
+    <title>Atomic Explorer / Faucet</title>
+    <link href="/faucet/favicon.ico" type="image/x-icon" rel="shortcut icon">
+    <link href="https://fonts.googleapis.com/css?family=Rubik:400,regular" rel="stylesheet">
+    <link href="/faucet/style.css" rel="stylesheet">
+    <script src="https://www.google.com/recaptcha/api.js?onload=onload&render=explicit" async defer></script>
+    <script src="/faucet/jquery.js"></script>
+    <script src="/faucet/app.js"></script>
+  </head>
+  <body id="body" class="tdark">
+    <div id="app">
+      <div>
+        <div role="navigation" class="nav navbar navbar-default navbar-fixed-top">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand logo" href="https://atomicexplorer.com">Atomic Explorer</a>
+            </div>
+            <div id="navbar-collapse" class="collapse navbar-collapse">
+              <ul class="nav navbar-nav">
+                <li class="navbar-sub-parent tap">
+                  <a class="navbar-link pointer"><span class="menu-text">Faucet</span></a>
+                  <ul class="nav navbar-sub" id="faucet-selector">
+                    <li class="rick"><a class="navbar-link pointer">
+                      <img src="/faucet/images/rick.png" alt="rick" /><span class="table-coin-name menu-text">RICK</span></span></a>
+                    </li>
+                    <li class="morty">
+                      <a class="navbar-link pointer"><img src="/faucet/images/morty.png" alt="morty" /><span class="table-coin-name menu-text">MORTY</span></span></a>
+                    </li>
+                    <li class="coqui">
+                      <a class="navbar-link pointer"><img src="/faucet/images/coqui.png" alt="coqui" /><span class="table-coin-name menu-text">COQUI</span></span></a>
+                    </li>
+                    <li class="prlpay">
+                      <a class="navbar-link pointer"><img src="/faucet/images/prlpay.png" alt="prlpay" /><span class="table-coin-name menu-text">PRLPAY</span></span></a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="container-fluid">
+          <div class="row text-center">
+            <div>
+              <img src="/faucet/images/kmd-logo-color.png" alt="Komodo logo" height="100px" class="logo-img">
+            </div>
+          </div>
+          <div class="faucet margin-top-lg">
+            <div class="row text-center margin-top-md margin-bottom-xlg">
+              <div class="form-inline">                  
+                <div id="index-search" class="form-group">
+                  <img class="faucet-coin-icon" id="faucetCoinIcon" src="/faucet/images/rick.png" />
+                  <input id="address" type="text" name="address" value="" placeholder="Enter a RICK address" class="form-control">
+                  <div id="recaptcha" class="g-recaptcha" data-callback="verify"></div>
+                  <button id="faucet-get" type="submit" class="btn btn-success">OK</button>
+                </div>
+              </div>
+            </div>
+            <div id="message" class="row text-center margin-top-md margin-bottom-xlg">
+              <div class="col-md-12">
+                <div id="success" class="hide"></div>
+                <div id="error" class="hide alert alert-danger alert-dismissable">
+                  <strong></strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="site-footer hidden-xs">
+          <div class="row">
+            <div class="col-md-12">
+              <p class="margin-top-md text-center">
+                <span class="margin-bottom-sm display--block">Powered by</span>
+                <a href="https://github.com/iquidus/explorer" target="_blank" class="navbar-link">Iquidus Explorer</a>,&nbsp;<a href="https://github.com/bitpay/insight-api" target="_blank" class="navbar-link">Insight Explorer</a>,&nbsp;<a href="https://github.com/jl777/SuperNET" target="_blank" class="navbar-link">BarterDEX</a><span>&nbsp;&amp;&nbsp;</span><a href="https://github.com/kyuupichan/electrumx" target="_blank" class="navbar-link">Electrum</a>
+              </p>
+              <div class="theme-selector">
+                Theme
+                <div class="item black"></div>
+                <div class="item light"></div>
+                <div class="item green"></div>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

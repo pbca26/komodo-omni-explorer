@@ -45,7 +45,7 @@ class ACParams extends React.Component {
     }
 
     return (
-      <table className="table table-bordered table-striped dataTable no-footer dtr-inline margin-top-md">
+      <table className="table table-bordered table-striped dataTable no-footer dtr-inline margin-top-md margin-bottom-2xlg">
         <thead>
           <tr>
             <th>{ translate('SUMMARY.COIN') }</th>

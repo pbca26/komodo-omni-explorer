@@ -41,13 +41,15 @@ class Summary extends React.Component {
             _items.push(
               <tr key={ `summary-${_summary[i].coin}` }>
                 <td>
-                  <span className="table-coin-icon-wrapper">
-                    <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}` }></span>
-                  </span>
-                  <span className="table-coin-name">
-                    <a
-                      target="_blank"
-                      href={ config.explorers[_summary[i].coin] }>{ _summary[i].coin }</a>
+                  <span className="coin-label">
+                    <span className="table-coin-icon-wrapper">
+                      <span className={ `table-coin-icon coin_${_summary[i].coin.toLowerCase()}` }></span>
+                    </span>
+                    <span className="table-coin-name">
+                      <a
+                        target="_blank"
+                        href={ config.explorers[_summary[i].coin] }>{ _summary[i].coin }</a>
+                    </span>
                   </span>
                 </td>
                 <td>
@@ -70,7 +72,7 @@ class Summary extends React.Component {
 
       return (
         <div className="table-responsive margin-bottom-lg">
-          <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table">
+          <table className="table table-bordered table-striped dataTable no-footer dtr-inline summary-table margin-bottom-2xlg">
             <thead>
               <tr>
                 <th>{ translate('SUMMARY.COIN') }</th>

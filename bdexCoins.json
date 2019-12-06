@@ -1,8 +1,43 @@
 [
   {
+    "coin":"OUR",
+    "asset":"OUR",
+    "fname":"OUR"
+  },
+  {
+    "coin":"KSB",
+    "asset":"KSB",
+    "fname":"KSB"
+  },
+  {
+    "coin":"NINJA",
+    "asset":"NINJA",
+    "fname":"NINJA"
+  },
+  {
+    "coin":"RICK",
+    "asset":"RICK",
+    "fname":"RICK"
+  },
+  {
+    "coin":"MORTY",
+    "asset":"MORTY",
+    "fname":"MORTY"
+  },
+  {
+    "coin":"K64",
+    "asset":"K64",
+    "fname":"Komodore64"
+  },
+  {
+    "coin":"RFOX",
+    "asset":"RFOX",
+    "fname":"Red Fox"
+  },
+  {
     "coin":"KMDICE",
     "asset":"KMDICE",
-    "fname": "KMDice",
+    "fname":"KMDice",
     "rpcport":30177,
     "mm2": 1
   },

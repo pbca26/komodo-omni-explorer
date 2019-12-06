@@ -81,3 +81,72 @@ span[class*=' coin_'] {
 td {
   white-space: nowrap;
 }
+
+.theme-selector {
+  position: absolute;
+  top: 22px;
+  left: 110px;
+
+  .item {
+    position: relative;
+    top: 2px;
+    border: solid 1px transparent;
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 5px;
+
+    &.black {
+      background: #000;
+    }
+    &.green {
+      background: #38b44a;
+    }
+    &.light {
+      background: #cacaca;
+    }
+    &:hover {
+      border: solid 1px #fff;
+    }
+    &.active {
+      border: solid 1px rgba(255, 255, 255, 0.7);
+      cursor: default;
+    }
+    &.light.active {
+      border: solid 1px rgba(168, 168, 168, 0.822);
+    }
+  }
+}
+
+.summary-table {
+  .coin-label {
+    position: relative;
+    top: 3px;
+  }
+}
+
+.table-responsive {
+  border-radius: 4px;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.logo-img {
+  margin-bottom: 20px;
+}
+
+.block-center {
+  margin: 0 auto;
+  float: none;
+}
+
+.loading-img {
+  padding-left: 5px;
+}
+
+.text--ucfirst::first-letter {
+  text-transform: uppercase;
+}

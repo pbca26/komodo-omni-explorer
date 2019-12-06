@@ -19,14 +19,11 @@
   }
 }
 
-@media(max-width: 780px) {
+@media(max-width: 1096px) {
   body {
     padding: 0px;
-    padding-top: 60px;
+    padding-top: 80px;
   }
-}
-
-@media(max-width: 1096px) {
   .nav-search input {
     width: 300px !important;
   }
@@ -38,13 +35,14 @@
   }
 }
 
-@media(max-width: 916px) {
+@media(max-width: 915px) {
   .navbar-sub-parent,
   .navbar-sub-parent:hover,
   .navbar-sub-parent.dex,
   .navbar-sub-parent.rewards,
   .navbar-sub-parent.explorers,
-  .navbar-sub-parent.tap {
+  .navbar-sub-parent.tap,
+  .navbar-sub-parent.misc {
     width: 100%;
 
     > a {
@@ -54,7 +52,6 @@
       display: none;
     }
 
-    .nav.navbar-sub,
     .nav.navbar-sub {
       width: 100% !important;
       position: relative;
@@ -78,5 +75,11 @@
   }
   .navbar-collapse {
     overflow-x: auto;
+  }
+}
+
+@media(min-width: 916px) and (max-width: 1096px) {
+  .footer-padding {
+    height: 100px;
   }
 }

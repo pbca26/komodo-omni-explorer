@@ -5,8 +5,6 @@ import { faucet } from '../../actions/actionCreators';
 import config from '../../config';
 import { ReCaptcha } from 'react-recaptcha-google'
 import translate from '../../util/translate/translate';
-import { addressVersionCheck } from 'agama-wallet-lib/src/keys';
-import btcNetworks from 'agama-wallet-lib/src/bitcoinjs-networks';
 
 window.recaptchaOptions = {
   lang: 'en',
@@ -20,7 +18,7 @@ class Faucet extends React.Component {
       address: '',
       error: false,
       result: null,
-      coin: null,
+      coin: 'rick',
       processing: false,
     };
     this.recaptchaToken = null;
@@ -31,50 +29,62 @@ class Faucet extends React.Component {
   }
 
   componentWillReceiveProps(props) {
-    if (props.input &&
-        config.faucet[props.input.toLowerCase()]) {
-      if (this.state.coin != props.input.toLowerCase()) {
+    if (props.coin &&
+        config.faucet[props.coin.toLowerCase()]) {
+      if (this.state.coin != props.coin.toLowerCase()) {
         this.captcha.reset();
 
         this.setState({
-          coin: props.input.toLowerCase(),
+          coin: props.coin.toLowerCase(),
+          address: props.address && props.address.length === 34 ? props.address : '',
           error: false,
           result: null,
         });
       } else {
         this.setState({
-          coin: props.input.toLowerCase(),
+          coin: props.coin.toLowerCase(),
+          address: props.address && props.address.length === 34 ? props.address : '',
         });
       }
     } else {
-      if (this.state.coin != props.input.toLowerCase()) {
+      if (props.coin && 
+          this.state.coin != props.coin.toLowerCase()) {
         this.captcha.reset();
 
         this.setState({
-          coin: 'beer',
+          coin: 'rick',
+          address: props.address && props.address.length === 34 ? props.address : '',
           error: false,
           result: null,
         });
       } else {
         this.setState({
-          coin: 'beer',
+          coin: 'rick',
+          address: props.address && props.address.length === 34 ? props.address : '',
         });
       }
     }
   }
 
   componentDidMount() {
-    if (this.props.input &&
-        config.faucet[this.props.input.toLowerCase()]) {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.google.com/recaptcha/api.js?render=explicit';
+    this.div.appendChild(script);
+  
+    if (this.props.coin &&
+        config.faucet[this.props.coin.toLowerCase()]) {
       this.setState({
-        coin: this.props.input.toLowerCase(),
+        coin: this.props.coin.toLowerCase(),
+        address: this.props.address && this.props.address.length === 34 ? this.props.address : '',
       });
       if (this.captcha) {
         this.captcha.reset();
       }
     } else {
       this.setState({
-        coin: 'beer',
+        coin: 'rick',
+        address: this.props.address && this.props.address.length === 34 ? this.props.address : '',
       });
       if (this.captcha) {
         this.captcha.reset();
@@ -97,32 +107,24 @@ class Faucet extends React.Component {
   }
 
   triggerFaucet() {
-    if (addressVersionCheck(btcNetworks.kmd, this.state.address) !== true) {
+    this.setState({
+      processing: true,
+    });
+
+    faucet(
+      this.state.coin,
+      this.state.address,
+      this.recaptchaToken
+    )
+    .then((res) => {
       this.setState({
-        error: true,
-        result: translate('SEARCH.INVALID_PUB', this.state.address),
+        error: res.msg === 'error' ? true : false,
+        result: res.result,
         processing: false,
       });
-    } else {
-      this.setState({
-        processing: true,
-      });
-
-      faucet(
-        this.state.coin,
-        this.state.address,
-        this.recaptchaToken
-      )
-      .then((res) => {
-        this.setState({
-          error: res.msg === 'error' ? true : false,
-          result: res.result,
-          processing: false,
-        });
-        this.recaptchaToken = null;
-        this.captcha.reset();
-      });
-    }
+      this.recaptchaToken = null;
+      this.captcha.reset();
+    });
   }
 
   updateInput(e) {
@@ -154,24 +156,23 @@ class Faucet extends React.Component {
                   value={ this.state.address }
                   placeholder={ translate('FAUCET.ENTER_ADDRESS', _coin.toUpperCase()) }
                   className="form-control" />
+                <button
+                  onClick={ this.triggerFaucet }
+                  disabled={ this.state.address.length !== 34 }
+                  type="submit"
+                  className="btn btn-success margin-left-10">
+                  OK
+                </button>
               </div>
-              <div className="google-recaptcha">
-                <ReCaptcha
-                  ref={ (el) => { this.captcha = el }}
-                  size="normal"
-                  data-theme="dark"
-                  render="explicit"
-                  sitekey={ config.recaptchaKey }
-                  onloadCallback={ this.onLoadRecaptcha }
-                  verifyCallback={ this.verifyCallback } />
-              </div>
-              <button
-                onClick={ this.triggerFaucet }
-                disabled={ this.state.address.length !== 34 }
-                type="submit"
-                className="btn btn-success margin-left-10">
-                OK
-              </button>
+              <div ref={el => (this.div = el)}></div>
+              <ReCaptcha
+                ref={ (el) => { this.captcha = el }}
+                size="normal"
+                data-theme="dark"
+                render="explicit"
+                sitekey={ config.recaptchaKey }
+                onloadCallback={ this.onLoadRecaptcha }
+                verifyCallback={ this.verifyCallback } />
             </div>
           </div>
           <div className="row text-center margin-top-md margin-bottom-xlg">
@@ -211,7 +212,8 @@ class Faucet extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     Main: state.root.Main,
-    input: ownProps.params.input,
+    coin: ownProps.params.coin,
+    address: ownProps.params.address,
   };
 };
 

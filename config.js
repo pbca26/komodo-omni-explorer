@@ -13,11 +13,25 @@ const _config = {
   explorers: [ // iquidus
     'CHIPS',
     'PTX',
+    'KOIN',
   ],
+  modules: {
+    mm: true, // price api methods included
+    kv: true,
+    faucet: true,
+    faucetMini: true,
+    explorer: true,
+    mm: true,
+    multisig: true,
+    exchanges: true,
+    ticker: true,
+    wallet: true,
+    fees: true,
+  },
   insight: {
     maxTxLength: 50,
     KMD: {
-      url: 'https://www.kmdexplorer.ru/insight-api-komodo',
+      url: 'https://www.kmdexplorer.io/insight-api-komodo',
     },
     MSHARK: {
       url: 'https://mshark.kmdexplorer.io/insight-api-komodo',
@@ -112,8 +126,8 @@ const _config = {
     KMDICE: {
       url: 'http://kmdice.explorer.dexstats.info/insight-api-komodo',
     },
-    ZEX: {
-      url: 'http://zex.explorer.dexstats.info/insight-api-komodo',
+    ZEXO: {
+      url: 'http://zexo.explorer.dexstats.info/insight-api-komodo',
     },
     KSB: {
       url: 'http://ksb.explorer.dexstats.info/insight-api-komodo',
@@ -139,6 +153,24 @@ const _config = {
     VOTE2019: {
       url: 'https://vote2019.world/insight-api-komodo',
     },
+    BEER: {
+      url: 'https://beer.kmdexplorer.io/insight-api-komodo',
+    },
+    PIZZA: {
+      url: 'https://pizza.kmdexplorer.io/insight-api-komodo',
+    },
+    RFOX: {
+      url: 'https://rfox.kmdexplorer.io/insight-api-komodo',
+    },
+    LABS: {
+      url: 'https://labs.explorer.dexstats.info/insight-api-komodo',
+    },
+    HUSH: {
+      url: 'https://explorer.myhush.org/insight-api-komodo',
+    },
+    COMMOD: {
+      url: 'http://commod.explorer.dexstats.info/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
@@ -154,6 +186,9 @@ const _config = {
       wif: '',
       fee: 0.0001,
       outSize: [1,2,4.777],
+      resetTimeout: 300,
+      freeLeechFrom: 1572517860,
+      freeLeechTo: 1572566400,
     },
     morty: {
       wif: '',
@@ -177,6 +212,7 @@ const _config = {
     },
   },
   recaptchaKey: '',
+  faucetCaptcha: false,
   ticker: [
     'kmd',
     'coqui',
@@ -242,7 +278,7 @@ const _config = {
     'kv',
     'prlpay',
     'zilla',
-    'eql',
+    //'eql',
     'glxt',
     'ninja',
     'ccl',
@@ -258,6 +294,11 @@ const _config = {
     'rick',
     'morty',
     'vote2019',
+    'rfox',
+    'zexo',
+    'labs',
+    'hush',
+    'commod',
   ],
   electrumServersExtend: [
     'btc',
@@ -268,7 +309,6 @@ const _config = {
     'doge',
     'emc2',
     'fair',
-    'hush',
     'ltc',
     'mona',
     'nmc',

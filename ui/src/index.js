@@ -24,7 +24,8 @@ import Faucet from './components/main/faucet';
 import BalanceMulti from './components/main/balanceMulti';
 import Trollbox from './components/main/trollbox';
 import ACParams from './components/main/acParams';
-import './styles/index.scss';
+import TransactionDecoder from './components/main/txDecoder';
+import PushTransaction from './components/main/pushTx';
 
 const router = (
   <Provider store={ store }>
@@ -37,7 +38,7 @@ const router = (
           path="/faucet"
           component={ Faucet }>
           <Route
-            path="/faucet/:input"
+            path="/faucet/:coin(/:address)"
             component={ Faucet } />
         </Route>
         <Route
@@ -101,6 +102,12 @@ const router = (
         <Route
           path="/ac-params"
           component={ ACParams } />
+        <Route
+          path="/transaction-decoder"
+          component={ TransactionDecoder } />
+        <Route
+          path="/transaction-push"
+          component={ PushTransaction } />
       </Route>
     </Router>
   </Provider>

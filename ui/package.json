@@ -1,19 +1,24 @@
 {
-  "name": "KomodoOmniExplorerUI",
-  "version": "0.1.2",
-  "description": "Komodo Omni Explorer UI",
+  "name": "atomic-explorer-ui",
+  "version": "0.2.0",
+  "description": "Atomic Explorer UI",
   "main": "src/index.js",
   "scripts": {
-    "start": "webpack-dashboard -t 'KomodoOmniExplorerUI' -- webpack-dev-server --colors --no-info",
+    "start": "webpack-dashboard -t 'AtomicExplorerUI' -- webpack-dev-server --colors --no-info",
     "server": "webpack-dev-server --colors --no-info",
-    "build": "rm -rf ./build && mkdir build && NODE_ENV=\"production\" webpack && cp -R ./build/* ../public && cp index.html ../public && cp -R ./src/charts/* ../public/charts"
+    "build": "rm -rf ./build && mkdir build && NODE_ENV=\"production\" webpack && rm ./build/united.js && rm ./build/custom.js && rm ./build/bootstrap.js && cp -R ./build/* ../public && cp index.html ../public && cp -R ./src/charts ../public/charts",
+    "build-clean": "find ./build -name '*.js' -exec sed -i -E '\\/[\\*\\/]#\\ssourceMappingURL=data:application\\/json;base64(\\.[0-9a-f]+)?\\.(css|js)\\.map(\\*\\/)?/g' {} +"
   },
+  "homepage": "http://komodoplatform.org",
   "keywords": [
-    "supernet",
     "explorer",
-    "assets explorer"
+    "SuperNET",
+    "komodo",
+    "BarterDEX",
+    "assetchain",
+    "Atomic Explorer"
   ],
-  "author": "SuperNET Team",
+  "author": "Komodo Platform Team",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -26,15 +31,10 @@
     "babel-preset-es2015": "^6.14.0",
     "babel-preset-react": "^6.11.1",
     "bluebird": "^3.5.0",
-    "express": "^4.14.0",
     "file-loader": "^0.10.0",
-    "qrcode.react": "^0.7.1",
-    "rc-tree": "^1.4.6",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
-    "react-google-recaptcha": "^0.8.1",
     "react-hot-loader": "^1.3.0",
-    "react-qr-reader": "^1.1.3",
     "react-recaptcha-google": "^1.1.1",
     "react-redux": "^5.0.3",
     "react-router": "^3.0.2",
@@ -46,7 +46,6 @@
     "redux": "^3.6.0",
     "redux-logger": "^2.8.2",
     "redux-thunk": "^2.2.0",
-    "socket.io-react": "^1.1.2",
     "url-loader": "^0.5.7",
     "webpack-spritesmith": "^0.4.0",
     "whatwg-fetch": "^2.0.3"

@@ -1,0 +1,30 @@
+.tx-decoder {
+  .row {
+    .col-fix {
+      float: none;
+      margin: 0 auto;
+    }
+  }
+  .Select-menu-outer {
+    max-height: 100px;
+  }
+  .Select-menu {
+    max-height: 98px;
+    border-radius: 4px;
+  }
+  .Select-clear-zone {
+    display: none;
+  }
+  .Select-placeholder,
+  .Select-value,
+  .Select-menu-outer > div {
+    text-align: left;
+  }
+  label {
+    position: relative;
+    top: 9px;
+  }
+  .no-padding-left {
+    padding-left: 0;
+  }
+}

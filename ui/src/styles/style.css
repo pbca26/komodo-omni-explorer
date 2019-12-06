@@ -1,7 +1,6 @@
 body {
   padding: 80px 40px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
- /* background-image: url('/images/background2.png');*/
 }
 
 #index-search {
@@ -125,13 +124,11 @@ tr {
 	margin-bottom: 5px;
 }
 
-.label {
-	a:link,
-	a:visited,
-	a:hover,
-	a:active {
-		color: #ffffff;
-	}
+.label a:link,
+.label a:visited,
+.label a:hover,
+.label a:active {
+	color: #ffffff;
 }
 
 .qrcode {

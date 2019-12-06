@@ -425,3 +425,47 @@ export const trollboxSend = (title, content) => {
     });
   });
 }
+
+export const decodeTx = (coin, rawtx) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${apiUrl}/decode-transaction`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        coin,
+        rawtx,
+      }),
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      resolve(json);
+    });
+  });
+}
+
+export const pushTx = (coin, rawtx) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${apiUrl}/coin/push`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        coin,
+        rawtx,
+      }),
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      resolve(json);
+    });
+  });
+}

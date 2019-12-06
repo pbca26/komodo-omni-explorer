@@ -26,7 +26,79 @@ const wwwPath = path.join(__dirname, './www');
 * This results in pagespeed optimizations as the browser can quickly serve the shared code from cache,
 * rather than being forced to load a larger bundle whenever a new page is visited.
 */
-const plugins = [
+const plugins = isProduction ? [
+  new webpack.optimize.CommonsChunkPlugin({
+    name: ['vendor'],
+    filename: 'vendor.js',
+    minChunks: module => module.context.includes('node_modules') && !module.request.includes('scss')
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'fetch',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/whatwg-fetch/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'bluebird',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/bluebird/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-table',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react-table/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-select',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react-select/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-dom',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react-dom/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react-redux',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/redux/).test(resource)
+  }),
+  new webpack.optimize.CommonsChunkPlugin({
+    name: 'react',
+    chunks: ['vendor'],
+    minChunks: ({resource}) => (/node_modules\/react/).test(resource)
+  }),
+  /*
+  * The DefinePlugin allows you to create global constants which can be configured at compile time.
+  * This can be useful for allowing different behaviour between development builds and release builds.
+  * For example, you might use a global constant to determine whether logging takes place;
+  * perhaps you perform logging in your development build but not in the release build.
+  * That's the sort of scenario the DefinePlugin facilitates.
+  */
+  new webpack.DefinePlugin({
+    'process.env': {
+      NODE_ENV: JSON.stringify(nodeEnv),
+    },
+  }),
+  new webpack.NamedModulesPlugin(),
+  new HtmlWebpackPlugin({
+    template: path.join(wwwPath, 'index.html'),
+    path: buildPath,
+    filename: 'index.html',
+  }),
+  new webpack.LoaderOptionsPlugin({
+    options: {
+      postcss: [
+        autoprefixer({
+          browsers: [
+            'last 3 version',
+            'ie >= 10',
+          ],
+        }),
+      ],
+      context: __dirname,
+    },
+  })
+] : [
   new webpack.optimize.CommonsChunkPlugin({
     name: 'vendor',
     minChunks: Infinity,
@@ -76,11 +148,11 @@ const rules = [
   },
   {
     test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-    loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+    loader: 'url-loader?limit=10000&mimetype=application/font-woff',
   },
   {
     test: /\.(ttf|eot|svg|png)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-    loader: 'file-loader'
+    loader: 'file-loader',
   },
   {
     test: /\.(png|gif|jpg|svg)$/,
@@ -93,24 +165,24 @@ if (isProduction) {
   // Production plugins
   plugins.push(
     new SpritesmithPlugin({
-        src: {
-            cwd: path.resolve(__dirname, 'src/images'),
-            glob: '*.png'
-        },
-        target: {
-            image: path.resolve(__dirname, 'src/styles/sprite.png'),
-            css: path.resolve(__dirname, 'src/styles/sprite.scss')
-        },
-        apiOptions: {
-            cssImageRef: "./sprite.png",
-            generateSpriteName: fullPathToSourceFile => {
-              const {name} = path.parse(fullPathToSourceFile);
-              return `coin_${name}`;
-            }
-        },
-        exportOpts: {
-            quality: 50
+      src: {
+        cwd: path.resolve(__dirname, 'src/images_ac'),
+        glob: '*.png',
+      },
+      target: {
+        image: path.resolve(__dirname, 'src/styles/sprite.png'),
+        css: path.resolve(__dirname, 'src/styles/sprite.scss'),
+      },
+      apiOptions: {
+        cssImageRef: './sprite.png',
+        generateSpriteName: fullPathToSourceFile => {
+          const {name} = path.parse(fullPathToSourceFile);
+          return `coin_${name}`;
         }
+      },
+      exportOpts: {
+        quality: 70,
+      },
     })
   );
 
@@ -120,7 +192,15 @@ if (isProduction) {
       debug: false,
     }),
     new webpack.optimize.UglifyJsPlugin({
+      extractComments: false,
+      parallel: true,
       sourceMap: false,
+      warnings: false,
+      mangle: true,
+      toplevel: false,
+      nameCache: null,
+      ie8: false,
+      keep_fnames: false,
       compress: {
         warnings: false,
         screw_ie8: true,
@@ -137,7 +217,7 @@ if (isProduction) {
         comments: false,
       },
     }),
-    new ExtractTextPlugin('style.css')
+    new ExtractTextPlugin('[name].css')
   );
 
   // Production rules
@@ -149,10 +229,8 @@ if (isProduction) {
         use: [
           'css-loader',
           'postcss-loader',
-          'sass-loader'
-          //'file-loader',
-          //'url-loader'
-        ]
+          'sass-loader',
+        ],
       }),
     }
   );
@@ -160,21 +238,21 @@ if (isProduction) {
   // Development plugins
   plugins.push(
     new SpritesmithPlugin({
-        src: {
-            cwd: path.resolve(__dirname, 'src/images'),
-            glob: '*.png'
-        },
-        target: {
-            image: path.resolve(__dirname, 'src/styles/sprite.png'),
-            css: path.resolve(__dirname, 'src/styles/sprite.scss')
-        },
-        apiOptions: {
-            cssImageRef: "./sprite.png",
-            generateSpriteName: fullPathToSourceFile => {
-              const {name} = path.parse(fullPathToSourceFile);
-              return `coin_${name}`;
-            }
+      src: {
+        cwd: path.resolve(__dirname, 'src/images_ac'),
+        glob: '*.png',
+      },
+      target: {
+        image: path.resolve(__dirname, 'src/styles/sprite.png'),
+        css: path.resolve(__dirname, 'src/styles/sprite.scss'),
+      },
+      apiOptions: {
+        cssImageRef: './sprite.png',
+        generateSpriteName: fullPathToSourceFile => {
+          const {name} = path.parse(fullPathToSourceFile);
+          return `coin_${name}`;
         }
+      },
     })
   );
 
@@ -206,19 +284,35 @@ if (isProduction) {
 module.exports = {
   devtool: isProduction ? 'eval' : 'source-map',
   context: jsSourcePath,
-  entry: {
-    js: './index.js'
+  entry: !isProduction ? {
+    js: './index.js',
+    style: [
+      './styles/bootstrap.scss',
+      './styles/united.scss',
+      './styles/index.scss',
+    ],
+  } : {
+    app: './index.js',
+    bootstrap: './styles/bootstrap.scss',
+    united: './styles/united.scss',
+    custom: './styles/index.scss',
   },
   output: {
     path: buildPath,
     publicPath: '',
-    filename: 'app.js',
+    filename: '[name].js',
   },
   module: {
     rules,
   },
   resolve: {
-    extensions: ['.webpack-loader.js', '.web-loader.js', '.loader.js', '.js', '.jsx'],
+    extensions: [
+      '.webpack-loader.js',
+      '.web-loader.js',
+      '.loader.js',
+      '.js',
+      '.jsx',
+    ],
     modules: [
       path.resolve(__dirname, 'node_modules'),
       path.resolve(__dirname, 'spritesmith-generated'),
@@ -249,4 +343,3 @@ module.exports = {
     },
   },
 };
-

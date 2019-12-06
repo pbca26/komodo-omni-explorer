@@ -4,7 +4,6 @@ const config = require('../config');
 const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
-const Promise = require('bluebird');
 const async = require('async');
 const exec = require('child_process').exec;
 const {
@@ -26,6 +25,7 @@ const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const ETH_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const USERPASS = '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f';
+const CACHE_FILE_NAME = 'mm_cache.json';
 
 let electrumServers = [];
 
@@ -84,10 +84,12 @@ module.exports = (api) => {
       parsedAll: {
         coinmarketcap: {},
         digitalprice: {},
+        coingecko: {},
       },
       priceChangeAll: {
         coinmarketcap: {},
         digitalprice: {},
+        coingecko: {},
       },
       priceChange: {},
       digitalprice: {
@@ -95,6 +97,7 @@ module.exports = (api) => {
         kmd: null,
       },
       cmc: {},
+      coingecko: {},
     },
     coins: {},
     stats: {
@@ -127,6 +130,21 @@ module.exports = (api) => {
   };
 
   const _cmcRatesList = api.prepCMCRatesList();
+
+  api.prepCGRatesList = () => {
+    const _rounds = 87;
+    let _items = [];
+
+    api.log(`cg rounds ${_rounds}`);
+
+    for (let i = 0; i <= _rounds; i++) {
+      _items.push(`https://api.coingecko.com/api/v3/coins?page=${i + 1}`);
+    }
+
+    return _items;
+  };
+
+  const _cgRatesList = api.prepCGRatesList();
 
   api.parseExtRates = () => {
     let btcFiatRates = {};
@@ -165,18 +183,49 @@ module.exports = (api) => {
 
           if (!api.mm.extRates.priceChange[key.toUpperCase()] ||
               (api.mm.extRates.priceChange[key.toUpperCase()] && api.mm.extRates.priceChange[key.toUpperCase()].src !== 'coinmarketcap')) {
-            api.mm.extRates.priceChange[key.toUpperCase()] = {
-              src: 'digitalprice',
-              data: {
-                percent_change_1h: Number(_rates[i].priceChange.replace('%', '')),
-              },
-            };
+            if (!api.mm.extRates.parsedAll.coinmarketcap[key.toUpperCase()]) {
+              api.mm.extRates.priceChange[key.toUpperCase()] = {
+                src: 'digitalprice',
+                data: {
+                  percent_change_1h: Number(_rates[i].priceChange.replace('%', '')),
+                },
+              };
+            }
+            if (api.mm.extRates.priceChangeAll.coinmarketcap[key.toUpperCase()]) {
+              api.mm.extRates.priceChange[key.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[key.toUpperCase()];
+            }
             api.mm.extRates.priceChangeAll.digitalprice[key.toUpperCase()] = api.mm.extRates.priceChange[key.toUpperCase()];
           }
         }
       }
     } catch (e) {
       api.log('unable to parse digitalprice');
+    }
+
+    try {
+      if (api.mm.extRates.coingecko) {
+        const _rates = api.mm.extRates.coingecko;
+
+        for (let key in _rates) {
+          _fiatRates[key] = {};
+          api.mm.extRates.parsedAll.coingecko[key.toUpperCase()] = {};
+
+          for (let _key in btcFiatRates) {
+            if (_key !== 'USD') {
+              _fiatRates[key][_key] = Number(btcFiatRates[_key] / btcFiatRates.USD * Number(api.mm.extRates.coingecko[key])).toFixed(8);
+              api.mm.extRates.parsedAll.coingecko[key.toUpperCase()][_key] = _fiatRates[key][_key];
+            } else {
+              api.mm.extRates.parsedAll.coingecko[key.toUpperCase()][_key] = Number(api.mm.extRates.coingecko[key]).toFixed(8);
+            }
+          }
+
+          if (!api.mm.extRates.parsedAll.coinmarketcap[key.toUpperCase()]) {
+            _fiatRates[key].USD = Number(api.mm.extRates.coingecko[key]).toFixed(8);
+          }
+        }
+      }
+    } catch (e) {
+      api.log('unable to parse cg');
     }
 
     try {
@@ -203,11 +252,24 @@ module.exports = (api) => {
     }
 
     api.mm.extRates.parsed = _fiatRates;
+
+    fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
+      if (err) {
+        api.log(`error updating kv cache file ${err}`);
+      }
+    });
   };
 
   api.getRates = () => {
     const DP_TIMEOUT = 5000;
     const CMC_TIMEOUT = 10000;
+    const CG_TIMEOUT = 5000;
+
+    const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
+    
+    if (cacheFileData) {
+      api.mm = cacheFileData;
+    }
 
     const _getCMCRates = () => {
       for (let i = 0; i < _cmcRatesList.length; i++) {
@@ -247,6 +309,49 @@ module.exports = (api) => {
             }
           });
         }, i * CMC_TIMEOUT);
+      }
+    }
+
+    const _getCGRates = () => {
+      for (let i = 0; i < _cgRatesList.length; i++) {
+        setTimeout(() => {
+          api.log(`ext rates req ${i + 1} url ${_cgRatesList[i]}`);
+
+          const options = {
+            url: _cgRatesList[i],
+            method: 'GET',
+          };
+
+          request(options, (error, response, body) => {
+            if (response &&
+                response.statusCode &&
+                response.statusCode === 200) {
+              try {
+                const _parsedBody = JSON.parse(body);
+
+                for (let i = 0; i < _parsedBody.length; i++) {
+                  api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].market_data.current_price.usd;
+                  api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
+                    src: 'coingecko',
+                    data: {
+                      percent_change_24h: Number(_parsedBody[i].market_data.price_change_percentage_24h),
+                      percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
+                    },
+                  };
+                  if (api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()]) {
+                    api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()];
+                  }
+                  api.mm.extRates.priceChangeAll.coingecko[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()];
+                }
+                api.parseExtRates();
+              } catch (e) {
+                api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
+              }
+            } else {
+              api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
+            }
+          });
+        }, i * CG_TIMEOUT);
       }
     }
 
@@ -316,9 +421,16 @@ module.exports = (api) => {
     _getKMDRates();
     _getDPRates();
     _getCMCRates();
+    _getCGRates();
     api.mmRatesInterval = setInterval(() => {
+      fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
+        if (err) {
+          api.log(`error updating mm cache file ${err}`);
+        }
+      });
       _getKMDRates();
       _getDPRates();
+      _getCGRates();
       _getCMCRates();
     }, RATES_UPDATE_INTERVAL);
   }
@@ -327,7 +439,7 @@ module.exports = (api) => {
   api.get('/mm/prices/v2', (req, res, next) => {
     let coins = req.query.coins || 'kmd';
     const priceChange = req.query.pricechange;
-    const pricesSource = req.query.src && (req.query.src.toLowerCase() === 'coinmarketcap' || req.query.src.toLowerCase() === 'digitalprice') ? 'parsedAll' : null;
+    const pricesSource = req.query.src && (req.query.src.toLowerCase() === 'coinmarketcap' || req.query.src.toLowerCase() === 'digitalprice' || req.query.src.toLowerCase() === 'coingecko') ? 'parsedAll' : null;
     let _currency = req.query.currency || 'USD';
     let _resp = {};
 
@@ -457,6 +569,12 @@ module.exports = (api) => {
           ) {
             _resp[tickerName || _coins[i].toUpperCase()].priceChange = api.mm.extRates.priceChangeAll.digitalprice[_coins[i].toUpperCase()];
           } else if (
+            pricesSource &&
+            req.query.src.toLowerCase() === 'coingecko' &&
+            api.mm.extRates.priceChangeAll.coingecko[_coins[i].toUpperCase()]
+          ) {
+            _resp[tickerName || _coins[i].toUpperCase()].priceChange = api.mm.extRates.priceChangeAll.coingecko[_coins[i].toUpperCase()];
+          } else if (
             !pricesSource &&
             api.mm.extRates.priceChange[_coins[i].toUpperCase()]
           ) {
@@ -482,7 +600,8 @@ module.exports = (api) => {
                 api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()] &&
                 api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency[i].toUpperCase()] &&
                 api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency[i].toUpperCase()]) {
-              if (!_resp[tickerName || coins.toUpperCase()].AVG) {
+              if (!_resp[tickerName ||
+                  coins.toUpperCase()].AVG) {
                 _resp[tickerName || coins.toUpperCase()].AVG = {};
               }
               _resp[tickerName || coins.toUpperCase()].AVG[_currency[i].toUpperCase()] = Number((Number(api.mm.extRates.parsedAll.coinmarketcap[coins.toUpperCase()][_currency[i].toUpperCase()]) + Number(api.mm.extRates.parsedAll.digitalprice[coins.toUpperCase()][_currency[i].toUpperCase()])) / 2).toFixed(8);
@@ -556,6 +675,12 @@ module.exports = (api) => {
         ) {
           _resp[tickerName || coins.toUpperCase()].priceChange = api.mm.extRates.priceChangeAll.digitalprice[coins.toUpperCase()];
         } else if (
+          pricesSource &&
+          req.query.src.toLowerCase() === 'coingecko' &&
+          api.mm.extRates.priceChangeAll.coingecko[coins.toUpperCase()]
+        ) {
+          _resp[tickerName || coins.toUpperCase()].priceChange = api.mm.extRates.priceChangeAll.digitalprice[coins.toUpperCase()];
+        } else if (
           !pricesSource &&
           api.mm.extRates.priceChange[coins.toUpperCase()]
         ) {
@@ -572,7 +697,7 @@ module.exports = (api) => {
         if (!pricesSource &&
             cmcCoinDetailsList.NON_KMD_ASSETS.indexOf(key.toUpperCase()) > -1 &&
             api.mm.extRates.priceChange[key.toUpperCase()] &&
-            api.mm.extRates.priceChange[key.toUpperCase()].src === 'coinmarketcap') {
+            (api.mm.extRates.priceChange[key.toUpperCase()].src === 'coinmarketcap' || api.mm.extRates.priceChange[key.toUpperCase()].src === 'coingecko')) {
           _resp[key].KIC = false;
         }
       }
@@ -902,8 +1027,8 @@ module.exports = (api) => {
 
   api.updateStats = () => {
     const runStatsUpdate = () => {
-      const statsSource = fs.readFileSync('stats.log', 'utf-8');
-      const _lines = statsSource.split('\n');
+      const statsSource = fs.existsSync('stats.log') && fs.readFileSync('stats.log', 'utf-8');
+      const _lines = statsSource && statsSource.split('\n');
       const _numLast = 1000;
       let _outDetailed = [];
       let _outSimplified = [];

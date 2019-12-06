@@ -11,6 +11,7 @@ const LANG_EN = {
     LOADING: 'Loading',
     SEARCH: 'Search',
     FILTER: 'Filter',
+    THEME: 'Theme',
   },
   INTEREST: {
     AMOUNT: 'Amount',
@@ -23,6 +24,7 @@ const LANG_EN = {
     REQ_TO_ACCRUE_REWARDS_P2: 'spend transaction was made at least 1 hour ago, locktime field is set and UTXO amount is greater than 10 KMD',
     UTXO_LIST: 'UTXO list',
     CHECK_UTXO: 'Check UTXO',
+    ERROR: 'Error',
   },
   INTEREST_CALC: {
     WEEK: 'Week',
@@ -119,6 +121,8 @@ const LANG_EN = {
     WEB_WALLET: 'Web wallet',
     TROLLBOX: 'Trollbox',
     AC_PARAMS: 'AC Params',
+    TRANSACTION_DECODER: 'Tx Decoder',
+    TRANSACTION_PUSH: 'Push Tx',
   },
   OVERVIEW: {
     COIN: 'Coin',
@@ -126,6 +130,8 @@ const LANG_EN = {
     TIME: 'Time',
     TOTAL: 'Total',
     LATEST_TXS: 'Latest Transactions',
+    MINED: 'Mined',
+    FETCHING_DATA: 'Fetching data',
   },
   PRICES: {
     PRICES: 'Prices',
@@ -144,6 +150,7 @@ const LANG_EN = {
     ERR_SEARCHING: 'Error: search found no results for',
     SEARCHING: 'Searching',
     INVALID_PUB: '@template@ is not a valid address',
+    ERR_SEARCHING_ALT: '@template@ doesn\'t look like a valid transaction hash or public address'
   },
   STATS: {
     PAIR: 'Pair',
@@ -180,6 +187,22 @@ const LANG_EN = {
     PARAMS: 'Params',
     VERUS_INFO: 'Requires a separate daemon that\'s a fork of komodo',
     WINDOWS: 'Windows',
+  },
+  TRANSACTION_DECODER: {
+    PROVIDE_RAW_TX: 'Provide raw transaction here',
+    DECODE_TX: 'Decode transaction',
+    DECODE_TX_ERROR: 'Unable to decode @template@ transaction',
+    DECODED_TX: 'Decoded transaction',
+    NETWORK: 'Network',
+    DECODING: 'Decoding transaction',
+  },
+  TRANSACTION_PUSH: {
+    PROVIDE_RAW_TX: 'Provide raw transaction here',
+    PUSH_TX: 'Broadcast transaction',
+    PUSH_TX_ERROR: 'Unable to broadcast transaction',
+    PUSHED_TX: 'Transaction broadcasted',
+    NETWORK: 'Network',
+    PUSHING: 'Sending transaction to the network',
   },
 };
 

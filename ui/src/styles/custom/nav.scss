@@ -63,7 +63,7 @@
   }
   &.rewards {
     &:before {
-      margin-left: 116px;
+      margin-left: 122px;
     }
     .nav.navbar-sub {
       width: 135px;
@@ -71,15 +71,22 @@
   }
   &.explorers {
     &:before {
-      margin-left: 88px;
+      margin-left: 91px;
     }
     .nav.navbar-sub {
-      width: 106px;
+      width: 107px;
     }
   }
   &.tap {
     width: 106px;
 
+    .table-coin-icon-wrapper {
+      width: 30px;
+      height: 30px;
+    }
+    .table-coin-icon {
+      transform: scale(0.67) !important;
+    }
     &:before {
       margin-left: 74px;
     }
@@ -90,7 +97,7 @@
         font-size: 13px;
 
         > a {
-          padding: 15px 0 15px 7px;
+          padding: 17px 0 12px 7px;
         }
       }
     }

@@ -1,7 +1,7 @@
 .ReactTable {
   .rt-th,
   .rt-td {
-    padding: 10px 5px 10px 15px;
+    padding: 14px 5px 7px 15px;
   }
   .rt-tfoot {
     text-align: center;
@@ -134,8 +134,8 @@ table td {
 
 /* for 80x80 px icons */
 .table-coin-icon {
-  -ms-transform: scale(.3) !important;
-  transform: scale(.3) !important;
+  -ms-transform: scale(.6) !important;
+  transform: scale(.6) !important;
 }
 
 .regular-list {
@@ -159,8 +159,8 @@ table td {
     padding: 2px 12px;
 
     .table-coin-icon-wrapper.icon-big {
-      width: 25px;
-      height: 25px;
+      width: 28px;
+      height: 28px;
       margin-top: 13px;
     }
   }

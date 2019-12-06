@@ -1,19 +1,30 @@
-const config = require('../config');
-const remoteExplorers = require('../config').explorers;
-const remoteExplorersInsight = require('../config').insight;
-const _electrumServers = require('../config').electrumServers;
-const { komodoParams } = require('../config');
-const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
-const request = require('request');
 const fs = require('fs-extra');
 const path = require('path');
-const Promise = require('bluebird');
-const { komodoInterest } = require('agama-wallet-lib');
+const bitcoin = require('bitgo-utxo-lib');
+const txDecoder = require('agama-wallet-lib/src/transaction-decoder');
+const komodoInterest = require('agama-wallet-lib/src/komodo-interest');
 const {
   toSats,
   fromSats,
   getRandomIntInclusive,
 } = require('agama-wallet-lib/src/utils');
+const {
+  pubToElectrumScriptHashHex,
+  addressVersionCheck,
+} = require('agama-wallet-lib/src/keys');
+const btcnetworks = require('agama-wallet-lib/src/bitcoinjs-networks');
+const {
+  parseBlock,
+  electrumMerkleRoot,
+} = require('agama-wallet-lib/src/block');
+const { kmdAssetChains } = require('agama-wallet-lib/src/coin-helpers');
+
+const config = require('../config');
+const remoteExplorers = require('../config').explorers;
+const remoteExplorersInsight = require('../config').insight;
+const _electrumServers = require('../config').electrumServers;
+const { komodoParams } = require('../config');
+const request = require('request');
 const acSupply = require('./acSupply');
 const electrumJSCore = require('./electrumjs.core.js');
 
@@ -423,7 +434,7 @@ module.exports = (api) => {
                           blockhash: _parseData[j].blockhash,
                           blockindex: _parseData[j].blockindex,
                           timestamp: _parseData[j].timestamp,
-                          total: overviewFile.result[i].coin.toLowerCase() === 'chips' || overviewFile.result[i].coin.toLowerCase() === 'ptx' ? fromSats(_parseData[j].total) : _parseData[j].total,
+                          total: overviewFile.result[i].coin.toLowerCase() === 'chips' || overviewFile.result[i].coin.toLowerCase() === 'ptx' ? Number(fromSats(_parseData[j].total).toFixed(8)) : _parseData[j].total,
                         });
                       }
                     } catch (e) {}
@@ -453,7 +464,7 @@ module.exports = (api) => {
     const _searchTerm = req.query.term;
 
     if (_searchTerm.length === 64) {
-      // txid redirect
+      // txid
       let errorCount = 0;
       let coin;
 
@@ -466,9 +477,6 @@ module.exports = (api) => {
           ecl.blockchainTransactionGet(req.query.term)
           .then((_rawtxJSON) => {
             ecl.close();
-
-            // api.log(`search ${req.query.term} in ${electrumServerData.coin}`);
-            // api.log(_rawtxJSON);
 
             if (_rawtxJSON &&
                 !_rawtxJSON.status &&
@@ -499,183 +507,346 @@ module.exports = (api) => {
         }
       });
     } else {
-      // TODO: switch tx history to be queried first, add pub address validation check
       // pub address
       let errorCount = 0;
       let _finishedBalanceCalls = {};
+      let incorrectAddress = true;
+      
+      const addressCheck = addressVersionCheck(btcnetworks.kmd, _searchTerm);
+      
+      if (addressCheck === true) {
+        incorrectAddress = false;
+      }
 
-      Promise.all(electrumServers.map((electrumServerData, index) => {
-        return new Promise((resolve, reject) => {
-          const _server = electrumServerData.serverList.length > 1 ? electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':') : electrumServerData.serverList[0].split(':');
-          const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
+      if (incorrectAddress) {
+        const retObj = {
+          msg: 'error',
+          result: 'wrong address',
+        };
 
-          setTimeout(() => {
-            if (!_finishedBalanceCalls[electrumServerData.coin.toUpperCase()]) {
-              errorCount++;
-              resolve('error');
-              _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = 'error';
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(retObj));
+      } else {
+        Promise.all(electrumServers.map((electrumServerData, index) => {
+          return new Promise((resolve, reject) => {
+            if (req.query.balance &&
+                req.query.balance === 'false') {
+              incorrectAddress = true;
             }
-          }, SOCKET_MAX_TIMEOUT);
 
-          ecl.connect();
-          ecl.blockchainAddressGetBalance(_searchTerm)
-          .then((json) => {
-            ecl.close();
+            if (!incorrectAddress) {
+              const _server = electrumServerData.serverList.length > 1 ? electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':') : electrumServerData.serverList[0].split(':');
+              const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
+              
+              ecl.connect();
+              
+              (async function() {
+                const serverProtocolVersion = await api.getServerVersion(ecl);
+                const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(_searchTerm, btcnetworks[electrumServerData.coin.toLowerCase()] || btcnetworks.kmd) : _searchTerm;
 
-            if (json &&
-                json.hasOwnProperty('confirmed') &&
-                json.hasOwnProperty('unconfirmed')) {
-              resolve({
-                coin: electrumServerData.coin.toUpperCase(),
-                balanceSats: {
-                  confirmed: json.confirmed,
-                  unconfirmed: json.unconfirmed,
-                },
-                balance: {
-                  confirmed: Number(fromSats(json.confirmed).toFixed(8)),
-                  unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
-                },
-              });
-              _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = true;
+                setTimeout(() => {
+                  if (!_finishedBalanceCalls[electrumServerData.coin.toUpperCase()]) {
+                    errorCount++;
+                    resolve('error');
+                    _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = 'error';
+
+                    try {
+                      ecl.close();
+                    } catch (e) {}
+                  }
+                }, SOCKET_MAX_TIMEOUT);
+
+                if (serverProtocolVersion &&
+                    Number(serverProtocolVersion) === -777) {
+                  resolve(req.query.balance && req.query.balance === 'false' ? '' : 'error');
+                  _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = req.query.balance && req.query.balance === 'false' ? '' : 'error';
+                } else {
+                  ecl.blockchainAddressGetBalance(_address)
+                  .then((json) => {
+                    ecl.close();
+                    api.log(`search ${_searchTerm} in ${electrumServerData.coin}`);
+                    api.log(json);
+
+                    if (json &&
+                        json.hasOwnProperty('confirmed') &&
+                        json.hasOwnProperty('unconfirmed')) {
+                      resolve({
+                        coin: electrumServerData.coin.toUpperCase(),
+                        balanceSats: {
+                          confirmed: json.confirmed,
+                          unconfirmed: json.unconfirmed,
+                        },
+                        balance: {
+                          confirmed: Number(fromSats(json.confirmed).toFixed(8)),
+                          unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
+                        },
+                      });
+                      _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = true;
+                    } else {
+                      errorCount++;
+                      resolve('error');
+                      _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = 'error';
+                    }
+                  });
+                }
+              })();
             } else {
-              errorCount++;
-              resolve('error');
-              _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = 'error';
+              resolve(req.query.balance && req.query.balance === 'false' ? '' : 'error');
+              _finishedBalanceCalls[electrumServerData.coin.toUpperCase()] = req.query.balance && req.query.balance === 'false' ? '' : 'error';
             }
           });
-        });
-      }))
-      .then(result => {
-        if (errorCount === electrumServers.length) {
-          const retObj = {
-            msg: 'error',
-            result: 'wrong address',
-          };
-
-          res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(retObj));
-        } else {
-          const _balance = result;
-          let _transactions = [];
-
-          Promise.all(electrumServers.map((electrumServerData, index) => {
-            if (_finishedBalanceCalls[electrumServerData.coin.toUpperCase()] !== 'error') {
-              return new Promise((resolve, reject) => {
-                const _server = electrumServerData.serverList.length > 1 ? electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':') : electrumServerData.serverList[0].split(':');
-                const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
-                const MAX_TX = 20;
-
-                ecl.connect();
-                ecl.blockchainAddressGetHistory(req.query.term)
-                .then((json) => {
-                  if (!json.code) {
-                    if (json &&
-                        json.length) {
-                      json = sortTransactions(json);
-                      json = json.slice(0, MAX_TX);
-
-                      Promise.all(json.map((transaction, index) => {
-                        return new Promise((resolve, reject) => {
-                          ecl.blockchainBlockGetHeader(transaction.height)
-                          .then((blockInfo) => {
-                            if (blockInfo &&
-                                blockInfo.timestamp) {
-                              ecl.blockchainTransactionGet(transaction['tx_hash'])
-                              .then((_rawtxJSON) => {
-                                _transactions.push({
-                                  coin: electrumServerData.coin.toUpperCase(),
-                                  blockindex: transaction.height,
-                                  txid: transaction.tx_hash,
-                                  timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
-                                });
-                                resolve();
-                              });
-                            } else {
-                              resolve();
-                            }
-                          });
-                        });
-                      }))
-                      .then(promiseResult => {
-                        ecl.close();
-                        resolve();
-                      });
-                    } else {
-                      ecl.close();
-                      resolve();
-                    }
-                  } else {
-                    resolve();
-                    ecl.close();
-                  }
-                });
-              });
-            }
-          }))
-          .then(result => {
+        }))
+        .then(result => {
+          if (errorCount === electrumServers.length) {
             const retObj = {
-              msg: 'success',
-              result: {
-                balance: _balance,
-                transactions: _transactions,
-              },
+              msg: 'error',
+              result: 'wrong address',
             };
 
             res.set({ 'Content-Type': 'application/json' });
             res.end(JSON.stringify(retObj));
-          });
-        }
-      });
+          } else {
+            const _balance = result;
+            let _transactions = [];
+
+            Promise.all(electrumServers.map((electrumServerData, index) => {
+              if (_finishedBalanceCalls[electrumServerData.coin.toUpperCase()] !== 'error') {
+                return new Promise((resolve, reject) => {
+                  let incorrectAddress = true;
+                  
+                  try {
+                    const _b58check = bitcoin.address.fromBase58Check(_searchTerm);
+      
+                    if (_b58check.version === config.komodoParams.pubKeyHash ||
+                        _b58check.version === config.komodoParams.scriptHash) {
+                      incorrectAddress = false;
+                    }
+                  } catch(e) {}
+
+                  if (req.query.transactions &&
+                      req.query.transactions === 'false') {
+                    incorrectAddress = true;
+                  }
+
+                  if (!incorrectAddress) {
+                    const _server = electrumServerData.serverList.length > 1 ? electrumServerData.serverList[getRandomIntInclusive(0, 1)].split(':') : electrumServerData.serverList[0].split(':');
+                    const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
+                    const MAX_TX = 20;
+
+                    ecl.connect();
+                    
+                    (async function() {
+                      const serverProtocolVersion = await api.getServerVersion(ecl);
+                      const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(_searchTerm, btcnetworks[electrumServerData.coin.toLowerCase()] || btcnetworks.kmd) : _searchTerm;
+                    
+                      if (serverProtocolVersion &&
+                          Number(serverProtocolVersion) === -777) {
+                        resolve();
+                      } else {
+                        ecl.blockchainAddressGetHistory(_address)
+                        .then((json) => {                        
+                          if (!json.code) {
+                            if (json &&
+                                json.length) {
+                              json = sortTransactions(json);
+                              json = json.slice(0, MAX_TX);
+
+                              Promise.all(json.map((transaction, index) => {
+                                return new Promise((resolve, reject) => {
+                                  ecl.blockchainBlockGetHeader(transaction.height)
+                                  .then((blockInfo) => {                              
+                                    if (typeof blockInfo === 'string') {            
+                                      blockInfo = parseBlock(blockInfo, btcnetworks[electrumServerData.coin.toLowerCase()] || btcnetworks.kmd);
+                        
+                                      if (blockInfo.merkleRoot) {
+                                        blockInfo.merkle_root = electrumMerkleRoot(blockInfo);
+                                      }
+                                    }
+
+                                    if (blockInfo &&
+                                        blockInfo.timestamp) {
+                                      ecl.blockchainTransactionGet(transaction.tx_hash)
+                                      .then((_rawtxJSON) => {
+                                        _transactions.push({
+                                          coin: electrumServerData.coin.toUpperCase(),
+                                          blockindex: transaction.height,
+                                          txid: transaction.tx_hash,
+                                          timestamp: Number(transaction.height) === 0 ? Math.floor(Date.now() / 1000) : blockInfo.timestamp,
+                                        });
+                                        resolve();
+                                      });
+                                    } else {
+                                      resolve();
+                                    }
+                                  });
+                                });
+                              }))
+                              .then(promiseResult => {
+                                ecl.close();
+                                resolve();
+                              });
+                            } else {
+                              ecl.close();
+                              resolve();
+                            }
+                          } else {
+                            resolve();
+                            ecl.close();
+                          }
+                        });
+                      }
+                    })();
+                  } else {
+                    resolve();
+                  }
+                });
+              }
+            }))
+            .then(result => {
+              let retObj = {
+                msg: 'success',
+                result: {
+                  balance: _balance,
+                  transactions: _transactions,
+                },
+              };
+
+              if (req.query.transactions &&
+                  req.query.transactions === 'false') {
+                retObj = {
+                  msg: 'success',
+                  result: {
+                    balance: _balance,
+                  },
+                };
+              } else if (
+                req.query.balance &&
+                req.query.balance === 'false'
+              ) {
+                retObj = {
+                  msg: 'success',
+                  result: {
+                    transactions: _transactions,
+                  },
+                };
+              }
+
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(retObj));
+            });
+          }
+        });
+      }
     }
   });
 
   api.get('/kmd/rewards', (req, res, next) => {
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
+    let incorrectAddress = true;
 
-    ecl.connect();
-    ecl.blockchainAddressGetBalance(req.query.address)
-    .then((json) => {
-      if (json &&
-          json.hasOwnProperty('confirmed') &&
-          json.hasOwnProperty('unconfirmed')) {
-        ecl.connect();
-        ecl.blockchainAddressListunspent(req.query.address)
-        .then((utxoList) => {
-          if (utxoList &&
-              utxoList.length) {
-            // filter out < 10 KMD amounts
-            let _utxo = [];
+    try {
+      const _b58check = bitcoin.address.fromBase58Check(req.query.address);
 
-            for (let i = 0; i < utxoList.length; i++) {
-              if (fromSats(Number(utxoList[i].value)) >= 10) {
-                _utxo.push(utxoList[i]);
-              }
-            }
+      if (_b58check.version === config.komodoParams.pubKeyHash ||
+          _b58check.version === config.komodoParams.scriptHash) {
+        incorrectAddress = false;
+      }
+    } catch(e) {}
 
-            if (_utxo &&
-                _utxo.length) {
-              let interestTotal = 0;
+    if (incorrectAddress) {
+      const retObj = {
+        msg: 'error',
+        result: 'wrong address',
+      };
 
-              Promise.all(_utxo.map((_utxoItem, index) => {
-                return new Promise((resolve, reject) => {
-                  ecl.blockchainTransactionGet(_utxoItem.tx_hash)
-                  .then((_rawtxJSON) => {
-                    // decode tx
-                    const decodedTx = txDecoder(_rawtxJSON, komodoParams);
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else {
+      ecl.connect();
+      
+      (async function() {
+        const serverProtocolVersion = await api.getServerVersion(ecl);
+        const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(req.query.address, btcnetworks.kmd) : req.query.address;
 
-                    if (decodedTx &&
-                        decodedTx.format &&
-                        decodedTx.format.locktime > 0) {
-                      interestTotal += Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
-                    }
+        ecl.blockchainAddressGetBalance(_address)
+        .then((json) => {
+          if (json &&
+              json.hasOwnProperty('confirmed') &&
+              json.hasOwnProperty('unconfirmed')) {
+            ecl.connect();
+            ecl.blockchainAddressListunspent(_address)
+            .then((utxoList) => {
+              if (utxoList &&
+                  utxoList.length) {
+                // filter out < 10 KMD amounts
+                let _utxo = [];
 
-                    resolve(true);
+                for (let i = 0; i < utxoList.length; i++) {
+                  if (fromSats(Number(utxoList[i].value)) >= 10) {
+                    _utxo.push(utxoList[i]);
+                  }
+                }
+
+                if (_utxo &&
+                    _utxo.length) {
+                  let interestTotal = 0;
+
+                  Promise.all(_utxo.map((_utxoItem, index) => {
+                    return new Promise((resolve, reject) => {
+                      ecl.blockchainTransactionGet(_utxoItem.tx_hash)
+                      .then((_rawtxJSON) => {
+                        // decode tx
+                        const decodedTx = txDecoder(_rawtxJSON, komodoParams);
+
+                        if (decodedTx &&
+                            decodedTx.format &&
+                            decodedTx.format.locktime > 0) {
+                          interestTotal += Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
+                        }
+
+                        resolve(true);
+                      });
+                    });
+                  }))
+                  .then(promiseResult => {
+                    ecl.close();
+                    const retObj = {
+                      msg: 'success',
+                      result: {
+                        balance: Number(fromSats(json.confirmed).toFixed(8)),
+                        unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
+                        unconfirmedSats: json.unconfirmed,
+                        balanceSats: json.confirmed,
+                        interest: Number(interestTotal.toFixed(8)),
+                        interestSats: Math.floor(toSats(interestTotal)),
+                        total: interestTotal > 0 ? Number((fromSats(json.confirmed) + interestTotal).toFixed(8)) : 0,
+                        totalSats: interestTotal > 0 ? json.confirmed + Math.floor(toSats(interestTotal)) : 0,
+                      },
+                    };
+
+                    res.set({ 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(retObj));
                   });
-                });
-              }))
-              .then(promiseResult => {
-                ecl.close();
+                } else {
+                  const retObj = {
+                    msg: 'success',
+                    result: {
+                      balance: Number(fromSats(json.confirmed).toFixed(8)),
+                      unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
+                      unconfirmedSats: json.unconfirmed,
+                      balanceSats: json.confirmed,
+                      interest: 0,
+                      interestSats: 0,
+                      total: 0,
+                      totalSats: 0,
+                    },
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                }
+              } else {
                 const retObj = {
                   msg: 'success',
                   result: {
@@ -683,71 +854,39 @@ module.exports = (api) => {
                     unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
                     unconfirmedSats: json.unconfirmed,
                     balanceSats: json.confirmed,
-                    interest: Number(interestTotal.toFixed(8)),
-                    interestSats: Math.floor(toSats(interestTotal)),
-                    total: interestTotal > 0 ? Number((fromSats(json.confirmed) + interestTotal).toFixed(8)) : 0,
-                    totalSats: interestTotal > 0 ? json.confirmed + Math.floor(toSats(interestTotal)) : 0,
+                    interest: 0,
+                    interestSats: 0,
+                    total: 0,
+                    totalSats: 0,
                   },
                 };
 
                 res.set({ 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(retObj));
-              });
-            } else {
-              const retObj = {
-                msg: 'success',
-                result: {
-                  balance: Number(fromSats(json.confirmed).toFixed(8)),
-                  unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
-                  unconfirmedSats: json.unconfirmed,
-                  balanceSats: json.confirmed,
-                  interest: 0,
-                  interestSats: 0,
-                  total: 0,
-                  totalSats: 0,
-                },
-              };
-
-              res.set({ 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(retObj));
-            }
+              }
+            });
           } else {
             const retObj = {
-              msg: 'success',
-              result: {
-                balance: Number(fromSats(json.confirmed).toFixed(8)),
-                unconfirmed: Number(fromSats(json.unconfirmed).toFixed(8)),
-                unconfirmedSats: json.unconfirmed,
-                balanceSats: json.confirmed,
-                interest: 0,
-                interestSats: 0,
-                total: 0,
-                totalSats: 0,
-              },
+              msg: 'error',
+              result: json,
             };
 
             res.set({ 'Content-Type': 'application/json' });
             res.end(JSON.stringify(retObj));
           }
         });
-      } else {
-        const retObj = {
-          msg: 'error',
-          result: json,
-        };
-
-        res.set({ 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(retObj));
-      }
-    });
+      })();
+    }
   });
 
   api.electrumGetCurrentBlock = (ecl) => {
     return new Promise((resolve, reject) => {
       ecl.blockchainHeadersSubscribe()
       .then((json) => {
-        if (json.block_height) {
+        if (json.hasOwnProperty('block_height')) {
           resolve(json.block_height);
+        } else if (json.hasOwnProperty('height')) {
+          resolve(json.height);
         } else {
           resolve(json);
         }
@@ -758,107 +897,124 @@ module.exports = (api) => {
   api.listunspent = (ecl, address, network) => {
     let _atLeastOneDecodeTxFailed = false;
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {      
       ecl.connect();
-      ecl.blockchainAddressListunspent(address)
-      .then((_utxoJSON) => {
-        if (_utxoJSON &&
-            _utxoJSON.length) {
-          let formattedUtxoList = [];
-          let _utxo = [];
+    
+      (async function() {
+        const serverProtocolVersion = await api.getServerVersion(ecl);
+        const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(address, btcnetworks[network.toLowerCase()] || btcnetworks.kmd) : address;
 
-          api.electrumGetCurrentBlock(ecl)
-          .then((currentHeight) => {
-            if (currentHeight &&
-                Number(currentHeight) > 0) {
-              // filter out unconfirmed utxos
-              for (let i = 0; i < _utxoJSON.length; i++) {
-                if (Number(currentHeight) - Number(_utxoJSON[i].height) !== 0) {
-                  _utxo.push(_utxoJSON[i]);
+        ecl.blockchainAddressListunspent(_address)
+        .then((_utxoJSON) => {
+          if (_utxoJSON &&
+              _utxoJSON.length) {
+            let formattedUtxoList = [];
+            let _utxo = [];
+
+            api.electrumGetCurrentBlock(ecl)
+            .then((currentHeight) => {
+              if (currentHeight &&
+                  Number(currentHeight) > 0) {
+                // filter out unconfirmed utxos
+                for (let i = 0; i < _utxoJSON.length; i++) {
+                  if (Number(currentHeight) - Number(_utxoJSON[i].height) !== 0) {
+                    _utxo.push(_utxoJSON[i]);
+                  }
                 }
-              }
 
-              if (!_utxo.length) { // no confirmed utxo
+                if (!_utxo.length) { // no confirmed utxo
+                  resolve({
+                    code: -777,
+                    result: 'no valid utxo',
+                  });
+                } else {
+                  Promise.all(_utxo.map((_utxoItem, index) => {
+                    return new Promise((resolve, reject) => {
+                      ecl.blockchainTransactionGet(_utxoItem.tx_hash)
+                      .then((_rawtxJSON) => {
+                        // decode tx
+                        const decodedTx = txDecoder(_rawtxJSON, komodoParams);
+
+                        if (!decodedTx) {
+                          _atLeastOneDecodeTxFailed = true;
+                          resolve('cant decode tx');
+                        } else {
+                          let interest = 0;
+
+                          if (network === 'kmd') {
+                            if (Number(fromSats(_utxoItem.value)) >= 10 &&
+                                decodedTx.format.locktime > 0) {
+                              interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
+                            }
+                          }
+
+                          let _resolveObj = {
+                            txid: _utxoItem.tx_hash,
+                            vout: _utxoItem.tx_pos,
+                            address,
+                            amount: Number(fromSats(_utxoItem.value).toFixed(8)),
+                            amountSats: _utxoItem.value,
+                            locktime: decodedTx.format.locktime,
+                            interest: Number(interest.toFixed(8)),
+                            interestSats: Math.floor(toSats(interest)),
+                            confirmations: Number(_utxoItem.height) === 0 ? 0 : currentHeight - _utxoItem.height,
+                          };
+
+                          if (network !== 'kmd') {
+                            delete _resolveObj.interest;
+                            delete _resolveObj.interestSats;
+                          }
+
+                          resolve(_resolveObj);
+                        }
+                      });
+                    });
+                  }))
+                  .then(promiseResult => {
+                    ecl.close();
+
+                    if (!_atLeastOneDecodeTxFailed) {
+                      resolve(promiseResult);
+                    } else {
+                      resolve({
+                        code: -777,
+                        result: 'decode error',
+                      });
+                    }
+                  });
+                }
+              } else {
+                ecl.close();
                 resolve({
                   code: -777,
-                  result: 'no valid utxo',
-                });
-              } else {
-                Promise.all(_utxo.map((_utxoItem, index) => {
-                  return new Promise((resolve, reject) => {
-                    ecl.blockchainTransactionGet(_utxoItem.tx_hash)
-                    .then((_rawtxJSON) => {
-                      // decode tx
-                      const decodedTx = txDecoder(_rawtxJSON, komodoParams);
-
-                      if (!decodedTx) {
-                        _atLeastOneDecodeTxFailed = true;
-                        resolve('cant decode tx');
-                      } else {
-                        let interest = 0;
-
-                        if (network === 'kmd') {
-                          if (Number(fromSats(_utxoItem.value)) >= 10 &&
-                              decodedTx.format.locktime > 0) {
-                            interest = Number(komodoInterest(decodedTx.format.locktime, _utxoItem.value, _utxoItem.height));
-                          }
-                        }
-
-                        let _resolveObj = {
-                          txid: _utxoItem.tx_hash,
-                          vout: _utxoItem.tx_pos,
-                          address,
-                          amount: Number(fromSats(_utxoItem.value).toFixed(8)),
-                          amountSats: _utxoItem.value,
-                          locktime: decodedTx.format.locktime,
-                          interest: Number(interest.toFixed(8)),
-                          interestSats: Math.floor(toSats(interest)),
-                          confirmations: Number(_utxoItem.height) === 0 ? 0 : currentHeight - _utxoItem.height,
-                        };
-
-                        if (network !== 'kmd') {
-                          delete _resolveObj.interest;
-                          delete _resolveObj.interestSats;
-                        }
-
-                        resolve(_resolveObj);
-                      }
-                    });
-                  });
-                }))
-                .then(promiseResult => {
-                  ecl.close();
-
-                  if (!_atLeastOneDecodeTxFailed) {
-                    resolve(promiseResult);
-                  } else {
-                    resolve({
-                      code: -777,
-                      result: 'decode error',
-                    });
-                  }
+                  result: 'cant get current height',
                 });
               }
-            } else {
-              ecl.close();
-              resolve({
-                code: -777,
-                result: 'cant get current height',
-              });
-            }
-          });
-        } else {
-          ecl.close();
-          resolve(_utxoJSON);
-        }
-      });
+            });
+          } else {
+            ecl.close();
+            resolve(_utxoJSON);
+          }
+        });
+      })();
     });
   }
 
   api.get('/kmd/listunspent', (req, res, next) => {
-    const network = 'komodo';
+    const network = 'kmd';
     const randomServer = _electrumServers.kmd.serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
+    const addressCheck = addressVersionCheck(kmdAssetChains.indexOf(network.toUpperCase()) > -1 ? btcnetworks.kmd : btcnetworks[network.toLowerCase()], req.query.address);
+    
+    if (addressCheck !== true) {
+      const retObj = {
+        msg: 'error',
+        result: 'Invalid address',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
 
     api.listunspent(
       ecl,
@@ -880,6 +1036,17 @@ module.exports = (api) => {
     const network = req.query.coin || 'kmd';
     const randomServer = _electrumServers[network.toLowerCase()].serverList[getRandomIntInclusive(0, 1)].split(':');
     const ecl = new electrumJSCore(randomServer[1], randomServer[0], randomServer[2]);
+    const addressCheck = addressVersionCheck(kmdAssetChains.indexOf(network.toUpperCase()) > -1 ? btcnetworks.kmd : btcnetworks[network.toLowerCase()], req.query.address);
+
+    if (addressCheck !== true) {
+      const retObj = {
+        msg: 'error',
+        result: 'Invalid address',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
 
     api.listunspent(
       ecl,
@@ -911,14 +1078,16 @@ module.exports = (api) => {
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(retObj));
     } else {
+      ecl.connect();
       ecl.blockchainTransactionBroadcast(rawtx)
       .then((txid) => {
         ecl.close();
     
         api.log(txid);
+        api.log(JSON.stringify(txid));
     
         if (txid &&
-            txid.indexOf('bad-txns-inputs-spent') > -1) {
+            JSON.stringify(txid).indexOf('bad-txns-inputs-spent') > -1) {
           const retObj = {
             msg: 'error',
             result: 'Bad transaction inputs spent',
@@ -926,10 +1095,20 @@ module.exports = (api) => {
     
           res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(retObj));
+        } else if (
+          JSON.stringify(txid).indexOf('"code":') > -1 &&
+          JSON.stringify(txid).indexOf('"message":') > -1) {
+          const retObj = {
+            msg: 'error',
+            result: txid.message,
+          };
+    
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
         } else {
           if (txid &&
               txid.length === 64) {
-            if (txid.indexOf('bad-txns-in-belowout') > -1) {
+            if (JSON.stringify(txid).indexOf('bad-txns-in-belowout') > -1) {
               const retObj = {
                 msg: 'error',
                 result: 'Bad transaction inputs spent',
@@ -948,7 +1127,7 @@ module.exports = (api) => {
             }
           } else {
             if (txid &&
-                txid.indexOf('bad-txns-in-belowout') > -1) {
+                JSON.stringify(txid).indexOf('bad-txns-in-belowout') > -1) {
               const retObj = {
                 msg: 'error',
                 result: 'Bad transaction inputs spent',
@@ -979,6 +1158,70 @@ module.exports = (api) => {
 
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify(retObj));
+  });
+
+  api.post('/decode-transaction', (req, res, next) => {
+    const _coin = req.body.coin;
+
+    if (!_coin) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing coin param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
+
+    if (!req.body.rawtx) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing rawtx param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
+
+    let decodedTx;
+    
+    try {
+      decodedTx = txDecoder(req.body.rawtx, kmdAssetChains.indexOf(_coin.toUpperCase()) > -1 ? btcnetworks.kmd : btcnetworks[_coin.toLowerCase()]);
+    } catch (e) {}
+
+    if (!decodedTx) {
+      const retObj = {
+        msg: 'error',
+        result: 'Unable to decode transaction',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else {
+      let formattedTx = {
+        txid: decodedTx.format.txid,
+        locktime: decodedTx.format.locktime,
+        version: decodedTx.format.version,
+        outputs: decodedTx.outputs,
+        inputs: decodedTx.inputs,
+      };
+
+      if (decodedTx.tx.hasOwnProperty('versionGroupId')) {
+        formattedTx.versionGroupId = decodedTx.tx.versionGroupId;
+      }
+
+      if (decodedTx.tx.hasOwnProperty('overwintered')) {
+        formattedTx.overwintered = decodedTx.tx.overwintered;
+      }
+
+      const retObj = {
+        msg: 'success',
+        result: formattedTx,
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    }
   });
 
   return api;

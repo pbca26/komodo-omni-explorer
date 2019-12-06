@@ -163,6 +163,8 @@ class Client {
     this.id = 0;
     this.port = port;
     this.host = host;
+    this.proto = protocol;
+    this.protocolVersion = null;
     this.callbackMessageQueue = {};
     this.subscribe = new EventEmitter();
     this.conn = initSocket(this, protocol, options);
@@ -170,6 +172,10 @@ class Client {
       this.onMessage(body, n);
     });
     this.status = 0;
+  }
+
+  setProtocolVersion(version) {
+    this.protocolVersion = version;
   }
 
   connect() {
@@ -181,10 +187,6 @@ class Client {
 
     return new Promise((resolve, reject) => {
       const errorHandler = (e) => {
-        /* console.log(e);
-        console.log(this.port);
-        console.log(this.host);
-        console.log(e.syscall);*/
         resolve(e);
       }
 
@@ -297,7 +299,24 @@ class ElectrumJSCore extends Client {
 
   // ref: http://docs.electrum.org/en/latest/protocol.html
   serverVersion(client_name, protocol_version) {
-    return this.request('server.version', [client_name, protocol_version]);
+    let params = [];
+
+    if (client_name &&
+        protocol_version) {
+      params = [client_name, protocol_version];
+    } else if (
+      !client_name &&
+      protocol_version
+    ) {
+      params = ['', protocol_version];
+    } else if (
+      client_name &&
+      !protocol_version
+    ) {
+      params = [''];
+    }
+
+    return this.request('server.version', params);
   }
 
   serverBanner() {
@@ -312,24 +331,24 @@ class ElectrumJSCore extends Client {
     return this.request('server.peers.subscribe', []);
   }
 
-  blockchainAddressGetBalance(address) {
-    return this.request('blockchain.address.get_balance', [address]);
+  blockchainAddressGetBalance(str) {
+    return this.request(this.protocolVersion && Number(this.protocolVersion) >= 1.2 ? 'blockchain.scripthash.get_balance' : 'blockchain.address.get_balance', [str]);
   }
 
-  blockchainAddressGetHistory(address) {
-    return this.request('blockchain.address.get_history', [address]);
+  blockchainAddressGetHistory(str) {
+    return this.request(this.protocolVersion && Number(this.protocolVersion) >= 1.2 ? 'blockchain.scripthash.get_history' : 'blockchain.address.get_history', [str]);
   }
 
   blockchainAddressGetMempool(address) {
     return this.request('blockchain.address.get_mempool', [address]);
   }
 
-  blockchainAddressListunspent(address) {
-    return this.request('blockchain.address.listunspent', [address]);
+  blockchainAddressListunspent(str) {
+    return this.request(this.protocolVersion && Number(this.protocolVersion) >= 1.2 ? 'blockchain.scripthash.listunspent' : 'blockchain.address.listunspent', [str]);
   }
 
   blockchainBlockGetHeader(height) {
-    return this.request('blockchain.block.get_header', [height]);
+    return this.request(this.protocolVersion && Number(this.protocolVersion) === 1.4 ? 'blockchain.block.header' : 'blockchain.block.get_header', [height]);
   }
 
   blockchainBlockGetChunk(index) {
