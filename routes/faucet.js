@@ -123,6 +123,7 @@ module.exports = (api) => {
           };
 
           ecl.connect();
+          api.addElectrumConnection(ecl);
 
           (async function() {
             const serverProtocolVersion = await api.getServerVersion(ecl);

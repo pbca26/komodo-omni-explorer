@@ -47,6 +47,8 @@ if (config.modules.multisig) {
   api = require('./multisigDB.js')(api);
 }
 
+api = require('./electrumManager.js')(api);
+
 api.start = () => {
   if (config.modules.explorer) {
     api.getOverview(true);
@@ -72,6 +74,7 @@ api.start = () => {
     api.getBTCFees();
     api.getGasPrice();
   }
+  api.initElectrumManager();
 };
 
 module.exports = api;

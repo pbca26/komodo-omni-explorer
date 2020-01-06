@@ -1111,6 +1111,8 @@ module.exports = (api) => {
     api.log(`btc fees server ${_randomServer.join(':')}`);
 
     ecl.connect();
+    api.addElectrumConnection(ecl);
+    
     Promise.all(btcFeeBlocks.map((coin, index) => {
       return new Promise((resolve, reject) => {
         ecl.blockchainEstimatefee(index + 1)

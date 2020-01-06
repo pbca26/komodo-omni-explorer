@@ -15,7 +15,7 @@ module.exports = (api) => {
       api.log(`${secPassed}s ecl connection passed`);
 
       if (secPassed >= MAX_TIME) {
-        api.log(`${api.eclStack} conn terminated`);
+        api.log('conn terminated');
         api.eclStack[i].ecl.close();
         api.eclStack.splice(i, 1);
       }
