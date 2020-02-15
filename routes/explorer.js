@@ -474,6 +474,7 @@ module.exports = (api) => {
           const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
 
           ecl.connect();
+          api.addElectrumConnection(ecl);
           ecl.blockchainTransactionGet(req.query.term)
           .then((_rawtxJSON) => {
             ecl.close();
@@ -539,6 +540,7 @@ module.exports = (api) => {
               const ecl = new electrumJSCore(_server[1], _server[0], _server[2]);
               
               ecl.connect();
+              api.addElectrumConnection(ecl);
               
               (async function() {
                 const serverProtocolVersion = await api.getServerVersion(ecl);
@@ -634,6 +636,7 @@ module.exports = (api) => {
                     const MAX_TX = 20;
 
                     ecl.connect();
+                    api.addElectrumConnection(ecl);
                     
                     (async function() {
                       const serverProtocolVersion = await api.getServerVersion(ecl);
@@ -764,6 +767,7 @@ module.exports = (api) => {
       res.end(JSON.stringify(retObj));
     } else {
       ecl.connect();
+      api.addElectrumConnection(ecl);
       
       (async function() {
         const serverProtocolVersion = await api.getServerVersion(ecl);
@@ -774,7 +778,6 @@ module.exports = (api) => {
           if (json &&
               json.hasOwnProperty('confirmed') &&
               json.hasOwnProperty('unconfirmed')) {
-            ecl.connect();
             ecl.blockchainAddressListunspent(_address)
             .then((utxoList) => {
               if (utxoList &&
@@ -899,6 +902,7 @@ module.exports = (api) => {
 
     return new Promise((resolve, reject) => {      
       ecl.connect();
+      api.addElectrumConnection(ecl);
     
       (async function() {
         const serverProtocolVersion = await api.getServerVersion(ecl);
@@ -1079,6 +1083,7 @@ module.exports = (api) => {
       res.end(JSON.stringify(retObj));
     } else {
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.blockchainTransactionBroadcast(rawtx)
       .then((txid) => {
         ecl.close();

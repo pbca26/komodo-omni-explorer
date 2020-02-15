@@ -197,6 +197,7 @@ module.exports = (api) => {
           const outputAddress = keys.pub;
 
           ecl.connect();
+          api.addElectrumConnection(ecl);
           
           (async function() {
             const serverProtocolVersion = await api.getServerVersion(ecl);
@@ -354,6 +355,7 @@ module.exports = (api) => {
       api.log('kv history');
 
       ecl.connect();
+      api.addElectrumConnection(ecl);
       
       (async function() {
         const serverProtocolVersion = await api.getServerVersion(ecl);
