@@ -100,7 +100,7 @@ const _config = {
       url: 'https://dsec.kmdexplorer.io/insight-api-komodo',
     },
     VRSC: {
-      url: 'https://vrsc.explorer.dexstats.info/insight-api-komodo,
+      url: 'https://vrsc.explorer.dexstats.info/insight-api-komodo',
     },
     KV: {
       url: 'https://kv.kmdexplorer.io/insight-api-komodo',
