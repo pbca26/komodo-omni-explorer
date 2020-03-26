@@ -71,6 +71,12 @@ for (let key in config.electrumServersExtend) {
   }
 }
 
+if (config.hasOwnProperty('rates') &&
+    config.useWget &&
+    !fs.existsSync('cache')) {
+  fs.mkdirSync('cache');
+}
+
 module.exports = (api) => {
   api.mm = {
     prices: {},
