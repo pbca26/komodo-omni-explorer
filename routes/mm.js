@@ -71,11 +71,10 @@ for (let key in config.electrumServersExtend) {
   }
 }
 
-if (config.hasOwnProperty('rates') &&
-    config.useWget &&
-    !fs.existsSync('cache')) {
+if (!fs.existsSync('cache')) {
   fs.mkdirSync('cache');
 }
+
 
 module.exports = (api) => {
   api.mm = {
@@ -356,34 +355,31 @@ module.exports = (api) => {
           const options = {
             url: _cgRatesList[i],
             method: 'GET',
+            outFname: `cache/rates-cg-p${i}`,
           };
 
-          request(options, (error, response, body) => {
-            if (response &&
-                response.statusCode &&
-                response.statusCode === 200) {
-              try {
-                const _parsedBody = JSON.parse(body);
+          api.ratesRequestWrapper(options)
+          .then((cgData) => {
+            try {
+              const _parsedBody = JSON.parse(cgData);
 
-                for (let i = 0; i < _parsedBody.length; i++) {
-                  api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].market_data.current_price.usd;
-                  api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
-                    src: 'coingecko',
-                    data: {
-                      percent_change_24h: Number(_parsedBody[i].market_data.price_change_percentage_24h),
-                      percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
-                    },
-                  };
-                  if (api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()]) {
-                    api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()];
-                  }
-                  api.mm.extRates.priceChangeAll.coingecko[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()];
+              for (let i = 0; i < _parsedBody.length; i++) {
+                api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].market_data.current_price.usd;
+                api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
+                  src: 'coingecko',
+                  data: {
+                    percent_change_24h: Number(_parsedBody[i].market_data.price_change_percentage_24h),
+                    percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
+                  },
+                };
+                if (api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()]) {
+                  api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()];
                 }
-                api.parseExtRates();
-              } catch (e) {
-                api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
+                api.mm.extRates.priceChangeAll.coingecko[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()];
               }
-            } else {
+              api.parseExtRates();
+            } catch (e) {
+              console.log(e)
               api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
             }
           });
@@ -455,8 +451,8 @@ module.exports = (api) => {
     }
 
     _getKMDRates();
-    _getDPRates();
-    _getCMCRates();
+    //_getDPRates();
+    //_getCMCRates();
     _getCGRates();
     api.mmRatesInterval = setInterval(() => {
       fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
@@ -465,9 +461,9 @@ module.exports = (api) => {
         }
       });
       _getKMDRates();
-      _getDPRates();
+      //_getDPRates();
       _getCGRates();
-      _getCMCRates();
+      //_getCMCRates();
     }, RATES_UPDATE_INTERVAL);
   }
 
