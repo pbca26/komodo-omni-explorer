@@ -121,6 +121,36 @@ module.exports = (api) => {
     userpass: USERPASS,
   };
 
+  api.ratesRequestWrapper = (options) => {
+    return new Promise((resolve, reject) => {
+      if (config.rates.useWget) {
+        api.log(`wget ${options.url} -O ${options.outFname}`);
+  
+        exec(`wget ${options.url} -O ${options.outFname}`, () => {
+          fs.readFile(options.outFname, (err, data) => {
+            if (err) {
+              console.log(`unable to get file ${options.outFname}`);
+            }
+    
+            resolve(data);
+          });
+        });
+      } else {
+        api.log(`request ${options.url}`);
+  
+        request(options, (error, response, body) => {
+          if (response &&
+              response.statusCode &&
+              response.statusCode === 200) {
+            resolve(body);
+          } else {
+            resolve();
+          }
+        });
+      }
+    });
+  };
+
   api.prepCMCRatesList = () => {
     const _rounds = 20;
     const _bundleSize = 100;
