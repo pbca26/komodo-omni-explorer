@@ -20,7 +20,7 @@ const pricesTickerMap = require('./pricesTickerMap');
 
 const PRICES_UPDATE_INTERVAL = 300000; // every 300s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
-const RATES_UPDATE_INTERVAL = 60000; // every 60s
+const RATES_UPDATE_INTERVAL = 500000; // every 500s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const ETH_FEES_UPDATE_INTERVAL = 60000; // every 60s
