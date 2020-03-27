@@ -290,7 +290,7 @@ module.exports = (api) => {
 
     fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
       if (err) {
-        api.log(`error updating kv cache file ${err}`);
+        api.log(`error updating mm cache file ${err}`);
       }
     });
   };
