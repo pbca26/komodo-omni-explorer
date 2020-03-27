@@ -36,7 +36,8 @@ const SOCKET_MAX_TIMEOUT = 20000;
 const summaryFileLocation = path.join(__dirname, '../summary.json');
 const overviewFileLocation = path.join(__dirname, '../overview.json');
 
-// TODO: add search one time caching, per request basis
+// TODO: - add search one time caching, per request basis
+//       - dump and provide data once it's available
 
 let remoteExplorersArray = [];
 let remoteExplorersArrayInsight = [];
@@ -272,7 +273,7 @@ module.exports = (api) => {
                 return new Promise((resolve, reject) => {
                   setTimeout(() => {
                     // api.log(`insight ${index}`);
-                    // api.log(`${config.insight[coin].url}/api/txs?block=${block.hash}`);
+                    // api.log(`${config.insight[coin].url}/txs?block=${block.hash}`);
 
                     const options = {
                       url: `${config.insight[coin].url}/txs?block=${block.hash}`,
@@ -360,9 +361,8 @@ module.exports = (api) => {
     if (!api.explorer.overview.length) {
       const cacheFileData = fs.readJsonSync(overviewFileLocation, { throws: false });
       
-      if (cacheFileData &&
-          cacheFileData.result) {
-        api.explorer.overview = cacheFileData.result;
+      if (cacheFileData) {
+        api.explorer.overview = cacheFileData;
         api.log('set overview from cache');
       }
     }
@@ -428,43 +428,42 @@ module.exports = (api) => {
             });
           }))
           .then(__result => {
-            fs.writeFile(overviewFileLocation, JSON.stringify({ result }), (err) => {
+            const overviewData = result;
+            
+            const resSizeLimit = 1000;
+            let items = [];
+
+            api.log(`tracking ${overviewData.length} coin explorers`);
+
+            for (let i = 0; i < overviewData.length; i++) {
+              try {
+                const _parseData = JSON.parse(overviewData[i].result).data;
+
+                for (let j = 0; j < _parseData.length; j++) {
+                  items.push({
+                    coin: overviewData[i].coin,
+                    txid: _parseData[j].txid,
+                    blockhash: _parseData[j].blockhash,
+                    blockindex: _parseData[j].blockindex,
+                    timestamp: _parseData[j].timestamp,
+                    total: overviewData[i].coin.toLowerCase() === 'chips' || overviewData[i].coin.toLowerCase() === 'ptx' ? Number(fromSats(_parseData[j].total).toFixed(8)) : _parseData[j].total,
+                  });
+                }
+              } catch (e) {
+                console.log(e)
+              }
+            }
+
+            items = sortByDate(items, 'timestamp');
+            items = items.slice(0, resSizeLimit + 1);
+
+            api.explorer.overview = items;
+
+            api.log(`explorer overview updated at ${Date.now()}`);
+
+            fs.writeFile(overviewFileLocation, JSON.stringify(items), (err) => {
               if (err) {
                 api.log(`error updating overview cache file ${err}`);
-              } else {
-                const overviewFile = fs.readJsonSync(overviewFileLocation, { throws: false });
-
-                if (overviewFile &&
-                    overviewFile.result) {
-                  const resSizeLimit = 1000;
-                  let items = [];
-
-                  api.log(`tracking ${overviewFile.result.length} coin explorers`);
-
-                  for (let i = 0; i < overviewFile.result.length; i++) {
-                    try {
-                      const _parseData = JSON.parse(overviewFile.result[i].result).data;
-
-                      for (let j = 0; j < _parseData.length; j++) {
-                        items.push({
-                          coin: overviewFile.result[i].coin,
-                          txid: _parseData[j].txid,
-                          blockhash: _parseData[j].blockhash,
-                          blockindex: _parseData[j].blockindex,
-                          timestamp: _parseData[j].timestamp,
-                          total: overviewFile.result[i].coin.toLowerCase() === 'chips' || overviewFile.result[i].coin.toLowerCase() === 'ptx' ? Number(fromSats(_parseData[j].total).toFixed(8)) : _parseData[j].total,
-                        });
-                      }
-                    } catch (e) {}
-                  }
-
-                  items = sortByDate(items, 'timestamp');
-                  items = items.slice(0, resSizeLimit + 1);
-
-                  api.explorer.overview = items;
-
-                  api.log(`explorer overview updated at ${Date.now()}`);
-                }
               }
             });
           });
