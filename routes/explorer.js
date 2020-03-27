@@ -105,10 +105,13 @@ module.exports = (api) => {
   });
 
   api.getSummary = () => {
-    const cacheFileData = fs.readJsonSync(summaryFileLocation, { throws: false });
-    
-    if (cacheFileData) {
-      api.explorer.summary = cacheFileData;
+    if (!api.explorer.summary.length) {
+      const cacheFileData = fs.readJsonSync(summaryFileLocation, { throws: false });
+      
+      if (cacheFileData) {
+        api.explorer.summary = cacheFileData;
+        api.log('set summary from cache');
+      }
     }
 
     const _getSummary = () => {
@@ -354,11 +357,14 @@ module.exports = (api) => {
   };
 
   api.getOverview = () => {
-    const cacheFileData = fs.readJsonSync(overviewFileLocation, { throws: false });
-    
-    if (cacheFileData &&
-        cacheFileData.result) {
-      api.explorer.overview = cacheFileData.result;
+    if (!api.explorer.overview.length) {
+      const cacheFileData = fs.readJsonSync(overviewFileLocation, { throws: false });
+      
+      if (cacheFileData &&
+          cacheFileData.result) {
+        api.explorer.overview = cacheFileData.result;
+        api.log('set overview from cache');
+      }
     }
 
     const _getOverview = () => {
