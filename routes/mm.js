@@ -118,6 +118,7 @@ module.exports = (api) => {
     ethGasPrice: {},
     ticker: {},
     userpass: USERPASS,
+    updatedAt: null,
   };
 
   api.ratesRequestWrapper = (options) => {
@@ -287,6 +288,7 @@ module.exports = (api) => {
     }
 
     api.mm.extRates.parsed = _fiatRates;
+    api.mm.updatedAt = Date.now();
 
     fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
       if (err) {
@@ -302,8 +304,10 @@ module.exports = (api) => {
 
     const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
     
-    if (cacheFileData) {
+    if (cacheFileData &&
+        !api.mm.updatedAt) {
       api.mm = cacheFileData;
+      api.log('set mm from cache');
     }
 
     const _getCMCRates = () => {
@@ -770,6 +774,7 @@ module.exports = (api) => {
       let _callsCompleted = 0;
       let _coins = [];
 
+      api.mm.updatedAt = Date.now();
       api.mm.ordersUpdateInProgress = true;
 
       async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
@@ -828,6 +833,7 @@ module.exports = (api) => {
       let _orders = [];
       let _callsCompleted = 0;
 
+      api.mm.updatedAt = Date.now();
       api.mm.ordersUpdateInProgress = true;
 
       async.eachOfSeries(kmdPairs, (value, key, callback) => {
@@ -914,6 +920,8 @@ module.exports = (api) => {
       };
 
       request(options, (error, response, body) => {
+        api.mm.updatedAt = Date.now();
+
         if (response &&
             response.statusCode &&
             response.statusCode === 200) {
@@ -1046,6 +1054,7 @@ module.exports = (api) => {
       }
     }
 
+    api.mm.updatedAt = Date.now();
     api.mm.coins = coinsFile;
   }
 
@@ -1107,6 +1116,7 @@ module.exports = (api) => {
         } catch (e) {}
       }
 
+      api.mm.updatedAt = Date.now();
       api.mm.stats = {
         detailed: _outDetailed,
         simplified: _outSimplified,
@@ -1159,6 +1169,7 @@ module.exports = (api) => {
     }))
     .then(result => {
       ecl.close();
+      api.mm.updatedAt = Date.now();
 
       if (result &&
           result.length) {
@@ -1188,6 +1199,7 @@ module.exports = (api) => {
             const _parsedBody = JSON.parse(body);
             api.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             api.mm.btcFees.recommended = _parsedBody;
+            api.mm.updatedAt = Date.now();
           } catch (e) {
             api.log('unable to retrieve BTC fees / recommended');
           }
@@ -1211,6 +1223,7 @@ module.exports = (api) => {
             const _parsedBody = JSON.parse(body);
             api.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             api.mm.btcFees.all = _parsedBody;
+            api.mm.updatedAt = Date.now();
           } catch (e) {
             api.log('unable to retrieve BTC fees / all');
           }
@@ -1300,6 +1313,7 @@ module.exports = (api) => {
               btc: api.mm.fiatRates.BTC,
               usd: api.mm.fiatRates.USD,
             };
+            api.mm.updatedAt = Date.now();
             api.log(`kmd last price ${api.mm.fiatRates.BTC} btc`);
           }
           resolve();
@@ -1329,6 +1343,7 @@ module.exports = (api) => {
                 if (_ticker &&
                     _ticker.length) {
                   const _lastPrice = _ticker[_ticker.length - 1][4];
+                  api.mm.updatedAt = Date.now();
 
                   if (api.mm.fiatRates &&
                       api.mm.fiatRates.USD &&
@@ -1429,6 +1444,7 @@ module.exports = (api) => {
                   average: ethGasStationRateToWei(_json.average),
                   slow: ethGasStationRateToWei(_json.safeLow),
                 };
+                api.mm.updatedAt = Date.now();
 
                 resolve(api.mm.ethGasPrice);
               } else {
