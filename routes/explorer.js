@@ -33,6 +33,9 @@ const SUMMARY_UPDATE_INTERVAL = 600000; // every 10 min
 const MAX_REMOTE_EXPLORER_TIMEOUT = 10000;
 const SOCKET_MAX_TIMEOUT = 20000;
 
+const summaryFileLocation = path.join(__dirname, '../summary.json');
+const overviewFileLocation = path.join(__dirname, '../overview.json');
+
 // TODO: add search one time caching, per request basis
 
 let remoteExplorersArray = [];
@@ -102,6 +105,12 @@ module.exports = (api) => {
   });
 
   api.getSummary = () => {
+    const cacheFileData = fs.readJsonSync(summaryFileLocation, { throws: false });
+    
+    if (cacheFileData) {
+      api.explorer.summary = cacheFileData;
+    }
+
     const _getSummary = () => {
       let remoteExplorersFinished = {};
 
@@ -206,8 +215,6 @@ module.exports = (api) => {
         .then(__result => {
           if (result &&
               result.length) {
-            const summaryFileLocation = path.join(__dirname, '../summary.json');
-
             fs.writeFile(summaryFileLocation, JSON.stringify(result), (err) => {
               if (err) {
                 api.log(`error updating summary cache file ${err}`);
@@ -347,6 +354,13 @@ module.exports = (api) => {
   };
 
   api.getOverview = () => {
+    const cacheFileData = fs.readJsonSync(overviewFileLocation, { throws: false });
+    
+    if (cacheFileData &&
+        cacheFileData.result) {
+      api.explorer.overview = cacheFileData.result;
+    }
+
     const _getOverview = () => {
       let remoteExplorersFinished = {};
 
@@ -395,8 +409,6 @@ module.exports = (api) => {
 
         if (result &&
             result.length) {
-          const overviewFileLocation = path.join(__dirname, '../overview.json');
-
           // run insight explorers
           Promise.all(remoteExplorersArrayInsight.map((coin, index) => {
             return new Promise((resolve, reject) => {
