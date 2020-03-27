@@ -28,6 +28,9 @@ const _config = {
     wallet: true,
     fees: true,
   },
+  rates: {
+    useWget: false,
+  },
   insight: {
     maxTxLength: 50,
     KMD: {
