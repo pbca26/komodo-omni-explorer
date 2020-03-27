@@ -25,7 +25,7 @@ const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const ETH_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const USERPASS = '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f';
-const CACHE_FILE_NAME = 'mm_cache.json';
+const CACHE_FILE_NAME = path.join(__dirname, '../mm_cache.json');
 
 let electrumServers = [];
 
