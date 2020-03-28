@@ -28,6 +28,9 @@ const _config = {
     wallet: true,
     fees: true,
   },
+  rates: {
+    useWget: false,
+  },
   insight: {
     maxTxLength: 50,
     KMD: {
@@ -100,7 +103,7 @@ const _config = {
       url: 'https://dsec.kmdexplorer.io/insight-api-komodo',
     },
     VRSC: {
-      url: 'https://vrsc.kmdexplorer.io/insight-api-komodo',
+      url: 'https://vrsc.explorer.dexstats.info/insight-api-komodo',
     },
     KV: {
       url: 'https://kv.kmdexplorer.io/insight-api-komodo',

@@ -20,12 +20,12 @@ const pricesTickerMap = require('./pricesTickerMap');
 
 const PRICES_UPDATE_INTERVAL = 300000; // every 300s
 const ORDERS_UPDATE_INTERVAL = 30000; // every 30s
-const RATES_UPDATE_INTERVAL = 60000; // every 60s
+const RATES_UPDATE_INTERVAL = 500000; // every 500s
 const STATS_UPDATE_INTERVAL = 20; // every 20s
 const BTC_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const ETH_FEES_UPDATE_INTERVAL = 60000; // every 60s
 const USERPASS = '1d8b27b21efabcd96571cd56f91a40fb9aa4cc623d273c63bf9223dc6f8cd81f';
-const CACHE_FILE_NAME = 'mm_cache.json';
+const CACHE_FILE_NAME = path.join(__dirname, '../mm_cache.json');
 
 let electrumServers = [];
 
@@ -71,6 +71,11 @@ for (let key in config.electrumServersExtend) {
   }
 }
 
+if (!fs.existsSync('cache')) {
+  fs.mkdirSync('cache');
+}
+
+
 module.exports = (api) => {
   api.mm = {
     prices: {},
@@ -113,6 +118,37 @@ module.exports = (api) => {
     ethGasPrice: {},
     ticker: {},
     userpass: USERPASS,
+    updatedAt: null,
+  };
+
+  api.ratesRequestWrapper = (options) => {
+    return new Promise((resolve, reject) => {
+      if (config.rates.useWget) {
+        api.log(`wget ${options.url} -O ${options.outFname}`);
+  
+        exec(`wget ${options.url} -O ${options.outFname}`, () => {
+          fs.readFile(options.outFname, (err, data) => {
+            if (err) {
+              console.log(`unable to get file ${options.outFname}`);
+            }
+    
+            resolve(data);
+          });
+        });
+      } else {
+        api.log(`request ${options.url}`);
+  
+        request(options, (error, response, body) => {
+          if (response &&
+              response.statusCode &&
+              response.statusCode === 200) {
+            resolve(body);
+          } else {
+            resolve();
+          }
+        });
+      }
+    });
   };
 
   api.prepCMCRatesList = () => {
@@ -252,10 +288,11 @@ module.exports = (api) => {
     }
 
     api.mm.extRates.parsed = _fiatRates;
+    api.mm.updatedAt = Date.now();
 
     fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
       if (err) {
-        api.log(`error updating kv cache file ${err}`);
+        api.log(`error updating mm cache file ${err}`);
       }
     });
   };
@@ -267,8 +304,10 @@ module.exports = (api) => {
 
     const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
     
-    if (cacheFileData) {
+    if (cacheFileData &&
+        !api.mm.updatedAt) {
       api.mm = cacheFileData;
+      api.log('set mm from cache');
     }
 
     const _getCMCRates = () => {
@@ -320,34 +359,31 @@ module.exports = (api) => {
           const options = {
             url: _cgRatesList[i],
             method: 'GET',
+            outFname: `cache/rates-cg-p${i}`,
           };
 
-          request(options, (error, response, body) => {
-            if (response &&
-                response.statusCode &&
-                response.statusCode === 200) {
-              try {
-                const _parsedBody = JSON.parse(body);
+          api.ratesRequestWrapper(options)
+          .then((cgData) => {
+            try {
+              const _parsedBody = JSON.parse(cgData);
 
-                for (let i = 0; i < _parsedBody.length; i++) {
-                  api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].market_data.current_price.usd;
-                  api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
-                    src: 'coingecko',
-                    data: {
-                      percent_change_24h: Number(_parsedBody[i].market_data.price_change_percentage_24h),
-                      percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
-                    },
-                  };
-                  if (api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()]) {
-                    api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()];
-                  }
-                  api.mm.extRates.priceChangeAll.coingecko[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()];
+              for (let i = 0; i < _parsedBody.length; i++) {
+                api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].market_data.current_price.usd;
+                api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
+                  src: 'coingecko',
+                  data: {
+                    percent_change_24h: Number(_parsedBody[i].market_data.price_change_percentage_24h),
+                    percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
+                  },
+                };
+                if (api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()]) {
+                  api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()];
                 }
-                api.parseExtRates();
-              } catch (e) {
-                api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
+                api.mm.extRates.priceChangeAll.coingecko[_parsedBody[i].symbol.toUpperCase()] = api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()];
               }
-            } else {
+              api.parseExtRates();
+            } catch (e) {
+              console.log(e)
               api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
             }
           });
@@ -419,8 +455,8 @@ module.exports = (api) => {
     }
 
     _getKMDRates();
-    _getDPRates();
-    _getCMCRates();
+    //_getDPRates();
+    //_getCMCRates();
     _getCGRates();
     api.mmRatesInterval = setInterval(() => {
       fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.mm), (err) => {
@@ -429,9 +465,9 @@ module.exports = (api) => {
         }
       });
       _getKMDRates();
-      _getDPRates();
+      //_getDPRates();
       _getCGRates();
-      _getCMCRates();
+      //_getCMCRates();
     }, RATES_UPDATE_INTERVAL);
   }
 
@@ -738,6 +774,7 @@ module.exports = (api) => {
       let _callsCompleted = 0;
       let _coins = [];
 
+      api.mm.updatedAt = Date.now();
       api.mm.ordersUpdateInProgress = true;
 
       async.eachOfSeries(electrumServers, (electrumServerData, key, callback) => {
@@ -796,6 +833,7 @@ module.exports = (api) => {
       let _orders = [];
       let _callsCompleted = 0;
 
+      api.mm.updatedAt = Date.now();
       api.mm.ordersUpdateInProgress = true;
 
       async.eachOfSeries(kmdPairs, (value, key, callback) => {
@@ -882,6 +920,8 @@ module.exports = (api) => {
       };
 
       request(options, (error, response, body) => {
+        api.mm.updatedAt = Date.now();
+
         if (response &&
             response.statusCode &&
             response.statusCode === 200) {
@@ -1014,6 +1054,7 @@ module.exports = (api) => {
       }
     }
 
+    api.mm.updatedAt = Date.now();
     api.mm.coins = coinsFile;
   }
 
@@ -1075,6 +1116,7 @@ module.exports = (api) => {
         } catch (e) {}
       }
 
+      api.mm.updatedAt = Date.now();
       api.mm.stats = {
         detailed: _outDetailed,
         simplified: _outSimplified,
@@ -1127,6 +1169,7 @@ module.exports = (api) => {
     }))
     .then(result => {
       ecl.close();
+      api.mm.updatedAt = Date.now();
 
       if (result &&
           result.length) {
@@ -1156,6 +1199,7 @@ module.exports = (api) => {
             const _parsedBody = JSON.parse(body);
             api.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             api.mm.btcFees.recommended = _parsedBody;
+            api.mm.updatedAt = Date.now();
           } catch (e) {
             api.log('unable to retrieve BTC fees / recommended');
           }
@@ -1179,6 +1223,7 @@ module.exports = (api) => {
             const _parsedBody = JSON.parse(body);
             api.mm.btcFees.lastUpdated = Math.floor(Date.now() / 1000);
             api.mm.btcFees.all = _parsedBody;
+            api.mm.updatedAt = Date.now();
           } catch (e) {
             api.log('unable to retrieve BTC fees / all');
           }
@@ -1268,6 +1313,7 @@ module.exports = (api) => {
               btc: api.mm.fiatRates.BTC,
               usd: api.mm.fiatRates.USD,
             };
+            api.mm.updatedAt = Date.now();
             api.log(`kmd last price ${api.mm.fiatRates.BTC} btc`);
           }
           resolve();
@@ -1297,6 +1343,7 @@ module.exports = (api) => {
                 if (_ticker &&
                     _ticker.length) {
                   const _lastPrice = _ticker[_ticker.length - 1][4];
+                  api.mm.updatedAt = Date.now();
 
                   if (api.mm.fiatRates &&
                       api.mm.fiatRates.USD &&
@@ -1397,6 +1444,7 @@ module.exports = (api) => {
                   average: ethGasStationRateToWei(_json.average),
                   slow: ethGasStationRateToWei(_json.safeLow),
                 };
+                api.mm.updatedAt = Date.now();
 
                 resolve(api.mm.ethGasPrice);
               } else {
