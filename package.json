@@ -29,7 +29,7 @@
     "changelly_api": "git://github.com/pbca26/api-changelly.git",
     "coinselect": "github:bitcoinjs/coinselect",
     "compression": "^1.7.2",
-    "express": "^4.14.0",
+    "express": "^4.16.0",
     "fs-extra": "^7.0.0",
     "request": "^2.88.0"
   }
