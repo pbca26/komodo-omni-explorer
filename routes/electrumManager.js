@@ -67,7 +67,7 @@ getServer = async(coin, excludeServer) => {
     } catch (e) {
       randomServerStr = config.electrumServersExtend[coin].serverList.length > 1 ? config.electrumServersExtend[coin].serverList[getRandomIntInclusive(0, config.electrumServersExtend[coin].serverList.length - 1)].split(':') : config.electrumServersExtend[coin].serverList[0].split(':');
     }
-    _api.log('ecl server doesnt exist yet, lets add')
+    _api.log('ecl server doesnt exist yet, lets add');
 
     const ecl = new electrumJSCore(randomServerStr[1], randomServerStr[0], randomServerStr[2]);
     _api.log(`ecl conn ${randomServerStr}`);
@@ -128,6 +128,45 @@ module.exports = (api) => {
 
     api.log('ecl stack =>');
     api.log(api.eclStack);
+  };
+
+  api.initElectrumManager = () => {
+    setInterval(() => {
+      for (let coin in electrumServers) {
+        api.log(`ecl check coin ${coin}`);
+
+        for (let serverStr in electrumServers[coin]) {
+          const pingSecPassed = checkTimestamp(electrumServers[coin][serverStr].lastPing);
+          api.log(`ping sec passed ${pingSecPassed}`);
+          
+          if (pingSecPassed > PING_TIME) {
+            api.log(`ecl ${coin} ${serverStr} ping limit passed, send ping`);
+
+            getProtocolVersion(electrumServers[coin][serverStr].server)
+            .then((eclProtocolVersion) => {
+              if (eclProtocolVersion === 'sent') {
+                api.log(`ecl ${coin} ${serverStr} ping success`);
+                electrumServers[coin][serverStr].lastPing = Date.now();
+              } else {
+                api.log(`ecl ${coin} ${serverStr} ping fail, remove server`);
+                delete electrumServers[coin][serverStr];
+              }
+            });
+          }
+
+          const reqSecPassed = checkTimestamp(electrumServers[coin][serverStr].lastReq);
+          api.log(`req sec passed ${reqSecPassed}`);
+          
+          if (reqSecPassed > MAX_IDLE_TIME) {
+            api.log(`ecl ${coin} ${serverStr} req limit passed, disconnect server`);
+            electrumServers[coin][serverStr].server.close();
+            delete electrumServers[coin][serverStr];
+          }
+        }
+      }
+
+      //api.checkOpenElectrumConnections();
+    }, CHECK_INTERVAL);
   };
 
   return api;
