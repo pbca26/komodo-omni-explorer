@@ -16,6 +16,7 @@ const PING_TIME = 60;
 // TODO: reconnect/cycle if electrum server is not responding
 
 let electrumServers = {};
+let _api;
 
 getProtocolVersion = (_ecl, api) => {
   let protocolVersion;
@@ -56,8 +57,52 @@ getProtocolVersion = (_ecl, api) => {
   });
 };
 
+// TODO: exclude server option
+getServer = async(coin, excludeServer) => {
+  if (!electrumServers[coin] || (electrumServers[coin] && !Object.keys(electrumServers[coin]).length)) {
+    let randomServerStr;
+    
+    try {
+      randomServerStr = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, config.electrumServers[coin].serverList.length - 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
+    } catch (e) {
+      randomServerStr = config.electrumServersExtend[coin].serverList.length > 1 ? config.electrumServersExtend[coin].serverList[getRandomIntInclusive(0, config.electrumServersExtend[coin].serverList.length - 1)].split(':') : config.electrumServersExtend[coin].serverList[0].split(':');
+    }
+    _api.log('ecl server doesnt exist yet, lets add')
+
+    const ecl = new electrumJSCore(randomServerStr[1], randomServerStr[0], randomServerStr[2]);
+    _api.log(`ecl conn ${randomServerStr}`);
+    ecl.connect();
+    _api.log(`ecl req protocol ${randomServerStr}`);
+    const eclProtocolVersion = await getProtocolVersion(ecl, _api);
+    
+    if (!electrumServers[coin]) {
+      electrumServers[coin] = {};
+    }
+
+    electrumServers[coin][randomServerStr.join(':')] = {
+      server: ecl,
+      lastReq: Date.now(),
+      lastPing: Date.now(),
+    };
+
+    //console.log(electrumServers)
+
+    return electrumServers[coin][randomServerStr.join(':')].server;
+  } else {
+    _api.log(`ecl ${coin} server exists`);
+    let ecl = Object.keys(electrumServers[coin]) > 1 ? electrumServers[coin][Object.keys(electrumServers[coin])[getRandomIntInclusive(0, Object.keys(electrumServers[coin]).length - 1)]] : electrumServers[coin][Object.keys(electrumServers[coin])[0]];
+    ecl.lastReq = Date.now();
+    return ecl.server;
+  }
+};
+
 module.exports = (api) => {
+  _api = api;
   api.eclStack = [];
+
+  api.ecl = {
+    getServer,
+  };
 
   api.checkOpenElectrumConnections = () => {
     api.log('ecl stack check =>');
@@ -83,12 +128,6 @@ module.exports = (api) => {
 
     api.log('ecl stack =>');
     api.log(api.eclStack);
-  };
-
-  api.initElectrumManager = () => {
-    setInterval(() => {
-      api.checkOpenElectrumConnections();
-    }, CHECK_INTERVAL);
   };
 
   return api;
