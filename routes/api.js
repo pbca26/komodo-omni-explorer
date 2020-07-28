@@ -22,6 +22,9 @@ api.log = (msg, data) => {
   }
 }
 
+api = require('./electrumManager.js')(api);
+api.initElectrumManager();
+
 if (config.modules.explorer ||
     config.modules.faucet ||
     config.modules.kv) {
