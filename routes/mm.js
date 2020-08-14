@@ -384,7 +384,7 @@ module.exports = (api) => {
               }
               api.parseExtRates();
             } catch (e) {
-              console.log(e)
+              console.log(e);
               api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
             }
           });
@@ -1147,38 +1147,36 @@ module.exports = (api) => {
   });
 
   api.getBTCElectrumFees = () => {
-    const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
-    const ecl = new electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
-    let _btcFeeEstimates = [];
+    (async function() { 
+      const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
+      const ecl = await api.ecl.getServer('btc');
+      let _btcFeeEstimates = [];
 
-    api.log(`btc fees server ${_randomServer.join(':')}`);
+      api.log(`btc fees server ${_randomServer.join(':')}`);
+      
+      Promise.all(btcFeeBlocks.map((coin, index) => {
+        return new Promise((resolve, reject) => {
+          ecl.blockchainEstimatefee(index + 1)
+          .then((json) => {
+            resolve(true);
 
-    ecl.connect();
-    api.addElectrumConnection(ecl);
-    
-    Promise.all(btcFeeBlocks.map((coin, index) => {
-      return new Promise((resolve, reject) => {
-        ecl.blockchainEstimatefee(index + 1)
-        .then((json) => {
-          resolve(true);
-
-          if (json > 0) {
-            _btcFeeEstimates.push(Math.floor(toSats(json / 1024)));
-          }
+            if (json > 0) {
+              _btcFeeEstimates.push(Math.floor(toSats(json / 1024)));
+            }
+          });
         });
-      });
-    }))
-    .then(result => {
-      ecl.close();
-      api.mm.updatedAt = Date.now();
+      }))
+      .then(result => {
+        api.mm.updatedAt = Date.now();
 
-      if (result &&
-          result.length) {
-        api.mm.btcFees.electrum = _btcFeeEstimates;
-      } else {
-        api.mm.btcFees.electrum = 'error';
-      }
-    });
+        if (result &&
+            result.length) {
+          api.mm.btcFees.electrum = _btcFeeEstimates;
+        } else {
+          api.mm.btcFees.electrum = 'error';
+        }
+      });
+    })();
   };
 
   api.getBTCFees = () => {

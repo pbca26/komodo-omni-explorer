@@ -2,7 +2,7 @@
 MIT License
 
 Copyright (c) 2017 Yuki Akiyama
-Copyright (c) 2017 - 2019 SuperNET
+Copyright (c) 2017 - 2020 SuperNET
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -159,7 +159,12 @@ const initSocket = (self, protocol, options) => {
 }
 
 class Client {
-  constructor(port, host, protocol = 'tcp', options = void 0) {
+  constructor(
+    port,
+    host,
+    protocol = 'tcp',
+    options = void 0
+  ) {
     this.id = 0;
     this.port = port;
     this.host = host;
@@ -300,21 +305,10 @@ class ElectrumJSCore extends Client {
   // ref: http://docs.electrum.org/en/latest/protocol.html
   serverVersion(client_name, protocol_version) {
     let params = [];
+    if (client_name) params.push(client_name);
+    else params.push('');
 
-    if (client_name &&
-        protocol_version) {
-      params = [client_name, protocol_version];
-    } else if (
-      !client_name &&
-      protocol_version
-    ) {
-      params = ['', protocol_version];
-    } else if (
-      client_name &&
-      !protocol_version
-    ) {
-      params = [''];
-    }
+    if (protocol_version) params.push(protocol_version.toString());
 
     return this.request('server.version', params);
   }

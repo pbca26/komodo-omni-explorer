@@ -111,22 +111,17 @@ module.exports = (api) => {
         const addressCheck = api.checkFaucetOutAddress(coin, req.query.address);
 
         if (addressCheck === true) {
-          const network = 'komodo';
-          const outputAddress = req.query.address;
-          const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
-          const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
-
-          const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
-          const keys = {
-            priv: keyPair.toWIF(),
-            pub: keyPair.getAddress(),
-          };
-
-          ecl.connect();
-          api.addElectrumConnection(ecl);
-
           (async function() {
-            const serverProtocolVersion = await api.getServerVersion(ecl);
+            const network = 'komodo';
+            const outputAddress = req.query.address;
+            const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
+            const ecl = await api.ecl.getServer(coin);
+  
+            const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
+            const keys = {
+              priv: keyPair.toWIF(),
+              pub: keyPair.getAddress(),
+            };
             const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(keys.pub, config.komodoParams) : keys.pub;
                       
             ecl.blockchainAddressListunspent(_address)
@@ -242,8 +237,6 @@ module.exports = (api) => {
 
                   ecl.blockchainTransactionBroadcast(rawtx)
                   .then((txid) => {
-                    ecl.close();
-
                     api.log(txid);
 
                     if (JSON.stringify(txid) &&
@@ -310,8 +303,6 @@ module.exports = (api) => {
                     }
                   });
                 } else {
-                  ecl.close();
-
                   const retObj = {
                     msg: 'error',
                     result: 'tx error',
@@ -321,8 +312,6 @@ module.exports = (api) => {
                   res.end(JSON.stringify(retObj));
                 }
               } else {
-                ecl.close();
-
                 const retObj = {
                   msg: 'error',
                   result: 'no valid utxo',

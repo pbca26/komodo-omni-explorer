@@ -185,22 +185,17 @@ module.exports = (api) => {
         api.log('kvDecode', api.kvDecode(_encodedContent));
 
         if (_encodedContent) {
-          const coin = 'kv';
-          const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
-          const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
-
-          const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);
-          const keys = {
-            priv: keyPair.toWIF(),
-            pub: keyPair.getAddress(),
-          };
-          const outputAddress = keys.pub;
-
-          ecl.connect();
-          api.addElectrumConnection(ecl);
-          
           (async function() {
-            const serverProtocolVersion = await api.getServerVersion(ecl);
+            const coin = 'kv';
+            const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
+            const ecl = await api.ecl.getServer(coin);
+  
+            const keyPair = bitcoin.ECPair.fromWIF(config.kv.wif, config.komodoParams);
+            const keys = {
+              priv: keyPair.toWIF(),
+              pub: keyPair.getAddress(),
+            };
+            const outputAddress = keys.pub;
             const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(keys.pub, config.komodoParams) : keys.pub;
             
             ecl.blockchainAddressListunspent(_address)
@@ -247,8 +242,6 @@ module.exports = (api) => {
 
                 ecl.blockchainTransactionBroadcast(_tx)
                 .then((txid) => {
-                  ecl.close();
-
                   api.log(`txid ${JSON.stringify(txid)}`);
 
                   if (txid &&
@@ -310,8 +303,6 @@ module.exports = (api) => {
                   }
                 });
               } else {
-                ecl.close();
-
                 const retObj = {
                   msg: 'error',
                   result: 'no valid utxo',
@@ -343,7 +334,6 @@ module.exports = (api) => {
       pub: keyPair.getAddress(),
     };
     const randomServer = config.electrumServers[network].serverList[getRandomIntInclusive(0, 1)].split(':');
-    const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
     const MAX_TX = 3000;
     const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
     
@@ -353,11 +343,9 @@ module.exports = (api) => {
     
     const _kvLoop = () => {
       api.log('kv history');
-
-      ecl.connect();
-      api.addElectrumConnection(ecl);
       
       (async function() {
+        const ecl = await api.ecl.getServer(network);
         const serverProtocolVersion = await api.getServerVersion(ecl);
         const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(keys.pub, config.komodoParams) : keys.pub;
         
@@ -436,8 +424,6 @@ module.exports = (api) => {
                         }
 
                         if (ind === json.length - 1) {
-                          ecl.close();
-
                           if (_rawtx) {
                             api.kv.cache.txs = _rawtx;
                           }
@@ -449,8 +435,6 @@ module.exports = (api) => {
                   });
                 });
               } else {
-                ecl.close();
-
                 api.kv.cache.txs = [];
               }
             });
