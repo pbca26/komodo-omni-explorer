@@ -369,14 +369,6 @@ module.exports = (api) => {
               const _parsedBody = JSON.parse(cgData);
 
               for (let i = 0; i < _parsedBody.length; i++) {
-                /*api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].market_data.current_price.usd;
-                api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
-                  src: 'coingecko',
-                  data: {
-                    percent_change_24h: Number(_parsedBody[i].market_data.price_change_percentage_24h),
-                    percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
-                  },
-                };*/
                 api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].current_price;
                 api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
                   src: 'coingecko',

@@ -174,6 +174,9 @@ const _config = {
     COMMOD: {
       url: 'http://commod.explorer.dexstats.info/insight-api-komodo',
     },
+    MCL: {
+      url: 'http://mcl.explorer.dexstats.info/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
