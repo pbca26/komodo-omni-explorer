@@ -5,6 +5,10 @@ const execFile = require('child_process').execFile;
 const request = require('request');
 
 const RPC_CONF_UPDATE_TIMEOUT = 300000;
+const sleepInterval = 1;
+const sleep = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 module.exports = (api) => {
   api.getConf = (chain) => {  
@@ -52,6 +56,8 @@ module.exports = (api) => {
 
   api.callCli = (chain, method, params) => {
     return new Promise(async(resolve, reject) => {
+      await sleep(sleepInterval);
+
       const payload = {
         cmd: method,
         params,
