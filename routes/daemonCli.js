@@ -36,6 +36,10 @@ module.exports = (api) => {
             parsedRpcConfig.pass = _match[1];
           }
 
+          if (_match = _rpcConf.match(/rpcport=\s*(.*)/)) {
+            parsedRpcConfig.port = _match[1];
+          }
+
           api.rpcConf[chain === 'komodod' ? 'KMD' : chain] = parsedRpcConfig;
         } else {
           api.log(`${_confLocation} is empty`, 'native.confd');
@@ -47,7 +51,7 @@ module.exports = (api) => {
   }
 
   api.callCli = (chain, method, params) => {
-    return new Promise(async(resolve, reject) => {      
+    return new Promise(async(resolve, reject) => {
       const payload = {
         cmd: method,
         params,
