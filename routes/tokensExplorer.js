@@ -4,6 +4,10 @@ const fs = require('fs-extra');
 const path = require('path');
 const async = require('async');
 const {kmd} = require('agama-wallet-lib/src/bitcoinjs-networks');
+const {
+  pubkeyToAddress,
+  addressVersionCheck,
+} = require('agama-wallet-lib/src/keys');
 
 const CACHE_FILE_NAME = 'tokens_cache.json';
 //const ccId = '98b9b5f291988f8292842636a68781fd30e0b2521a0d426914f8eb748a4a5fb9';
@@ -32,6 +36,24 @@ module.exports = (api) => {
             if (tokenInfo.hasOwnProperty('result')) {
               console.log(JSON.stringify(tokenInfo.result, null, 2));
               api.tokens[chain][tokensList.result[i]] = tokenInfo.result;
+              api.tokens[chain][tokensList.result[i]].ownerAddress = pubkeyToAddress(tokenInfo.result.owner, kmd);
+              // request additional cctx data
+              const txInfo = JSON.parse(await api.callCli(chain, 'getrawtransaction', [tokensList.result[i], 1]));
+              
+              if (txInfo.hasOwnProperty('result')) {
+                console.log(JSON.stringify(txInfo.result, null, 2));
+                api.tokens[chain][tokensList.result[i]].blocktime = txInfo.result.blocktime;
+                api.tokens[chain][tokensList.result[i]].height = txInfo.result.height;
+                api.tokens[chain][tokensList.result[i]].confirmations = txInfo.result.confirmations;
+                api.tokens[chain][tokensList.result[i]].rawconfirmations = txInfo.result.rawconfirmations;
+                api.tokens[chain][tokensList.result[i]].blockhash = txInfo.result.blockhash;
+                
+                fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.tokens), (err) => {
+                  if (err) {
+                    api.log(`error updating tokens cache file ${err}`);
+                  }
+                });
+              }
             }
           }
         }
