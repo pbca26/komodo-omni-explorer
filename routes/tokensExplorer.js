@@ -105,5 +105,13 @@ module.exports = (api) => {
     }));
   });
 
+  api.initTokens = () => {
+    const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
+    
+    if (cacheFileData) {
+      api.tokens = cacheFileData;
+    }
+  };
+
   return api;
 };
