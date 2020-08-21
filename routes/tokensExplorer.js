@@ -20,6 +20,15 @@ const CACHE_FILE_NAME = 'tokens_cache.json';
 //       - sync chain tip
 
 module.exports = (api) => {
+  api.syncTransactions = async(chain, ccId, start, end) => {
+    if (!api.tokens[chain]) api.tokens[chain] = {};
+    if (!api.tokens[chain][ccId]) api.tokens[chain][ccId] = {};
+    if (!api.tokens[chain][ccId].addresses) api.tokens[chain][ccId]['addresses'] = {};
+    if (!api.tokens[chain][ccId].balances) api.tokens[chain][ccId]['balances'] = {};
+    if (!api.tokens[chain][ccId].transactions) api.tokens[chain][ccId]['transactions'] = {};
+    if (!api.tokens[chain][ccId].transactionsAll) api.tokens[chain][ccId]['transactionsAll'] = {};
+  };
+
   api.syncTokenChain = async(chain) => {
     try {
       const tokensList = JSON.parse(await api.callCli(chain, 'tokenlist'));
@@ -47,6 +56,7 @@ module.exports = (api) => {
                 api.tokens[chain][tokensList.result[i]].confirmations = txInfo.result.confirmations;
                 api.tokens[chain][tokensList.result[i]].rawconfirmations = txInfo.result.rawconfirmations;
                 api.tokens[chain][tokensList.result[i]].blockhash = txInfo.result.blockhash;
+                api.tokens[chain][tokensList.result[i]].syncedHeight = 0;
                 
                 fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.tokens), (err) => {
                   if (err) {
@@ -69,6 +79,7 @@ module.exports = (api) => {
                   endHeight = getInfo.result.blocks;
     
                   console.log(`${chain} sync all txs for token ID ${tokensList.result[i]}, startheight = ${startHeight}, endheight = ${endHeight}`);
+                  api.syncTransactions(chain, tokensList.result[i], startHeight, endHeight);
                 }
               }
             }
@@ -88,6 +99,7 @@ module.exports = (api) => {
               endHeight = getInfo.result.blocks;
 
               console.log(`${chain} sync all txs for token ID ${tokensList.result[i]}, startheight = ${startHeight}, endheight = ${endHeight}`);
+              api.syncTransactions(chain, tokensList.result[i], startHeight, endHeight);
             }
           }
         }
