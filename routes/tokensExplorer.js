@@ -53,7 +53,41 @@ module.exports = (api) => {
                     api.log(`error updating tokens cache file ${err}`);
                   }
                 });
+
+                let startHeight, endHeight;
+                
+                if (!api.tokens[chain][tokensList.result[i]].syncedHeight) {
+                  startHeight = api.tokens[chain][tokensList.result[i]].height;
+                } else {
+                  startHeight = api.tokens[chain][tokensList.result[i]].syncedHeight;
+                }
+    
+                const getInfo = JSON.parse(await api.callCli(chain, 'getinfo'));
+                
+                if (getInfo.hasOwnProperty('result')) {
+                  //console.log(JSON.stringify(getInfo.result, null, 2));
+                  endHeight = getInfo.result.blocks;
+    
+                  console.log(`${chain} sync all txs for token ID ${tokensList.result[i]}, startheight = ${startHeight}, endheight = ${endHeight}`);
+                }
               }
+            }
+          } else {
+            let startHeight, endHeight;
+
+            if (!api.tokens[chain][tokensList.result[i]].syncedHeight) {
+              startHeight = api.tokens[chain][tokensList.result[i]].height;
+            } else {
+              startHeight = api.tokens[chain][tokensList.result[i]].syncedHeight;
+            }
+
+            const getInfo = JSON.parse(await api.callCli(chain, 'getinfo'));
+            
+            if (getInfo.hasOwnProperty('result')) {
+              //console.log(JSON.stringify(getInfo.result, null, 2));
+              endHeight = getInfo.result.blocks;
+
+              console.log(`${chain} sync all txs for token ID ${tokensList.result[i]}, startheight = ${startHeight}, endheight = ${endHeight}`);
             }
           }
         }
