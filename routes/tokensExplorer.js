@@ -27,6 +27,52 @@ module.exports = (api) => {
     if (!api.tokens[chain][ccId].balances) api.tokens[chain][ccId]['balances'] = {};
     if (!api.tokens[chain][ccId].transactions) api.tokens[chain][ccId]['transactions'] = {};
     if (!api.tokens[chain][ccId].transactionsAll) api.tokens[chain][ccId]['transactionsAll'] = {};
+
+    try {
+      for (let i = 0; i <= Math.abs(start - end); i++) {
+        console.log('get block ' + (start + i));
+        const blocks = JSON.parse(await api.callCli(chain, 'getblock', [(start + i).toString()]));
+        
+        if (blocks.hasOwnProperty('result')) {
+          const txids = blocks.result.tx;
+
+          for (let j = 0; j < txids.length; j++) {
+            let isCCTransfer = false;
+            let value = [], receiver = [], sender;
+            //console.log('get raw tx ' + txids[j]);
+            const rawtx = JSON.parse(await api.callCli(chain, 'getrawtransaction', [txids[j], 1]));
+
+            if (rawtx.hasOwnProperty('result')) {
+              //console.log(JSON.stringify(rawtx.result, null, 2));
+
+              if (JSON.stringify(rawtx.result).indexOf('OP_CHECKCRYPTOCONDITION') > -1) {
+                //console.log('CC TX');
+
+                for (let a = 0; a < rawtx.result.vout.length; a++) {
+                  if (JSON.stringify(rawtx.result.vout[a]).indexOf('"cryptocondition"') > -1) {
+                    console.log('CC VOUT n=' + rawtx.result.vout[a].n);
+                    console.log('CC VOUT val=' + rawtx.result.vout[a].valueSat);
+                    value.push(rawtx.result.vout[a].valueSat);
+                    console.log('CC VOUT ccaddress=' + rawtx.result.vout[a].scriptPubKey.addresses[0]);
+                    receiver.push(rawtx.result.vout[a].scriptPubKey.addresses[0]);
+                  }
+                }
+              }
+            }
+          }
+
+          api.tokens[chain][ccId].syncedHeight = start + i;
+
+          fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.tokens), (err) => {
+            if (err) {
+              api.log(`error updating tokens cache file ${err}`);
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   api.syncTokenChain = async(chain) => {
