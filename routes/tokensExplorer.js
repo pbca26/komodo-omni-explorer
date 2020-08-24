@@ -38,7 +38,7 @@ module.exports = (api) => {
 
           for (let j = 0; j < txids.length; j++) {
             let isCCTransfer = false;
-            let value = [], receiver = [], sender;
+            let value = [], receiver = [], sender, fundingTx;
             //console.log('get raw tx ' + txids[j]);
             const rawtx = JSON.parse(await api.callCli(chain, 'getrawtransaction', [txids[j], 1]));
 
@@ -55,6 +55,20 @@ module.exports = (api) => {
                     value.push(rawtx.result.vout[a].valueSat);
                     console.log('CC VOUT ccaddress=' + rawtx.result.vout[a].scriptPubKey.addresses[0]);
                     receiver.push(rawtx.result.vout[a].scriptPubKey.addresses[0]);
+                  }
+                }
+
+                if (isCCTransfer) {
+                  console.log('CC token transfer from ' + rawtx.result.vin[1].address);
+                  sender = rawtx.result.vin[1].address;
+                  if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(sender) === -1) api.tokens[chain][ccId].addresses[sender] = [];
+                  if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].addresses[receiver[0]] = [];
+                  if (Object.keys(api.tokens[chain][ccId].balances).indexOf(sender) === -1) api.tokens[chain][ccId].balances[sender] = 0;
+                  if (Object.keys(api.tokens[chain][ccId].balances).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].balances[receiver[0]] = 0;                  
+                } else {
+                  if (ccId === txids[j]) {
+                    console.log('CC contract ' + ccId + ' funding tx = ' + rawtx.result.vout[1].valueSat + ' tokens' + ', funding address ' + rawtx.result.vout[1].scriptPubKey.addresses[0]);
+                    api.tokens[chain][ccId].balances[rawtx.result.vout[1].scriptPubKey.addresses[0]] = Number(rawtx.result.vout[1].valueSat);
                   }
                 }
               }
