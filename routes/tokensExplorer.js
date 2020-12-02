@@ -64,7 +64,58 @@ module.exports = (api) => {
                   if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(sender) === -1) api.tokens[chain][ccId].addresses[sender] = [];
                   if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].addresses[receiver[0]] = [];
                   if (Object.keys(api.tokens[chain][ccId].balances).indexOf(sender) === -1) api.tokens[chain][ccId].balances[sender] = 0;
-                  if (Object.keys(api.tokens[chain][ccId].balances).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].balances[receiver[0]] = 0;                  
+                  if (Object.keys(api.tokens[chain][ccId].balances).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].balances[receiver[0]] = 0;
+                  
+                  if (Object.keys(api.tokens[chain][ccId].transactionsAll).indexOf(txids[j]) === -1) {
+                    api.tokens[chain][ccId].transactionsAll[txids[j]] = {
+                      from: sender,
+                      to: receiver[0],
+                      value: value[0],
+                      confirmations: rawtx.result.confirmations,
+                      rawconfirmations: rawtx.result.rawconfirmations,
+                      height: rawtx.result.blockheight,
+                      blockhash: rawtx.result.blockhash,
+                      txid: txids[j],
+                      time: rawtx.result.blocktime,
+                    };
+                  }
+
+                  if (api.tokens[chain][ccId].addresses[sender].indexOf(txids[j]) === -1) {
+                    api.tokens[chain][ccId].addresses[sender].push(txids[j]);
+
+                    if (!api.tokens[chain][ccId].transactions[sender]) api.tokens[chain][ccId].transactions[sender] = [];
+                    
+                    api.tokens[chain][ccId].transactions[sender].push({
+                      to: receiver[0],
+                      value: value[0],
+                      confirmations: rawtx.result.confirmations,
+                      rawconfirmations: rawtx.result.rawconfirmations,
+                      height: rawtx.result.blockheight,
+                      blockhash: rawtx.result.blockhash,
+                      txid: txids[j],
+                      time: rawtx.result.blocktime,
+                    });
+                  }
+
+                  if (api.tokens[chain][ccId].addresses[receiver[0]].indexOf(txids[j]) === -1) {
+                    api.tokens[chain][ccId].addresses[receiver[0]].push(txids[j]);
+
+                    if (!api.tokens[chain][ccId].transactions[receiver[0]]) api.tokens[chain][ccId].transactions[receiver[0]] = [];
+                    
+                    api.tokens[chain][ccId].transactions[receiver[0]].push({
+                      from: sender,
+                      value: value[0],
+                      confirmations: rawtx.result.confirmations,
+                      rawconfirmations: rawtx.result.rawconfirmations,
+                      height: rawtx.result.blockheight,
+                      blockhash: rawtx.result.blockhash,
+                      txid: txids[j],
+                      time: rawtx.result.blocktime,
+                    });
+                  }
+
+                  api.tokens[chain][ccId].balances[sender] -= Number(value[0]);
+                  api.tokens[chain][ccId].balances[receiver[0]] += Number(value[0]);
                 } else {
                   if (ccId === txids[j]) {
                     console.log('CC contract ' + ccId + ' funding tx = ' + rawtx.result.vout[1].valueSat + ' tokens' + ', funding address ' + rawtx.result.vout[1].scriptPubKey.addresses[0]);
