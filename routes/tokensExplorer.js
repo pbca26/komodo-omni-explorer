@@ -19,6 +19,19 @@ const CACHE_FILE_NAME = 'tokens_cache.json';
 //       - get min height to scan txs from across available token ids
 //       - sync chain tip
 
+const minHeight = (tokensData) => {
+  let min = tokensData[Object.keys(tokensData)[0]].height;
+
+  for (let x in tokensData) {
+    console.log(tokensData[x]);
+    if (tokensData[x].height < min) min = tokensData[x].height;
+  }
+
+  console.log(`min height ${min}`);
+
+  return min;
+};
+
 module.exports = (api) => {
   api.syncTransactions = async(chain, ccId, start, end) => {
     if (!api.tokens[chain]) api.tokens[chain] = {};
