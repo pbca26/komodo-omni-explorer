@@ -233,6 +233,64 @@ module.exports = (api) => {
     }
   };
 
+  api.syncTokensInfo = async(chain) => {
+    try {
+      const tokensList = JSON.parse(await api.callCli(chain, 'tokenlist'));
+
+      if (tokensList.hasOwnProperty('result')) {
+        if (!api.tokens[chain]) api.tokens[chain] = {};
+
+        console.log(JSON.stringify(tokensList.result, null, 2));
+
+        for (let i = 0; i < tokensList.result.length; i++) {
+          if (!api.tokens[chain][tokensList.result[i]]) {
+            const tokenInfo = JSON.parse(await api.callCli(chain, 'tokeninfo', [tokensList.result[i]]));
+
+            if (tokenInfo.hasOwnProperty('result')) {
+              console.log(JSON.stringify(tokenInfo.result, null, 2));
+              api.tokens[chain][tokensList.result[i]] = tokenInfo.result;
+              api.tokens[chain][tokensList.result[i]].ownerAddress = pubkeyToAddress(tokenInfo.result.owner, kmd);
+              // request additional cctx data
+              const txInfo = JSON.parse(await api.callCli(chain, 'getrawtransaction', [tokensList.result[i], 1]));
+              
+              if (txInfo.hasOwnProperty('result')) {
+                console.log(JSON.stringify(txInfo.result, null, 2));
+                api.tokens[chain][tokensList.result[i]].blocktime = txInfo.result.blocktime;
+                api.tokens[chain][tokensList.result[i]].height = txInfo.result.height;
+                api.tokens[chain][tokensList.result[i]].confirmations = txInfo.result.confirmations;
+                api.tokens[chain][tokensList.result[i]].rawconfirmations = txInfo.result.rawconfirmations;
+                api.tokens[chain][tokensList.result[i]].blockhash = txInfo.result.blockhash;
+                api.tokens[chain][tokensList.result[i]].syncedHeight = 0;
+                
+                fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.tokens), (err) => {
+                  if (err) {
+                    api.log(`error updating tokens cache file ${err}`);
+                  }
+                });
+              }
+            }
+          }
+        }
+
+        // keep in mem obj with tokens info
+        let tokensInfo = JSON.parse(JSON.stringify(api.tokens));
+        
+        for (let key1 in tokensInfo) {
+          for (let key2 in tokensInfo[key1]) {
+            delete tokensInfo[key1][key2].addresses;
+            delete tokensInfo[key1][key2].balances;
+            delete tokensInfo[key1][key2].transactions;
+            delete tokensInfo[key1][key2].transactionsAll;
+          }
+        }
+
+        api.tokensInfo = tokensInfo;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   api.get('/tokens', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
