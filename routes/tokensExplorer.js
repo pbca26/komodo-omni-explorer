@@ -91,7 +91,7 @@ module.exports = (api) => {
           const txids = blocks.result.tx;
 
           for (let j = 0; j < txids.length; j++) {
-            let isCCTransfer = false;
+            let isCCTransfer = false, isCCOnChainDexOrder = false;
             let value = [], receiver = [], sender, fundingTx;
             //console.log('get raw tx ' + txids[j]);
             const rawtx = JSON.parse(await api.callCli(chain, 'getrawtransaction', [txids[j], 1]));
@@ -112,26 +112,40 @@ module.exports = (api) => {
                   }
                 }
 
+                if (rawtx.result.vin.length === 2 || (rawtx.result.vin.length === 3 && rawtx.result.vout[0].value === 0 && rawtx.result.vout.length >= 4)) {
+                  isCCOnChainDexOrder = false;
+                } else {
+                  isCCOnChainDexOrder = true;
+                }
+
                 if (isCCTransfer) {
-                  console.log('CC token transfer from ' + rawtx.result.vin[1].address);
-                  sender = rawtx.result.vin[1].address;
-                  if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(sender) === -1) api.tokens[chain][ccId].addresses[sender] = [];
-                  if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].addresses[receiver[0]] = [];
-                  if (Object.keys(api.tokens[chain][ccId].balances).indexOf(sender) === -1) api.tokens[chain][ccId].balances[sender] = 0;
-                  if (Object.keys(api.tokens[chain][ccId].balances).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].balances[receiver[0]] = 0;
-                  
-                  if (Object.keys(api.tokens[chain][ccId].transactionsAll).indexOf(txids[j]) === -1) {
-                    api.tokens[chain][ccId].transactionsAll[txids[j]] = {
-                      from: sender,
-                      to: receiver[0],
-                      value: value[0],
-                      confirmations: rawtx.result.confirmations,
-                      rawconfirmations: rawtx.result.rawconfirmations,
-                      height: rawtx.result.blockheight,
-                      blockhash: rawtx.result.blockhash,
-                      txid: txids[j],
-                      time: rawtx.result.blocktime,
-                    };
+                  if (!isCCOnChainDexOrder &&
+                    rawtx.result.vin[1] &&
+                    rawtx.result.vin[1].hasOwnProperty('address') &&
+                    (process.argv.indexOf('reindex') > -1 || (process.argv.indexOf('reindex') === -1 && api.tokenOrdersFlat[chain] && api.tokenOrdersFlat[chain].indexOf(txids[j]) === -1))) {
+                  if (rawtx.result.vin.length === 3 && rawtx.result.vout[0].value === 0 && rawtx.result.vout.length >= 4) {
+                    console.log('CC DEX buy from ' + rawtx.result.vin[2].address + ' at price ' + rawtx.result.vin[1].value + ' ' + chain + ', tokens received ' + rawtx.result.vout[2].valueSat + ' to address ' + rawtx.result.vout[2].scriptPubKey.addresses[0]);
+                    sender = rawtx.result.vin[2].address;
+                    receiver[0] = rawtx.result.vout[2].scriptPubKey.addresses[0];
+                    value[0] = rawtx.result.vout[2].valueSat;
+
+                    if (Object.keys(api.tokens[chain][ccId].dexTrades).indexOf(txids[j]) === -1) {
+                      api.tokens[chain][ccId].dexTrades[txids[j]] = {
+                        from: sender,
+                        to: receiver[0],
+                        value: value[0],
+                        confirmations: rawtx.result.confirmations,
+                        rawconfirmations: rawtx.result.rawconfirmations,
+                        height: rawtx.result.height,
+                        blockhash: rawtx.result.blockhash,
+                        txid: txids[j],
+                        time: rawtx.result.blocktime,
+                        price: rawtx.result.vin[1].value,
+                      };
+                    }
+                  } else {
+                    console.log('CC token transfer from ' + rawtx.result.vin[1].address);
+                    sender = rawtx.result.vin[1].address;
                   }
 
                   if (api.tokens[chain][ccId].addresses[sender].indexOf(txids[j]) === -1) {
