@@ -9,6 +9,8 @@ const {
   addressVersionCheck,
 } = require('agama-wallet-lib/src/keys');
 
+const SYNC_INTERVAL = 10; // seconds
+const MEMPOOL_SYNC_INTERVAL = 2; // seconds
 const CACHE_FILE_NAME = 'tokens_cache.json';
 //const ccId = '98b9b5f291988f8292842636a68781fd30e0b2521a0d426914f8eb748a4a5fb9';
 
@@ -33,6 +35,26 @@ const minHeight = (tokensData) => {
 };
 
 module.exports = (api) => {
+  api.syncTokenOrders = async(chain) => {
+    const tokenOrders = JSON.parse(await api.callCli(chain, 'tokenorders'));
+
+    if (!api.tokenOrdersFlat[chain]) api.tokenOrdersFlat[chain] = [];
+    
+    if (tokenOrders.hasOwnProperty('result')) {
+      console.log('[tokenorders]');
+      console.log(JSON.stringify(tokenOrders, null, 2));
+
+      for (let i = 0; i < tokenOrders.result.length; i++) {
+        if (tokenOrders.result[i].funcid === 'b' &&
+            api.tokenOrdersFlat[chain].indexOf(tokenOrders.result[i].txid) === -1) {
+          api.tokenOrdersFlat[chain].push(tokenOrders.result[i].txid);
+        }
+      }
+    }
+
+    console.log(JSON.stringify(api.tokenOrdersFlat, null, 2));
+  };
+    
   api.syncMempool = async(chain) => {
     const rawMempool = JSON.parse(await api.callCli(chain, 'getrawmempool'));
 
