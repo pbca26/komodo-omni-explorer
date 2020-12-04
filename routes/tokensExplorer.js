@@ -305,6 +305,23 @@ module.exports = (api) => {
     if (cacheFileData) {
       api.tokens = cacheFileData;
     }
+
+    api.pathsDaemons();
+
+    const sync_tokens = async() => {
+      for (let i = 0; i < config.tokens.length; i++) {
+        const chain = config.tokens[i];
+        api.confFileIndex[chain] = `${api.paths.kmdDir}/${chain}/${chain}.conf`;
+        console.log(api.confFileIndex);
+        console.log(api.getConf(chain));
+        console.log(api.rpcConf);
+
+        await api.syncTokensInfo(chain);
+        console.log(`${chain} finished syncing tokens`);
+      }
+      
+      sync_tokens();
+    }
   };
 
   return api;
