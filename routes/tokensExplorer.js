@@ -33,6 +33,25 @@ const minHeight = (tokensData) => {
 };
 
 module.exports = (api) => {
+  api.syncMempool = async(chain) => {
+    const rawMempool = JSON.parse(await api.callCli(chain, 'getrawmempool'));
+
+    if (!api.tokensMempool[chain]) api.tokensMempool[chain] = {};
+    
+    if (rawMempool.hasOwnProperty('result')) {
+      console.log('[mempool]');
+      console.log(JSON.stringify(rawMempool, null, 2));
+
+      for (let i = 0; i < rawMempool.result.length; i++) {
+        if (!api.tokensMempool[chain].hasOwnProperty(rawMempool.result[i])) {
+          api.tokensMempool[chain][rawMempool.result[i]] = false;
+        }
+      }
+
+      api.syncTransactions(chain, true);
+    }
+  };
+
   api.syncTransactions = async(chain, ccId, start, end) => {
     if (!api.tokens[chain]) api.tokens[chain] = {};
     if (!api.tokens[chain][ccId]) api.tokens[chain][ccId] = {};
