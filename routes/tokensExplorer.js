@@ -354,7 +354,7 @@ module.exports = (api) => {
     }));
   });
 
-  api.initTokens = () => {
+  api.initTokens = async() => {
     const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
     
     if (cacheFileData) {
@@ -362,7 +362,8 @@ module.exports = (api) => {
     }
 
     api.pathsDaemons();
-
+    console.log(JSON.stringify(api.paths, null, 2));
+  
     const sync_tokens = async() => {
       for (let i = 0; i < config.tokens.length; i++) {
         const chain = config.tokens[i];
@@ -371,11 +372,41 @@ module.exports = (api) => {
         console.log(api.getConf(chain));
         console.log(api.rpcConf);
 
+        if (process.argv.indexOf('reindex') === -1) {
+          await api.syncTokenOrders(chain);
+        }
         await api.syncTokensInfo(chain);
+        await api.syncTransactions(chain);
+        if (process.argv.indexOf('reindex') === -1) {
+          api.syncMempool(chain);
+        }
         console.log(`${chain} finished syncing tokens`);
       }
       
-      sync_tokens();
+      isRestarted = false;
+      
+      setTimeout(() => {
+        sync_tokens();
+      }, SYNC_INTERVAL * 1000);
+    }
+
+    const sync_mempool = async() => {
+      for (let i = 0; i < config.tokens.length; i++) {
+        const chain = config.tokens[i];
+        api.confFileIndex[chain] = `${api.paths.kmdDir}/${chain}/${chain}.conf`;
+        api.syncTokenOrders(chain);
+        api.syncMempool(chain);
+        
+        console.log(`${chain} finished syncing mempool`);
+      }
+    }
+
+    sync_tokens();
+    if (process.argv.indexOf('reindex') === -1) {
+      sync_mempool();
+      setInterval(() => {
+        sync_mempool();
+      }, MEMPOOL_SYNC_INTERVAL * 1000);
     }
   };
 
