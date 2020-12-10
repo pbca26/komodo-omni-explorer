@@ -74,34 +74,58 @@ module.exports = (api) => {
     }
   };
 
-  api.syncTransactions = async(chain, ccId, start, end) => {
-    if (!api.tokens[chain]) api.tokens[chain] = {};
-    if (!api.tokens[chain][ccId]) api.tokens[chain][ccId] = {};
-    if (!api.tokens[chain][ccId].addresses) api.tokens[chain][ccId]['addresses'] = {};
-    if (!api.tokens[chain][ccId].balances) api.tokens[chain][ccId]['balances'] = {};
-    if (!api.tokens[chain][ccId].transactions) api.tokens[chain][ccId]['transactions'] = {};
-    if (!api.tokens[chain][ccId].transactionsAll) api.tokens[chain][ccId]['transactionsAll'] = {};
-
+  api.syncTransactions = async(chain, syncMempool) => {    
     try {
-      for (let i = 0; i <= Math.abs(start - end); i++) {
-        console.log('get block ' + (start + i));
-        const blocks = JSON.parse(await api.callCli(chain, 'getblock', [(start + i).toString()]));
+      const getInfo = JSON.parse(await api.callCli(chain, 'getinfo'));
+      let start = api.tokens[chain][Object.keys(api.tokens[chain])[0]].syncedHeight || minHeight(api.tokens[chain]), end;
+      // start = 544000;
+      // in case of a restart resync starting from last 2 blocks
+      if (isRestarted && api.tokens[chain][Object.keys(api.tokens[chain])[0]].syncedHeight) start = start - RESTART_PAST_BLOCKS_LOOKUP;
+      
+      if (getInfo.hasOwnProperty('result')) {
+        //console.log(JSON.stringify(getInfo.result, null, 2));
+        end = getInfo.result.blocks;
+      }
+
+      console.log(`${chain} sync all txs, startheight = ${start}, endheight = ${end}`);
+      
+      const processTransactions = async(_start, blocks) => {
+        let mempoolTxs = [];
+
+        if (syncMempool) {
+          for (let mempoolTxid in api.tokensMempool[chain]) {
+            if (api.tokensMempool[chain][mempoolTxid] === false) {
+              mempoolTxs.push(mempoolTxid);
+            }
+          }
+
+          console.log('process mempool txs = ' + mempoolTxs.length);
+        }
         
-        if (blocks.hasOwnProperty('result')) {
-          const txids = blocks.result.tx;
+        const txids = blocks ? blocks.result.tx : mempoolTxs;
+        
+        for (let j = 0; j < txids.length; j++) {
+          //console.log('get raw tx ' + txids[j]);
+          const rawtx = JSON.parse(await api.callCli(chain, 'getrawtransaction', [txids[j], 1]));
 
-          for (let j = 0; j < txids.length; j++) {
-            let isCCTransfer = false, isCCOnChainDexOrder = false;
-            let value = [], receiver = [], sender, fundingTx;
-            //console.log('get raw tx ' + txids[j]);
-            const rawtx = JSON.parse(await api.callCli(chain, 'getrawtransaction', [txids[j], 1]));
+          if (rawtx.hasOwnProperty('result')) {
+            //console.log(JSON.stringify(rawtx.result, null, 2));
 
-            if (rawtx.hasOwnProperty('result')) {
-              //console.log(JSON.stringify(rawtx.result, null, 2));
+            if (JSON.stringify(rawtx.result).indexOf('OP_CHECKCRYPTOCONDITION') > -1) {
+              //console.log('CC TX');
+              for (let cc = 0; cc < Object.keys(api.tokens[chain]).length; cc++) {
+                const ccId = Object.keys(api.tokens[chain])[cc];
+                let isCCTransfer = false, isCCOnChainDexOrder = false;
+                let value = [], receiver = [], sender, fundingTx; // TODO: append funging tx to tx history
 
-              if (JSON.stringify(rawtx.result).indexOf('OP_CHECKCRYPTOCONDITION') > -1) {
-                //console.log('CC TX');
-
+                if (!api.tokens[chain]) api.tokens[chain] = {};
+                if (!api.tokens[chain][ccId]) api.tokens[chain][ccId] = {};
+                if (!api.tokens[chain][ccId].addresses) api.tokens[chain][ccId]['addresses'] = {};
+                if (!api.tokens[chain][ccId].balances) api.tokens[chain][ccId]['balances'] = {};
+                if (!api.tokens[chain][ccId].transactions) api.tokens[chain][ccId]['transactions'] = {};
+                if (!api.tokens[chain][ccId].transactionsAll) api.tokens[chain][ccId]['transactionsAll'] = {};
+                if (!api.tokens[chain][ccId].dexTrades) api.tokens[chain][ccId]['dexTrades'] = {};
+                
                 for (let a = 0; a < rawtx.result.vout.length; a++) {
                   if (JSON.stringify(rawtx.result.vout[a]).indexOf('"cryptocondition"') > -1) {
                     console.log('CC VOUT n=' + rawtx.result.vout[a].n);
@@ -109,6 +133,13 @@ module.exports = (api) => {
                     value.push(rawtx.result.vout[a].valueSat);
                     console.log('CC VOUT ccaddress=' + rawtx.result.vout[a].scriptPubKey.addresses[0]);
                     receiver.push(rawtx.result.vout[a].scriptPubKey.addresses[0]);
+                  }
+
+                  if (rawtx.result.vout[a].scriptPubKey.hex.indexOf(ccId) > -1) {
+                    isCCTransfer = true;
+                    console.log('CC token transfer ' + ccId);
+                    console.log('CC token transfer destpub=' + (rawtx.result.vout[a].scriptPubKey.hex.substr(rawtx.result.vout[a].scriptPubKey.hex.length - 66, 66)));
+                    console.log('CC token transfer destpubaddress=' + pubkeyToAddress(rawtx.result.vout[a].scriptPubKey.hex.substr(rawtx.result.vout[a].scriptPubKey.hex.length - 66, 66), kmd));
                   }
                 }
 
@@ -120,19 +151,82 @@ module.exports = (api) => {
 
                 if (isCCTransfer) {
                   if (!isCCOnChainDexOrder &&
-                    rawtx.result.vin[1] &&
-                    rawtx.result.vin[1].hasOwnProperty('address') &&
-                    (process.argv.indexOf('reindex') > -1 || (process.argv.indexOf('reindex') === -1 && api.tokenOrdersFlat[chain] && api.tokenOrdersFlat[chain].indexOf(txids[j]) === -1))) {
-                  if (rawtx.result.vin.length === 3 && rawtx.result.vout[0].value === 0 && rawtx.result.vout.length >= 4) {
-                    console.log('CC DEX buy from ' + rawtx.result.vin[2].address + ' at price ' + rawtx.result.vin[1].value + ' ' + chain + ', tokens received ' + rawtx.result.vout[2].valueSat + ' to address ' + rawtx.result.vout[2].scriptPubKey.addresses[0]);
-                    sender = rawtx.result.vin[2].address;
-                    receiver[0] = rawtx.result.vout[2].scriptPubKey.addresses[0];
-                    value[0] = rawtx.result.vout[2].valueSat;
+                      rawtx.result.vin[1] &&
+                      rawtx.result.vin[1].hasOwnProperty('address') &&
+                      (process.argv.indexOf('reindex') > -1 || (process.argv.indexOf('reindex') === -1 && api.tokenOrdersFlat[chain] && api.tokenOrdersFlat[chain].indexOf(txids[j]) === -1))) {
+                    if (rawtx.result.vin.length === 3 && rawtx.result.vout[0].value === 0 && rawtx.result.vout.length >= 4) {
+                      console.log('CC DEX buy from ' + rawtx.result.vin[2].address + ' at price ' + rawtx.result.vin[1].value + ' ' + chain + ', tokens received ' + rawtx.result.vout[2].valueSat + ' to address ' + rawtx.result.vout[2].scriptPubKey.addresses[0]);
+                      sender = rawtx.result.vin[2].address;
+                      receiver[0] = rawtx.result.vout[2].scriptPubKey.addresses[0];
+                      value[0] = rawtx.result.vout[2].valueSat;
 
-                    if (Object.keys(api.tokens[chain][ccId].dexTrades).indexOf(txids[j]) === -1) {
-                      api.tokens[chain][ccId].dexTrades[txids[j]] = {
-                        from: sender,
+                      if (Object.keys(api.tokens[chain][ccId].dexTrades).indexOf(txids[j]) === -1) {
+                        api.tokens[chain][ccId].dexTrades[txids[j]] = {
+                          from: sender,
+                          to: receiver[0],
+                          value: value[0],
+                          confirmations: rawtx.result.confirmations,
+                          rawconfirmations: rawtx.result.rawconfirmations,
+                          height: rawtx.result.height,
+                          blockhash: rawtx.result.blockhash,
+                          txid: txids[j],
+                          time: rawtx.result.blocktime,
+                          price: rawtx.result.vin[1].value,
+                        };
+                      }
+                    } else {
+                      console.log('CC token transfer from ' + rawtx.result.vin[1].address);
+                      sender = rawtx.result.vin[1].address;
+                    }
+
+                    if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(sender) === -1) api.tokens[chain][ccId].addresses[sender] = [];
+                    if (Object.keys(api.tokens[chain][ccId].addresses).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].addresses[receiver[0]] = [];
+                    if (Object.keys(api.tokens[chain][ccId].balances).indexOf(sender) === -1) api.tokens[chain][ccId].balances[sender] = 0;
+                    if (Object.keys(api.tokens[chain][ccId].balances).indexOf(receiver[0]) === -1) api.tokens[chain][ccId].balances[receiver[0]] = 0;
+                    
+                    if (sender !== receiver[0] && Object.keys(api.tokens[chain][ccId].transactionsAll).indexOf(txids[j]) === -1) {
+                      api.tokens[chain][ccId].balances[sender] -= Number(value[0]);
+                      api.tokens[chain][ccId].balances[receiver[0]] += Number(value[0]);
+                    }
+
+                    api.tokens[chain][ccId].transactionsAll[txids[j]] = {
+                      from: sender,
+                      to: receiver[0],
+                      value: value[0],
+                      confirmations: rawtx.result.confirmations,
+                      rawconfirmations: rawtx.result.rawconfirmations,
+                      height: rawtx.result.height,
+                      blockhash: rawtx.result.blockhash,
+                      txid: txids[j],
+                      time: rawtx.result.blocktime,
+                    };
+
+                    if (!api.tokens[chain][ccId].transactions[sender]) api.tokens[chain][ccId].transactions[sender] = [];
+                    if (api.tokens[chain][ccId].addresses[sender].indexOf(txids[j]) === -1) {
+                      api.tokens[chain][ccId].addresses[sender].push(txids[j]);
+                    }
+
+                    api.tokens[chain][ccId].transactions[sender].push({
+                      from: sender,
+                      to: receiver[0],
+                      value: value[0],
+                      confirmations: rawtx.result.confirmations,
+                      rawconfirmations: rawtx.result.rawconfirmations,
+                      height: rawtx.result.height,
+                      blockhash: rawtx.result.blockhash,
+                      txid: txids[j],
+                      time: rawtx.result.blocktime,
+                    });
+
+                    if (!api.tokens[chain][ccId].transactions[receiver[0]]) api.tokens[chain][ccId].transactions[receiver[0]] = [];
+                    if (sender !== receiver[0] && api.tokens[chain][ccId].addresses[receiver[0]].indexOf(txids[j]) === -1) {
+                      api.tokens[chain][ccId].addresses[receiver[0]].push(txids[j]);
+                    }
+
+                    if (sender !== receiver[0]) {
+                      api.tokens[chain][ccId].transactions[receiver[0]].push({
                         to: receiver[0],
+                        from: sender,
                         value: value[0],
                         confirmations: rawtx.result.confirmations,
                         rawconfirmations: rawtx.result.rawconfirmations,
@@ -140,50 +234,12 @@ module.exports = (api) => {
                         blockhash: rawtx.result.blockhash,
                         txid: txids[j],
                         time: rawtx.result.blocktime,
-                        price: rawtx.result.vin[1].value,
-                      };
+                      });
                     }
                   } else {
-                    console.log('CC token transfer from ' + rawtx.result.vin[1].address);
-                    sender = rawtx.result.vin[1].address;
+                    console.log('CC token onchain exchange');
+                    // TODO: collect and process such transactions
                   }
-
-                  if (api.tokens[chain][ccId].addresses[sender].indexOf(txids[j]) === -1) {
-                    api.tokens[chain][ccId].addresses[sender].push(txids[j]);
-
-                    if (!api.tokens[chain][ccId].transactions[sender]) api.tokens[chain][ccId].transactions[sender] = [];
-                    
-                    api.tokens[chain][ccId].transactions[sender].push({
-                      to: receiver[0],
-                      value: value[0],
-                      confirmations: rawtx.result.confirmations,
-                      rawconfirmations: rawtx.result.rawconfirmations,
-                      height: rawtx.result.blockheight,
-                      blockhash: rawtx.result.blockhash,
-                      txid: txids[j],
-                      time: rawtx.result.blocktime,
-                    });
-                  }
-
-                  if (api.tokens[chain][ccId].addresses[receiver[0]].indexOf(txids[j]) === -1) {
-                    api.tokens[chain][ccId].addresses[receiver[0]].push(txids[j]);
-
-                    if (!api.tokens[chain][ccId].transactions[receiver[0]]) api.tokens[chain][ccId].transactions[receiver[0]] = [];
-                    
-                    api.tokens[chain][ccId].transactions[receiver[0]].push({
-                      from: sender,
-                      value: value[0],
-                      confirmations: rawtx.result.confirmations,
-                      rawconfirmations: rawtx.result.rawconfirmations,
-                      height: rawtx.result.blockheight,
-                      blockhash: rawtx.result.blockhash,
-                      txid: txids[j],
-                      time: rawtx.result.blocktime,
-                    });
-                  }
-
-                  api.tokens[chain][ccId].balances[sender] -= Number(value[0]);
-                  api.tokens[chain][ccId].balances[receiver[0]] += Number(value[0]);
                 } else {
                   if (ccId === txids[j]) {
                     console.log('CC contract ' + ccId + ' funding tx = ' + rawtx.result.vout[1].valueSat + ' tokens' + ', funding address ' + rawtx.result.vout[1].scriptPubKey.addresses[0]);
@@ -194,14 +250,33 @@ module.exports = (api) => {
             }
           }
 
-          api.tokens[chain][ccId].syncedHeight = start + i;
-
-          fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.tokens), (err) => {
-            if (err) {
-              api.log(`error updating tokens cache file ${err}`);
-            }
-          });
+          if (api.tokensMempool[chain] && api.tokensMempool[chain].hasOwnProperty(txids[j])) api.tokensMempool[chain][txids[j]] = true;
         }
+
+        if (_start) {
+          for (let xc = 0; xc < Object.keys(api.tokens[chain]).length; xc++) {
+            api.tokens[chain][Object.keys(api.tokens[chain])[xc]].syncedHeight = _start;
+          }
+        }
+
+        fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.tokens), (err) => {
+          if (err) {
+            api.log(`error updating tokens cache file ${err}`);
+          }
+        });
+      };
+
+      if (!syncMempool) {
+        for (let i = 0; i <= Math.abs(start - end); i++) {
+          console.log('get block ' + (start + i));
+          const blocks = JSON.parse(await api.callCli(chain, 'getblock', [(start + i).toString()]));
+          
+          if (blocks.hasOwnProperty('result')) {
+            processTransactions(start + i, blocks);
+          }
+        }
+      } else {
+        processTransactions();
       }
     } catch (e) {
       console.log(e);
