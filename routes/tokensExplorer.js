@@ -522,6 +522,71 @@ module.exports = (api) => {
     }
   });
 
+  api.get('/tokens/address/balance', (req, res, next) => {
+    if (!req.query.address) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing address param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else if (!req.query.chain) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing chain param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else if (!req.query.cctxid) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing token ID param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else if (
+      req.query.address &&
+      req.query.chain &&
+      req.query.cctxid
+    ) {
+      const address = req.query.address;
+      const chain = req.query.chain;
+      const ccTokenId = req.query.cctxid;
+      const addressCheck = addressVersionCheck(kmd, address);
+
+      if (addressCheck === true) {
+        if (api.tokens[chain.toUpperCase()][ccTokenId]) {
+          const retObj = {
+            msg: 'success',
+            result: api.tokens[chain.toUpperCase()][ccTokenId].balances[address] ? api.tokens[chain.toUpperCase()][ccTokenId].balances[address] : 0,
+          };
+    
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: 'No such token ID exists',
+          };
+    
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      } else {
+        const retObj = {
+          msg: 'error',
+          result: 'Incorrect smart chain address',
+        };
+  
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(retObj));
+      }
+    }
+  });
+
   api.initTokens = async() => {
     const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
     
