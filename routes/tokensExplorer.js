@@ -429,6 +429,36 @@ module.exports = (api) => {
     }));
   });
 
+  api.get('/tokens/richlist', (req, res, next) => {
+    const ccTokenId = req.query.cctxid;
+
+    if (!ccTokenId) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing token ID param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else {
+      let tokenData;
+      let chain;
+      
+      for (let chains in api.tokens) {
+        if (api.tokens[chains][ccTokenId]) {
+          chain = chains;
+          tokenData = api.tokens[chains][ccTokenId];
+        }
+      }
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: tokenData && tokenData.balances ? {chain, balances: tokenData.balances} : 'No such token exists',
+      }));
+    }
+  });
+
   api.initTokens = async() => {
     const cacheFileData = fs.readJsonSync(CACHE_FILE_NAME, { throws: false });
     
