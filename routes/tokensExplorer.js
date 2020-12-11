@@ -11,15 +11,14 @@ const {
 
 const SYNC_INTERVAL = 10; // seconds
 const MEMPOOL_SYNC_INTERVAL = 2; // seconds
+const RESTART_PAST_BLOCKS_LOOKUP = 5;
 const CACHE_FILE_NAME = 'tokens_cache.json';
+let isRestarted = true;
 //const ccId = '98b9b5f291988f8292842636a68781fd30e0b2521a0d426914f8eb748a4a5fb9';
 
 // 2nd vin 24 chars offset 66 chars = sender pubkey
-// TODO: - cc token address balance check
-//       - cc token address transactions
-//       - mempool
-//       - get min height to scan txs from across available token ids
-//       - sync chain tip
+// TODO: - address balance/transactions across all tokens for a specific chain
+//       - flag contract creator cc address
 
 const minHeight = (tokensData) => {
   let min = tokensData[Object.keys(tokensData)[0]].height;
@@ -54,7 +53,7 @@ module.exports = (api) => {
 
     console.log(JSON.stringify(api.tokenOrdersFlat, null, 2));
   };
-    
+
   api.syncMempool = async(chain) => {
     const rawMempool = JSON.parse(await api.callCli(chain, 'getrawmempool'));
 
@@ -283,86 +282,6 @@ module.exports = (api) => {
     }
   };
 
-  api.syncTokenChain = async(chain) => {
-    try {
-      const tokensList = JSON.parse(await api.callCli(chain, 'tokenlist'));
-
-      if (tokensList.hasOwnProperty('result')) {
-        if (!api.tokens[chain]) api.tokens[chain] = {};
-
-        console.log(JSON.stringify(tokensList.result, null, 2));
-
-        for (let i = 0; i < tokensList.result.length; i++) {
-          if (!api.tokens[chain][tokensList.result[i]]) {
-            const tokenInfo = JSON.parse(await api.callCli(chain, 'tokeninfo', [tokensList.result[i]]));
-
-            if (tokenInfo.hasOwnProperty('result')) {
-              console.log(JSON.stringify(tokenInfo.result, null, 2));
-              api.tokens[chain][tokensList.result[i]] = tokenInfo.result;
-              api.tokens[chain][tokensList.result[i]].ownerAddress = pubkeyToAddress(tokenInfo.result.owner, kmd);
-              // request additional cctx data
-              const txInfo = JSON.parse(await api.callCli(chain, 'getrawtransaction', [tokensList.result[i], 1]));
-              
-              if (txInfo.hasOwnProperty('result')) {
-                console.log(JSON.stringify(txInfo.result, null, 2));
-                api.tokens[chain][tokensList.result[i]].blocktime = txInfo.result.blocktime;
-                api.tokens[chain][tokensList.result[i]].height = txInfo.result.height;
-                api.tokens[chain][tokensList.result[i]].confirmations = txInfo.result.confirmations;
-                api.tokens[chain][tokensList.result[i]].rawconfirmations = txInfo.result.rawconfirmations;
-                api.tokens[chain][tokensList.result[i]].blockhash = txInfo.result.blockhash;
-                api.tokens[chain][tokensList.result[i]].syncedHeight = 0;
-                
-                fs.writeFile(CACHE_FILE_NAME, JSON.stringify(api.tokens), (err) => {
-                  if (err) {
-                    api.log(`error updating tokens cache file ${err}`);
-                  }
-                });
-
-                let startHeight, endHeight;
-                
-                if (!api.tokens[chain][tokensList.result[i]].syncedHeight) {
-                  startHeight = api.tokens[chain][tokensList.result[i]].height;
-                } else {
-                  startHeight = api.tokens[chain][tokensList.result[i]].syncedHeight;
-                }
-    
-                const getInfo = JSON.parse(await api.callCli(chain, 'getinfo'));
-                
-                if (getInfo.hasOwnProperty('result')) {
-                  //console.log(JSON.stringify(getInfo.result, null, 2));
-                  endHeight = getInfo.result.blocks;
-    
-                  console.log(`${chain} sync all txs for token ID ${tokensList.result[i]}, startheight = ${startHeight}, endheight = ${endHeight}`);
-                  api.syncTransactions(chain, tokensList.result[i], startHeight, endHeight);
-                }
-              }
-            }
-          } else {
-            let startHeight, endHeight;
-
-            if (!api.tokens[chain][tokensList.result[i]].syncedHeight) {
-              startHeight = api.tokens[chain][tokensList.result[i]].height;
-            } else {
-              startHeight = api.tokens[chain][tokensList.result[i]].syncedHeight;
-            }
-
-            const getInfo = JSON.parse(await api.callCli(chain, 'getinfo'));
-            
-            if (getInfo.hasOwnProperty('result')) {
-              //console.log(JSON.stringify(getInfo.result, null, 2));
-              endHeight = getInfo.result.blocks;
-
-              console.log(`${chain} sync all txs for token ID ${tokensList.result[i]}, startheight = ${startHeight}, endheight = ${endHeight}`);
-              api.syncTransactions(chain, tokensList.result[i], startHeight, endHeight);
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   api.syncTokensInfo = async(chain) => {
     try {
       const tokensList = JSON.parse(await api.callCli(chain, 'tokenlist'));
@@ -420,47 +339,6 @@ module.exports = (api) => {
       console.log(e);
     }
   };
-
-  api.get('/tokens', (req, res, next) => {
-    const chain = req.query.chain ? req.query.chain.toUpperCase() : null;
-    const ccTokenId = req.query.cctxid;
-
-    if (chain && !ccTokenId) {
-      res.set({ 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        msg: 'success',
-        result: api.tokensInfo[chain] ? api.tokensInfo[chain] : 'No tokens found on this chain',
-      }));
-    } else if (
-      chain && ccTokenId
-    ) {
-      let tokenInfo;
-
-      for (let chains in api.tokensInfo) {
-        if (api.tokensInfo[chains][ccTokenId]) tokenInfo = api.tokensInfo[chains][ccTokenId];
-      }
-
-      res.set({ 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        msg: 'success',
-        result: tokenInfo || 'No such token exists',
-      }));
-    } else {
-      res.set({ 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        msg: 'success',
-        result: api.tokensInfo,
-      }));
-    }
-  });
-
-  api.get('/tokens/all', (req, res, next) => {
-    res.set({ 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({
-      msg: 'success',
-      result: api.tokens,
-    }));
-  });
 
   api.get('/tokens/richlist', (req, res, next) => {
     const ccTokenId = req.query.cctxid;
@@ -522,6 +400,47 @@ module.exports = (api) => {
     }
   });
 
+  api.get('/tokens', (req, res, next) => {
+    const chain = req.query.chain ? req.query.chain.toUpperCase() : null;
+    const ccTokenId = req.query.cctxid;
+
+    if (chain && !ccTokenId) {
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: api.tokensInfo[chain] ? api.tokensInfo[chain] : 'No tokens found on this chain',
+      }));
+    } else if (
+      chain && ccTokenId
+    ) {
+      let tokenInfo;
+
+      for (let chains in api.tokensInfo) {
+        if (api.tokensInfo[chains][ccTokenId]) tokenInfo = api.tokensInfo[chains][ccTokenId];
+      }
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: tokenInfo || 'No such token exists',
+      }));
+    } else {
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: api.tokensInfo,
+      }));
+    }
+  });
+
+  api.get('/tokens/all', (req, res, next) => {
+    res.set({ 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      msg: 'success',
+      result: api.tokens,
+    }));
+  });
+
   api.get('/tokens/address/balance', (req, res, next) => {
     if (!req.query.address) {
       const retObj = {
@@ -566,6 +485,82 @@ module.exports = (api) => {
     
           res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(retObj));
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: 'No such token ID exists',
+          };
+    
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
+      } else {
+        const retObj = {
+          msg: 'error',
+          result: 'Incorrect smart chain address',
+        };
+  
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(retObj));
+      }
+    }
+  });
+
+  api.get('/tokens/address/transactions', (req, res, next) => {
+    if (!req.query.address) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing address param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else if (!req.query.chain) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing chain param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else if (!req.query.cctxid) {
+      const retObj = {
+        msg: 'error',
+        result: 'Missing token ID param',
+      };
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(retObj));
+    } else if (
+      req.query.address &&
+      req.query.chain &&
+      req.query.cctxid
+    ) {
+      const address = req.query.address;
+      const chain = req.query.chain;
+      const ccTokenId = req.query.cctxid;
+      const addressCheck = addressVersionCheck(kmd, address);
+      const txid = req.query.txid;
+
+      if (addressCheck === true) {
+        if (api.tokens[chain.toUpperCase()][ccTokenId]) {
+          if (txid) {
+            const retObj = {
+              msg: 'success',
+              result: api.tokens[chain.toUpperCase()][ccTokenId].transactions[address] && api.tokens[chain.toUpperCase()][ccTokenId].transactions[address].filter(x => x.txid === txid).length ? api.tokens[chain.toUpperCase()][ccTokenId].transactions[address].filter(x => x.txid === txid)[0] : 'Transaction doesn\'t exist',
+            };
+      
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(retObj));
+          } else {
+            const retObj = {
+              msg: 'success',
+              result: api.tokens[chain.toUpperCase()][ccTokenId].transactions[address] ? api.tokens[chain.toUpperCase()][ccTokenId].transactions[address] : [],
+            };
+      
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(retObj));
+          }
         } else {
           const retObj = {
             msg: 'error',
