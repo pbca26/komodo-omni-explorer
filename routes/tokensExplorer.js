@@ -422,6 +422,39 @@ module.exports = (api) => {
   };
 
   api.get('/tokens', (req, res, next) => {
+    const chain = req.query.chain ? req.query.chain.toUpperCase() : null;
+    const ccTokenId = req.query.cctxid;
+
+    if (chain && !ccTokenId) {
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: api.tokensInfo[chain] ? api.tokensInfo[chain] : 'No tokens found on this chain',
+      }));
+    } else if (
+      chain && ccTokenId
+    ) {
+      let tokenInfo;
+
+      for (let chains in api.tokensInfo) {
+        if (api.tokensInfo[chains][ccTokenId]) tokenInfo = api.tokensInfo[chains][ccTokenId];
+      }
+
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: tokenInfo || 'No such token exists',
+      }));
+    } else {
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        msg: 'success',
+        result: api.tokensInfo,
+      }));
+    }
+  });
+
+  api.get('/tokens/all', (req, res, next) => {
     res.set({ 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       msg: 'success',
