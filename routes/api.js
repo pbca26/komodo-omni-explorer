@@ -10,6 +10,9 @@ api.explorer = {
 api.confFileIndex = {};
 api.rpcConf = {};
 api.tokens = {};
+api.tokensMempool = {};
+api.tokenOrders = [];
+api.tokenOrdersFlat = {};
 
 api.log = (msg, data) => {
   if (config.debug) {
