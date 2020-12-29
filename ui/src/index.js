@@ -26,6 +26,12 @@ import Trollbox from './components/main/trollbox';
 import ACParams from './components/main/acParams';
 import TransactionDecoder from './components/main/txDecoder';
 import PushTransaction from './components/main/pushTx';
+import Tokens from './components/main/tokens';
+import TokensRichList from './components/main/tokensRichList';
+import TokensTransactions from './components/main/tokensTransactions';
+import TokensAddressView from './components/main/tokensAddressView';
+import TokensTransactionView from './components/main/tokensTransactionView';
+import TokensInfoView from './components/main/tokensInfoView';
 
 const router = (
   <Provider store={ store }>
@@ -108,6 +114,30 @@ const router = (
         <Route
           path="/transaction-push"
           component={ PushTransaction } />
+        <Route
+          path="/tokens"
+          component={ Tokens } />
+        <Route
+          path="/tokens/:chain"
+          component={ Tokens } />
+        <Route
+          path="/tokens/chain/:chain"
+          component={ Tokens } />
+        <Route
+          path="/tokens/richlist/:chain/:cctxid"
+          component={ TokensRichList } />
+        <Route
+          path="/tokens/transactions/:chain/:cctxid"
+          component={ TokensTransactions } />
+        <Route
+          path="/tokens/address/:chain/:cctxid/:address"
+          component={ TokensAddressView } />
+        <Route
+          path="/tokens/transaction/:chain/:cctxid/:address/:txid"
+          component={ TokensTransactionView } />
+        <Route
+          path="/tokens/contract/:chain/:cctxid"
+          component={ TokensInfoView } />
       </Route>
     </Router>
   </Provider>

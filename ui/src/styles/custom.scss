@@ -150,3 +150,49 @@ td {
 .text--ucfirst::first-letter {
   text-transform: uppercase;
 }
+
+.tokens-transactions-block {
+  .rt-td:nth-child(1),
+  .rt-td:nth-child(2) {
+    white-space: normal;
+    overflow: visible;
+    word-break: break-all;
+    text-align: left !important;
+  }
+
+  .rt-td:nth-child(4) {
+    text-align: center !important;
+  } 
+}
+
+.tokens-info-view {
+  width: 650px !important;
+  margin: 0 auto;
+  background: #233548;
+
+  tr {
+    td {
+      padding: 15px 25px;
+
+      &:first-child {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.tokens-transaction-view {
+  width: 710px !important;
+  margin: 0 auto;
+  background: #233548;
+
+  tr {
+    td {
+      padding: 15px 25px;
+
+      &:first-child {
+        font-weight: bold;
+      }
+    }
+  }
+}
