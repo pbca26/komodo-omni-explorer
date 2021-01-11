@@ -367,6 +367,15 @@ class Navigation extends React.Component {
                   </li>
                 </ul>
               </li>
+              <li>
+                <Link
+                  to="/tokens"
+                  className="navbar-link pointer"
+                  activeClassName="active">
+                  <span className="fa fa-bullseye"></span>
+                  <span className="menu-text">Tokens</span>
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

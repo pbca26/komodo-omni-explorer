@@ -13,6 +13,13 @@ import {
   STATS,
   MULTI_ADDRESS_BALANCE,
   TROLLBOX,
+  TOKENS_INFO,
+  TOKENS_INFO_SINGULAR,
+  TOKENS_RICHLIST,
+  TOKENS_TRANSACTIONS,
+  TOKENS_ADDRESS_BALANCE,
+  TOKENS_ADDRESS_TRANSACTIONS,
+  TOKENS_TRANSACTION,
 } from '../actions/storeType';
 
 const Main = (state = {
@@ -31,6 +38,13 @@ const Main = (state = {
   stats: null,
   balanceMulti: null,
   trollbox: null,
+  tokensInfo: null,
+  tokensInfoSingular: null,
+  tokensRichList: null,
+  tokensTransactions: null,
+  tokensAddressBalance: null,
+  tokensAddressTransactions: null,
+  tokensTransaction: null,
 }, action) => {
   switch (action.type) {
     case UPDATE:
@@ -108,6 +122,41 @@ const Main = (state = {
       return {
         ...state,
         trollbox: action.history,
+      };
+    case TOKENS_INFO:
+      return {
+        ...state,
+        tokensInfo: action.tokensInfo,
+      };
+    case TOKENS_INFO_SINGULAR:
+      return {
+        ...state,
+        tokensInfoSingular: action.tokensInfoSingular,
+      };
+    case TOKENS_RICHLIST:
+      return {
+        ...state,
+        tokensRichList: action.tokensRichList,
+      };
+    case TOKENS_TRANSACTIONS:
+      return {
+        ...state,
+        tokensTransactions: action.tokensTransactions,
+      };
+    case TOKENS_ADDRESS_BALANCE:
+      return {
+        ...state,
+        tokensAddressBalance: action.tokensAddressBalance,
+      };
+    case TOKENS_ADDRESS_TRANSACTIONS:
+      return {
+        ...state,
+        tokensAddressTransactions: action.tokensAddressTransactions,
+      };
+    case TOKENS_TRANSACTION:
+      return {
+        ...state,
+        tokensTransaction: action.tokensTransaction,
       };
     default:
       return state;
