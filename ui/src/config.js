@@ -3,10 +3,10 @@ import { explorerList } from 'agama-wallet-lib/src/coin-helpers';
 const _config = {
   lang: 'EN',
   dev: false,
-  //https: true,
-  //apiUrl: 'www.atomicexplorer.com',
-  https: false,
-  apiUrl: 'localhost:8115',
+  https: true,
+  apiUrl: 'www.atomicexplorer.com',
+  //https: false,
+  //apiUrl: 'localhost:8115',
   recaptchaKey: '6LdiinAUAAAAAAwLJjCrOVh-Ocj54Z3m3oX8mN9X',
   explorers: [
     'KMD',
@@ -55,8 +55,11 @@ const _config = {
     'ZEXO',
     'DION',
     'LABS',
-    'HUSH',
     'COMMOD',
+    'WSB',
+    'SOULJA',
+    'CLC',
+    'SPACE',
   ],
   extendExplorers: [
     'VOTE2019',
@@ -75,6 +78,10 @@ const _config = {
     morty: {
       outSize: 7.777,
       explorer: explorerList.MORTY,
+    },
+    wsb: {
+      outSize: 7.777,
+      explorer: explorerList.WSB,
     },
     coqui: {
       outSize: 0.1,
