@@ -619,7 +619,7 @@ export const tokensTransaction = (chain, cctxid, address, txid, currentState) =>
   return dispatch => {
     dispatch(tokensInfo());
     
-    return fetch(`${apiUrl}/tokens/address/transactions?chain=${chain}&cctxid=${cctxid}&address=${address}&txid=${txid}`, {
+    return fetch(address ? `${apiUrl}/tokens/address/transactions?chain=${chain}&cctxid=${cctxid}&address=${address}&txid=${txid}` : `${apiUrl}/tokens/address/transactions?chain=${chain}&cctxid=${cctxid}&txid=${txid}`, {
       method: 'GET',
     })
     .catch((error) => {

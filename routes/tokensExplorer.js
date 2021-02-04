@@ -542,10 +542,10 @@ module.exports = (api) => {
   });
 
   api.get('/tokens/address/transactions', (req, res, next) => {
-    if (!req.query.address) {
+    if (!req.query.address && !req.query.txid) {
       const retObj = {
         msg: 'error',
-        result: 'Missing address param',
+        result: 'Missing address/txid param',
       };
 
       res.set({ 'Content-Type': 'application/json' });
@@ -567,7 +567,7 @@ module.exports = (api) => {
       res.set({ 'Content-Type': 'application/json' });
       res.end(JSON.stringify(retObj));
     } else if (
-      req.query.address &&
+      (req.query.address || req.query.txid) &&
       req.query.chain &&
       req.query.cctxid
     ) {
@@ -580,9 +580,17 @@ module.exports = (api) => {
       if (addressCheck === true) {
         if (api.tokens[chain.toUpperCase()][ccTokenId]) {
           if (txid) {
+            const currentHeight = api.tokens[chain][Object.keys(api.tokens[chain])[0]].syncedHeight;
+            let tx = api.tokens[chain.toUpperCase()][ccTokenId].transactions[address] && api.tokens[chain.toUpperCase()][ccTokenId].transactions[address].filter(x => x.txid === txid).length ? api.tokens[chain.toUpperCase()][ccTokenId].transactions[address].filter(x => x.txid === txid)[0] : null;
+
+            if (tx && tx.height > 1) {
+              tx.confirmations = currentHeight - tx.height + 1;
+              tx.rawconfirmations = currentHeight - tx.height + 1;
+            }
+
             const retObj = {
               msg: 'success',
-              result: api.tokens[chain.toUpperCase()][ccTokenId].transactions[address] && api.tokens[chain.toUpperCase()][ccTokenId].transactions[address].filter(x => x.txid === txid).length ? api.tokens[chain.toUpperCase()][ccTokenId].transactions[address].filter(x => x.txid === txid)[0] : 'Transaction doesn\'t exist',
+              result: tx ? tx : 'Transaction doesn\'t exist',
             };
       
             res.set({ 'Content-Type': 'application/json' });
@@ -606,13 +614,31 @@ module.exports = (api) => {
           res.end(JSON.stringify(retObj));
         }
       } else {
-        const retObj = {
-          msg: 'error',
-          result: 'Incorrect smart chain address',
-        };
-  
-        res.set({ 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(retObj));
+        if (txid) {
+          const currentHeight = api.tokens[chain][Object.keys(api.tokens[chain])[0]].syncedHeight;
+          let tx = api.tokens[chain.toUpperCase()][ccTokenId].transactionsAll && api.tokens[chain.toUpperCase()][ccTokenId].transactionsAll[txid] ? api.tokens[chain.toUpperCase()][ccTokenId].transactionsAll[txid] : null;
+
+          if (tx && tx.height > 1) {
+            tx.confirmations = currentHeight - tx.height + 1;
+            tx.rawconfirmations = currentHeight - tx.height + 1;
+          }
+
+          const retObj = {
+            msg: 'success',
+            result: tx ? tx : 'Transaction doesn\'t exist',
+          };
+    
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        } else {
+          const retObj = {
+            msg: 'error',
+            result: 'Incorrect smart chain address',
+          };
+    
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(retObj));
+        }
       }
     }
   });
