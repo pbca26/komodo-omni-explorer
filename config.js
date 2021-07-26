@@ -216,6 +216,12 @@ const _config = {
       fee: 0.0001,
       outSize: 0.1,
     },
+    tokensv2: {
+      wif: '',
+      fee: 0.0001,
+      outSize: 0.1,
+      insightApi: 'https://explorer.komodoplatform.com:10000/tokensv2/api',
+    },
   },
   recaptchaKey: '',
   faucetCaptcha: false,
