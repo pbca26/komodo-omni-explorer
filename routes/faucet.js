@@ -17,6 +17,7 @@ const {
   addressVersionCheck,
 } = require('agama-wallet-lib/src/keys');
 const btcnetworks = require('agama-wallet-lib/src/bitcoinjs-networks');
+const insightWrapper = require('./insight-wrapper.js');
 
 let minRemaining = 0;
 
@@ -114,8 +115,15 @@ module.exports = (api) => {
           (async function() {
             const network = 'komodo';
             const outputAddress = req.query.address;
-            const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
-            const ecl = await api.ecl.getServer(coin);
+            const randomServer = config.electrumServers[coin] ? config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':') : '';
+            let ecl;
+            
+            if (config.faucet[coin].insightApi) {
+              ecl = insightWrapper;
+              ecl.setUrl(config.faucet[coin].insightApi);
+            } else {
+              ecl = await api.ecl.getServer(coin);
+            }
   
             const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
             const keys = {
@@ -123,7 +131,6 @@ module.exports = (api) => {
               pub: keyPair.getAddress(),
             };
             const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(keys.pub, config.komodoParams) : keys.pub;
-                      
             ecl.blockchainAddressListunspent(_address)
             .then((json) => {
               if (json &&
