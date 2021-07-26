@@ -17,7 +17,7 @@ const {
   addressVersionCheck,
 } = require('agama-wallet-lib/src/keys');
 const btcnetworks = require('agama-wallet-lib/src/bitcoinjs-networks');
-const insightWrapper = require('./insight-wrapper.js');
+const insightWrapper = require('./insightExplorerWrapper');
 
 let minRemaining = 0;
 
