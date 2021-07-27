@@ -188,26 +188,33 @@ module.exports = (api) => {
             request(options, (error, response, body) => {
               _remoteExplorersFinished[coin] = true;
 
-              if (response &&
-                  response.statusCode &&
-                  response.statusCode === 200) {
-                const {
-                  difficulty,
-                  blocks,
-                  connections,
-                } = JSON.parse(body).info;
-                let data = [{
-                  difficulty,
-                  connections,
-                  blockcount: blocks,
-                  supply: acSupply[coin.toUpperCase()] || '',
-                }];
-                result.push({
-                  coin: coin.toUpperCase(),
-                  data,
-                });
-                resolve();
-              } else {
+              try {
+                if (response &&
+                    response.statusCode &&
+                    response.statusCode === 200) {
+                  const {
+                    difficulty,
+                    blocks,
+                    connections,
+                  } = JSON.parse(body).info;
+                  let data = [{
+                    difficulty,
+                    connections,
+                    blockcount: blocks,
+                    supply: acSupply[coin.toUpperCase()] || '',
+                  }];
+                  result.push({
+                    coin: coin.toUpperCase(),
+                    data,
+                  });
+                  resolve();
+                } else {
+                  resolve({
+                    coin,
+                    data: 'unable to get summary',
+                  });
+                }
+              } catch (e) {
                 resolve({
                   coin,
                   data: 'unable to get summary',

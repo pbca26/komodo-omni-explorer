@@ -174,6 +174,9 @@ const _config = {
     COMMOD: {
       url: 'http://commod.explorer.dexstats.info/insight-api-komodo',
     },
+    MCL: {
+      url: 'http://mcl.explorer.dexstats.info/insight-api-komodo',
+    },
   },
   kv: {
     contentLimit: 300, // chars
@@ -212,6 +215,12 @@ const _config = {
       wif: '',
       fee: 0.0001,
       outSize: 0.1,
+    },
+    tokensv2: {
+      wif: '',
+      fee: 0.0001,
+      outSize: 0.1,
+      insightApi: 'https://explorer.komodoplatform.com:10000/tokensv2/api',
     },
   },
   recaptchaKey: '',

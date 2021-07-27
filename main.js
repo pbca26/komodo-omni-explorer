@@ -5,9 +5,17 @@ const path = require('path');
 const fs = require('fs');
 const compression = require('compression');
 //const datafeed = require('./routes/charts/datafeed');
+const rateLimit = require('express-rate-limit');
 
 let api = require('./routes/api');
 let app = express();
+
+app.set('trust proxy', 1);
+const limiter = rateLimit({
+  windowMs: 10,
+  max: 10
+});
+app.use(limiter);
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');

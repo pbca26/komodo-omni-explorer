@@ -195,7 +195,7 @@ class Faucet extends React.Component {
                   <div className="margin-top-md">
                     <a
                       target="_blank"
-                      href={ `${config.faucet[_coin].explorer}/tx/${this.state.result}` }>{ translate('FAUCET.OPEN_IN_EXPLORER') }</a>
+                      href={ `${config.faucet[_coin].explorer}/tx/${this.state.result}${config.faucet[_coin].isMultiExplorer ? '/' + _coin.toUpperCase() : ''}` }>{ translate('FAUCET.OPEN_IN_EXPLORER') }</a>
                   </div>
                 </div>
               }

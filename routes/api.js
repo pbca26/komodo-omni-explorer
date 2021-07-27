@@ -7,6 +7,13 @@ api.explorer = {
   summary: [],
 };
 
+api.confFileIndex = {};
+api.rpcConf = {};
+api.tokens = {};
+api.tokensMempool = {};
+api.tokenOrders = [];
+api.tokenOrdersFlat = {};
+
 api.log = (msg, data) => {
   if (config.debug) {
     if (data) {
@@ -21,6 +28,9 @@ api.log = (msg, data) => {
     }
   }
 }
+
+api = require('./electrumManager.js')(api);
+api.initElectrumManager();
 
 if (config.modules.explorer ||
     config.modules.faucet ||
@@ -48,6 +58,14 @@ if (config.modules.multisig) {
 }
 
 api = require('./electrumManager.js')(api);
+
+if (config.modules.tokensExplorer) {
+  api.assetChainPorts = require('./daemonPorts');
+  api = require('./coindPaths.js')(api);
+  api = require('./daemonCli.js')(api);
+  api = require('./tokensExplorer.js')(api);
+  api.initTokens();
+}
 
 api.start = () => {
   if (config.modules.explorer) {

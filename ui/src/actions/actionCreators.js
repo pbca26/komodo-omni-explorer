@@ -17,6 +17,13 @@ import {
   STATS,
   MULTI_ADDRESS_BALANCE,
   TROLLBOX,
+  TOKENS_INFO,
+  TOKENS_INFO_SINGULAR,
+  TOKENS_RICHLIST,
+  TOKENS_TRANSACTIONS,
+  TOKENS_ADDRESS_BALANCE,
+  TOKENS_ADDRESS_TRANSACTIONS,
+  TOKENS_TRANSACTION,
 } from './storeType';
 
 const apiUrl = `${config.https ? 'https' : 'http'}://${config.apiUrl}/api`;
@@ -468,4 +475,170 @@ export const pushTx = (coin, rawtx) => {
       resolve(json);
     });
   });
+}
+
+export const tokensInfo = (currentState) => {
+  return dispatch => {
+    return fetch(`${apiUrl}/tokens`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(tokensInfoState(json.result));
+
+      if (!currentState) {
+        dispatch(tokensInfoState(json.result));
+      }
+    });
+  }
+}
+
+export const tokensInfoState = (tokensInfo) => {
+  return {
+    type: TOKENS_INFO,
+    tokensInfo,
+  }
+}
+
+export const tokensRichList = (chain, cctxid, currentState) => {
+  return dispatch => {
+    dispatch(tokensInfo());
+
+    return fetch(`${apiUrl}/tokens/richlist?chain=${chain}&cctxid=${cctxid}`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(tokensRichListState(json.result));
+
+      if (!currentState) {
+        dispatch(tokensRichListState(json.result));
+      }
+    });
+  }
+}
+
+export const tokensRichListState = (tokensRichList) => {
+  return {
+    type: TOKENS_RICHLIST,
+    tokensRichList,
+  }
+}
+
+export const tokensTransactions = (chain, cctxid, currentState) => {
+  return dispatch => {
+    dispatch(tokensInfo());
+    
+    return fetch(`${apiUrl}/tokens/transactions?chain=${chain}&cctxid=${cctxid}`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(tokensTransactionsState(json.result));
+
+      if (!currentState) {
+        dispatch(tokensTransactionsState(json.result));
+      }
+    });
+  }
+}
+
+export const tokensTransactionsState = (tokensTransactions) => {
+  return {
+    type: TOKENS_TRANSACTIONS,
+    tokensTransactions,
+  }
+}
+
+export const tokensAddressTransactions = (chain, cctxid, address, currentState) => {
+  return dispatch => {
+    dispatch(tokensInfo());
+    
+    return fetch(`${apiUrl}/tokens/address/transactions?chain=${chain}&cctxid=${cctxid}&address=${address}`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(tokensAddressTransactionsState(json.result));
+
+      if (!currentState) {
+        dispatch(tokensAddressTransactionsState(json.result));
+      }
+    });
+  }
+}
+
+export const tokensAddressTransactionsState = (tokensAddressTransactions) => {
+  return {
+    type: TOKENS_ADDRESS_TRANSACTIONS,
+    tokensAddressTransactions,
+  }
+}
+
+export const tokensAddressBalance = (chain, cctxid, address, currentState) => {
+  return dispatch => {
+    dispatch(tokensInfo());
+    
+    return fetch(`${apiUrl}/tokens/address/balance?chain=${chain}&cctxid=${cctxid}&address=${address}`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(tokensAddressBalanceState(json.result));
+
+      if (!currentState) {
+        dispatch(tokensAddressBalanceState(json.result));
+      }
+    });
+  }
+}
+
+export const tokensAddressBalanceState = (tokensAddressBalance) => {
+  return {
+    type: TOKENS_ADDRESS_BALANCE,
+    tokensAddressBalance,
+  }
+}
+
+export const tokensTransaction = (chain, cctxid, address, txid, currentState) => {
+  return dispatch => {
+    dispatch(tokensInfo());
+    
+    return fetch(address ? `${apiUrl}/tokens/address/transactions?chain=${chain}&cctxid=${cctxid}&address=${address}&txid=${txid}` : `${apiUrl}/tokens/address/transactions?chain=${chain}&cctxid=${cctxid}&txid=${txid}`, {
+      method: 'GET',
+    })
+    .catch((error) => {
+      console.warn(error);
+    })
+    .then(response => response.json())
+    .then(json => {
+      dispatch(tokensTransactionState(json.result));
+
+      if (!currentState) {
+        dispatch(tokensTransactionState(json.result));
+      }
+    });
+  }
+}
+
+export const tokensTransactionState = (tokensTransaction) => {
+  return {
+    type: TOKENS_TRANSACTION,
+    tokensTransaction,
+  }
 }

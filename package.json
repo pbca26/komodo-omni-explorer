@@ -1,7 +1,7 @@
 {
   "name": "atomic-explorer",
   "productName": "Atomic Explorer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Atomic Explorer",
   "main": "main.js",
   "scripts": {
@@ -29,8 +29,10 @@
     "changelly_api": "git://github.com/pbca26/api-changelly.git",
     "coinselect": "github:bitcoinjs/coinselect",
     "compression": "^1.7.2",
-    "express": "^4.14.0",
+    "express": "^4.16.0",
     "fs-extra": "^7.0.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "express-rate-limit": "^5.1.3",
+    "fix-path": "^2.1.0"
   }
 }

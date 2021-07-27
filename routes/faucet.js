@@ -17,6 +17,7 @@ const {
   addressVersionCheck,
 } = require('agama-wallet-lib/src/keys');
 const btcnetworks = require('agama-wallet-lib/src/bitcoinjs-networks');
+const insightWrapper = require('./insightExplorerWrapper');
 
 let minRemaining = 0;
 
@@ -111,24 +112,24 @@ module.exports = (api) => {
         const addressCheck = api.checkFaucetOutAddress(coin, req.query.address);
 
         if (addressCheck === true) {
-          const network = 'komodo';
-          const outputAddress = req.query.address;
-          const randomServer = config.electrumServers[coin].serverList.length > 1 ? config.electrumServers[coin].serverList[getRandomIntInclusive(0, 1)].split(':') : config.electrumServers[coin].serverList[0].split(':');
-          const ecl = new electrumJSCore(randomServer[1], randomServer[0], 'tcp');
-
-          const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
-          const keys = {
-            priv: keyPair.toWIF(),
-            pub: keyPair.getAddress(),
-          };
-
-          ecl.connect();
-          api.addElectrumConnection(ecl);
-
           (async function() {
-            const serverProtocolVersion = await api.getServerVersion(ecl);
+            const outputAddress = req.query.address;
+            let ecl;
+            
+            if (config.faucet[coin].insightApi) {
+              ecl = insightWrapper;
+              ecl.setUrl(config.faucet[coin].insightApi);
+            } else {
+              ecl = await api.ecl.getServer(coin);
+            }
+  
+            const keyPair = bitcoin.ECPair.fromWIF(config.faucet[coin].wif, config.komodoParams);
+            const keys = {
+              priv: keyPair.toWIF(),
+              pub: keyPair.getAddress(),
+            };
             const _address = ecl.protocolVersion && Number(ecl.protocolVersion) >= 1.2 ? pubToElectrumScriptHashHex(keys.pub, config.komodoParams) : keys.pub;
-                      
+            
             ecl.blockchainAddressListunspent(_address)
             .then((json) => {
               if (json &&
@@ -150,17 +151,10 @@ module.exports = (api) => {
                   const _outSizes = config.faucet[coin].outSize;
 
                   for (let i = 0; i < _outSizes.length; i++) {
-                    if (i === _outSizes.length - 1) {
-                      targets.push({
-                        address: outputAddress,
-                        value: Math.floor(toSats(_outSizes[i]) + toSats(config.faucet[coin].fee)),
-                      });
-                    } else {
-                      targets.push({
-                        address: outputAddress,
-                        value: Math.floor(toSats(_outSizes[i])),
-                      });
-                    }
+                    targets.push({
+                      address: outputAddress,
+                      value: i === _outSizes.length - 1 ? Math.floor(toSats(_outSizes[i]) + toSats(config.faucet[coin].fee)) : Math.floor(toSats(_outSizes[i])),
+                    });
                   }
                 } else {
                   targets = [{
@@ -172,7 +166,7 @@ module.exports = (api) => {
                 api.log('targets');
                 api.log(targets);
 
-                let {
+                const {
                   fee,
                   inputs,
                   outputs,
@@ -210,15 +204,17 @@ module.exports = (api) => {
 
                   if (typeof config.faucet[coin].outSize === 'object') {
                     for (i = 0; i < outputs.length - 1; i++) {
-                      if (i === outputs.length - 2) {
-                        tx.addOutput(outputAddress, Number(outputs[i].value - toSats(config.faucet[coin].fee)));
-                      } else {
-                        tx.addOutput(outputAddress, Number(outputs[i].value));
-                      }
+                      tx.addOutput(
+                        outputAddress,
+                        i === outputs.length - 2 ? Number(outputs[i].value - toSats(config.faucet[coin].fee)) : Number(outputs[i].value)
+                      );
                     }
 
                     if (outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value > 1000) {
-                      tx.addOutput(keys.pub, Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value));
+                      tx.addOutput(
+                        keys.pub,
+                        Number(outputs[typeof config.faucet[coin].outSize === 'object' ? outputs.length - 1 : 1].value)
+                      );
                     }
                   } else {
                     tx.addOutput(outputAddress, Number(outputs[0].value - toSats(config.faucet[coin].fee)));
@@ -242,8 +238,6 @@ module.exports = (api) => {
 
                   ecl.blockchainTransactionBroadcast(rawtx)
                   .then((txid) => {
-                    ecl.close();
-
                     api.log(txid);
 
                     if (JSON.stringify(txid) &&
@@ -310,8 +304,6 @@ module.exports = (api) => {
                     }
                   });
                 } else {
-                  ecl.close();
-
                   const retObj = {
                     msg: 'error',
                     result: 'tx error',
@@ -321,8 +313,6 @@ module.exports = (api) => {
                   res.end(JSON.stringify(retObj));
                 }
               } else {
-                ecl.close();
-
                 const retObj = {
                   msg: 'error',
                   result: 'no valid utxo',

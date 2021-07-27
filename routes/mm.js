@@ -168,13 +168,14 @@ module.exports = (api) => {
   const _cmcRatesList = api.prepCMCRatesList();
 
   api.prepCGRatesList = () => {
-    const _rounds = 87;
+    const _rounds = 77;
     let _items = [];
 
     api.log(`cg rounds ${_rounds}`);
 
     for (let i = 0; i <= _rounds; i++) {
-      _items.push(`https://api.coingecko.com/api/v3/coins?page=${i + 1}`);
+      _items.push(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&price_change_percentage=24h,7d&page=${i + 1}`);
+      //_items.push(`https://api.coingecko.com/api/v3/coins?page=${i + 1}`);
     }
 
     return _items;
@@ -368,12 +369,12 @@ module.exports = (api) => {
               const _parsedBody = JSON.parse(cgData);
 
               for (let i = 0; i < _parsedBody.length; i++) {
-                api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].market_data.current_price.usd;
+                api.mm.extRates.coingecko[_parsedBody[i].symbol.toUpperCase()] = _parsedBody[i].current_price;
                 api.mm.extRates.priceChange[_parsedBody[i].symbol.toUpperCase()] = {
                   src: 'coingecko',
                   data: {
-                    percent_change_24h: Number(_parsedBody[i].market_data.price_change_percentage_24h),
-                    percent_change_7d: Number(_parsedBody[i].market_data.price_change_percentage_7d),
+                    percent_change_24h: Number(_parsedBody[i].price_change_percentage_24h_in_currency),
+                    percent_change_7d: Number(_parsedBody[i].price_change_percentage_7d_in_currency),
                   },
                 };
                 if (api.mm.extRates.priceChangeAll.coinmarketcap[_parsedBody[i].symbol.toUpperCase()]) {
@@ -383,7 +384,7 @@ module.exports = (api) => {
               }
               api.parseExtRates();
             } catch (e) {
-              console.log(e)
+              console.log(e);
               api.log(`unable to retrieve cg rate ${_cgRatesList[i]}`);
             }
           });
@@ -1146,38 +1147,36 @@ module.exports = (api) => {
   });
 
   api.getBTCElectrumFees = () => {
-    const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
-    const ecl = new electrumJSCore(_randomServer[1], _randomServer[0], 'tcp');
-    let _btcFeeEstimates = [];
+    (async function() { 
+      const _randomServer = config.electrumServersExtend.btc.serverList[getRandomIntInclusive(0, config.electrumServersExtend.btc.serverList.length - 1)].split(':');
+      const ecl = await api.ecl.getServer('btc');
+      let _btcFeeEstimates = [];
 
-    api.log(`btc fees server ${_randomServer.join(':')}`);
+      api.log(`btc fees server ${_randomServer.join(':')}`);
+      
+      Promise.all(btcFeeBlocks.map((coin, index) => {
+        return new Promise((resolve, reject) => {
+          ecl.blockchainEstimatefee(index + 1)
+          .then((json) => {
+            resolve(true);
 
-    ecl.connect();
-    api.addElectrumConnection(ecl);
-    
-    Promise.all(btcFeeBlocks.map((coin, index) => {
-      return new Promise((resolve, reject) => {
-        ecl.blockchainEstimatefee(index + 1)
-        .then((json) => {
-          resolve(true);
-
-          if (json > 0) {
-            _btcFeeEstimates.push(Math.floor(toSats(json / 1024)));
-          }
+            if (json > 0) {
+              _btcFeeEstimates.push(Math.floor(toSats(json / 1024)));
+            }
+          });
         });
-      });
-    }))
-    .then(result => {
-      ecl.close();
-      api.mm.updatedAt = Date.now();
+      }))
+      .then(result => {
+        api.mm.updatedAt = Date.now();
 
-      if (result &&
-          result.length) {
-        api.mm.btcFees.electrum = _btcFeeEstimates;
-      } else {
-        api.mm.btcFees.electrum = 'error';
-      }
-    });
+        if (result &&
+            result.length) {
+          api.mm.btcFees.electrum = _btcFeeEstimates;
+        } else {
+          api.mm.btcFees.electrum = 'error';
+        }
+      });
+    })();
   };
 
   api.getBTCFees = () => {
