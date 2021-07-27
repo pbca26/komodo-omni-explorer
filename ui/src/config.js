@@ -95,6 +95,11 @@ const _config = {
       outSize: 0.1,
       explorer: explorerList.PRLPAY,
     },
+    tokensv2: {
+      outSize: 7.77,
+      explorer: 'http://explorer.komodoplatform.com:20000',
+      isMultiExplorer: true,
+    },
   },
 };
 
