@@ -2608,6 +2608,13 @@
     "rpcport": 27486
   },
   {
+    "coin": "GRMS",
+    "asset": "GRMS",
+    "fname": "GRMS",
+    "txversion": 4,
+    "rpcport": 21687
+  },
+  {
     "coin": "ZILLA",
     "asset": "ZILLA",
     "fname": "ChainZilla",
