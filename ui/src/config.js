@@ -60,6 +60,7 @@ const _config = {
     'SOULJA',
     'CLC',
     'SPACE',
+    'GRMS',
   ],
   extendExplorers: [
     'VOTE2019',
