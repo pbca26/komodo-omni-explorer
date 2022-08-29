@@ -1,169 +1,73 @@
-# Komodo-omni-explorer
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+</p>
 
-Atomic explorer
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-## Requirements
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-Node >= 7.x
+## Description
 
-## Setup
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-Configure your IP and port in config.js
+## Installation
 
-Run npm install
-
-## How to run
-
-npm start
-
-## How to build UI
-
+```bash
+$ npm install
 ```
-cd ui
-change ui/config to desired ip and port
-npm run build
+
+## Running the app
+
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
 ```
 
-built ui version will be copied to /public folder
+## Test
 
-## URL navigation
+```bash
+# unit tests
+$ npm run test
 
-#### KMD rewards
-http://atomicexplorer.com/#/rewards
+# e2e tests
+$ npm run test:e2e
 
-http://atomicexplorer.com/#/rewards/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+# test coverage
+$ npm run test:cov
+```
 
-#### KMD rewards calc
-http://atomicexplorer.com/#/rewards-calc
+## Support
 
-#### Explorers list summary
-http://atomicexplorer.com/#/summary
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-#### Balance
-http://atomicexplorer.com/#/search
+## Stay in touch
 
-http://atomicexplorer.com/#/search/RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
+- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-#### BarterDEX charts
-http://atomicexplorer.com/#/charts
+## License
 
-http://atomicexplorer.com/#/charts/KMD-BTC
-
-#### BarterDEX prices
-http://atomicexplorer.com/#/prices
-
-http://atomicexplorer.com/#/prices/KMD-BTC
-
-#### BarterDEX orderbooks
-http://atomicexplorer.com/#/books
-
-http://atomicexplorer.com/#/books/KMD-BTC
-
-#### BarterDEX trades feed
-http://atomicexplorer.com/#/trades
-
-#### BarterDEX coins list
-http://atomicexplorer.com/#/coins
-
-#### Faucet
-http://atomicexplorer.com/#/faucet
-
-For standalone SPV faucet please visit the following repo https://github.com/pbca26/atomicexplorer-faucet
-
-#### Agama Web wallet
-http://atomicexplorer.com/wallet (hosted)
-
-http://atomicexplorer.com/wallet.zip (standalone)
-
-#### Price ticker widget
-http://atomicexplorer.com/ticker
-
-How to use ticker https://github.com/pbca26/komodo-omni-explorer/wiki/Ticker-widget
-
-## API
-#### GET /api/explorer/search?term=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
-
-params: txid or pub address
-
-#### GET /api/kmd/rewards?address=RNdqHx26GWy9bk8MtmH1UiXjQcXE4RKK2P
-
-params: pub address
-
-#### GET /api/explorer/overview
-
-params: none required
-
-#### GET /api/explorer/summary
-
-params: none required
-
-#### GET /api/explorer/supply
-
-params (optional): coin e.g. DEX
-
-#### GET /api/mm/prices
-
-params (optional): currency e.g. All or USD, coin e.g. BTC
-
-#### GET /api/mm/prices/v2
-
-params (optional):
-
-currency, all or one of the currencies listed below e.g. USD
-
-coins is a string containing comma separated coin tickers e.g. btc,kmd,dex
-
-coins string can contain one or more coin tickers
-
-if no params are provided a current KMD price in USD equivalent is returned
-
-pricechange=true include price changes
-
-examples:
-https://www.atomicexplorer.com/api/mm/prices/v2
-
-https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=eur
-
-https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all
-
-https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all&pricechange=true
-
-https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all&src=coinmarketcap
-
-https://www.atomicexplorer.com/api/mm/prices/v2?coins=kmd,mco,btc,omg,vrsc,zrx,coqui&currency=all&src=digitalprice
-
-list of available fiat currencies:
-https://raw.githubusercontent.com/pbca26/komodo-omni-explorer/dev/routes/fiat.js
-
-prices are updated every 300s
-
-#### GET /api/mm/orderbook
-
-params: none required
-
-#### GET /api/mm/trades
-
-params: none required
-
-#### GET /api/btc/fees
-
-BTC fees, combined result from Electrum servers and bitcoinfees.earn.com
-
-params: none required
-
-#### GET /api/eth/gasprice
-
-Current ETH gas prices
-
-params: none required
-
-#### GET /api/rates/kmd
-
-Pricing from cryptocompare.com
-
-params (optional): currency e.g. All or USD
-
-#### GET /api/ticker
-#### GET /api/ticker?coin=DEX
-
-params (optional): coin
+Nest is [MIT licensed](LICENSE).
