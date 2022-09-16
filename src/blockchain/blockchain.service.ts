@@ -1,5 +1,5 @@
 import InsightExplorersList from './insight.explorers.list';
-import fetch from 'node-fetch';
+import { fetchQuery } from '../helpers/fetch';
 import { ICoins } from 'src/types';
 
 abstract class BlockchainService {
@@ -27,43 +27,23 @@ export class InsightExplorerConnector extends BlockchainService {
   }
 
   private async get(endpoint: string, postData?: any) {
-    const opts: any = {};
-  
-    if (postData) {
-      opts.body = JSON.stringify(postData);
-      opts.headers = new fetch.Headers();
-      opts.headers.append('Content-Type', 'application/json');
-      opts.headers.append('Content-Length', opts.body.length);
-      opts.method = 'POST';
-    }
-  
-    const response = await fetch(`${this.url}${endpoint}`, opts);
-    const isJson = response.headers.get('Content-Type').includes('application/json');
-  
-    const body = isJson ? await response.json() : await response.text();
-  
-    if (!response.ok) {
-      //throw new Error(body);
-      console.warn({err: body});
-    }
-  
-    return body;
+    return fetchQuery(`${this.url}${endpoint}`, postData);
   };
 
   getInfo(): Promise<any> { 
-    return this.get('/status?q=getInfo');
+    return this.get('status?q=getInfo');
   }
 
   getLastBlocks(limit: number): Promise<any> {
-    return this.get(`/blocks?limit=${limit}`);
+    return this.get(`blocks?limit=${limit}`);
   }
 
   getBlockTransactions(blockhash: string): Promise<any> {
-    return this.get(`/txs?block=${blockhash}`);
+    return this.get(`txs?block=${blockhash}`);
   }
 
   getTransactionsHistory(address: string): Promise<any> {
-    return this.get(`/txs?address=${address}`);
+    return this.get(`txs?address=${address}`);
   }
 
   getUtxos(address: string): Promise<any> {

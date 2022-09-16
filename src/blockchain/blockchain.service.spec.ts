@@ -1,4 +1,4 @@
-/*import { InsightExplorerConnector } from './blockchain.service';
+import { InsightExplorerConnector } from './blockchain.service';
 import { ICoin } from '../types';
 
 describe('InsightExplorerConnector', () => {
@@ -130,6 +130,7 @@ describe('InsightExplorerConnector', () => {
 
   it('should request broadcastTransaction', async() => {
     const res = await connector.broadcastTransaction('123');
-    expect(res).toBe('TX decode failed. Code:-22');
+    //expect(res).toBe('TX decode failed. Code:-22');
+    expect(res).toStrictEqual({'txid': '0deb264cb7c72b03c0d6b2e413473d6039b09703b9489d46d326f8a738d20fd4'});
   });
-});*/
+});
