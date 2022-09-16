@@ -1,6 +1,7 @@
 import InsightExplorersList from './insight.explorers.list';
 import { fetchQuery } from '../helpers/fetch';
 import { ICoins } from 'src/types';
+import log from '../helpers/logger';
 
 abstract class BlockchainService {
   coin: ICoins;
@@ -10,7 +11,7 @@ abstract class BlockchainService {
   }
 
   getCoin(): void {
-    console.log(this.coin);
+    log(this.coin);
   }
 
   abstract getInfo(): any;

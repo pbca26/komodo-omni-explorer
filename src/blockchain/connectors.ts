@@ -1,5 +1,6 @@
 import { InsightExplorerConnector } from './blockchain.service';
 import { ICoins } from 'src/types';
+import log from '../helpers/logger';
 
 abstract class ConnectorsAbsctract {
   coins: ICoins[];
@@ -21,12 +22,12 @@ export class Connectors extends ConnectorsAbsctract {
     super();
     this.coins = [];
     this._connections = [];
-    console.warn('connectors init');
+    log('connectors init');
   }
 
   /*initConnections() {
     for (let i = 0; i < this.coins.length; i++) {
-      console.warn('init explorer api', this.coins[i]);
+      log('init explorer api', this.coins[i]);
       this.coins.push(this.coins[i]);
       this._connectors[this.coins[i]] = new InsightExplorerConnector(this.coins[i]);
     }

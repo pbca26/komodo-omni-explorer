@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import fetchMocksList from './fetch.mocks.list';
+import log from './logger';
 
 export const fetchQuery = async(url: string, postData?: any) => {
   const testUrl = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/.test(url);
@@ -7,11 +8,11 @@ export const fetchQuery = async(url: string, postData?: any) => {
   if (!testUrl) throw new Error('url malformed');
 
   const opts: any = {};
-  console.log('fetchQuery', url);
+  log('fetchQuery', url);
 
   // a dirty hack to mock fetch requests
   if (process.env.NODE_ENV === 'JEST' && fetchMocksList.hasOwnProperty(url)) {
-    console.log('JEST fetch load from cache', url);
+    log('JEST fetch load from cache', url);
     return fetchMocksList[url];
   }
 
@@ -30,7 +31,7 @@ export const fetchQuery = async(url: string, postData?: any) => {
 
   if (!response.ok) {
     //throw new Error(body);
-    console.warn({err: body});
+    log({err: body});
   }
 
   return body;
