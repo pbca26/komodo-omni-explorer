@@ -12,6 +12,10 @@ if (process.env.NODE_ENV === 'JEST') {
   const kmdInsightTx = require('./fetch.mocks/insight.tx.json');
   const kmdInsightBestBlockhash = require('./fetch.mocks/insight.bestblockhash.json');
   const kmdInsightTxSend = require('./fetch.mocks/insight.tx.send.json');
+  const kmdInsightAddressUtxoMisc = require('./fetch.mocks/insight.address.utxo.misc.json');
+  const btcFeesBasic = require('./fetch.mocks/btc.fees.basic.json');
+  const btcFeesAll = require('./fetch.mocks/btc.fees.all.json');
+  const ethFeesAll = require('./fetch.mocks/eth.fees.json');
 
   fetchMocksList = {
     'https://kmd.explorer.dexstats.info/insight-api-komodo/status?q=getInfo': kmdInsightGetInfo,
@@ -23,6 +27,11 @@ if (process.env.NODE_ENV === 'JEST') {
     'https://kmd.explorer.dexstats.info/insight-api-komodo/tx/5778a8ab87737b29b2eae69a799293d1f67c7e4fc3c9b5b231d11ef939fee949': kmdInsightTx,
     'https://kmd.explorer.dexstats.info/insight-api-komodo/status?q=getBestBlockHash': kmdInsightBestBlockhash,
     'https://kmd.explorer.dexstats.info/insight-api-komodo/tx/send': kmdInsightTxSend,
+    // misc service
+    'https://kmd.explorer.dexstats.info/insight-api-komodo/addr/RLC9orGGyti3fHuEKMPUxTa2dCFSXWQdft/utxo': kmdInsightAddressUtxoMisc,
+    'https://bitcoinfees.earn.com/api/v1/fees/recommended': btcFeesBasic,
+    'https://bitcoinfees.earn.com/api/v1/fees/list': btcFeesAll,
+    'https://ethgasstation.info/json/ethgasAPI.json': ethFeesAll,
     // kmd rewards service
     'https://kmd.explorer.dexstats.info/insight-api-komodo/tx/0dd9cf84e8bf9f750a10c7215cc3920b3ee4fb09aaba4d9ba79b02f91763cac3': kmdRewardsTx,
     'https://kmd.explorer.dexstats.info/insight-api-komodo/block/0deb264cb7c72b03c0d6b2e413473d6039b09703b9489d46d326f8a738d20fd4': kmdRewardsBlock,
