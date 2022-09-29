@@ -16,6 +16,10 @@ if (process.env.NODE_ENV === 'JEST') {
   const btcFeesBasic = require('./fetch.mocks/btc.fees.basic.json');
   const btcFeesAll = require('./fetch.mocks/btc.fees.all.json');
   const ethFeesAll = require('./fetch.mocks/eth.fees.json');
+  const kmdInsightBlockTxsOverview1 = require('./fetch.mocks/insight.block.txs.overview1.json');
+  const kmdInsightBlockTxsOverview2 = require('./fetch.mocks/insight.block.txs.overview2.json');
+  const kmdRewardsBlock = require('./fetch.mocks/insight.block.rewards.json');
+  const kmdRewardsTx = require('./fetch.mocks/insight.tx.rewards.json');
 
   fetchMocksList = {
     'https://kmd.explorer.dexstats.info/insight-api-komodo/status?q=getInfo': kmdInsightGetInfo,
@@ -32,6 +36,9 @@ if (process.env.NODE_ENV === 'JEST') {
     'https://bitcoinfees.earn.com/api/v1/fees/recommended': btcFeesBasic,
     'https://bitcoinfees.earn.com/api/v1/fees/list': btcFeesAll,
     'https://ethgasstation.info/json/ethgasAPI.json': ethFeesAll,
+    // overview service
+    'https://kmd.explorer.dexstats.info/insight-api-komodo/txs?block=0aa3c25a68de26d6e03abf88f22c5d7dacd0a6fe48f1393bb4e904429d4c40d0': kmdInsightBlockTxsOverview1,
+    'https://kmd.explorer.dexstats.info/insight-api-komodo/txs?block=00000000a62ba1ac09e4d95ee4743e2a591597fd36be56000524c5ae9e4c3330': kmdInsightBlockTxsOverview2,
     // kmd rewards service
     'https://kmd.explorer.dexstats.info/insight-api-komodo/tx/0dd9cf84e8bf9f750a10c7215cc3920b3ee4fb09aaba4d9ba79b02f91763cac3': kmdRewardsTx,
     'https://kmd.explorer.dexstats.info/insight-api-komodo/block/0deb264cb7c72b03c0d6b2e413473d6039b09703b9489d46d326f8a738d20fd4': kmdRewardsBlock,
