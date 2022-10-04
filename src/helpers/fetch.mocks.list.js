@@ -20,6 +20,8 @@ if (process.env.NODE_ENV === 'JEST') {
   const kmdInsightBlockTxsOverview2 = require('./fetch.mocks/insight.block.txs.overview2.json');
   const kmdRewardsBlock = require('./fetch.mocks/insight.block.rewards.json');
   const kmdRewardsTx = require('./fetch.mocks/insight.tx.rewards.json');
+  const coingeckoPricesPage1 = require('./fetch.mocks/coingecko.prices.page1.json');
+  const cryptocomparePrices = require('./fetch.mocks/cryptocompare.prices.json');
   const searchKmdInsightAddressHistory = require('./fetch.mocks/insight.address.history.search.json');
 
   fetchMocksList = {
@@ -43,6 +45,9 @@ if (process.env.NODE_ENV === 'JEST') {
     // kmd rewards service
     'https://kmd.explorer.dexstats.info/insight-api-komodo/tx/0dd9cf84e8bf9f750a10c7215cc3920b3ee4fb09aaba4d9ba79b02f91763cac3': kmdRewardsTx,
     'https://kmd.explorer.dexstats.info/insight-api-komodo/block/0deb264cb7c72b03c0d6b2e413473d6039b09703b9489d46d326f8a738d20fd4': kmdRewardsBlock,
+    // prices service
+    'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&price_change_percentage=24h,7d&page=1': coingeckoPricesPage1,
+    'https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,AUD,BRL,GBP,BGN,CAD,HRK,CZK,CNY,DKK,EUR,HKD,HUF,INR,IDR,ILS,JPY,KRW,MYR,MXN,NZD,NOK,PHP,PLN,RON,RUB,SGD,ZAR,SEK,CHF,THB,TRY,USD': cryptocomparePrices,
     // search service 
     'https://kmd.explorer.dexstats.info/insight-api-komodo/txs?address=RLC9orGGyti3fHuEKMPUxTa2dCFSXWQdft': searchKmdInsightAddressHistory,
   };
