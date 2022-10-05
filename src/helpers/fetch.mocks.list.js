@@ -20,6 +20,9 @@ if (process.env.NODE_ENV === 'JEST') {
   const kmdInsightBlockTxsOverview2 = require('./fetch.mocks/insight.block.txs.overview2.json');
   const kmdRewardsBlock = require('./fetch.mocks/insight.block.rewards.json');
   const kmdRewardsTx = require('./fetch.mocks/insight.tx.rewards.json');
+  const faucetAxoUtxo = require('./fetch.mocks/insight.faucet.axo.utxo.json');
+  const faucetKoinUtxo = require('./fetch.mocks/insight.faucet.koin.utxo.json');
+  const faucetPgtUtxo = require('./fetch.mocks/insight.faucet.pgt.utxo.json');
   const coingeckoPricesPage1 = require('./fetch.mocks/coingecko.prices.page1.json');
   const cryptocomparePrices = require('./fetch.mocks/cryptocompare.prices.json');
   const searchKmdInsightAddressHistory = require('./fetch.mocks/insight.address.history.search.json');
@@ -45,6 +48,19 @@ if (process.env.NODE_ENV === 'JEST') {
     // kmd rewards service
     'https://kmd.explorer.dexstats.info/insight-api-komodo/tx/0dd9cf84e8bf9f750a10c7215cc3920b3ee4fb09aaba4d9ba79b02f91763cac3': kmdRewardsTx,
     'https://kmd.explorer.dexstats.info/insight-api-komodo/block/0deb264cb7c72b03c0d6b2e413473d6039b09703b9489d46d326f8a738d20fd4': kmdRewardsBlock,
+    // faucet service
+    'https://axo.explorer.dexstats.info/insight-api-komodo/addr/RG6xr5YTV4GcDB2iLTDP9zC64cvtNj6ze4/utxo': faucetAxoUtxo,
+    'https://koin.explorer.dexstats.info/insight-api-komodo/addr/RG6xr5YTV4GcDB2iLTDP9zC64cvtNj6ze4/utxo': faucetKoinUtxo,
+    'https://mesh.explorer.dexstats.info/insight-api-komodo/addr/RG6xr5YTV4GcDB2iLTDP9zC64cvtNj6ze4/utxo': faucetKoinUtxo,
+    'https://clc.explorer.dexstats.info/insight-api-komodo/addr/RG6xr5YTV4GcDB2iLTDP9zC64cvtNj6ze4/utxo': faucetKoinUtxo,
+    'https://dex.explorer.dexstats.info/insight-api-komodo/addr/RG6xr5YTV4GcDB2iLTDP9zC64cvtNj6ze4/utxo': faucetKoinUtxo,
+    'https://pgt.explorer.dexstats.info/insight-api-komodo/addr/RG6xr5YTV4GcDB2iLTDP9zC64cvtNj6ze4/utxo': faucetPgtUtxo,
+    'https://axo.explorer.dexstats.info/insight-api-komodo/tx/send': kmdInsightTxSend,
+    'https://koin.explorer.dexstats.info/insight-api-komodo/tx/send': kmdInsightTxSend,
+    'https://pgt.explorer.dexstats.info/insight-api-komodo/tx/send': kmdInsightTxSend,
+    'https://mesh.explorer.dexstats.info/insight-api-komodo/tx/send': kmdInsightTxSend,
+    'https://clc.explorer.dexstats.info/insight-api-komodo/tx/send': kmdInsightTxSend,
+    'https://dex.explorer.dexstats.info/insight-api-komodo/tx/send': kmdInsightTxSend,
     // prices service
     'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&price_change_percentage=24h,7d&page=1': coingeckoPricesPage1,
     'https://min-api.cryptocompare.com/data/price?fsym=KMD&tsyms=BTC,AUD,BRL,GBP,BGN,CAD,HRK,CZK,CNY,DKK,EUR,HKD,HUF,INR,IDR,ILS,JPY,KRW,MYR,MXN,NZD,NOK,PHP,PLN,RON,RUB,SGD,ZAR,SEK,CHF,THB,TRY,USD': cryptocomparePrices,
