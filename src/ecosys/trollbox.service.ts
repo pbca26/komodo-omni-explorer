@@ -18,6 +18,7 @@ import {
   IBroadcastRes
 } from '../types';
 import { ITransformedTransaction, ITransactionOutputTargets, IUtxoList } from '../types';
+import { WebsocketGateway } from '../websocket.gateway';
 import { SharedService } from './shared.service';
 import log from '../helpers/logger';
 
@@ -31,6 +32,7 @@ export class TrollboxService {
     private connectorsService: ConnectorsService,
     private blockchainCore: BlockchainCore,
     private sharedService: SharedService,
+    private websocketGateway: WebsocketGateway,
   ) {
     this.storage = new FileStorage('trollbox');
     this._messages = {};
@@ -132,6 +134,10 @@ export class TrollboxService {
       this._messages[coin].push(trollboxMessage);
       this.storage.write(this._messages);
       this.sharedService.put('trollbox', this._messages);
+      this.websocketGateway.broadcast('trollbox', {
+        type: 'patch',
+        data: trollboxMessage,
+      });
     }
 
     return {

@@ -4,6 +4,7 @@ import { sortByDate } from '../helpers/sort';
 import { ConnectorsService } from '../blockchain/connectors.service';
 import { FileStorage } from './storage/storage';
 import { IOverview, IOverviewTransaction, IInsightBlockRes, ICoins } from '../types';
+import { WebsocketGateway } from '../websocket.gateway';
 import { SharedService } from './shared.service';
 import log from '../helpers/logger';
 
@@ -21,6 +22,7 @@ export class SyncOverviewService {
   constructor(
     private readonly connectorsService: ConnectorsService,
     private readonly sharedService: SharedService,
+    private websocketGateway: WebsocketGateway
   ) {
     this.coins = [];
     this.overviewData = [];
@@ -65,6 +67,10 @@ export class SyncOverviewService {
       for (let i = 0; i < this.coins.length; i++) {
         const txs = await this.getLastExplorerTransactions(this.coins[i]);
         this.formatOverviewData(txs);
+        this.websocketGateway.broadcast('overview', {
+          type: 'patch',
+          data: txs,
+        });
       }
       this.storage.write(this.overviewData);
       this.sharedService.put('overview', this.overviewData);
@@ -85,6 +91,10 @@ export class SyncOverviewService {
       const txs = await this.getLastExplorerTransactions(coin);
       this.formatOverviewData(txs);
       log('fire patch overview');
+      this.websocketGateway.broadcast('overview', {
+        type: 'patch',
+        data: txs,
+      });
     }
     this.setupSyncTimeout();
     this.storage.write(this.overviewData);

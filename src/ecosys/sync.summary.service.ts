@@ -3,6 +3,7 @@ import { ConnectorsService } from '../blockchain/connectors.service';
 import { CoinSupplyService } from './coin.supply.service';
 import { FileStorage } from './storage/storage';
 import { ISummary, IInsightNetworkInfo, ICoins } from '../types';
+import { WebsocketGateway } from '../websocket.gateway';
 import { SharedService } from './shared.service';
 import log from '../helpers/logger';
 
@@ -19,6 +20,7 @@ export class SyncSummaryService {
     private readonly connectorsService: ConnectorsService,
     private readonly coinSupplyService: CoinSupplyService,
     private readonly sharedService: SharedService,
+    private websocketGateway: WebsocketGateway,
   ) {
     this.coins = [];
     this.summaryData = [];
@@ -67,6 +69,13 @@ export class SyncSummaryService {
     } else {
       this.summaryData = this.summaryData.concat(summary);
     }
+    this.websocketGateway.broadcast('summary', {
+      type: 'patch',
+      data: {
+        coin,
+        summary,
+      }
+    });
   }
   
   async init(coins: ICoins[]) {

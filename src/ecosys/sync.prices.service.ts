@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { fetchQuery } from '../helpers/fetch';
 import { FileStorage } from './storage/storage';
 import { ICoinGeckoPriceInfo, IPrice, ICryptoComparePrices, IFiatTickers } from '../types';
+import { WebsocketGateway } from '../websocket.gateway';
 import { SharedService } from './shared.service';
 import log from '../helpers/logger';
 
@@ -15,6 +16,7 @@ export class SyncPricesService {
 
   constructor(
     private readonly sharedService: SharedService,
+    private websocketGateway: WebsocketGateway
   ) {
     this._prices = {};
     this.storage = new FileStorage('prices');
@@ -90,6 +92,7 @@ export class SyncPricesService {
       }
       this.storage.write(this._prices);
       this.sharedService.put('prices', this._prices);
+      this.emitPriceChangeToWS(coinsUpdated);
       if (i < CG_PAGES_MAX_LOOKUP) await this.delay(5);
     }
   }
@@ -109,6 +112,41 @@ export class SyncPricesService {
       KMD: prices,
       BTC: btcPrices,
     };
+  }
+
+  private async emitPriceChangeToWS(coinsUpdated: string[]) {
+    const wsClients = this.websocketGateway.getClients('price');
+    log(JSON.stringify(wsClients, null, 2));
+
+    for (let i = 0; i < wsClients.length; i++) {
+      const res = {};
+      const [_coinTickers, _fiatTickers] = wsClients[i].event.filter;
+      const coinTickers = _coinTickers.split(',').length ? _coinTickers.split(',') : [_coinTickers];
+      const fiatTickers = _fiatTickers.split(',').length ? _fiatTickers.split(',') : [_fiatTickers];
+
+      log('coinTickers', coinTickers)
+      log('fiatTickers', fiatTickers)
+
+      for (let a = 0; a < coinTickers.length; a++) {
+        if (coinsUpdated.indexOf(coinTickers[a]) > -1) {
+          res[coinTickers[a]] = {};
+
+          for (let b = 0; b < fiatTickers.length; b++) {
+            res[coinTickers[a]] = {
+              ...res[coinTickers[a]],
+              [fiatTickers[b]]: this._prices[coinTickers[a]][fiatTickers[b]],
+            };
+          }
+        }
+      }
+
+      log(Object.keys(res).length)
+      if (Object.keys(res).length) {
+        this.websocketGateway.emitSubscribed(wsClients[i].socketId, 'price', res);
+      }
+
+      log(JSON.stringify(res, null, 2));
+    }
   }
 
   async init() {
