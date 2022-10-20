@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "Komodo Ecosystem Explorer v2"', () => {
+      expect(appController.getHello()).toBe('Komodo Ecosystem Explorer v2');
     });
   });
 });
